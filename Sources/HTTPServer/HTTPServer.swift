@@ -27,7 +27,7 @@ public class Server {
     }
 
     public func start() throws {
-        try socket.listen(at: host, port: port)
+        try socket.bind(to: host, port: port).listen()
         log(event: .info, message: "\(self) started")
         async.task {
             while true {
@@ -45,8 +45,7 @@ public class Server {
     }
 
     func handleError (_ error: Error) {
-        if let error = error as? SocketError,
-            error.number == 54 || error.number == 104 {
+        if let error = error as? SocketError, error.number == ECONNRESET {
             /* connection reset by peer */
             /* do nothing, it's fine. */
         } else {
@@ -58,7 +57,7 @@ public class Server {
         do {
             var bytes = [UInt8](repeating: 0, count: bufferSize)
             while true {
-                let read = try client.read(to: &bytes, count: bytes.count)
+                let read = try client.receive(to: &bytes)
                 guard read > 0 else {
                     break
                 }
@@ -68,7 +67,7 @@ public class Server {
                 let response = provideResponse(for: request)
                 Log.debug("<< \(response.status.rawValue)")
 
-                _ = try client.write(bytes: response.bytes)
+                _ = try client.send(bytes: response.bytes)
             }
         } catch {
             handleError(error)
