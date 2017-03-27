@@ -17,8 +17,10 @@ extension Server {
     // reflection: primitive types: Int, String, Double.
     public func route<A: Primitive>(method: HTTPRequestType, url: String, handler: @escaping (A) -> Any) {
         createRoute(method: method, url: url) { _, values in
-            guard let value = values.first?.value, let param = A(param: value) else {
-                return HTTPResponse(status: .badRequest)
+            // TODO: handle single value properly
+            guard let value = values.first?.value as? String,
+                let param = A(param: value) else {
+                    return HTTPResponse(status: .badRequest)
             }
             return handler(param)
         }
@@ -27,8 +29,10 @@ extension Server {
     // reflection: request data + primitive types: Int, String, Double.
     public func route<A: Primitive>(method: HTTPRequestType, url: String, handler: @escaping (HTTPRequest, A) -> Any) {
         createRoute(method: method, url: url) { request, values in
-            guard let value = values.first?.value, let param = A(param: value) else {
-                return HTTPResponse(status: .badRequest)
+            // TODO: handle single value properly
+            guard let value = values.first?.value as? String,
+                let param = A(param: value) else {
+                    return HTTPResponse(status: .badRequest)
             }
             return handler(request, param)
         }
@@ -55,23 +59,31 @@ extension Server {
     }
 
     @inline(__always)
-    func createRoute(method: HTTPRequestType, url: String, handler: @escaping (HTTPRequest, [String : String]) -> Any) {
+    func createRoute(method: HTTPRequestType, url: String, handler: @escaping (HTTPRequest, [String : Any]) -> Any) {
         let urlMatcher = URLParamMatcher(url)
-        let urlEncodedMatcher = QueryParamMatcher()
 
         let wrapper: RequestHandler = { request in
-            var values = urlMatcher.values(from: request.url)
+            var values = urlMatcher.match(from: request.url)
 
-            let query: String?
+            let queryValues: [String: Any]?
+
             if method == .get {
-                query = request.queryString
-            } else if let body = request.body {
-                query = body
+                queryValues = QueryParser.parse(urlEncoded: request.queryString)
+            } else if let body = request.rawBody,
+                let contentType = request.contentType {
+                    switch contentType {
+                    case .urlEncoded:
+                        let query = String(cString: body + [0])
+                        queryValues = QueryParser.parse(urlEncoded: query)
+                    case .json:
+                        queryValues = QueryParser.parse(json: body)
+                    }
             } else {
-                query = nil
+                queryValues = nil
             }
-            if let query = query {
-                for (key, value) in urlEncodedMatcher.values(from: query) {
+
+            if let queryValues = queryValues {
+                for (key, value) in queryValues {
                     values[key] = value
                 }
             }

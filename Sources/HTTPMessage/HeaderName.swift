@@ -8,6 +8,7 @@ struct HeaderName: Hashable {
     static let keepAlive = HeaderName("keep-alive")
     static let connection = HeaderName("connection")
     static let contentLength = HeaderName("content-length")
+    static let contentType = HeaderName("content-type")
     static let transferEncoding = HeaderName("transfer-encoding")
 
     let name: ArraySlice<UInt8>

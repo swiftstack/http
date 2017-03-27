@@ -2,6 +2,7 @@ import Foundation
 
 public struct URLParamMatcher {
     let params: [(name: String, index: Int)]
+
     public init(_ url: String) {
         let components = url.components(separatedBy: "/")
         var params: [(name: String, index: Int)] = []
@@ -14,8 +15,8 @@ public struct URLParamMatcher {
         self.params = params
     }
 
-    public func values(from url: String) -> [String : String] {
-        var dictionary: [String : String] = [:]
+    public func match(from url: String) -> [String : Any] {
+        var dictionary: [String : Any] = [:]
 
         let unicode = url.unicodeScalars
         var startIndex = unicode.index(after: unicode.startIndex)

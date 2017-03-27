@@ -15,6 +15,13 @@ enum HTTPRequestError: Error {
     case unexpectedEnd
 }
 
+extension HTTPRequest {
+    public enum ContentType: String {
+        case urlEncoded = "application/x-www-form-urlencoded"
+        case json = "application/json"
+    }
+}
+
 public class HTTPRequest {
     public private(set) var type: HTTPRequestType
     public private(set) var version: HTTPVersion
@@ -47,39 +54,50 @@ public class HTTPRequest {
         return [UInt8](self._url)
     }()
 
+    // MARK: Headers
+
+    @inline(__always)
+    fileprivate func getHeaderValueIfPresent(_ name: HeaderName) -> String? {
+        guard let value = self._headers[name] else {
+            return nil
+        }
+        return String(slice: value)
+    }
+
+    @inline(__always)
+    fileprivate func getHeaderValueIfPresent(_ name: HeaderName) -> Int? {
+        guard let value: String = getHeaderValueIfPresent(name) else {
+            return nil
+        }
+        return Int(value)
+    }
+
     public lazy var host: String? = { [unowned self] in
-        guard let host = self._headers[HeaderName.host] else { return nil }
-        return String(slice: host)
+        return self.getHeaderValueIfPresent(HeaderName.host)
     }()
 
     public lazy var userAgent: String? = { [unowned self] in
-        guard let userAgent = self._headers[HeaderName.userAgent] else { return nil }
-        return String(slice: userAgent)
+        return self.getHeaderValueIfPresent(HeaderName.userAgent)
     }()
 
     public lazy var accept: String? = { [unowned self] in
-        guard let accept = self._headers[HeaderName.accept] else { return nil }
-        return String(slice: accept)
+        return self.getHeaderValueIfPresent(HeaderName.accept)
     }()
 
     public lazy var acceptLanguage: String? = { [unowned self] in
-        guard let acceptLanguage = self._headers[HeaderName.acceptLanguage] else { return nil }
-        return String(slice: acceptLanguage)
+        return self.getHeaderValueIfPresent(HeaderName.acceptLanguage)
     }()
 
     public lazy var acceptEncoding: String? = { [unowned self] in
-        guard let acceptEncoding = self._headers[HeaderName.acceptEncoding] else { return nil }
-        return String(slice: acceptEncoding)
+        return self.getHeaderValueIfPresent(HeaderName.acceptEncoding)
     }()
 
     public lazy var acceptCharset: String? = { [unowned self] in
-        guard let acceptCharset = self._headers[HeaderName.acceptCharset] else { return nil }
-        return String(slice: acceptCharset)
+        return self.getHeaderValueIfPresent(HeaderName.acceptCharset)
     }()
 
     public lazy var keepAlive: Int? = { [unowned self] in
-        guard let keepAlive = self._headers[HeaderName.keepAlive] else { return nil }
-        return Int(String(slice: keepAlive))
+        return self.getHeaderValueIfPresent(HeaderName.keepAlive)
     }()
 
     public lazy var shouldKeepAlive: Bool = { [unowned self] in
@@ -90,21 +108,26 @@ public class HTTPRequest {
     }()
 
     public lazy var connection: String? = { [unowned self] in
-        guard let connection = self._headers[HeaderName.connection] else { return nil }
-        return String(slice: connection)
+        return self.getHeaderValueIfPresent(HeaderName.connection)
+    }()
+
+    public lazy var contentType: ContentType? = { [unowned self] in
+        guard let contentType: String =
+            self.getHeaderValueIfPresent(HeaderName.contentType) else {
+                return nil
+        }
+        return ContentType(rawValue: contentType)
     }()
 
     public lazy var contentLength: Int? = { [unowned self] in
-        guard let contentLength = self._headers[HeaderName.contentLength] else { return nil }
-        return Int(String(slice: contentLength))
+        return self.getHeaderValueIfPresent(HeaderName.contentLength)
     }()
 
     public lazy var transferEncoding: String? = { [unowned self] in
-        guard let transferEncoding = self._headers[HeaderName.transferEncoding] else { return nil }
-        return String(slice: transferEncoding)
+        return self.getHeaderValueIfPresent(HeaderName.transferEncoding)
     }()
 
-    public lazy var bodyBytes: [UInt8]? = { [unowned self] in
+    public lazy var rawBody: [UInt8]? = { [unowned self] in
         if self._body.count == 0 {
             return nil
         }
@@ -116,7 +139,7 @@ public class HTTPRequest {
     }()
 
     public lazy var body: String? = { [unowned self] in
-        guard let bytes = self.bodyBytes else {
+        guard let bytes = self.rawBody else {
             return nil
         }
         return String(cString: bytes + [0])
