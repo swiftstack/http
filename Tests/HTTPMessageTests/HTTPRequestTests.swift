@@ -39,306 +39,304 @@ struct HTTPRequests {
     static let chunkedJunkAfterBody = "\(chunkedBody)wuut"
 }
 
-class HTTPRequestTests: XCTestCase {
-    func testHTTPRequestType() {
+class HTTPRequestTests: TestCase {
+    func testType() {
         let httpRequest: HTTPType = .request
-        XCTAssertEqual(httpRequest, .request)
+        assertEqual(httpRequest, .request)
     }
 
-    func testHTTPResponseType() {
-        let httpResponse: HTTPType = .response
-        XCTAssertEqual(httpResponse, .response)
-    }
-
-//    func testHTTPRequest() {
-//        let httpRequest = HTTPRequest()
-//        XCTAssertNotNil(httpRequest)
-//    }
-
-    func testHTTPRequestFromBytes() throws {
+    func testFromBytes() throws {
         let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleGet))
-        XCTAssertNotNil(httpRequest)
+        assertNotNil(httpRequest)
     }
 
-    func testHTTPRequestDelete() throws {
+    func testDelete() throws {
         let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleDelete))
-        XCTAssertNotNil(httpRequest)
-        XCTAssertEqual(httpRequest.type, HTTPRequestType.delete)
+        assertNotNil(httpRequest)
+        assertEqual(httpRequest.type, HTTPRequestType.delete)
     }
 
-    func testHTTPRequestGet() throws {
+    func testGet() throws {
         let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleGet))
-        XCTAssertNotNil(httpRequest)
-        XCTAssertEqual(httpRequest.type, HTTPRequestType.get)
+        assertNotNil(httpRequest)
+        assertEqual(httpRequest.type, HTTPRequestType.get)
     }
 
-    func testHTTPRequestHead() throws {
+    func testLazy() throws {
+        let httpRequest = try HTTPRequest()
+        assertNotNil(httpRequest)
+        httpRequest.userAgent = "wut"
+        assertEqual(httpRequest.type, HTTPRequestType.get)
+        assertEqual(httpRequest.userAgent, "wut")
+    }
+
+    func testHead() throws {
         let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleHead))
-        XCTAssertNotNil(httpRequest)
-        XCTAssertEqual(httpRequest.type, HTTPRequestType.head)
+        assertNotNil(httpRequest)
+        assertEqual(httpRequest.type, HTTPRequestType.head)
     }
 
-    func testHTTPRequestPost() throws {
+    func testPost() throws {
         let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simplePost))
-        XCTAssertNotNil(httpRequest)
-        XCTAssertEqual(httpRequest.type, HTTPRequestType.post)
+        assertNotNil(httpRequest)
+        assertEqual(httpRequest.type, HTTPRequestType.post)
     }
 
-    func testHTTPRequestPut() throws {
+    func testPut() throws {
         let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simplePut))
-        XCTAssertNotNil(httpRequest)
-        XCTAssertEqual(httpRequest.type, HTTPRequestType.put)
+        assertNotNil(httpRequest)
+        assertEqual(httpRequest.type, HTTPRequestType.put)
     }
 
     func testHTTPVersion() throws {
         let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleGet))
-        XCTAssertNotNil(httpRequest)
-        XCTAssertEqual(httpRequest.version, HTTPVersion.oneOne)
+        assertNotNil(httpRequest)
+        assertEqual(httpRequest.version, HTTPVersion.oneOne)
 
     }
 
-    func testHTTPRequestUrl() throws {
+    func testUrl() throws {
         let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleGet))
-        XCTAssertNotNil(httpRequest)
-        XCTAssertNotNil(httpRequest.url)
-        XCTAssertEqual(httpRequest.urlBytes, ASCII("/test"))
+        assertNotNil(httpRequest)
+        assertNotNil(httpRequest.url)
+        assertEqual(httpRequest.urlBytes, ASCII("/test"))
     }
 
-    func testHTTPRequestUrlString() throws {
+    func testUrlString() throws {
         let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleGet))
-        XCTAssertNotNil(httpRequest)
-        XCTAssertNotNil(httpRequest.url)
-        XCTAssertEqual(httpRequest.url, "/test")
+        assertNotNil(httpRequest)
+        assertNotNil(httpRequest.url)
+        assertEqual(httpRequest.url, "/test")
     }
 
     func testInvalidRequest() throws {
         do {
             _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleOnlyMethod))
-            XCTFail("this method should throw")
+            fail("this method should throw")
         } catch let error as HTTPRequestError {
-            XCTAssertEqual(error, .invalidRequest)
+            assertEqual(error, .invalidRequest)
         }
     }
 
     func testInvalidRequest2() throws {
         do {
             _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleOnlyMethod2))
-            XCTFail("this method should throw")
+            fail("this method should throw")
         } catch let error as HTTPRequestError {
-            XCTAssertEqual(error, .invalidRequest)
+            assertEqual(error, .invalidRequest)
         }
     }
 
-    func testInvalidHTTPRequestMethod() throws {
+    func testInvalidMethod() throws {
         do {
             _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleInvalidMethod))
-            XCTFail("this method should throw")
+            fail("this method should throw")
         } catch let error as HTTPRequestError {
-            XCTAssertEqual(error, .invalidMethod)
+            assertEqual(error, .invalidMethod)
         }
     }
 
-    func testInvalidHTTPRequestVersion() throws {
+    func testInvalidVersion() throws {
         do {
             _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleInvalidVersion))
-            XCTFail("this method should throw")
+            fail("this method should throw")
         } catch let error as HTTPRequestError {
-            XCTAssertEqual(error, .invalidVersion)
+            assertEqual(error, .invalidVersion)
         }
     }
 
-    func testInvalidHTTPRequestVersion2() throws {
+    func testInvalidVersion2() throws {
         do {
             _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleInvalidVersion2))
-            XCTFail("this method should throw")
+            fail("this method should throw")
         } catch let error as HTTPRequestError {
-            XCTAssertEqual(error, .invalidRequest)
+            assertEqual(error, .invalidRequest)
         }
     }
 
-    func testInvalidHTTPRequestVersion3() throws {
+    func testInvalidVersion3() throws {
         do {
             _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleInvalidVersion3))
-            XCTFail("this method should throw")
+            fail("this method should throw")
         } catch let error as HTTPRequestError {
-            XCTAssertEqual(error, .unexpectedEnd)
+            assertEqual(error, .unexpectedEnd)
         }
     }
 
-    func testInvalidHTTPRequestVersion4() throws {
+    func testInvalidVersion4() throws {
         do {
             _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleInvalidVersion4))
-            XCTFail("this method should throw")
+            fail("this method should throw")
         } catch let error as HTTPRequestError {
-            XCTAssertEqual(error, .invalidVersion)
+            assertEqual(error, .invalidVersion)
         }
     }
 
-    func testInvalidHTTPRequestEnd() throws {
+    func testInvalidEnd() throws {
         do {
             _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleInvalidEnd))
-            XCTFail("this method should throw")
+            fail("this method should throw")
         } catch let error as HTTPRequestError {
-            XCTAssertEqual(error, .unexpectedEnd)
+            assertEqual(error, .unexpectedEnd)
         }
     }
 
-    func testHTTPRequestHostHeader() throws {
+    func testHostHeader() throws {
         let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.hostHeader))
-        XCTAssertNotNil(request.host)
+        assertNotNil(request.host)
         if let host = request.host {
-            XCTAssertEqual(host, "0.0.0.0=5000")
+            assertEqual(host, "0.0.0.0=5000")
         }
     }
 
-    func testHTTPRequestUserAgentHeader() throws {
+    func testUserAgentHeader() throws {
         let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.userAgentHeader))
-        XCTAssertNotNil(request.userAgent)
+        assertNotNil(request.userAgent)
         if let userAgent = request.userAgent {
-            XCTAssertEqual(userAgent, "Mozilla/5.0")
+            assertEqual(userAgent, "Mozilla/5.0")
         }
     }
 
-    func testHTTPRequestTwoHeaders() throws {
+    func testTwoHeaders() throws {
         let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.twoHeaders))
-        XCTAssertNotNil(request.host)
-        XCTAssertNotNil(request.userAgent)
+        assertNotNil(request.host)
+        assertNotNil(request.userAgent)
         if let userAgent = request.userAgent, let host = request.host {
-            XCTAssertEqual(host, "0.0.0.0=5000")
-            XCTAssertEqual(userAgent, "Mozilla/5.0")
+            assertEqual(host, "0.0.0.0=5000")
+            assertEqual(userAgent, "Mozilla/5.0")
         }
     }
 
-    func testHTTPRequestTwoHeadersOptionalSpaces() throws {
+    func testTwoHeadersOptionalSpaces() throws {
         let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.twoHeadersOptionalSpaces))
-        XCTAssertNotNil(request.host)
-        XCTAssertNotNil(request.userAgent)
+        assertNotNil(request.host)
+        assertNotNil(request.userAgent)
         if let userAgent = request.userAgent, let host = request.host {
-            XCTAssertEqual(host, "0.0.0.0=5000")
-            XCTAssertEqual(userAgent, "Mozilla/5.0")
+            assertEqual(host, "0.0.0.0=5000")
+            assertEqual(userAgent, "Mozilla/5.0")
         }
     }
 
     func testInvalidHeaderColon() throws {
         do {
             _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.invalidHeaderColon))
-            XCTFail("this method should throw")
+            fail("this method should throw")
         } catch let error as HTTPRequestError {
-            XCTAssertEqual(error, .invalidHeaderName)
+            assertEqual(error, .invalidHeaderName)
         }
     }
 
     func testInvalidHeaderName() throws {
         do {
             _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.invalidHeaderName))
-            XCTFail("this method should throw")
+            fail("this method should throw")
         } catch let error as HTTPRequestError {
-            XCTAssertEqual(error, .invalidHeaderName)
+            assertEqual(error, .invalidHeaderName)
         }
     }
 
     func testInvalidHeaderEnd() throws {
         do {
             _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.invalidHeaderEnd))
-            XCTFail("this method should throw")
+            fail("this method should throw")
         } catch let error as HTTPRequestError {
-            XCTAssertEqual(error, .unexpectedEnd)
+            assertEqual(error, .unexpectedEnd)
         }
     }
 
     func testHeaderName() {
         let headerName = HeaderName(extendedGraphemeClusterLiteral: "Host")
         let headerName2 = HeaderName(unicodeScalarLiteral: "Host")
-        XCTAssertEqual(headerName, headerName2)
+        assertEqual(headerName, headerName2)
     }
 
     func testUnexpectedEnd() throws {
         do {
             _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.unexpectedEnd))
-            XCTFail("this method should throw")
+            fail("this method should throw")
         } catch let error as HTTPRequestError {
-            XCTAssertEqual(error, .unexpectedEnd)
+            assertEqual(error, .unexpectedEnd)
         }
     }
 
     func testContentType() throws {
         do {
             let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.contentType))
-            XCTAssertNotNil(request.contentType)
+            assertNotNil(request.contentType)
             if let contentType = request.contentType {
-                XCTAssertEqual(contentType, .urlEncoded)
+                assertEqual(contentType, .urlEncoded)
             }
         } catch let error as HTTPRequestError {
-            XCTFail("unexpected exception: \(error)")
+            fail("unexpected exception: \(error)")
         }
     }
 
     func testContentLenght() throws {
         do {
             let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.contentLength))
-            XCTAssertNotNil(request.contentLength)
+            assertNotNil(request.contentLength)
             if let contentLength = request.contentLength {
-                XCTAssertEqual(contentLength, 5)
+                assertEqual(contentLength, 5)
             }
         } catch let error as HTTPRequestError {
-            XCTFail("unexpected exception: \(error)")
+            fail("unexpected exception: \(error)")
         }
     }
 
     func testKeepAliveFalse() throws {
         let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.keepAliveFalse))
-        XCTAssertFalse(request.shouldKeepAlive)
+        assertFalse(request.shouldKeepAlive)
     }
 
     func testKeepAliveTrue() throws {
         let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.keepAliveTrue))
-        XCTAssertTrue(request.shouldKeepAlive)
-        XCTAssertEqual(request.keepAlive, 300)
+        assertTrue(request.shouldKeepAlive)
+        assertEqual(request.keepAlive, 300)
     }
 
     func testTransferEncodingChunked() throws {
         let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.transferEncodingChunked))
-        XCTAssertEqual(request.transferEncoding?.lowercased(), "chunked")
+        assertEqual(request.transferEncoding?.lowercased(), "chunked")
     }
 
     func testChunkedBody() throws {
         let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.chunkedBody))
-        XCTAssertEqual(request.body, "Hello")
+        assertEqual(request.body, "Hello")
     }
 
     func testChunkedBodyInvalidSizeSeparator() throws {
         do {
             _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.chunkedBodyInvalidSizeSeparator))
-            XCTFail("this method should throw")
+            fail("this method should throw")
         } catch let error as HTTPRequestError {
-            XCTAssertEqual(error, .invalidRequest)
+            assertEqual(error, .invalidRequest)
         }
     }
 
     func testChunkedBodyNoSizeSeparator() throws {
         do {
             _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.chunkedBodyNoSizeSeparator))
-            XCTFail("this method should throw")
+            fail("this method should throw")
         } catch let error as HTTPRequestError {
-            XCTAssertEqual(error, .invalidRequest)
+            assertEqual(error, .invalidRequest)
         }
     }
 
     func testChunkedInvalidBody() throws {
         do {
             _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.chunkedInvalidBody))
-            XCTFail("this method should throw")
+            fail("this method should throw")
         } catch let error as HTTPRequestError {
-            XCTAssertEqual(error, .unexpectedEnd)
+            assertEqual(error, .unexpectedEnd)
         }
     }
 
     func testChunkedJunkAfterBody() throws {
         do {
             _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.chunkedJunkAfterBody))
-            XCTFail("this method should throw")
+            fail("this method should throw")
         } catch let error as HTTPRequestError {
-            XCTAssertEqual(error, .unexpectedEnd)
+            assertEqual(error, .unexpectedEnd)
         }
     }
 }

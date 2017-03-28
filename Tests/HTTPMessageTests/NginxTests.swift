@@ -11,35 +11,35 @@ struct NginxHTTPRequests {
         "POST /post_chunked_all_your_base HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n1e\r\nall your base are belong to us\r\n0\r\n\r\n"
 }
 
-class NginxTests: XCTestCase {
+class NginxTests: TestCase {
     func testCurlGet() throws {
         let httpRequest = try HTTPRequest(fromBytes: ASCII(NginxHTTPRequests.curlGet))
-        XCTAssertNotNil(httpRequest.url)
-        XCTAssertEqual(httpRequest.urlBytes, ASCII("/test"))
-        XCTAssertEqual(httpRequest.url, "/test")
-        XCTAssertEqual(httpRequest.version, .oneOne)
-        XCTAssertEqual(httpRequest.host, "0.0.0.0=5000")
+        assertNotNil(httpRequest.url)
+        assertEqual(httpRequest.urlBytes, ASCII("/test"))
+        assertEqual(httpRequest.url, "/test")
+        assertEqual(httpRequest.version, .oneOne)
+        assertEqual(httpRequest.host, "0.0.0.0=5000")
     }
 
     func testFirefoxGet() throws {
         let httpRequest = try HTTPRequest(fromBytes: ASCII(NginxHTTPRequests.firefoxGet))
-        XCTAssertNotNil(httpRequest.url)
-        XCTAssertEqual(httpRequest.url, "/favicon.ico")
-        XCTAssertEqual(httpRequest.urlBytes, ASCII("/favicon.ico"))
-        XCTAssertEqual(httpRequest.version, .oneOne)
-        XCTAssertEqual(httpRequest.host, "0.0.0.0=5000")
-        XCTAssertEqual(httpRequest.userAgent, "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008061015 Firefox/3.0")
-        XCTAssertEqual(httpRequest.accept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-        XCTAssertEqual(httpRequest.acceptLanguage, "en-us,en;q=0.5")
-        XCTAssertEqual(httpRequest.acceptEncoding, "gzip,deflate")
-        XCTAssertEqual(httpRequest.acceptCharset, "ISO-8859-1,utf-8;q=0.7,*;q=0.7")
-        XCTAssertEqual(httpRequest.keepAlive, 300)
-        XCTAssertEqual(httpRequest.connection, "keep-alive")
+        assertNotNil(httpRequest.url)
+        assertEqual(httpRequest.url, "/favicon.ico")
+        assertEqual(httpRequest.urlBytes, ASCII("/favicon.ico"))
+        assertEqual(httpRequest.version, .oneOne)
+        assertEqual(httpRequest.host, "0.0.0.0=5000")
+        assertEqual(httpRequest.userAgent, "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008061015 Firefox/3.0")
+        assertEqual(httpRequest.accept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+        assertEqual(httpRequest.acceptLanguage, "en-us,en;q=0.5")
+        assertEqual(httpRequest.acceptEncoding, "gzip,deflate")
+        assertEqual(httpRequest.acceptCharset, "ISO-8859-1,utf-8;q=0.7,*;q=0.7")
+        assertEqual(httpRequest.keepAlive, 300)
+        assertEqual(httpRequest.connection, "keep-alive")
     }
 
     func testChankedAllYourBase() throws {
         let httpRequest = try HTTPRequest(fromBytes: ASCII(NginxHTTPRequests.chankedAllYourBase))
-        XCTAssertEqual(httpRequest.transferEncoding, "chunked")
-        XCTAssertEqual(httpRequest.body, "all your base are belong to us")
+        assertEqual(httpRequest.transferEncoding, "chunked")
+        assertEqual(httpRequest.body, "all your base are belong to us")
     }
 }
