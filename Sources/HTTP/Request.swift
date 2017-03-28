@@ -1,4 +1,4 @@
-public enum HTTPRequestType {
+public enum RequestType {
     case get
     case head
     case post
@@ -7,7 +7,7 @@ public enum HTTPRequestType {
     case options
 }
 
-enum HTTPRequestError: Error {
+enum RequestError: Error {
     case invalidRequest
     case invalidMethod
     case invalidVersion
@@ -15,16 +15,16 @@ enum HTTPRequestError: Error {
     case unexpectedEnd
 }
 
-extension HTTPRequest {
+extension Request {
     public enum ContentType: String {
         case urlEncoded = "application/x-www-form-urlencoded"
         case json = "application/json"
     }
 }
 
-public class HTTPRequest {
-    public private(set) var type: HTTPRequestType
-    public private(set) var version: HTTPVersion
+public class Request {
+    public private(set) var type: RequestType
+    public private(set) var version: Version
     private var _url: ArraySlice<UInt8>
     private var _headers: [HeaderName: ArraySlice<UInt8>] = [:]
     private var _cookies: [ArraySlice<UInt8>] = []
@@ -146,40 +146,40 @@ public class HTTPRequest {
     }()
 
     public init(fromBytes bytes: [UInt8]) throws {
-        guard let typeEnd = bytes.index(of: Character.whitespace) else { throw HTTPRequestError.invalidRequest }
-        self.type = try HTTPRequestType(slice: bytes[bytes.startIndex..<typeEnd])
+        guard let typeEnd = bytes.index(of: Character.whitespace) else { throw RequestError.invalidRequest }
+        self.type = try RequestType(slice: bytes[bytes.startIndex..<typeEnd])
 
         let queryStart = bytes.index(after: typeEnd)
         let queryArea = bytes[queryStart..<bytes.endIndex]
-        guard let queryEnd = queryArea.index(of: Character.whitespace) else { throw HTTPRequestError.invalidRequest }
+        guard let queryEnd = queryArea.index(of: Character.whitespace) else { throw RequestError.invalidRequest }
         self._url = bytes[queryStart..<queryEnd]
 
         let httpStart = bytes.index(after: queryEnd)
-        let httpEnd = bytes.index(httpStart, offsetBy: HTTPConstants.versionLength)
-        guard httpEnd < bytes.endIndex else { throw HTTPRequestError.unexpectedEnd }
+        let httpEnd = bytes.index(httpStart, offsetBy: Constants.versionLength)
+        guard httpEnd < bytes.endIndex else { throw RequestError.unexpectedEnd }
         let httpArea = bytes[httpStart..<bytes.endIndex]
-        self.version = try HTTPVersion(slice: httpArea)
+        self.version = try Version(slice: httpArea)
 
         let requestLineEnd = httpEnd.advanced(by: 2)
-        guard requestLineEnd < bytes.endIndex else { throw HTTPRequestError.unexpectedEnd }
-        guard bytes[httpEnd..<requestLineEnd].elementsEqual(HTTPConstants.lineEnd) else {
-            throw HTTPRequestError.invalidRequest
+        guard requestLineEnd < bytes.endIndex else { throw RequestError.unexpectedEnd }
+        guard bytes[httpEnd..<requestLineEnd].elementsEqual(Constants.lineEnd) else {
+            throw RequestError.invalidRequest
         }
 
 
         var nextLine = requestLineEnd
-        let maximumHeaderStart = bytes.endIndex.advanced(by: -HTTPConstants.minimumHeaderLength)
+        let maximumHeaderStart = bytes.endIndex.advanced(by: -Constants.minimumHeaderLength)
         while nextLine < maximumHeaderStart
             && bytes[nextLine] != Character.cr
             && bytes[nextLine.advanced(by: 1)] != Character.lf {
 
                 guard let colonIndex = bytes[nextLine..<bytes.endIndex].index(of: Character.colon) else {
-                    throw HTTPRequestError.invalidHeaderName
+                    throw RequestError.invalidHeaderName
                 }
                 let headerName = try HeaderName(validatingCharacters: bytes[nextLine..<colonIndex])
 
                 guard let lineEnd = bytes[colonIndex..<bytes.endIndex].index(of: Character.cr) else {
-                    throw HTTPRequestError.unexpectedEnd
+                    throw RequestError.unexpectedEnd
                 }
 
                 let headerValueStart = bytes[colonIndex.advanced(by: 1)] == Character.whitespace ?
@@ -198,7 +198,7 @@ public class HTTPRequest {
         guard nextLine <= bytes.endIndex.advanced(by: -2),
             bytes[nextLine] == Character.cr,
             bytes[nextLine.advanced(by: 1)] == Character.lf else {
-            throw HTTPRequestError.unexpectedEnd
+            throw RequestError.unexpectedEnd
         }
         nextLine = nextLine.advanced(by: 2)
 
@@ -212,7 +212,7 @@ public class HTTPRequest {
 
             let endIndex = nextLine.advanced(by: length)
             guard endIndex <= bytes.endIndex else {
-                throw HTTPRequestError.unexpectedEnd
+                throw RequestError.unexpectedEnd
             }
             self._body.append(bytes[nextLine..<endIndex])
             size = endIndex
@@ -221,22 +221,22 @@ public class HTTPRequest {
 
         // 2. chunked
         guard let transferEncoding = self._headers[HeaderName.transferEncoding],
-            transferEncoding.contains(other: HTTPConstants.chunked.slice) else {
+            transferEncoding.contains(other: Constants.chunked.slice) else {
             size = nextLine
             return
         }
 
         self._body = []
-        let maximumChunkedStart = bytes.endIndex.advanced(by: -HTTPConstants.minimumChunkLength)
+        let maximumChunkedStart = bytes.endIndex.advanced(by: -Constants.minimumChunkLength)
         while nextLine <= maximumChunkedStart {
             guard let sizeEnd = bytes[nextLine..<bytes.endIndex].index(of: Character.cr),
                 bytes[sizeEnd.advanced(by: 1)] == Character.lf else {
-                throw HTTPRequestError.invalidRequest
+                throw RequestError.invalidRequest
             }
 
             let hexSize = String(slice: bytes[nextLine..<sizeEnd])
             guard let size = Int(hexSize, radix: 16) else {
-                throw HTTPRequestError.invalidRequest
+                throw RequestError.invalidRequest
             }
             guard size > 0 else {
                 nextLine = sizeEnd.advanced(by: 2)
@@ -245,7 +245,7 @@ public class HTTPRequest {
             let messageStart = sizeEnd.advanced(by: 2)
             let messageEnd = messageStart.advanced(by: size)
             guard messageEnd < bytes.endIndex else {
-                throw HTTPRequestError.unexpectedEnd
+                throw RequestError.unexpectedEnd
             }
 
             self._body.append(bytes[messageStart..<messageEnd])
@@ -254,8 +254,8 @@ public class HTTPRequest {
 
         guard nextLine == bytes.endIndex || (
             nextLine == bytes.endIndex.advanced(by: -2) &&
-                bytes.suffix(from: nextLine).elementsEqual(HTTPConstants.lineEnd)) else {
-                    throw HTTPRequestError.unexpectedEnd
+                bytes.suffix(from: nextLine).elementsEqual(Constants.lineEnd)) else {
+                    throw RequestError.unexpectedEnd
         }
         self.size = nextLine
     }

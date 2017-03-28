@@ -1,4 +1,4 @@
-public enum HTTPResponseStatus: String {
+public enum ResponseStatus: String {
     case ok
     case moved
     case badRequest
@@ -7,17 +7,17 @@ public enum HTTPResponseStatus: String {
     case internalServerError
 }
 
-public enum HTTPResponseContentType {
+public enum ResponseContentType {
     case text
     case html
     case stream
     case json
 }
 
-public struct HTTPResponse {
-    public var status: HTTPResponseStatus = .ok
-    public var version: HTTPVersion = .oneOne
-    public var contentType: HTTPResponseContentType?
+public struct Response {
+    public var status: ResponseStatus = .ok
+    public var version: Version = .oneOne
+    public var contentType: ResponseContentType?
     public var body: [UInt8]? = nil
     public var contentLength: Int {
         return body?.count ?? 0
@@ -26,11 +26,11 @@ public struct HTTPResponse {
     public init() {
     }
 
-    public init(status: HTTPResponseStatus) {
+    public init(status: ResponseStatus) {
         self.status = status
     }
 
-    public init(version: HTTPVersion) {
+    public init(version: Version) {
         self.version = version
     }
 
@@ -58,11 +58,11 @@ public struct HTTPResponse {
         var bytes: [UInt8] = []
 
         // Start line
-        bytes.append(contentsOf: HTTPConstants.httpSlash)
+        bytes.append(contentsOf: Constants.httpSlash)
         bytes.append(contentsOf: version.bytes)
         bytes.append(Character.whitespace)
         bytes.append(contentsOf: status.bytes)
-        bytes.append(contentsOf: HTTPConstants.lineEnd)
+        bytes.append(contentsOf: Constants.lineEnd)
 
         // Headers
         if let contentType = contentType {
@@ -70,17 +70,17 @@ public struct HTTPResponse {
             bytes.append(Character.colon)
             bytes.append(Character.whitespace)
             bytes.append(contentsOf: contentType.bytes)
-            bytes.append(contentsOf: HTTPConstants.lineEnd)
+            bytes.append(contentsOf: Constants.lineEnd)
         }
 
         bytes.append(contentsOf: HeaderNameMapping.contentLength)
         bytes.append(Character.colon)
         bytes.append(Character.whitespace)
         bytes.append(contentsOf: ASCII(String(contentLength)))
-        bytes.append(contentsOf: HTTPConstants.lineEnd)
+        bytes.append(contentsOf: Constants.lineEnd)
 
         // Separator
-        bytes.append(contentsOf: HTTPConstants.lineEnd)
+        bytes.append(contentsOf: Constants.lineEnd)
 
         // Body
         if let body = body {

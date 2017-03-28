@@ -1,4 +1,4 @@
-enum HTTPType {
+enum _Type {
     case request
     case response
 }
@@ -11,7 +11,7 @@ struct Character {
     static let questionMark = ASCII("?").first!
 }
 
-struct HTTPConstants {
+struct Constants {
     static let httpSlash = ASCII("HTTP/")
     static let oneOne = ASCII("1.1")
     static let chunked = ASCII("chunked")

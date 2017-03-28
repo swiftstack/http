@@ -1,4 +1,4 @@
-extension HTTPRequestType {
+extension RequestType {
     init(slice: ArraySlice<UInt8>) throws {
         for (type, bytes) in RequestTypeMapping.values {
             if slice.elementsEqual(bytes) {
@@ -6,12 +6,12 @@ extension HTTPRequestType {
                 return
             }
         }
-        throw HTTPRequestError.invalidMethod
+        throw RequestError.invalidMethod
     }
 }
 
 fileprivate struct RequestTypeMapping {
-    static let values: [(HTTPRequestType, ASCII)] = [
+    static let values: [(RequestType, ASCII)] = [
         (.get, ASCII("GET")),
         (.head, ASCII("HEAD")),
         (.post, ASCII("POST")),

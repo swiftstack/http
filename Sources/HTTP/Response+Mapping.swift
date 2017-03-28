@@ -4,7 +4,7 @@ struct HeaderNameMapping {
     static let transferEncoding = ASCII("Transfer-Encoding")
 }
 
-extension HTTPResponseStatus {
+extension ResponseStatus {
     private struct StatusCodeMapping {
         static let ok = ASCII("200 OK")
         static let moved = ASCII("301 Moved Permanently")
@@ -26,7 +26,7 @@ extension HTTPResponseStatus {
     }
 }
 
-extension HTTPResponseContentType {
+extension ResponseContentType {
     private struct StatusCodeMapping {
         static let text = ASCII("text/plain")
         static let html = ASCII("text/html")

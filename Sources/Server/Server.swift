@@ -4,7 +4,7 @@ import Socket
 import Reflection
 import Foundation
 
-@_exported import HTTPMessage
+@_exported import HTTP
 
 public class Server {
     let async: Async
@@ -61,7 +61,7 @@ public class Server {
                 guard read > 0 else {
                     break
                 }
-                let request = try HTTPRequest(fromBytes: bytes)
+                let request = try Request(fromBytes: bytes)
                 Log.debug(">> \(request.url)")
 
                 let response = provideResponse(for: request)
@@ -74,29 +74,29 @@ public class Server {
         }
     }
 
-    public typealias RequestHandler = (HTTPRequest) -> Any
+    public typealias RequestHandler = (Request) -> Any
 
     struct Route {
-        let type: HTTPRequestType
+        let type: RequestType
         let handler: RequestHandler
     }
 
-    func provideResponse(for request: HTTPRequest) -> HTTPResponse {
+    func provideResponse(for request: Request) -> Response {
         let routes = routeMatcher.matches(route: request.urlBytes)
         guard let route = routes.first(where: { $0.type == request.type }) else {
-            return HTTPResponse(status: .notFound)
+            return Response(status: .notFound)
         }
 
         let response = route.handler(request)
 
         switch response {
-        case let httpResponse as HTTPResponse: return httpResponse
-        case let string as String: return HTTPResponse(string: string)
+        case let response as Response: return response
+        case let string as String: return Response(string: string)
         default: return createJsonResponse(response)
         }
     }
 
-    func createJsonResponse(_ object: Any) -> HTTPResponse {
+    func createJsonResponse(_ object: Any) -> Response {
         var jsonObject: Any
 
         switch object {
@@ -105,9 +105,9 @@ public class Server {
         }
 
         guard let data = try? JSONSerialization.data(withJSONObject: jsonObject as Any) else {
-            return HTTPResponse(status: .internalServerError)
+            return Response(status: .internalServerError)
         }
-        return HTTPResponse(json: [UInt8](data))
+        return Response(json: [UInt8](data))
     }
 
     func serialize(object: Any) -> [String : Any] {

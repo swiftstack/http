@@ -15,7 +15,7 @@ struct HeaderName: Hashable {
     init(validatingCharacters bytes: ArraySlice<UInt8>) throws {
         for byte in bytes {
             guard Int(byte) < tokens.count && tokens[Int(byte)] else {
-                throw HTTPRequestError.invalidHeaderName
+                throw RequestError.invalidHeaderName
             }
         }
         name = bytes

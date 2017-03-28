@@ -1,7 +1,7 @@
 import XCTest
-@testable import HTTPMessage
+@testable import HTTP
 
-struct HTTPRequests {
+struct Requests {
     // Start line
     static let simpleDelete = "DELETE /test HTTP/1.1\r\n\r\n"
     static let simpleGet = "GET /test HTTP/1.1\r\n\r\n"
@@ -39,150 +39,142 @@ struct HTTPRequests {
     static let chunkedJunkAfterBody = "\(chunkedBody)wuut"
 }
 
-class HTTPRequestTests: TestCase {
+class RequestTests: TestCase {
     func testType() {
-        let httpRequest: HTTPType = .request
-        assertEqual(httpRequest, .request)
+        let type: _Type = .request
+        assertEqual(type, .request)
     }
 
     func testFromBytes() throws {
-        let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleGet))
-        assertNotNil(httpRequest)
+        let request = try Request(fromBytes: ASCII(Requests.simpleGet))
+        assertNotNil(request)
     }
 
     func testDelete() throws {
-        let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleDelete))
-        assertNotNil(httpRequest)
-        assertEqual(httpRequest.type, HTTPRequestType.delete)
+        let request = try Request(fromBytes: ASCII(Requests.simpleDelete))
+        assertNotNil(request)
+        assertEqual(request.type, RequestType.delete)
     }
 
     func testGet() throws {
-        let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleGet))
-        assertNotNil(httpRequest)
-        assertEqual(httpRequest.type, HTTPRequestType.get)
-    }
-
-    func testLazy() throws {
-        let httpRequest = try HTTPRequest()
-        assertNotNil(httpRequest)
-        httpRequest.userAgent = "wut"
-        assertEqual(httpRequest.type, HTTPRequestType.get)
-        assertEqual(httpRequest.userAgent, "wut")
+        let request = try Request(fromBytes: ASCII(Requests.simpleGet))
+        assertNotNil(request)
+        assertEqual(request.type, RequestType.get)
     }
 
     func testHead() throws {
-        let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleHead))
-        assertNotNil(httpRequest)
-        assertEqual(httpRequest.type, HTTPRequestType.head)
+        let request = try Request(fromBytes: ASCII(Requests.simpleHead))
+        assertNotNil(request)
+        assertEqual(request.type, RequestType.head)
     }
 
     func testPost() throws {
-        let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simplePost))
-        assertNotNil(httpRequest)
-        assertEqual(httpRequest.type, HTTPRequestType.post)
+        let request = try Request(fromBytes: ASCII(Requests.simplePost))
+        assertNotNil(request)
+        assertEqual(request.type, RequestType.post)
     }
 
     func testPut() throws {
-        let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simplePut))
-        assertNotNil(httpRequest)
-        assertEqual(httpRequest.type, HTTPRequestType.put)
+        let request = try Request(fromBytes: ASCII(Requests.simplePut))
+        assertNotNil(request)
+        assertEqual(request.type, RequestType.put)
     }
 
-    func testHTTPVersion() throws {
-        let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleGet))
-        assertNotNil(httpRequest)
-        assertEqual(httpRequest.version, HTTPVersion.oneOne)
+    func testVersion() throws {
+        let request = try Request(fromBytes: ASCII(Requests.simpleGet))
+        assertNotNil(request)
+        assertEqual(request.version, Version.oneOne)
 
     }
 
     func testUrl() throws {
-        let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleGet))
-        assertNotNil(httpRequest)
-        assertNotNil(httpRequest.url)
-        assertEqual(httpRequest.urlBytes, ASCII("/test"))
+        let request = try Request(fromBytes: ASCII(Requests.simpleGet))
+        assertNotNil(request)
+        assertNotNil(request.url)
+        assertEqual(request.urlBytes, ASCII("/test"))
     }
 
     func testUrlString() throws {
-        let httpRequest = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleGet))
-        assertNotNil(httpRequest)
-        assertNotNil(httpRequest.url)
-        assertEqual(httpRequest.url, "/test")
+        let request = try Request(fromBytes: ASCII(Requests.simpleGet))
+        assertNotNil(request)
+        assertNotNil(request.url)
+        assertEqual(request.url, "/test")
     }
 
     func testInvalidRequest() throws {
         do {
-            _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleOnlyMethod))
+            _ = try Request(fromBytes: ASCII(Requests.simpleOnlyMethod))
             fail("this method should throw")
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             assertEqual(error, .invalidRequest)
         }
     }
 
     func testInvalidRequest2() throws {
         do {
-            _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleOnlyMethod2))
+            _ = try Request(fromBytes: ASCII(Requests.simpleOnlyMethod2))
             fail("this method should throw")
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             assertEqual(error, .invalidRequest)
         }
     }
 
     func testInvalidMethod() throws {
         do {
-            _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleInvalidMethod))
+            _ = try Request(fromBytes: ASCII(Requests.simpleInvalidMethod))
             fail("this method should throw")
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             assertEqual(error, .invalidMethod)
         }
     }
 
     func testInvalidVersion() throws {
         do {
-            _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleInvalidVersion))
+            _ = try Request(fromBytes: ASCII(Requests.simpleInvalidVersion))
             fail("this method should throw")
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             assertEqual(error, .invalidVersion)
         }
     }
 
     func testInvalidVersion2() throws {
         do {
-            _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleInvalidVersion2))
+            _ = try Request(fromBytes: ASCII(Requests.simpleInvalidVersion2))
             fail("this method should throw")
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             assertEqual(error, .invalidRequest)
         }
     }
 
     func testInvalidVersion3() throws {
         do {
-            _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleInvalidVersion3))
+            _ = try Request(fromBytes: ASCII(Requests.simpleInvalidVersion3))
             fail("this method should throw")
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             assertEqual(error, .unexpectedEnd)
         }
     }
 
     func testInvalidVersion4() throws {
         do {
-            _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleInvalidVersion4))
+            _ = try Request(fromBytes: ASCII(Requests.simpleInvalidVersion4))
             fail("this method should throw")
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             assertEqual(error, .invalidVersion)
         }
     }
 
     func testInvalidEnd() throws {
         do {
-            _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.simpleInvalidEnd))
+            _ = try Request(fromBytes: ASCII(Requests.simpleInvalidEnd))
             fail("this method should throw")
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             assertEqual(error, .unexpectedEnd)
         }
     }
 
     func testHostHeader() throws {
-        let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.hostHeader))
+        let request = try Request(fromBytes: ASCII(Requests.hostHeader))
         assertNotNil(request.host)
         if let host = request.host {
             assertEqual(host, "0.0.0.0=5000")
@@ -190,7 +182,7 @@ class HTTPRequestTests: TestCase {
     }
 
     func testUserAgentHeader() throws {
-        let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.userAgentHeader))
+        let request = try Request(fromBytes: ASCII(Requests.userAgentHeader))
         assertNotNil(request.userAgent)
         if let userAgent = request.userAgent {
             assertEqual(userAgent, "Mozilla/5.0")
@@ -198,7 +190,7 @@ class HTTPRequestTests: TestCase {
     }
 
     func testTwoHeaders() throws {
-        let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.twoHeaders))
+        let request = try Request(fromBytes: ASCII(Requests.twoHeaders))
         assertNotNil(request.host)
         assertNotNil(request.userAgent)
         if let userAgent = request.userAgent, let host = request.host {
@@ -208,7 +200,7 @@ class HTTPRequestTests: TestCase {
     }
 
     func testTwoHeadersOptionalSpaces() throws {
-        let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.twoHeadersOptionalSpaces))
+        let request = try Request(fromBytes: ASCII(Requests.twoHeadersOptionalSpaces))
         assertNotNil(request.host)
         assertNotNil(request.userAgent)
         if let userAgent = request.userAgent, let host = request.host {
@@ -219,27 +211,27 @@ class HTTPRequestTests: TestCase {
 
     func testInvalidHeaderColon() throws {
         do {
-            _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.invalidHeaderColon))
+            _ = try Request(fromBytes: ASCII(Requests.invalidHeaderColon))
             fail("this method should throw")
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             assertEqual(error, .invalidHeaderName)
         }
     }
 
     func testInvalidHeaderName() throws {
         do {
-            _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.invalidHeaderName))
+            _ = try Request(fromBytes: ASCII(Requests.invalidHeaderName))
             fail("this method should throw")
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             assertEqual(error, .invalidHeaderName)
         }
     }
 
     func testInvalidHeaderEnd() throws {
         do {
-            _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.invalidHeaderEnd))
+            _ = try Request(fromBytes: ASCII(Requests.invalidHeaderEnd))
             fail("this method should throw")
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             assertEqual(error, .unexpectedEnd)
         }
     }
@@ -252,90 +244,90 @@ class HTTPRequestTests: TestCase {
 
     func testUnexpectedEnd() throws {
         do {
-            _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.unexpectedEnd))
+            _ = try Request(fromBytes: ASCII(Requests.unexpectedEnd))
             fail("this method should throw")
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             assertEqual(error, .unexpectedEnd)
         }
     }
 
     func testContentType() throws {
         do {
-            let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.contentType))
+            let request = try Request(fromBytes: ASCII(Requests.contentType))
             assertNotNil(request.contentType)
             if let contentType = request.contentType {
                 assertEqual(contentType, .urlEncoded)
             }
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             fail("unexpected exception: \(error)")
         }
     }
 
     func testContentLenght() throws {
         do {
-            let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.contentLength))
+            let request = try Request(fromBytes: ASCII(Requests.contentLength))
             assertNotNil(request.contentLength)
             if let contentLength = request.contentLength {
                 assertEqual(contentLength, 5)
             }
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             fail("unexpected exception: \(error)")
         }
     }
 
     func testKeepAliveFalse() throws {
-        let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.keepAliveFalse))
+        let request = try Request(fromBytes: ASCII(Requests.keepAliveFalse))
         assertFalse(request.shouldKeepAlive)
     }
 
     func testKeepAliveTrue() throws {
-        let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.keepAliveTrue))
+        let request = try Request(fromBytes: ASCII(Requests.keepAliveTrue))
         assertTrue(request.shouldKeepAlive)
         assertEqual(request.keepAlive, 300)
     }
 
     func testTransferEncodingChunked() throws {
-        let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.transferEncodingChunked))
+        let request = try Request(fromBytes: ASCII(Requests.transferEncodingChunked))
         assertEqual(request.transferEncoding?.lowercased(), "chunked")
     }
 
     func testChunkedBody() throws {
-        let request = try HTTPRequest(fromBytes: ASCII(HTTPRequests.chunkedBody))
+        let request = try Request(fromBytes: ASCII(Requests.chunkedBody))
         assertEqual(request.body, "Hello")
     }
 
     func testChunkedBodyInvalidSizeSeparator() throws {
         do {
-            _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.chunkedBodyInvalidSizeSeparator))
+            _ = try Request(fromBytes: ASCII(Requests.chunkedBodyInvalidSizeSeparator))
             fail("this method should throw")
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             assertEqual(error, .invalidRequest)
         }
     }
 
     func testChunkedBodyNoSizeSeparator() throws {
         do {
-            _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.chunkedBodyNoSizeSeparator))
+            _ = try Request(fromBytes: ASCII(Requests.chunkedBodyNoSizeSeparator))
             fail("this method should throw")
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             assertEqual(error, .invalidRequest)
         }
     }
 
     func testChunkedInvalidBody() throws {
         do {
-            _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.chunkedInvalidBody))
+            _ = try Request(fromBytes: ASCII(Requests.chunkedInvalidBody))
             fail("this method should throw")
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             assertEqual(error, .unexpectedEnd)
         }
     }
 
     func testChunkedJunkAfterBody() throws {
         do {
-            _ = try HTTPRequest(fromBytes: ASCII(HTTPRequests.chunkedJunkAfterBody))
+            _ = try Request(fromBytes: ASCII(Requests.chunkedJunkAfterBody))
             fail("this method should throw")
-        } catch let error as HTTPRequestError {
+        } catch let error as RequestError {
             assertEqual(error, .unexpectedEnd)
         }
     }
