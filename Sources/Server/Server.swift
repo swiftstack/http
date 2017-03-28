@@ -92,6 +92,7 @@ public class Server {
         switch response {
         case let response as Response: return response
         case let string as String: return Response(string: string)
+        case is Void: return Response(status: .ok)
         default: return createJsonResponse(response)
         }
     }
