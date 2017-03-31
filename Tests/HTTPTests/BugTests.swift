@@ -6,8 +6,8 @@ class BugTests: TestCase {
     func testStringTerminationBug() {
         if !_isDebugAssertConfiguration() {
             for _ in 0..<1_000_000 {
-                if let request = try? Request(fromBytes: simpleGet) {
-                    if !request.urlBytes.elementsEqual(ASCII("/test")) {
+                if let request = try? Request(from: simpleGet) {
+                    if request.url.path != "/test" {
                         fail("(\"\(request.url)\") in not equal to (\"Optional(\"/test\")\")")
                         break
                     }

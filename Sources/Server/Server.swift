@@ -61,11 +61,15 @@ public class Server {
                 guard read > 0 else {
                     break
                 }
-                let request = try Request(fromBytes: bytes)
-                Log.debug(">> \(request.url)")
+                let request = try Request(from: bytes)
+                if isDebugBuild {
+                    Log.debug(">> \(request.url)")
+                }
 
                 let response = provideResponse(for: request)
-                Log.debug("<< \(response.status.rawValue)")
+                if isDebugBuild {
+                    Log.debug("<< \(response.status.rawValue)")
+                }
 
                 _ = try client.send(bytes: response.bytes)
             }
@@ -77,13 +81,13 @@ public class Server {
     public typealias RequestHandler = (Request) -> Any
 
     struct Route {
-        let type: RequestType
+        let type: Request.Kind
         let handler: RequestHandler
     }
 
     func provideResponse(for request: Request) -> Response {
-        let routes = routeMatcher.matches(route: request.urlBytes)
-        guard let route = routes.first(where: { $0.type == request.type }) else {
+        let routes = routeMatcher.matches(route: request.url.path.utf8)
+        guard let route = routes.first(where: {$0.type == request.type}) else {
             return Response(status: .notFound)
         }
 
@@ -105,8 +109,9 @@ public class Server {
         default: jsonObject = serialize(object: object)
         }
 
-        guard let data = try? JSONSerialization.data(withJSONObject: jsonObject as Any) else {
-            return Response(status: .internalServerError)
+        guard let data =
+            try? JSONSerialization.data(withJSONObject: jsonObject) else {
+                return Response(status: .internalServerError)
         }
         return Response(json: [UInt8](data))
     }

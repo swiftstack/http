@@ -21,6 +21,7 @@ class ServerTests: TestCase {
                 try server.start()
             } catch {
                 fail(String(describing: error))
+                async.breakLoop()
             }
         }
 
@@ -40,6 +41,7 @@ class ServerTests: TestCase {
                 async.breakLoop()
             } catch {
                 fail(String(describing: error))
+                async.breakLoop()
             }
         }
 

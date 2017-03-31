@@ -3,24 +3,22 @@ public enum Version {
 }
 
 extension Version {
-    init(slice: ArraySlice<UInt8>) throws {
-        guard slice.starts(with: Constants.httpSlash) else {
+    init(from buffer: UnsafeRawBufferPointer) throws {
+        guard buffer.starts(with: Constants.httpSlash) else {
             throw RequestError.invalidVersion
         }
-        let versionStart = slice.startIndex.advanced(by: Constants.httpSlash.count)
-        let versionEnd = slice.index(versionStart, offsetBy: 3)
-        let versionSlice = slice[versionStart..<versionEnd]
-        if versionSlice.elementsEqual(Constants.oneOne) {
-            self = .oneOne
-        } else {
-            throw RequestError.invalidVersion
+        guard buffer.count >= 8,
+            buffer[5..<8].elementsEqual(Constants.oneOne) else {
+                throw RequestError.invalidVersion
         }
+        self = .oneOne
     }
+}
 
+extension Version {
     var bytes: [UInt8] {
         switch self {
-        case .oneOne:
-            return Constants.oneOne
+        case .oneOne: return Constants.oneOne
         }
     }
 }

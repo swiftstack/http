@@ -13,19 +13,19 @@ struct NginxRequests {
 
 class NginxTests: TestCase {
     func testCurlGet() throws {
-        let request = try Request(fromBytes: ASCII(NginxRequests.curlGet))
+        let request = try Request(from: ASCII(NginxRequests.curlGet))
         assertNotNil(request.url)
-        assertEqual(request.urlBytes, ASCII("/test"))
+        assertEqual(request.url.path, "/test")
         assertEqual(request.url, "/test")
         assertEqual(request.version, .oneOne)
         assertEqual(request.host, "0.0.0.0=5000")
     }
 
     func testFirefoxGet() throws {
-        let request = try Request(fromBytes: ASCII(NginxRequests.firefoxGet))
+        let request = try Request(from: ASCII(NginxRequests.firefoxGet))
         assertNotNil(request.url)
         assertEqual(request.url, "/favicon.ico")
-        assertEqual(request.urlBytes, ASCII("/favicon.ico"))
+        assertEqual(request.url.path, "/favicon.ico")
         assertEqual(request.version, .oneOne)
         assertEqual(request.host, "0.0.0.0=5000")
         assertEqual(request.userAgent, "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008061015 Firefox/3.0")
@@ -38,7 +38,7 @@ class NginxTests: TestCase {
     }
 
     func testChankedAllYourBase() throws {
-        let request = try Request(fromBytes: ASCII(NginxRequests.chankedAllYourBase))
+        let request = try Request(from: ASCII(NginxRequests.chankedAllYourBase))
         assertEqual(request.transferEncoding, "chunked")
         assertEqual(request.body, "all your base are belong to us")
     }

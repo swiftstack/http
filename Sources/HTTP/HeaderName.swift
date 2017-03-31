@@ -1,4 +1,4 @@
-struct HeaderName: Hashable {
+public struct HeaderName: Hashable {
     static let host = HeaderName("host")
     static let userAgent = HeaderName("user-agent")
     static let accept = HeaderName("accept")
@@ -11,39 +11,37 @@ struct HeaderName: Hashable {
     static let contentType = HeaderName("content-type")
     static let transferEncoding = HeaderName("transfer-encoding")
 
-    let name: ArraySlice<UInt8>
-    init(validatingCharacters bytes: ArraySlice<UInt8>) throws {
-        for byte in bytes {
+    let name: [UInt8]
+    init(from buffer: UnsafeRawBufferPointer) throws {
+        for byte in buffer {
             guard Int(byte) < tokens.count && tokens[Int(byte)] else {
                 throw RequestError.invalidHeaderName
             }
         }
-        name = bytes
+        name = [UInt8](buffer)
     }
-    fileprivate init(_ value: String) {
-        name = ArraySlice<UInt8>(value.utf8)
+
+    public init(_ value: String) {
+        name = [UInt8](value.utf8)
     }
-    var hashValue: Int {
-        var hash = 5381
-        for byte in name {
-            hash = ((hash << 5) &+ hash) &+ Int(byte | 0x20)
-        }
-        return hash
+
+    public var hashValue: Int {
+        return name.hashValue
     }
 }
 
 extension HeaderName: ExpressibleByStringLiteral {
-    init(stringLiteral value: String) {
+    public init(stringLiteral value: String) {
         self.init(value)
     }
-    init(extendedGraphemeClusterLiteral value: String) {
+    public init(extendedGraphemeClusterLiteral value: String) {
         self.init(value)
     }
-    init(unicodeScalarLiteral value: String) {
+    public init(unicodeScalarLiteral value: String) {
         self.init(value)
     }
 }
 
-func == (lhs: HeaderName, rhs: HeaderName) -> Bool {
+public func == (lhs: HeaderName, rhs: HeaderName) -> Bool {
     return lhs.hashValue == rhs.hashValue
 }

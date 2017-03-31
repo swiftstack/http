@@ -1,12 +1,3 @@
-public enum RequestType {
-    case get
-    case head
-    case post
-    case put
-    case delete
-    case options
-}
-
 enum RequestError: Error {
     case invalidRequest
     case invalidMethod
@@ -15,248 +6,178 @@ enum RequestError: Error {
     case unexpectedEnd
 }
 
-extension Request {
-    public enum ContentType: String {
-        case urlEncoded = "application/x-www-form-urlencoded"
-        case json = "application/json"
-    }
+public struct Request {
+    public var type: Kind
+    public var version: Version
+    public var url: URL
+
+    public var host: String? = nil
+    public var userAgent: String? = nil
+    public var accept: String? = nil
+    public var acceptLanguage: String? = nil
+    public var acceptEncoding: String? = nil
+    public var acceptCharset: String? = nil
+    public var keepAlive: Int? = nil
+    public var connection: String? = nil
+    public var contentType: ContentType? = nil
+    public var contentLength: Int? = nil
+    public var transferEncoding: String? = nil
+
+    public var customHeaders: [HeaderName: String] = [:]
+
+    public var rawBody: [UInt8]? = nil
 }
 
-public class Request {
-    public private(set) var type: RequestType
-    public private(set) var version: Version
-    private var _url: ArraySlice<UInt8>
-    private var _headers: [HeaderName: ArraySlice<UInt8>] = [:]
-    private var _cookies: [ArraySlice<UInt8>] = []
-    private var _body: [ArraySlice<UInt8>]
-
-    public private(set) var size: Int
-
-    /// lazy. string construction is slow, use only if you really need it
-    public lazy var url: String = { [unowned self] in
-        if let index = self._url.index(of: Character.questionMark) {
-            return String(slice: self._url.prefix(upTo: index))
-        }
-        return String(slice: self._url)
-    }()
-
-    public lazy var queryString: String = { [unowned self] in
-        if let index = self._url.index(of: Character.questionMark) {
-            return String(slice: self._url.suffix(from: index.advanced(by: 1)))
-        }
-        return ""
-    }()
-
-    public lazy var urlBytes: [UInt8] = { [unowned self] in
-        if let index = self._url.index(of: Character.questionMark) {
-            return [UInt8](self._url.prefix(upTo: index))
-        }
-        return [UInt8](self._url)
-    }()
-
-    // MARK: Headers
-
-    @inline(__always)
-    fileprivate func getHeaderValueIfPresent(_ name: HeaderName) -> String? {
-        guard let value = self._headers[name] else {
-            return nil
-        }
-        return String(slice: value)
-    }
-
-    @inline(__always)
-    fileprivate func getHeaderValueIfPresent(_ name: HeaderName) -> Int? {
-        guard let value: String = getHeaderValueIfPresent(name) else {
-            return nil
-        }
-        return Int(value)
-    }
-
-    public lazy var host: String? = { [unowned self] in
-        return self.getHeaderValueIfPresent(HeaderName.host)
-    }()
-
-    public lazy var userAgent: String? = { [unowned self] in
-        return self.getHeaderValueIfPresent(HeaderName.userAgent)
-    }()
-
-    public lazy var accept: String? = { [unowned self] in
-        return self.getHeaderValueIfPresent(HeaderName.accept)
-    }()
-
-    public lazy var acceptLanguage: String? = { [unowned self] in
-        return self.getHeaderValueIfPresent(HeaderName.acceptLanguage)
-    }()
-
-    public lazy var acceptEncoding: String? = { [unowned self] in
-        return self.getHeaderValueIfPresent(HeaderName.acceptEncoding)
-    }()
-
-    public lazy var acceptCharset: String? = { [unowned self] in
-        return self.getHeaderValueIfPresent(HeaderName.acceptCharset)
-    }()
-
-    public lazy var keepAlive: Int? = { [unowned self] in
-        return self.getHeaderValueIfPresent(HeaderName.keepAlive)
-    }()
-
-    public lazy var shouldKeepAlive: Bool = { [unowned self] in
+extension Request {
+    public var shouldKeepAlive: Bool {
         if self.connection?.lowercased() == "close" {
             return false
         }
         return true
-    }()
+    }
 
-    public lazy var connection: String? = { [unowned self] in
-        return self.getHeaderValueIfPresent(HeaderName.connection)
-    }()
-
-    public lazy var contentType: ContentType? = { [unowned self] in
-        guard let contentType: String =
-            self.getHeaderValueIfPresent(HeaderName.contentType) else {
-                return nil
-        }
-        return ContentType(rawValue: contentType)
-    }()
-
-    public lazy var contentLength: Int? = { [unowned self] in
-        return self.getHeaderValueIfPresent(HeaderName.contentLength)
-    }()
-
-    public lazy var transferEncoding: String? = { [unowned self] in
-        return self.getHeaderValueIfPresent(HeaderName.transferEncoding)
-    }()
-
-    public lazy var rawBody: [UInt8]? = { [unowned self] in
-        if self._body.count == 0 {
+    public var body: String? {
+        guard let bytes = rawBody else {
             return nil
         }
-        var body = [UInt8]()
-        for chunk in self._body {
-            body.append(contentsOf: chunk)
-        }
-        return body
-    }()
+        return String(bytes: bytes)
+    }
 
-    public lazy var body: String? = { [unowned self] in
-        guard let bytes = self.rawBody else {
-            return nil
-        }
-        return String(cString: bytes + [0])
-    }()
+    public init(type: Kind = .get, url: URL) {
+        self.type = type
+        self.version = .oneOne
+        self.url = url
+        self.rawBody = []
+    }
+}
 
-    public init(fromBytes bytes: [UInt8]) throws {
-        guard let typeEnd = bytes.index(of: Character.whitespace) else { throw RequestError.invalidRequest }
-        self.type = try RequestType(slice: bytes[bytes.startIndex..<typeEnd])
+extension Request {
+    public init(from bytes: [UInt8]) throws {
+        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
+        try self.init(from: buffer)
+    }
 
-        let queryStart = bytes.index(after: typeEnd)
-        let queryArea = bytes[queryStart..<bytes.endIndex]
-        guard let queryEnd = queryArea.index(of: Character.whitespace) else { throw RequestError.invalidRequest }
-        self._url = bytes[queryStart..<queryEnd]
+    public init(from buffer: UnsafeRawBufferPointer) throws {
+        var startIndex = 0
+        var endIndex = try buffer.index(of: Character.whitespace, offset: startIndex)
+        self.type = try Request.Kind(from: buffer[startIndex..<endIndex])
 
-        let httpStart = bytes.index(after: queryEnd)
-        let httpEnd = bytes.index(httpStart, offsetBy: Constants.versionLength)
-        guard httpEnd < bytes.endIndex else { throw RequestError.unexpectedEnd }
-        let httpArea = bytes[httpStart..<bytes.endIndex]
-        self.version = try Version(slice: httpArea)
+        startIndex = endIndex.advanced(by: 1)
+        endIndex = try buffer.index(of: Character.whitespace, offset: startIndex)
+        self.url = URL(from: buffer[startIndex..<endIndex])
 
-        let requestLineEnd = httpEnd.advanced(by: 2)
-        guard requestLineEnd < bytes.endIndex else { throw RequestError.unexpectedEnd }
-        guard bytes[httpEnd..<requestLineEnd].elementsEqual(Constants.lineEnd) else {
-            throw RequestError.invalidRequest
-        }
-
-
-        var nextLine = requestLineEnd
-        let maximumHeaderStart = bytes.endIndex.advanced(by: -Constants.minimumHeaderLength)
-        while nextLine < maximumHeaderStart
-            && bytes[nextLine] != Character.cr
-            && bytes[nextLine.advanced(by: 1)] != Character.lf {
-
-                guard let colonIndex = bytes[nextLine..<bytes.endIndex].index(of: Character.colon) else {
-                    throw RequestError.invalidHeaderName
-                }
-                let headerName = try HeaderName(validatingCharacters: bytes[nextLine..<colonIndex])
-
-                guard let lineEnd = bytes[colonIndex..<bytes.endIndex].index(of: Character.cr) else {
-                    throw RequestError.unexpectedEnd
-                }
-
-                let headerValueStart = bytes[colonIndex.advanced(by: 1)] == Character.whitespace ?
-                    bytes.index(after: colonIndex.advanced(by: 1)) :
-                    bytes.index(after: colonIndex)
-
-                let headerValueEnd = bytes[lineEnd.advanced(by: -1)] == Character.whitespace ?
-                    bytes.index(before: lineEnd) :
-                    lineEnd
-
-                self._headers[headerName] = bytes[headerValueStart..<headerValueEnd]
-
-                nextLine = lineEnd.advanced(by: 2)
-        }
-
-        guard nextLine <= bytes.endIndex.advanced(by: -2),
-            bytes[nextLine] == Character.cr,
-            bytes[nextLine.advanced(by: 1)] == Character.lf else {
+        startIndex = endIndex.advanced(by: 1)
+        endIndex = startIndex + Constants.versionLength
+        guard endIndex < buffer.endIndex else {
             throw RequestError.unexpectedEnd
         }
-        nextLine = nextLine.advanced(by: 2)
+
+        self.version = try Version(from: buffer[startIndex..<endIndex])
+
+        startIndex = endIndex.advanced(by: 2)
+        guard startIndex < buffer.endIndex else {
+            throw RequestError.unexpectedEnd
+        }
+        guard buffer[endIndex..<startIndex]
+            .elementsEqual(Constants.lineEnd) else {
+                throw RequestError.invalidRequest
+        }
+
+        while startIndex + Constants.minimumHeaderLength < buffer.endIndex
+            && !buffer.suffix(from: startIndex).starts(with: Constants.lineEnd) {
+
+                endIndex = try buffer.index(of: Character.colon, offset: startIndex)
+                let headerName = try HeaderName(from: buffer[startIndex..<endIndex])
+
+                startIndex = endIndex.advanced(by: 1)
+                endIndex = try buffer.index(of: Character.cr, offset: startIndex)
+
+                var headerValue = buffer[startIndex..<endIndex]
+                if headerValue[0] == Character.whitespace {
+                    headerValue = headerValue.dropFirst()
+                }
+                if headerValue[headerValue.endIndex-1] == Character.whitespace {
+                    headerValue = headerValue.dropLast()
+                }
+
+                let headerValueString = String(buffer: headerValue)
+                switch headerName {
+                case HeaderName.host: self.host = headerValueString
+                case HeaderName.userAgent: self.userAgent = headerValueString
+                case HeaderName.accept: self.accept = headerValueString
+                case HeaderName.acceptLanguage: self.acceptLanguage = headerValueString
+                case HeaderName.acceptEncoding: self.acceptEncoding = headerValueString
+                case HeaderName.acceptCharset: self.acceptCharset = headerValueString
+                case HeaderName.keepAlive: self.keepAlive = Int(headerValueString)
+                case HeaderName.connection: self.connection = headerValueString
+                case HeaderName.contentLength: self.contentLength = Int(headerValueString)
+                case HeaderName.contentType: self.contentType = ContentType(rawValue: headerValueString)
+                case HeaderName.transferEncoding: self.transferEncoding = headerValueString
+                default: customHeaders[headerName] = headerValueString
+                }
+
+                startIndex = endIndex.advanced(by: 2)
+        }
+
+        guard startIndex + 2 <= buffer.endIndex,
+            buffer[startIndex] == Character.cr,
+            buffer[startIndex + 1] == Character.lf else {
+                throw RequestError.unexpectedEnd
+        }
+        buffer.formIndex(&startIndex, offsetBy: 2)
 
         // Body
 
-        self._body = []
+        self.rawBody = []
 
         // 1. content-lenght
-        if let contentLength = self._headers[HeaderName.contentLength],
-            let length = Int(String(slice: contentLength)) {
-
-            let endIndex = nextLine.advanced(by: length)
-            guard endIndex <= bytes.endIndex else {
+        if let length = self.contentLength {
+            endIndex = startIndex.advanced(by: length)
+            guard endIndex <= buffer.endIndex else {
                 throw RequestError.unexpectedEnd
             }
-            self._body.append(bytes[nextLine..<endIndex])
-            size = endIndex
+            self.rawBody = [UInt8](buffer[startIndex..<endIndex])
             return
         }
 
         // 2. chunked
-        guard let transferEncoding = self._headers[HeaderName.transferEncoding],
-            transferEncoding.contains(other: Constants.chunked.slice) else {
-            size = nextLine
-            return
+        guard let transferEncoding = self.transferEncoding,
+            transferEncoding.utf8.elementsEqual(Constants.chunked) else {
+                return
         }
 
-        self._body = []
-        let maximumChunkedStart = bytes.endIndex.advanced(by: -Constants.minimumChunkLength)
-        while nextLine <= maximumChunkedStart {
-            guard let sizeEnd = bytes[nextLine..<bytes.endIndex].index(of: Character.cr),
-                bytes[sizeEnd.advanced(by: 1)] == Character.lf else {
+        while startIndex + Constants.minimumChunkLength <= buffer.endIndex {
+            endIndex = try buffer.index(of: Character.cr, offset: startIndex)
+            guard buffer[endIndex.advanced(by: 1)] == Character.lf else {
                 throw RequestError.invalidRequest
             }
 
-            let hexSize = String(slice: bytes[nextLine..<sizeEnd])
+            // TODO: optimize using hex table
+            let hexSize = String(buffer: buffer[startIndex..<endIndex])
             guard let size = Int(hexSize, radix: 16) else {
                 throw RequestError.invalidRequest
             }
             guard size > 0 else {
-                nextLine = sizeEnd.advanced(by: 2)
+                startIndex = endIndex.advanced(by: 2)
                 break
             }
-            let messageStart = sizeEnd.advanced(by: 2)
-            let messageEnd = messageStart.advanced(by: size)
-            guard messageEnd < bytes.endIndex else {
+
+            startIndex = endIndex.advanced(by: 2)
+            endIndex = startIndex.advanced(by: size)
+            guard endIndex < buffer.endIndex else {
                 throw RequestError.unexpectedEnd
             }
 
-            self._body.append(bytes[messageStart..<messageEnd])
-            nextLine = messageEnd.advanced(by: 2)
+            rawBody?.append(contentsOf: [UInt8](buffer[startIndex..<endIndex]))
+            startIndex = endIndex.advanced(by: 2)
         }
 
-        guard nextLine == bytes.endIndex || (
-            nextLine == bytes.endIndex.advanced(by: -2) &&
-                bytes.suffix(from: nextLine).elementsEqual(Constants.lineEnd)) else {
-                    throw RequestError.unexpectedEnd
+
+        guard startIndex == buffer.endIndex || (
+            startIndex == buffer.endIndex.advanced(by: -2) &&
+                buffer.suffix(from: startIndex)
+                    .elementsEqual(Constants.lineEnd)) else {
+                        throw RequestError.unexpectedEnd
         }
-        self.size = nextLine
     }
 }

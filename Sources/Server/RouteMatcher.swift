@@ -1,6 +1,6 @@
-let asterisk = [UInt8]("*".utf8)[0]
-let colon = [UInt8](":".utf8)[0]
-let separator = [UInt8]("/".utf8)[0]
+let asterisk: UInt8 = "*"
+let colon: UInt8 = ":"
+let separator: UInt8 = "/"
 
 enum RouterError: Error {
     case invalidRoute
@@ -17,8 +17,8 @@ public struct RouteMatcher<T> {
 
     var root = Node<T>()
 
-    public mutating func add(route bytes: [UInt8], payload: T) {
-        guard bytes.count > 0, bytes[0] == separator else {
+    public mutating func add(route bytes: String.UTF8View, payload: T) {
+        guard let first = bytes.first, first == separator else {
             return
         }
 
@@ -35,11 +35,12 @@ public struct RouteMatcher<T> {
             return
         }
 
-        addNode(to: &root, characters: bytes.suffix(from: 1), payload: payload)
+        addNode(to: &root, characters: bytes.dropFirst(), payload: payload)
     }
 
-    public mutating func matches(route bytes: [UInt8]) -> [T] {
-        guard bytes[0] == separator else {
+    public mutating func matches(route bytes: String.UTF8View) -> [T] {
+        let startIndex = bytes.startIndex
+        guard bytes[startIndex] == separator else {
             return []
         }
 
@@ -50,7 +51,7 @@ public struct RouteMatcher<T> {
             }
         }
 
-        let route = bytes.suffix(from: 1)
+        let route = bytes.dropFirst()
         guard route.count > 0 else {
             if root.wildcard != nil {
                 return root.payload + root.wildcard![Int(asterisk)].payload
@@ -63,7 +64,7 @@ public struct RouteMatcher<T> {
         return result
     }
 
-    func addNode(to node: inout Node<T>, characters: ArraySlice<UInt8>, payload: T) {
+    func addNode(to node: inout Node<T>, characters: String.UTF8View.SubSequence, payload: T) {
         let character = Int(characters[characters.startIndex])
         if character == Int(asterisk) || character == Int(colon) {
             if node.wildcard == nil {
@@ -72,7 +73,7 @@ public struct RouteMatcher<T> {
 
             var index = characters.startIndex
             while index < characters.endIndex && characters[index] != separator {
-                index += 1
+                characters.formIndex(after: &index)
             }
 
             guard index < characters.endIndex else {
@@ -80,29 +81,29 @@ public struct RouteMatcher<T> {
                 return
             }
 
-            guard index < characters.endIndex - 1 else {
+            guard characters.index(after: index) < characters.endIndex else {
                 node.wildcard![Int(separator)].payload.append(payload)
                 return
             }
 
-            let next = index.advanced(by: 1)
+            let next = characters.index(after: index)
             addNode(to: &node.wildcard![Int(separator)], characters: characters.suffix(from: next), payload: payload)
         } else {
             if node.rlist == nil {
                 node.rlist = [Node](repeating: Node(), count: 128)
             }
 
-            guard characters.startIndex < characters.endIndex - 1 else {
+            guard characters.index(after: characters.startIndex) < characters.endIndex else {
                 node.rlist![character].payload.append(payload)
                 return
             }
 
-            let next = characters.startIndex.advanced(by: 1)
+            let next = characters.index(after: characters.startIndex)
             addNode(to: &node.rlist![character], characters: characters.suffix(from: next), payload: payload)
         }
     }
 
-    mutating func findNode(in node: Node<T>, characters: ArraySlice<UInt8>, result: inout [T]) {
+    mutating func findNode(in node: Node<T>, characters: String.UTF8View.SubSequence, result: inout [T]) {
         guard characters.startIndex < characters.endIndex else {
             var node = node // accessing lazy initializer on immutable type
             if node.payload.count > 0 {
@@ -113,21 +114,21 @@ public struct RouteMatcher<T> {
 
         if let rlist = node.rlist  {
             let childNode = rlist[Int(characters[characters.startIndex])]
-            let next = characters.startIndex.advanced(by: 1)
+            let next = characters.index(after: characters.startIndex)
             findNode(in: childNode, characters: characters.suffix(from: next), result: &result)
         }
 
         if let wildcard = node.wildcard {
             var index = characters.startIndex
-            while index < characters.endIndex - 1 && characters[index] != separator {
-                index += 1
+            while characters.index(after: index) < characters.endIndex && characters[index] != separator {
+                characters.formIndex(after: &index)
             }
 
             let childNode = characters[index] == separator ?
                 wildcard[Int(separator)] :
                 wildcard[Int(asterisk)]
 
-            let next = index.advanced(by: 1)
+            let next = characters.index(after: index)
             findNode(in: childNode, characters: characters.suffix(from: next), result: &result)
         }
     }
@@ -135,20 +136,14 @@ public struct RouteMatcher<T> {
 
 extension RouteMatcher {
     public mutating func add(route: String, payload: T) {
-        let bytes = [UInt8](route.utf8)
-        add(route: bytes, payload: payload)
+        add(route: route.utf8, payload: payload)
     }
 
     public mutating func matches(route: String) -> [T] {
-        let bytes = [UInt8](route.utf8)
-        return matches(route: bytes)
-    }
-
-    public mutating func first(route: [UInt8]) -> T? {
-        return matches(route: route).first
+        return matches(route: route.utf8)
     }
 
     public mutating func first(route: String) -> T? {
-        return matches(route: route).first
+        return matches(route: route.utf8).first
     }
 }
