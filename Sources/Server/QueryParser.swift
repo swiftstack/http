@@ -35,18 +35,35 @@ public struct QueryParser {
         #endif
     }
 
+    #if !os(Linux)
     static func convertObjectiveCTypes(
         _ dictionary: [String : Any]
     ) -> [String : Any] {
         var values =  [String : Any]()
 
         for (key, value) in dictionary {
-            if let value = value as? Bool {
-                values[key] = value
-            } else if let value = value as? Int {
-                values[key] = value
-            } else if let value = value as? Double {
-                values[key] = value
+            if let value = value as? NSNumber {
+                switch CFNumberGetType(value) {
+                case .charType:
+                    values[key] = value as! Bool
+                case .sInt8Type,
+                     .sInt16Type,
+                     .sInt32Type,
+                     .sInt64Type,
+                     .shortType,
+                     .intType,
+                     .longType,
+                     .longLongType,
+                     .cfIndexType,
+                     .nsIntegerType:
+                    values[key] = value as! Int
+                case .float32Type,
+                     .float64Type,
+                     .floatType,
+                     .doubleType,
+                     .cgFloatType:
+                    values[key] = value as! Double
+                }
             } else if let value = value as? String {
                 values[key] = value
             } else if let value = value as? [String : Any] {
@@ -58,4 +75,5 @@ public struct QueryParser {
 
         return values
     }
+    #endif
 }
