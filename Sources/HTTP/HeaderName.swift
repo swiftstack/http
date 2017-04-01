@@ -1,32 +1,32 @@
 public struct HeaderName: Hashable {
-    static let host = HeaderName("host")
-    static let userAgent = HeaderName("user-agent")
-    static let accept = HeaderName("accept")
-    static let acceptLanguage = HeaderName("accept-language")
-    static let acceptEncoding = HeaderName("accept-encoding")
-    static let acceptCharset = HeaderName("accept-charset")
-    static let keepAlive = HeaderName("keep-alive")
-    static let connection = HeaderName("connection")
-    static let contentLength = HeaderName("content-length")
-    static let contentType = HeaderName("content-type")
-    static let transferEncoding = HeaderName("transfer-encoding")
+    static let host = HeaderName("Host")
+    static let userAgent = HeaderName("User-Agent")
+    static let accept = HeaderName("Accept")
+    static let acceptLanguage = HeaderName("Accept-Language")
+    static let acceptEncoding = HeaderName("Accept-Encoding")
+    static let acceptCharset = HeaderName("Accept-Charset")
+    static let keepAlive = HeaderName("Keep-Alive")
+    static let connection = HeaderName("Connection")
+    static let contentLength = HeaderName("Content-Length")
+    static let contentType = HeaderName("Content-Type")
+    static let transferEncoding = HeaderName("Transfer-Encoding")
 
-    let name: [UInt8]
+    let bytes: [UInt8]
     init(from buffer: UnsafeRawBufferPointer) throws {
         for byte in buffer {
             guard Int(byte) < tokens.count && tokens[Int(byte)] else {
                 throw RequestError.invalidHeaderName
             }
         }
-        name = [UInt8](buffer)
+        bytes = [UInt8](buffer)
     }
 
     public init(_ value: String) {
-        name = [UInt8](value.utf8)
+        bytes = [UInt8](value.utf8)
     }
 
     public var hashValue: Int {
-        return name.hashValue
+        return bytes.hashValue
     }
 }
 

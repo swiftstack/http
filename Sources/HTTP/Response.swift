@@ -61,14 +61,14 @@ extension Response {
 
         // Headers
         if let contentType = contentType {
-            bytes.append(contentsOf: StandartHeaders.contentType)
+            bytes.append(contentsOf: HeaderName.contentType.bytes)
             bytes.append(Character.colon)
             bytes.append(Character.whitespace)
             bytes.append(contentsOf: contentType.bytes)
             bytes.append(contentsOf: Constants.lineEnd)
         }
 
-        bytes.append(contentsOf: StandartHeaders.contentLength)
+        bytes.append(contentsOf: HeaderName.contentLength.bytes)
         bytes.append(Character.colon)
         bytes.append(Character.whitespace)
         bytes.append(contentsOf: ASCII(String(contentLength)))
