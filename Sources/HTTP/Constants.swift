@@ -1,8 +1,3 @@
-enum _Type {
-    case request
-    case response
-}
-
 struct Character {
     static let whitespace = ASCII(" ").first!
     static let cr = ASCII("\r").first!

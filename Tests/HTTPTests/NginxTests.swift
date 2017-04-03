@@ -1,19 +1,13 @@
-import XCTest
 @testable import HTTP
-
-struct NginxRequests {
-    static let curlGet = "GET /test HTTP/1.1\r\nUser-Agent: curl/7.18.0 (i486-pc-linux-gnu) libcurl/7.18.0 OpenSSL/0.9.8g zlib/1.2.3.3 libidn/1.1\r\nHost: 0.0.0.0=5000\r\nAccept: */*\r\n\r\n"
-
-    static let firefoxGet =
-        "GET /favicon.ico HTTP/1.1\r\nHost: 0.0.0.0=5000\r\nUser-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008061015 Firefox/3.0\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nAccept-Language: en-us,en;q=0.5\r\nAccept-Encoding: gzip,deflate\r\nAccept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\nKeep-Alive: 300\r\nConnection: keep-alive\r\n\r\n"
-
-    static let chankedAllYourBase =
-        "POST /post_chunked_all_your_base HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n1e\r\nall your base are belong to us\r\n0\r\n\r\n"
-}
 
 class NginxTests: TestCase {
     func testCurlGet() throws {
-        let request = try Request(from: ASCII(NginxRequests.curlGet))
+        let bytes = ASCII("GET /test HTTP/1.1\r\n" +
+            "User-Agent: curl/7.18.0 (i486-pc-linux-gnu) libcurl/7.18.0 OpenSSL/0.9.8g zlib/1.2.3.3 libidn/1.1\r\n" +
+            "Host: 0.0.0.0=5000\r\n" +
+            "Accept: */*\r\n" +
+            "\r\n")
+        let request = try Request(from: bytes)
         assertNotNil(request.url)
         assertEqual(request.url.path, "/test")
         assertEqual(request.url, "/test")
@@ -22,7 +16,17 @@ class NginxTests: TestCase {
     }
 
     func testFirefoxGet() throws {
-        let request = try Request(from: ASCII(NginxRequests.firefoxGet))
+        let bytes = ASCII("GET /favicon.ico HTTP/1.1\r\n" +
+            "Host: 0.0.0.0=5000\r\n" +
+            "User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008061015 Firefox/3.0\r\n" +
+            "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n" +
+            "Accept-Language: en-us,en;q=0.5\r\n" +
+            "Accept-Encoding: gzip,deflate\r\n" +
+            "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n" +
+            "Keep-Alive: 300\r\n" +
+            "Connection: keep-alive\r\n" +
+            "\r\n")
+        let request = try Request(from: bytes)
         assertNotNil(request.url)
         assertEqual(request.url, "/favicon.ico")
         assertEqual(request.url.path, "/favicon.ico")
@@ -38,7 +42,13 @@ class NginxTests: TestCase {
     }
 
     func testChankedAllYourBase() throws {
-        let request = try Request(from: ASCII(NginxRequests.chankedAllYourBase))
+        let bytes = ASCII("POST /post_chunked_all_your_base HTTP/1.1\r\n" +
+            "Transfer-Encoding: chunked\r\n" +
+            "\r\n" +
+            "1e\r\nall your base are belong to us\r\n" +
+            "0\r\n" +
+            "\r\n")
+        let request = try Request(from: bytes)
         assertEqual(request.transferEncoding, "chunked")
         assertEqual(request.body, "all your base are belong to us")
     }

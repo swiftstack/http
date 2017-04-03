@@ -1,4 +1,4 @@
-enum RequestError: Error {
+public enum RequestError: Error {
     case invalidRequest
     case invalidMethod
     case invalidVersion
