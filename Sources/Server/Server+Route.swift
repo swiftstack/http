@@ -3,19 +3,19 @@ import HTTP
 
 extension Server {
     // when we don't need anything
-    public func route(method: Request.Kind, url: String, handler: @escaping (Void) -> Any) {
+    public func route(method: Request.Method, url: String, handler: @escaping (Void) -> Any) {
         let route = Route(type: method, handler: { _ in handler() })
         routeMatcher.add(route: url.utf8, payload: route)
     }
 
     // only request data
-    public func route(method: Request.Kind, url: String, handler: @escaping (Request) -> Any) {
+    public func route(method: Request.Method, url: String, handler: @escaping (Request) -> Any) {
         let route = Route(type: method, handler: handler)
         routeMatcher.add(route: url.utf8, payload: route)
     }
 
     // reflection: primitive types: Int, String, Double.
-    public func route<A: Primitive>(method: Request.Kind, url: String, handler: @escaping (A) -> Any) {
+    public func route<A: Primitive>(method: Request.Method, url: String, handler: @escaping (A) -> Any) {
         createRoute(method: method, url: url) { _, values in
             // TODO: handle single value properly
             guard let value = values.first?.value as? String,
@@ -27,7 +27,7 @@ extension Server {
     }
 
     // reflection: request data + primitive types: Int, String, Double.
-    public func route<A: Primitive>(method: Request.Kind, url: String, handler: @escaping (Request, A) -> Any) {
+    public func route<A: Primitive>(method: Request.Method, url: String, handler: @escaping (Request, A) -> Any) {
         createRoute(method: method, url: url) { request, values in
             // TODO: handle single value properly
             guard let value = values.first?.value as? String,
@@ -39,7 +39,7 @@ extension Server {
     }
 
     // reflection: POD value type
-    public func route<A>(method: Request.Kind, url: String, handler: @escaping (A) -> Any) {
+    public func route<A>(method: Request.Method, url: String, handler: @escaping (A) -> Any) {
         createRoute(method: method, url: url) { _, values in
             guard let model = Blueprint(ofType: A.self).construct(using: values) else {
                 return Response(status: .badRequest)
@@ -49,7 +49,7 @@ extension Server {
     }
 
     // reflection: request data + POD value type
-    public func route<A>(method: Request.Kind, url: String, handler: @escaping (Request, A) -> Any) {
+    public func route<A>(method: Request.Method, url: String, handler: @escaping (Request, A) -> Any) {
         createRoute(method: method, url: url) { request, values in
             guard let model = Blueprint(ofType: A.self).construct(using: values) else {
                 return Response(status: .badRequest)
@@ -59,7 +59,7 @@ extension Server {
     }
 
     @inline(__always)
-    func createRoute(method: Request.Kind, url: String, handler: @escaping (Request, [String : Any]) -> Any) {
+    func createRoute(method: Request.Method, url: String, handler: @escaping (Request, [String : Any]) -> Any) {
         let urlMatcher = URLParamMatcher(url)
 
         let wrapper: RequestHandler = { request in
@@ -67,8 +67,8 @@ extension Server {
 
             let queryValues: [String: Any]?
 
-            if method == .get {
-                queryValues = QueryParser.parse(urlEncoded: request.url.query)
+            if method == .get, let query = request.url.query {
+                queryValues = QueryParser.parse(urlEncoded: query)
             } else if let body = request.rawBody,
                 let contentType = request.contentType {
                     switch contentType {
@@ -77,6 +77,8 @@ extension Server {
                         queryValues = QueryParser.parse(urlEncoded: query)
                     case .json:
                         queryValues = QueryParser.parse(json: body)
+                    default:
+                        queryValues = nil
                     }
             } else {
                 queryValues = nil

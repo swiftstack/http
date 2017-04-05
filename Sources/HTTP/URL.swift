@@ -1,19 +1,54 @@
+import struct Foundation.URL
+
 public struct URL {
+    public enum Scheme: String {
+        case http
+        case https
+    }
+    public var host: String?
+    public var port: Int?
     public var path: String
-    public var query: String
+    public var query: String?
+    public var scheme: Scheme?
+
+    public init(
+        host: String? = nil,
+        port: Int? = nil,
+        path: String,
+        query: String? = nil,
+        scheme: Scheme? = nil
+    ) {
+        self.host = host
+        self.port = port
+        self.path = path
+        self.query = query
+        self.scheme = scheme
+    }
 }
 
 extension URL {
-    init(_ url: String) {
-        let view = url.utf8
-        if var index = view.index(of: Character.questionMark) {
-            self.path = String(view.prefix(upTo: index))!
-            view.formIndex(after: &index)
-            self.query = String(view.suffix(from: index))!
-        } else {
-            self.path = url
-            self.query = ""
+    public init(_ url: String) throws {
+        guard let url = Foundation.URL(string: url) else {
+            throw HTTPError.invalidURL
         }
+        self.host = url.host
+        self.port = url.port
+        self.path = url.path
+        self.query = url.query
+        if let scheme = url.scheme {
+            self.scheme = Scheme(rawValue: scheme)
+        }
+    }
+}
+
+extension URL {
+    var bytes: [UInt8] {
+        var bytes = [UInt8]()
+        bytes.append(contentsOf: [UInt8](path.utf8))
+        if let query = query {
+            bytes.append(contentsOf: [UInt8](query.utf8))
+        }
+        return bytes
     }
 }
 
@@ -24,7 +59,6 @@ extension URL {
             self.query = String(buffer: buffer.suffix(from: index + 1))
         } else {
             self.path = String(buffer: buffer)
-            self.query = ""
         }
     }
 }
@@ -35,18 +69,24 @@ extension URL: Equatable {
     }
 
     public static func ==(lhs: URL, rhs: String) -> Bool {
-        return lhs.path + lhs.query == rhs
+        guard let rhs = try? URL(rhs) else {
+            return false
+        }
+        return lhs == rhs
     }
 }
 
 extension URL: ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
-        self.init(value)
+        guard let url = try? URL(value) else {
+            fatalError("invalid url: '\(value)'")
+        }
+        self = url
     }
     public init(extendedGraphemeClusterLiteral value: String) {
-        self.init(value)
+        self.init(stringLiteral: value)
     }
     public init(unicodeScalarLiteral value: String) {
-        self.init(value)
+        self.init(stringLiteral: value)
     }
 }

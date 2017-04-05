@@ -55,11 +55,6 @@ class EncodeResponseTests: TestCase {
         assertEqual(String(bytes: response.bytes), expected)
     }
 
-    func testVersion() {
-        let response = Response(version: .oneOne)
-        assertEqual(response.version, .oneOne)
-    }
-
     func testContentType() {
         let expected = "HTTP/1.1 200 OK\r\n" +
             "Content-Type: text/plain\r\n" +
@@ -112,7 +107,7 @@ class EncodeResponseTests: TestCase {
 
     func testBytesResponse() {
         let expected = ASCII("HTTP/1.1 200 OK\r\n" +
-            "Content-Type: aplication/stream\r\n" +
+            "Content-Type: application/stream\r\n" +
             "Content-Length: 3\r\n" +
             "\r\n") + [1,2,3]
         let data: [UInt8] = [1,2,3]

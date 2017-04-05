@@ -42,10 +42,18 @@ extension UInt8: ExpressibleByStringLiteral {
 
 extension String {
     public init(buffer: UnsafeRawBufferPointer) {
-        self = String(cString: [UInt8](buffer) + [0])
+        let count = buffer.count
+        let storage = _StringBuffer(
+            capacity: count,
+            initialSize: count,
+            elementWidth: 1)
+        storage.start.copyBytes(from: buffer.baseAddress!, count: count)
+        self = String(_storage: storage)
     }
+
     public init(bytes: [UInt8]) {
-        self = String(cString: bytes + [0])
+        self = String(
+            buffer: UnsafeRawBufferPointer(start: bytes, count: bytes.count))
     }
 }
 
@@ -55,7 +63,7 @@ extension UnsafeRawBufferPointer {
     @inline(__always)
     func index(of element: UInt8, offset: Int) throws -> Int {
         guard let index = self.suffix(from: offset).index(of: element) else {
-            throw RequestError.unexpectedEnd
+            throw HTTPError.unexpectedEnd
         }
         return index + offset
     }

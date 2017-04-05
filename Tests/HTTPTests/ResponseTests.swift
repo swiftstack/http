@@ -2,7 +2,19 @@
 
 class ResponseTests: TestCase {
     func testResponse() {
+        let response = Response(status: .ok)
+        assertEqual(response.status, .ok)
+        assertNil(response.contentType)
+    }
+
+    func testDefaultStatus() {
         let response = Response()
-        assertNotNil(response)
+        assertEqual(response.status, .ok)
+        assertNil(response.contentType)
+    }
+
+    func testVersion() {
+        let response = Response(version: .oneOne)
+        assertEqual(response.version, .oneOne)
     }
 }

@@ -1,4 +1,4 @@
-public struct HeaderName: Hashable {
+public struct RequestHeader {
     static let host = HeaderName("Host")
     static let userAgent = HeaderName("User-Agent")
     static let accept = HeaderName("Accept")
@@ -10,12 +10,22 @@ public struct HeaderName: Hashable {
     static let contentLength = HeaderName("Content-Length")
     static let contentType = HeaderName("Content-Type")
     static let transferEncoding = HeaderName("Transfer-Encoding")
+}
 
+public struct ResponseHeader {
+    static let connection = HeaderName("Connection")
+    static let contentEncoding = HeaderName("Content-Encoding")
+    static let contentLength = HeaderName("Content-Length")
+    static let contentType = HeaderName("Content-Type")
+    static let transferEncoding = HeaderName("Transfer-Encoding")
+}
+
+public struct HeaderName: Hashable {
     let bytes: [UInt8]
     init(from buffer: UnsafeRawBufferPointer) throws {
         for byte in buffer {
             guard Int(byte) < tokens.count && tokens[Int(byte)] else {
-                throw RequestError.invalidHeaderName
+                throw HTTPError.invalidHeaderName
             }
         }
         bytes = [UInt8](buffer)

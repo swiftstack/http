@@ -68,7 +68,7 @@ public class Server {
 
                 let response = provideResponse(for: request)
                 if isDebugBuild {
-                    Log.debug("<< \(response.status.rawValue)")
+                    Log.debug("<< \(response.status)")
                 }
 
                 _ = try client.send(bytes: response.bytes)
@@ -81,13 +81,13 @@ public class Server {
     public typealias RequestHandler = (Request) -> Any
 
     struct Route {
-        let type: Request.Kind
+        let type: Request.Method
         let handler: RequestHandler
     }
 
     func provideResponse(for request: Request) -> Response {
         let routes = routeMatcher.matches(route: request.url.path.utf8)
-        guard let route = routes.first(where: {$0.type == request.type}) else {
+        guard let route = routes.first(where: {$0.type == request.method}) else {
             return Response(status: .notFound)
         }
 

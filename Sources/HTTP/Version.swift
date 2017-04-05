@@ -5,11 +5,11 @@ public enum Version {
 extension Version {
     init(from buffer: UnsafeRawBufferPointer) throws {
         guard buffer.starts(with: Constants.httpSlash) else {
-            throw RequestError.invalidVersion
+            throw HTTPError.invalidVersion
         }
         guard buffer.count >= 8,
             buffer[5..<8].elementsEqual(Constants.oneOne) else {
-                throw RequestError.invalidVersion
+                throw HTTPError.invalidVersion
         }
         self = .oneOne
     }
