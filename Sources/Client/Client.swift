@@ -56,12 +56,39 @@ public class Client {
         }
         return try Response(from: buffer)
     }
+}
 
+extension Client {
     public func get(_ url: String) throws -> Response {
         return try send(Request(method: .get, url: URL(url)))
     }
 
+    public func head(_ url: String) throws -> Response {
+        return try send(Request(method: .head, url: URL(url)))
+    }
+
     public func post(_ url: String) throws -> Response {
         return try send(Request(method: .post, url: URL(url)))
+    }
+
+    public func put(_ url: String) throws -> Response {
+        return try send(Request(method: .put, url: URL(url)))
+    }
+
+    public func delete(_ url: String) throws -> Response {
+        return try send(Request(method: .delete, url: URL(url)))
+    }
+
+    public func options(_ url: String) throws -> Response {
+        return try send(Request(method: .options, url: URL(url)))
+    }
+}
+
+extension Client {
+    public func post(_ url: String, json: [UInt8]) throws -> Response {
+        var request = Request(method: .post, url: try URL(url))
+        request.contentType = .json
+        request.rawBody = json
+        return try send(request)
     }
 }

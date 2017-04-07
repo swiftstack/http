@@ -4,16 +4,122 @@ class EncodeRequestTests: TestCase {
     func testRequest() {
         let expected = "GET /test HTTP/1.1\r\n\r\n"
         let request = Request(method: .get, url: "/test")
-        let result = String(bytes: request.bytes)
-        assertEqual(result, expected)
+        assertEqual(String(bytes: request.bytes), expected)
     }
 
     func testUrlQuery() {
-        let expected = "GET /test? HTTP/1.1\r\n\r\n"
+        let expected = "GET /test?query=true HTTP/1.1\r\n\r\n"
         let request = Request(
             method: .get,
-            url: URL(path: "/test", query: "?"))
-        let result = String(bytes: request.bytes)
-        assertEqual(result, expected)
+            url: URL(path: "/test", query: "query=true"))
+        assertEqual(String(bytes: request.bytes), expected)
+    }
+
+    func testHost() {
+        let expected = "GET / HTTP/1.1\r\n" +
+            "Host: 0.0.0.0:5000\r\n" +
+            "\r\n"
+        var request = Request()
+        request.host = "0.0.0.0:5000"
+        assertEqual(String(bytes: request.bytes), expected)
+    }
+
+    func testUserAgent() {
+        let expected = "GET / HTTP/1.1\r\n" +
+            "User-Agent: Mozilla/5.0\r\n" +
+            "\r\n"
+        var request = Request()
+        request.userAgent = "Mozilla/5.0"
+        assertEqual(String(bytes: request.bytes), expected)
+    }
+
+    func testAccept() {
+        let expected = "GET / HTTP/1.1\r\n" +
+            "Accept: */*\r\n" +
+            "\r\n"
+        var request = Request()
+        request.accept = "*/*"
+        assertEqual(String(bytes: request.bytes), expected)
+    }
+
+    func testAcceptLanguage() {
+        let expected = "GET / HTTP/1.1\r\n" +
+            "Accept-Language: en-us,en;q=0.5\r\n" +
+            "\r\n"
+        var request = Request()
+        request.acceptLanguage = "en-us,en;q=0.5"
+        assertEqual(String(bytes: request.bytes), expected)
+    }
+
+    func testAcceptEncoding() {
+        let expected = "GET / HTTP/1.1\r\n" +
+            "Accept-Encoding: gzip,deflate\r\n" +
+            "\r\n"
+        var request = Request()
+        request.acceptEncoding = "gzip,deflate"
+        assertEqual(String(bytes: request.bytes), expected)
+    }
+
+    func testAcceptCharset() {
+        let expected = "GET / HTTP/1.1\r\n" +
+            "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n" +
+            "\r\n"
+        var request = Request()
+        request.acceptCharset = "ISO-8859-1,utf-8;q=0.7,*;q=0.7"
+        assertEqual(String(bytes: request.bytes), expected)
+    }
+
+    func testKeepAlive() {
+        let expected = "GET / HTTP/1.1\r\n" +
+            "Keep-Alive: 300\r\n" +
+            "\r\n"
+        var request = Request()
+        request.keepAlive = 300
+        assertEqual(String(bytes: request.bytes), expected)
+    }
+
+    func testConnection() {
+        let expected = "GET / HTTP/1.1\r\n" +
+            "Connection: close\r\n" +
+            "\r\n"
+        var request = Request()
+        request.connection = "close"
+        assertEqual(String(bytes: request.bytes), expected)
+    }
+
+    func testContentType() {
+        let expected = "GET / HTTP/1.1\r\n" +
+            "Content-Type: text/plain\r\n" +
+            "\r\n"
+        var request = Request()
+        request.contentType = .text
+        assertEqual(String(bytes: request.bytes), expected)
+    }
+
+    func testContentLength() {
+        let expected = "GET / HTTP/1.1\r\n" +
+            "Content-Length: 0\r\n" +
+            "\r\n"
+        var request = Request()
+        request.contentLength = 0
+        assertEqual(String(bytes: request.bytes), expected)
+    }
+
+    func testTransferEncoding() {
+        let expected = "GET / HTTP/1.1\r\n" +
+            "Transfer-Encoding: chunked\r\n" +
+            "\r\n"
+        var request = Request()
+        request.transferEncoding = "chunked"
+        assertEqual(String(bytes: request.bytes), expected)
+    }
+
+    func testCustomHeaders() {
+        let expected = "GET / HTTP/1.1\r\n" +
+            "User: guest\r\n" +
+            "\r\n"
+        var request = Request()
+        request.customHeaders["User"] = "guest"
+        assertEqual(String(bytes: request.bytes), expected)
     }
 }

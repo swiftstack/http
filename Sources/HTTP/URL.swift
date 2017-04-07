@@ -46,6 +46,7 @@ extension URL {
         var bytes = [UInt8]()
         bytes.append(contentsOf: [UInt8](path.utf8))
         if let query = query {
+            bytes.append(Character.questionMark)
             bytes.append(contentsOf: [UInt8](query.utf8))
         }
         return bytes

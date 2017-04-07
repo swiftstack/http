@@ -14,6 +14,7 @@ extension Sequence where Iterator.Element == UInt8 {
 
 typealias ASCII = [UInt8]
 extension Array where Element == UInt8 {
+    @inline(__always)
     public init(_ value: String) {
         self = [UInt8](value.utf8)
     }
@@ -21,7 +22,7 @@ extension Array where Element == UInt8 {
 
 extension UInt8: ExpressibleByStringLiteral {
     private init(_ value: String) {
-        self = ASCII(value.utf8)[0]
+        self = ASCII(value)[0]
     }
 
     public init(stringLiteral value: String) {
@@ -42,6 +43,7 @@ extension UInt8: ExpressibleByStringLiteral {
 
 extension String {
     public init(buffer: UnsafeRawBufferPointer) {
+        _debugPrecondition(!buffer.contains(0), "invalid data")
         let count = buffer.count
         let storage = _StringBuffer(
             capacity: count,

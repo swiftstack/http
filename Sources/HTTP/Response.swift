@@ -80,20 +80,47 @@ extension Response {
         bytes.append(contentsOf: Constants.lineEnd)
 
         // Headers
-        if let contentType = contentType {
-            bytes.append(contentsOf: RequestHeader.contentType.bytes)
+        @inline(__always)
+        func writeHeader(name: [UInt8], value: [UInt8]) {
+            bytes.append(contentsOf: name)
             bytes.append(Character.colon)
             bytes.append(Character.whitespace)
-            bytes.append(contentsOf: contentType.bytes)
+            bytes.append(contentsOf: value)
             bytes.append(contentsOf: Constants.lineEnd)
         }
 
-        if let contentLength = contentLength {
-            bytes.append(contentsOf: RequestHeader.contentLength.bytes)
-            bytes.append(Character.colon)
-            bytes.append(Character.whitespace)
-            bytes.append(contentsOf: ASCII(String(contentLength)))
-            bytes.append(contentsOf: Constants.lineEnd)
+        if let contentType = self.contentType {
+            writeHeader(
+                name: ResponseHeader.contentType.bytes,
+                value: contentType.bytes)
+        }
+
+        if let contentLength = self.contentLength {
+            writeHeader(
+                name: ResponseHeader.contentLength.bytes,
+                value: ASCII(String(contentLength)))
+        }
+        
+        if let connection = self.connection {
+            writeHeader(
+                name: ResponseHeader.connection.bytes,
+                value: ASCII(connection))
+        }
+
+        if let contentEncoding = self.contentEncoding {
+            writeHeader(
+                name: ResponseHeader.contentEncoding.bytes,
+                value: ASCII(contentEncoding))
+        }
+
+        if let transferEncoding = self.transferEncoding {
+            writeHeader(
+                name: ResponseHeader.transferEncoding.bytes,
+                value: ASCII(transferEncoding))
+        }
+
+        for (key, value) in customHeaders {
+            writeHeader(name: ASCII(key), value: ASCII(value))
         }
 
         // Separator

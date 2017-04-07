@@ -17,7 +17,11 @@ public struct Request {
 
     public var customHeaders: [String : String] = [:]
 
-    public var rawBody: [UInt8]? = nil
+    public var rawBody: [UInt8]? = nil {
+        didSet {
+            contentLength = rawBody?.count
+        }
+    }
 }
 
 extension Request {
@@ -50,6 +54,7 @@ extension Request {
     }
 
     func encode(to bytes: inout [UInt8]) {
+        // Start Line
         bytes.append(contentsOf: method.bytes)
         bytes.append(Character.whitespace)
         bytes.append(contentsOf: url.bytes)
@@ -58,7 +63,94 @@ extension Request {
         bytes.append(contentsOf: Constants.oneOne)
         bytes.append(contentsOf: Constants.lineEnd)
 
+        // Headers
+        @inline(__always)
+        func writeHeader(name: [UInt8], value: [UInt8]) {
+            bytes.append(contentsOf: name)
+            bytes.append(Character.colon)
+            bytes.append(Character.whitespace)
+            bytes.append(contentsOf: value)
+            bytes.append(contentsOf: Constants.lineEnd)
+        }
+
+        if let host = self.host {
+            writeHeader(
+                name: RequestHeader.host.bytes,
+                value: ASCII(host))
+        }
+
+        if let contentType = self.contentType {
+            writeHeader(
+                name: RequestHeader.contentType.bytes,
+                value: contentType.bytes)
+        }
+
+        if let contentLength = self.contentLength {
+            let length = String(contentLength)
+            writeHeader(
+                name: RequestHeader.contentLength.bytes,
+                value: ASCII(length))
+        }
+
+        if let userAgent = self.userAgent {
+            writeHeader(
+                name: RequestHeader.userAgent.bytes,
+                value: ASCII(userAgent))
+        }
+
+        if let accept = self.accept {
+            writeHeader(
+                name: RequestHeader.accept.bytes,
+                value: ASCII(accept))
+        }
+
+        if let acceptLanguage = self.acceptLanguage {
+            writeHeader(
+                name: RequestHeader.acceptLanguage.bytes,
+                value: ASCII(acceptLanguage))
+        }
+
+        if let acceptEncoding = self.acceptEncoding {
+            writeHeader(
+                name: RequestHeader.acceptEncoding.bytes,
+                value: ASCII(acceptEncoding))
+        }
+
+        if let acceptCharset = self.acceptCharset {
+            writeHeader(
+                name: RequestHeader.acceptCharset.bytes,
+                value: ASCII(acceptCharset))
+        }
+
+        if let keepAlive = self.keepAlive {
+            writeHeader(
+                name: RequestHeader.keepAlive.bytes,
+                value: ASCII(String(keepAlive)))
+        }
+
+        if let connection = self.connection {
+            writeHeader(
+                name: RequestHeader.connection.bytes,
+                value: ASCII(connection))
+        }
+
+        if let transferEncoding = self.transferEncoding {
+            writeHeader(
+                name: RequestHeader.transferEncoding.bytes,
+                value: ASCII(transferEncoding))
+        }
+
+        for (key, value) in customHeaders {
+            writeHeader(name: ASCII(key), value: ASCII(value))
+        }
+
+        // Separator
         bytes.append(contentsOf: Constants.lineEnd)
+
+        // Body
+        if let rawBody = rawBody {
+            bytes.append(contentsOf: rawBody)
+        }
     }
 }
 

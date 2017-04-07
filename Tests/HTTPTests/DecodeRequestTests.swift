@@ -185,6 +185,19 @@ class DecodeRequestTests: TestCase {
         }
     }
 
+    func testCustomHeader() {
+        do {
+            let bytes = ASCII(
+                "GET / HTTP/1.1\r\n" +
+                "User: guest\r\n" +
+                "\r\n")
+            let request = try Request(from: bytes)
+            assertEqual(request.customHeaders["User"], "guest")
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
     func testTwoHeaders() {
         do {
             let bytes = ASCII(
