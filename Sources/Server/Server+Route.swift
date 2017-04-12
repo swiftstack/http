@@ -2,64 +2,99 @@ import Reflection
 import HTTP
 
 extension Server {
-    // when we don't need anything
-    public func route(method: Request.Method, url: String, handler: @escaping (Void) -> Any) {
-        let route = Route(type: method, handler: { _ in handler() })
+
+    // MARK: Simple routes
+
+    // void
+    public func route(
+        method: Request.Method,
+        url: String,
+        handler: @escaping (Void) throws -> Any
+    ) {
+        let route = Route(type: method, handler: { _ in try handler() })
         routeMatcher.add(route: url.utf8, payload: route)
     }
 
-    // only request data
-    public func route(method: Request.Method, url: String, handler: @escaping (Request) -> Any) {
+    // request
+    public func route(
+        method: Request.Method,
+        url: String,
+        handler: @escaping (Request) throws -> Any
+    ) {
         let route = Route(type: method, handler: handler)
         routeMatcher.add(route: url.utf8, payload: route)
     }
 
-    // reflection: primitive types: Int, String, Double.
-    public func route<A: Primitive>(method: Request.Method, url: String, handler: @escaping (A) -> Any) {
+    // MARK: Reflection
+
+    // primitive type: Int | String | Double.
+    public func route<Model: Primitive>(
+        method: Request.Method,
+        url: String,
+        handler: @escaping (Model) throws -> Any
+    ) {
         createRoute(method: method, url: url) { _, values in
             // TODO: handle single value properly
             guard let value = values.first?.value as? String,
-                let param = A(param: value) else {
+                let param = Model(param: value) else {
                     return Response(status: .badRequest)
             }
-            return handler(param)
+            return try handler(param)
         }
     }
 
-    // reflection: request data + primitive types: Int, String, Double.
-    public func route<A: Primitive>(method: Request.Method, url: String, handler: @escaping (Request, A) -> Any) {
+    // pass request + primitive type: Int | String | Double.
+    public func route<Model: Primitive>(
+        method: Request.Method,
+        url: String,
+        handler: @escaping (Request, Model) throws -> Any
+    ) {
         createRoute(method: method, url: url) { request, values in
             // TODO: handle single value properly
             guard let value = values.first?.value as? String,
-                let param = A(param: value) else {
+                let param = Model(param: value) else {
                     return Response(status: .badRequest)
             }
-            return handler(request, param)
+            return try handler(request, param)
         }
     }
 
-    // reflection: POD value type
-    public func route<A>(method: Request.Method, url: String, handler: @escaping (A) -> Any) {
+    // foreign struct
+    public func route<Model>(
+        method: Request.Method,
+        url: String,
+        handler: @escaping (Model) throws -> Any
+    ) {
         createRoute(method: method, url: url) { _, values in
-            guard let model = Blueprint(ofType: A.self).construct(using: values) else {
-                return Response(status: .badRequest)
+            guard let model = Blueprint(ofType: Model.self)
+                .construct(using: values) else {
+                    return Response(status: .badRequest)
             }
-            return handler(model)
+            return try handler(model)
         }
     }
 
     // reflection: request data + POD value type
-    public func route<A>(method: Request.Method, url: String, handler: @escaping (Request, A) -> Any) {
+    public func route<Model>(
+        method: Request.Method,
+        url: String,
+        handler: @escaping (Request, Model) throws -> Any
+    ) {
         createRoute(method: method, url: url) { request, values in
-            guard let model = Blueprint(ofType: A.self).construct(using: values) else {
-                return Response(status: .badRequest)
+            guard let model = Blueprint(ofType: Model.self)
+                .construct(using: values) else {
+                    return Response(status: .badRequest)
             }
-            return handler(request, model)
+            return try handler(request, model)
         }
     }
 
     @inline(__always)
-    func createRoute(method: Request.Method, url: String, handler: @escaping (Request, [String : Any]) -> Any) {
+    func createRoute(
+        method: Request.Method,
+        url: String,
+        handler: @escaping (Request, [String : Any]) throws -> Any
+    ) {
         let urlMatcher = URLParamMatcher(url)
 
         let wrapper: RequestHandler = { request in
@@ -89,7 +124,7 @@ extension Server {
                     values[key] = value
                 }
             }
-            return handler(request, values)
+            return try handler(request, values)
         }
         let route = Route(type: method, handler: wrapper)
         routeMatcher.add(route: url.utf8, payload: route)
@@ -98,152 +133,260 @@ extension Server {
     // Convenience constructors
 
     // GET
-    public func route(get url: String, handler: @escaping (Void) -> Any) {
+    public func route(
+        get url: String,
+        handler: @escaping (Void) throws -> Any
+    ) {
         route(method: .get, url: url, handler: handler)
     }
 
-    public func route(get url: String, handler: @escaping (Request) -> Any) {
+    public func route(
+        get url: String,
+        handler: @escaping (Request) throws -> Any
+    ) {
         route(method: .get, url: url, handler: handler)
     }
 
-    public func route<A: Primitive>(get url: String, handler: @escaping (A) -> Any) {
+    public func route<A: Primitive>(
+        get url: String,
+        handler: @escaping (A) throws -> Any
+    ) {
         route(method: .get, url: url, handler: handler)
     }
 
-    public func route<A: Primitive>(get url: String, handler: @escaping (Request, A) -> Any) {
+    public func route<A: Primitive>(
+        get url: String,
+        handler: @escaping (Request, A) throws -> Any
+    ) {
         route(method: .get, url: url, handler: handler)
     }
 
-    public func route<A>(get url: String, handler: @escaping (A) -> Any) {
+    public func route<A>(
+        get url: String,
+        handler: @escaping (A) throws -> Any
+    ) {
         route(method: .get, url: url, handler: handler)
     }
 
-    public func route<A>(get url: String, handler: @escaping (Request, A) -> Any) {
+    public func route<A>(
+        get url: String,
+        handler: @escaping (Request, A) throws -> Any
+    ) {
         route(method: .get, url: url, handler: handler)
     }
 
     // HEAD
-    public func route(head url: String, handler: @escaping (Void) -> Any) {
+    public func route(
+        head url: String,
+        handler: @escaping (Void) throws -> Any
+    ) {
         route(method: .head, url: url, handler: handler)
     }
 
-    public func route(head url: String, handler: @escaping (Request) -> Any) {
+    public func route(
+        head url: String,
+        handler: @escaping (Request) throws -> Any
+    ) {
         route(method: .head, url: url, handler: handler)
     }
 
-    public func route<A: Primitive>(head url: String, handler: @escaping (A) -> Any) {
+    public func route<A: Primitive>(
+        head url: String,
+        handler: @escaping (A) throws -> Any
+    ) {
         route(method: .head, url: url, handler: handler)
     }
 
-    public func route<A: Primitive>(head url: String, handler: @escaping (Request, A) -> Any) {
+    public func route<A: Primitive>(
+        head url: String,
+        handler: @escaping (Request, A) throws -> Any
+    ) {
         route(method: .head, url: url, handler: handler)
     }
 
-    public func route<A>(head url: String, handler: @escaping (A) -> Any) {
+    public func route<A>(
+        head url: String,
+        handler: @escaping (A) throws -> Any
+    ) {
         route(method: .head, url: url, handler: handler)
     }
 
-    public func route<A>(head url: String, handler: @escaping (Request, A) -> Any) {
+    public func route<A>(
+        head url: String,
+        handler: @escaping (Request, A) throws -> Any
+    ) {
         route(method: .head, url: url, handler: handler)
     }
 
     // POST
-    public func route(post url: String, handler: @escaping (Void) -> Any) {
+    public func route(
+        post url: String,
+        handler: @escaping (Void) throws -> Any
+    ) {
         route(method: .post, url: url, handler: handler)
     }
 
-    public func route(post url: String, handler: @escaping (Request) -> Any) {
+    public func route(
+        post url: String,
+        handler: @escaping (Request) throws -> Any
+    ) {
         route(method: .post, url: url, handler: handler)
     }
 
-    public func route<A: Primitive>(post url: String, handler: @escaping (A) -> Any) {
+    public func route<A: Primitive>(
+        post url: String,
+        handler: @escaping (A) throws -> Any
+    ) {
         route(method: .post, url: url, handler: handler)
     }
 
-    public func route<A: Primitive>(post url: String, handler: @escaping (Request, A) -> Any) {
+    public func route<A: Primitive>(
+        post url: String,
+        handler: @escaping (Request, A) throws -> Any
+    ) {
         route(method: .post, url: url, handler: handler)
     }
 
-    public func route<A>(post url: String, handler: @escaping (A) -> Any) {
+    public func route<A>(
+        post url: String,
+        handler: @escaping (A) throws -> Any
+    ) {
         route(method: .post, url: url, handler: handler)
     }
 
-    public func route<A>(post url: String, handler: @escaping (Request, A) -> Any) {
+    public func route<A>(
+        post url: String,
+        handler: @escaping (Request, A) throws -> Any
+    ) {
         route(method: .post, url: url, handler: handler)
     }
 
     // PUT
-    public func route(put url: String, handler: @escaping (Void) -> Any) {
+    public func route(
+        put url: String,
+        handler: @escaping (Void) throws -> Any
+    ) {
         route(method: .put, url: url, handler: handler)
     }
 
-    public func route(put url: String, handler: @escaping (Request) -> Any) {
+    public func route(
+        put url: String,
+        handler: @escaping (Request) throws -> Any
+    ) {
         route(method: .put, url: url, handler: handler)
     }
 
-    public func route<A: Primitive>(put url: String, handler: @escaping (A) -> Any) {
+    public func route<A: Primitive>(
+        put url: String,
+        handler: @escaping (A) throws -> Any
+    ) {
         route(method: .put, url: url, handler: handler)
     }
 
-    public func route<A: Primitive>(put url: String, handler: @escaping (Request, A) -> Any) {
+    public func route<A: Primitive>(
+        put url: String,
+        handler: @escaping (Request, A) throws -> Any
+    ) {
         route(method: .put, url: url, handler: handler)
     }
 
-    public func route<A>(put url: String, handler: @escaping (A) -> Any) {
+    public func route<A>(
+        put url: String,
+        handler: @escaping (A) throws -> Any
+    ) {
         route(method: .put, url: url, handler: handler)
     }
 
-    public func route<A>(put url: String, handler: @escaping (Request, A) -> Any) {
+    public func route<A>(
+        put url: String,
+        handler: @escaping (Request, A) throws -> Any
+    ) {
         route(method: .put, url: url, handler: handler)
     }
 
     // DELETE
-    public func route(delete url: String, handler: @escaping (Void) -> Any) {
+    public func route(
+        delete url: String,
+        handler: @escaping (Void) throws -> Any
+    ) {
         route(method: .delete, url: url, handler: handler)
     }
 
-    public func route(delete url: String, handler: @escaping (Request) -> Any) {
+    public func route(
+        delete url: String,
+        handler: @escaping (Request) throws -> Any
+    ) {
         route(method: .delete, url: url, handler: handler)
     }
 
-    public func route<A: Primitive>(delete url: String, handler: @escaping (A) -> Any) {
+    public func route<A: Primitive>(
+        delete url: String,
+        handler: @escaping (A) throws -> Any
+    ) {
         route(method: .delete, url: url, handler: handler)
     }
 
-    public func route<A: Primitive>(delete url: String, handler: @escaping (Request, A) -> Any) {
+    public func route<A: Primitive>(
+        delete url: String,
+        handler: @escaping (Request, A) throws -> Any
+    ) {
         route(method: .delete, url: url, handler: handler)
     }
 
-    public func route<A>(delete url: String, handler: @escaping (A) -> Any) {
+    public func route<A>(
+        delete url: String,
+        handler: @escaping (A) throws -> Any
+    ) {
         route(method: .delete, url: url, handler: handler)
     }
 
-    public func route<A>(delete url: String, handler: @escaping (Request, A) -> Any) {
+    public func route<A>(
+        delete url: String,
+        handler: @escaping (Request, A) throws -> Any
+    ) {
         route(method: .delete, url: url, handler: handler)
     }
 
     // OPTIONS
-    public func route(options url: String, handler: @escaping (Void) -> Any) {
+    public func route(
+        options url: String,
+        handler: @escaping (Void) throws -> Any
+    ) {
         route(method: .options, url: url, handler: handler)
     }
 
-    public func route(options url: String, handler: @escaping (Request) -> Any) {
+    public func route(
+        options url: String,
+        handler: @escaping (Request) throws -> Any
+    ) {
         route(method: .options, url: url, handler: handler)
     }
 
-    public func route<A: Primitive>(options url: String, handler: @escaping (A) -> Any) {
+    public func route<A: Primitive>(
+        options url: String,
+        handler: @escaping (A) throws -> Any
+    ) {
         route(method: .options, url: url, handler: handler)
     }
 
-    public func route<A: Primitive>(options url: String, handler: @escaping (Request, A) -> Any) {
+    public func route<A: Primitive>(
+        options url: String,
+        handler: @escaping (Request, A) throws -> Any
+    ) {
         route(method: .options, url: url, handler: handler)
     }
 
-    public func route<A>(options url: String, handler: @escaping (A) -> Any) {
+    public func route<A>(
+        options url: String,
+        handler: @escaping (A) throws -> Any
+    ) {
         route(method: .options, url: url, handler: handler)
     }
 
-    public func route<A>(options url: String, handler: @escaping (Request, A) -> Any) {
+    public func route<A>(
+        options url: String,
+        handler: @escaping (Request, A) throws -> Any
+    ) {
         route(method: .options, url: url, handler: handler)
     }
 }

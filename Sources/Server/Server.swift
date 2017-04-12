@@ -78,7 +78,7 @@ public class Server {
         }
     }
 
-    public typealias RequestHandler = (Request) -> Any
+    public typealias RequestHandler = (Request) throws -> Any
 
     struct Route {
         let type: Request.Method
@@ -91,7 +91,9 @@ public class Server {
             return Response(status: .notFound)
         }
 
-        let response = route.handler(request)
+        guard let response = try? route.handler(request) else {
+            return Response(status: .internalServerError)
+        }
 
         switch response {
         case let response as Response: return response
