@@ -2,7 +2,8 @@ import Log
 import Async
 import Socket
 import Reflection
-import HTTP
+
+@_exported import HTTP
 
 public enum ClientError: Error {
     case missingUrlHost
