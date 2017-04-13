@@ -5,6 +5,8 @@ import Reflection
 
 @_exported import HTTP
 
+import class Foundation.JSONSerialization
+
 public enum ClientError: Error {
     case missingUrlHost
 }
@@ -43,7 +45,7 @@ public class Client {
         try socket.close()
     }
 
-    func send(_ request: Request) throws -> Response {
+    public func makeRequest(_ request: Request) throws -> Response {
         if !isConnected {
             try connect(to: request.url)
         }
@@ -61,35 +63,36 @@ public class Client {
 
 extension Client {
     public func get(_ url: String) throws -> Response {
-        return try send(Request(method: .get, url: URL(url)))
+        return try makeRequest(Request(method: .get, url: URL(url)))
     }
 
     public func head(_ url: String) throws -> Response {
-        return try send(Request(method: .head, url: URL(url)))
+        return try makeRequest(Request(method: .head, url: URL(url)))
     }
 
     public func post(_ url: String) throws -> Response {
-        return try send(Request(method: .post, url: URL(url)))
+        return try makeRequest(Request(method: .post, url: URL(url)))
     }
 
     public func put(_ url: String) throws -> Response {
-        return try send(Request(method: .put, url: URL(url)))
+        return try makeRequest(Request(method: .put, url: URL(url)))
     }
 
     public func delete(_ url: String) throws -> Response {
-        return try send(Request(method: .delete, url: URL(url)))
+        return try makeRequest(Request(method: .delete, url: URL(url)))
     }
 
     public func options(_ url: String) throws -> Response {
-        return try send(Request(method: .options, url: URL(url)))
+        return try makeRequest(Request(method: .options, url: URL(url)))
     }
 }
 
 extension Client {
-    public func post(_ url: String, json: [UInt8]) throws -> Response {
+    public func post(_ url: String, json object: Any) throws -> Response {
+        let bytes = [UInt8](try JSONSerialization.data(withJSONObject: object))
         var request = Request(method: .post, url: try URL(url))
         request.contentType = .json
-        request.rawBody = json
-        return try send(request)
+        request.rawBody = bytes
+        return try makeRequest(request)
     }
 }
