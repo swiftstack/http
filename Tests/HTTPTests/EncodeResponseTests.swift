@@ -125,19 +125,19 @@ class EncodeResponseTests: TestCase {
     func testJsonResponse() {
         let expected = "HTTP/1.1 200 OK\r\n" +
             "Content-Type: application/json\r\n" +
-            "Content-Length: 28\r\n" +
+            "Content-Length: 27\r\n" +
             "\r\n" +
-            "{'message': 'Hello, World!'}"
-        let response = Response(json: ASCII("{'message': 'Hello, World!'}"))
-        guard let rawBody = response.rawBody,
+            "{\"message\":\"Hello, World!\"}"
+        guard let response = try? Response(json: ["message" : "Hello, World!"]),
+            let rawBody = response.rawBody,
             let body = response.body else {
                 fail("body shouldn't be nil")
                 return
         }
-        assertEqual(body, "{'message': 'Hello, World!'}")
-        assertEqual(rawBody, ASCII("{'message': 'Hello, World!'}"))
+        assertEqual(body, "{\"message\":\"Hello, World!\"}")
+        assertEqual(rawBody, ASCII("{\"message\":\"Hello, World!\"}"))
         assertEqual(response.contentType, .json)
-        assertEqual(response.contentLength, 28)
+        assertEqual(response.contentLength, 27)
         assertEqual(String(bytes: response.bytes), expected)
     }
 

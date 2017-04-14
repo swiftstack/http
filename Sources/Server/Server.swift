@@ -90,31 +90,26 @@ public class Server {
             return Response(status: .notFound)
         }
 
-        guard let response = try? route.handler(request) else {
+        do {
+            let response = try route.handler(request)
+            switch response {
+            case let response as Response: return response
+            case let string as String: return Response(string: string)
+            case is Void: return Response(status: .ok)
+            default: return try createJsonResponse(response)
+            }
+        } catch {
             return Response(status: .internalServerError)
-        }
-
-        switch response {
-        case let response as Response: return response
-        case let string as String: return Response(string: string)
-        case is Void: return Response(status: .ok)
-        default: return createJsonResponse(response)
         }
     }
 
-    func createJsonResponse(_ object: Any) -> Response {
-        var jsonObject: Any
-
+    func createJsonResponse(_ object: Any) throws -> Response {
         switch object {
-        case let dictonary as [String : Any]: jsonObject = dictonary
-        default: jsonObject = serialize(object: object)
+        case let dictonary as [String : Any]:
+            return try Response(json: dictonary)
+        default:
+            return try Response(json: serialize(object: object))
         }
-
-        guard let data =
-            try? JSONSerialization.data(withJSONObject: jsonObject) else {
-                return Response(status: .internalServerError)
-        }
-        return Response(json: [UInt8](data))
     }
 
     func serialize(object: Any) -> [String : Any] {

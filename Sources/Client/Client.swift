@@ -5,7 +5,7 @@ import Reflection
 
 @_exported import HTTP
 
-import class Foundation.JSONSerialization
+import struct Foundation.CharacterSet
 
 public enum ClientError: Error {
     case missingUrlHost
@@ -88,11 +88,8 @@ extension Client {
 }
 
 extension Client {
-    public func post(_ url: String, json object: Any) throws -> Response {
-        let bytes = [UInt8](try JSONSerialization.data(withJSONObject: object))
-        var request = Request(method: .post, url: try URL(url))
-        request.contentType = .json
-        request.rawBody = bytes
+    public func post(_ url: URL, json object: Any) throws -> Response {
+        let request = try Request(method: .post, url: url, json: object)
         return try makeRequest(request)
     }
 }

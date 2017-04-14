@@ -1,3 +1,5 @@
+import class Foundation.JSONSerialization
+
 public struct Request {
     public var method: Method
     public var url: URL
@@ -45,6 +47,17 @@ extension Request {
         self.version = .oneOne
     }
 }
+
+extension Request {
+    public init(method: Method, url: URL, json object: Any) throws {
+        let bytes = [UInt8](try JSONSerialization.data(withJSONObject: object))
+        self.init(method: method, url: url)
+        self.contentType = .json
+        self.rawBody = bytes
+        self.contentLength = bytes.count
+    }
+}
+
 
 extension Request {
     public var bytes: [UInt8] {
