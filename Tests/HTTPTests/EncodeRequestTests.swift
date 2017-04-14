@@ -122,4 +122,26 @@ class EncodeRequestTests: TestCase {
         request.customHeaders["User"] = "guest"
         assertEqual(String(bytes: request.bytes), expected)
     }
+
+    func testJsonInitializer() {
+        let expected = "POST / HTTP/1.1\r\n" +
+            "Content-Type: application/json\r\n" +
+            "Content-Length: 27\r\n" +
+            "\r\n" +
+            "{\"message\":\"Hello, World!\"}"
+        let values = ["message": "Hello, World!"]
+        let request = try! Request(method: .post, url: "/", json: values)
+        assertEqual(String(bytes: request.bytes), expected)
+    }
+
+    func testUrlEncodedInitializer() {
+        let expected = "POST / HTTP/1.1\r\n" +
+            "Content-Type: application/x-www-form-urlencoded\r\n" +
+            "Content-Length: 23\r\n" +
+            "\r\n" +
+            "message=Hello,%20World!"
+        let values = ["message": "Hello, World!"]
+        let request = try! Request(method: .post, url: "/", urlEncoded: values)
+        assertEqual(String(bytes: request.bytes), expected)
+    }
 }

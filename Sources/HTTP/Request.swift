@@ -56,8 +56,20 @@ extension Request {
         self.rawBody = bytes
         self.contentLength = bytes.count
     }
-}
 
+    public init(
+        method: Method,
+        url: URL,
+        urlEncoded values: [String : String]
+    ) throws {
+        let bytes = [UInt8](URL.encode(values: values).utf8)
+
+        self.init(method: method, url: url)
+        self.contentType = .urlEncoded
+        self.rawBody = bytes
+        self.contentLength = bytes.count
+    }
+}
 
 extension Request {
     public var bytes: [UInt8] {

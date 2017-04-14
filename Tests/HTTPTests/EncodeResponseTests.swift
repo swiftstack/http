@@ -67,6 +67,55 @@ class EncodeResponseTests: TestCase {
         assertEqual(String(bytes: response.bytes), expected)
     }
 
+    func testResponseHasContentLenght() {
+        let expected = "HTTP/1.1 200 OK\r\n" +
+            "Content-Length: 0\r\n" +
+            "\r\n"
+        let response = Response(status: .ok)
+        assertEqual(response.status, .ok)
+        assertEqual(String(bytes: response.bytes), expected)
+    }
+
+    func testConnection() {
+        let expected = "HTTP/1.1 200 OK\r\n" +
+            "Content-Length: 0\r\n" +
+            "Connection: close\r\n" +
+            "\r\n"
+        var response = Response(status: .ok)
+        response.connection = "close"
+        assertEqual(String(bytes: response.bytes), expected)
+    }
+
+    func testContentEncoding() {
+        let expected = "HTTP/1.1 200 OK\r\n" +
+            "Content-Length: 0\r\n" +
+            "Content-Encoding: gzip,deflate\r\n" +
+            "\r\n"
+        var response = Response(status: .ok)
+        response.contentEncoding = "gzip,deflate"
+        assertEqual(String(bytes: response.bytes), expected)
+    }
+
+    func testTransferEncoding() {
+        let expected = "HTTP/1.1 200 OK\r\n" +
+            "Content-Length: 0\r\n" +
+            "Transfer-Encoding: chunked\r\n" +
+            "\r\n"
+        var response = Response(status: .ok)
+        response.transferEncoding = "chunked"
+        assertEqual(String(bytes: response.bytes), expected)
+    }
+
+    func testCustomHeader() {
+        let expected = "HTTP/1.1 200 OK\r\n" +
+            "Content-Length: 0\r\n" +
+            "User: guest\r\n" +
+            "\r\n"
+        var response = Response(status: .ok)
+        response.customHeaders["User"] = "guest"
+        assertEqual(String(bytes: response.bytes), expected)
+    }
+
     func testStringResponse() {
         let expected = "HTTP/1.1 200 OK\r\n" +
             "Content-Type: text/plain\r\n" +
@@ -141,52 +190,22 @@ class EncodeResponseTests: TestCase {
         assertEqual(String(bytes: response.bytes), expected)
     }
 
-    func testResponseHasContentLenght() {
+    func testUrlEncodedResponse() {
         let expected = "HTTP/1.1 200 OK\r\n" +
-            "Content-Length: 0\r\n" +
-            "\r\n"
-        let response = Response(status: .ok)
-        assertEqual(response.status, .ok)
-        assertEqual(String(bytes: response.bytes), expected)
-    }
-
-    func testConnection() {
-        let expected = "HTTP/1.1 200 OK\r\n" +
-            "Content-Length: 0\r\n" +
-            "Connection: close\r\n" +
-            "\r\n"
-        var response = Response(status: .ok)
-        response.connection = "close"
-        assertEqual(String(bytes: response.bytes), expected)
-    }
-
-    func testContentEncoding() {
-        let expected = "HTTP/1.1 200 OK\r\n" +
-            "Content-Length: 0\r\n" +
-            "Content-Encoding: gzip,deflate\r\n" +
-            "\r\n"
-        var response = Response(status: .ok)
-        response.contentEncoding = "gzip,deflate"
-        assertEqual(String(bytes: response.bytes), expected)
-    }
-
-    func testTransferEncoding() {
-        let expected = "HTTP/1.1 200 OK\r\n" +
-            "Content-Length: 0\r\n" +
-            "Transfer-Encoding: chunked\r\n" +
-            "\r\n"
-        var response = Response(status: .ok)
-        response.transferEncoding = "chunked"
-        assertEqual(String(bytes: response.bytes), expected)
-    }
-
-    func testCustomHeader() {
-        let expected = "HTTP/1.1 200 OK\r\n" +
-            "Content-Length: 0\r\n" +
-            "User: guest\r\n" +
-            "\r\n"
-        var response = Response(status: .ok)
-        response.customHeaders["User"] = "guest"
+            "Content-Type: application/x-www-form-urlencoded\r\n" +
+            "Content-Length: 23\r\n" +
+            "\r\n" +
+            "message=Hello,%20World!"
+        let response = Response(urlEncoded: ["message" : "Hello, World!"])
+        guard let rawBody = response.rawBody,
+            let body = response.body else {
+                fail("body shouldn't be nil")
+                return
+        }
+        assertEqual(body, "message=Hello,%20World!")
+        assertEqual(rawBody, ASCII("message=Hello,%20World!"))
+        assertEqual(response.contentType, .urlEncoded)
+        assertEqual(response.contentLength, 23)
         assertEqual(String(bytes: response.bytes), expected)
     }
 }

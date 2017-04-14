@@ -5,8 +5,6 @@ import Reflection
 
 @_exported import HTTP
 
-import struct Foundation.CharacterSet
-
 public enum ClientError: Error {
     case missingUrlHost
 }
@@ -90,6 +88,14 @@ extension Client {
 extension Client {
     public func post(_ url: URL, json object: Any) throws -> Response {
         let request = try Request(method: .post, url: url, json: object)
+        return try makeRequest(request)
+    }
+
+    public func post(
+        _ url: URL,
+        urlEncoded values: [String : String]
+    ) throws -> Response {
+        let request = try Request(method: .post, url: url, urlEncoded: values)
         return try makeRequest(request)
     }
 }

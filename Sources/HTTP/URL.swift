@@ -1,4 +1,5 @@
 import struct Foundation.URL
+import struct Foundation.CharacterSet
 
 public struct URL {
     public enum Scheme: String {
@@ -38,6 +39,16 @@ extension URL {
         if let scheme = url.scheme {
             self.scheme = Scheme(rawValue: scheme)
         }
+    }
+}
+
+extension URL {
+    static func encode(values: [String : String]) -> String {
+        // FIXME: speedup
+        let queryString = values.map({ "\($0)=\($1)" }).joined(separator: "&")
+        let encodedQuery = queryString.addingPercentEncoding(
+            withAllowedCharacters: CharacterSet.urlQueryAllowed) ?? ""
+        return encodedQuery
     }
 }
 
