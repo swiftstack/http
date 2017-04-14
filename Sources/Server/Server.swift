@@ -91,43 +91,15 @@ public class Server {
         }
 
         do {
-            let response = try route.handler(request)
-            switch response {
+            let object = try route.handler(request)
+            switch object {
             case let response as Response: return response
             case let string as String: return Response(string: string)
             case is Void: return Response(status: .ok)
-            default: return try createJsonResponse(response)
+            default: return try Response(json: object)
             }
         } catch {
             return Response(status: .internalServerError)
         }
-    }
-
-    func createJsonResponse(_ object: Any) throws -> Response {
-        switch object {
-        case let dictonary as [String : Any]:
-            return try Response(json: dictonary)
-        default:
-            return try Response(json: serialize(object: object))
-        }
-    }
-
-    func serialize(object: Any) -> [String : Any] {
-        let mirror = Mirror(reflecting: object)
-        var dictionary = [String : Any]()
-        for child in mirror.children {
-            if let name = child.label {
-                switch child.value {
-                case let value as String: dictionary[name] = value
-                case let value as Int: dictionary[name] = value
-                case let value as UInt: dictionary[name] = value
-                case let value as Bool: dictionary[name] = value
-                case let value as Double: dictionary[name] = value
-                case let value as [String : String]: dictionary[name] = value
-                default: continue
-                }
-            }
-        }
-        return dictionary
     }
 }
