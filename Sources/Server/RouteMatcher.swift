@@ -6,16 +6,16 @@ enum RouterError: Error {
     case invalidRoute
 }
 
-struct Node<T> {
-    lazy var payload: [T] = []
-    var wildcard: [Node]? = nil
-    var rlist: [Node]? = nil
-}
-
 public struct RouteMatcher<T> {
-    public init() {}
+    struct Node {
+        lazy var payload: [T] = []
+        var wildcard: [Node]? = nil
+        var rlist: [Node]? = nil
+    }
 
-    var root = Node<T>()
+    var root = Node()
+
+    public init() {}
 
     public mutating func add(route bytes: String.UTF8View, payload: T) {
         guard let first = bytes.first, first == separator else {
@@ -64,7 +64,7 @@ public struct RouteMatcher<T> {
         return result
     }
 
-    func addNode(to node: inout Node<T>, characters: String.UTF8View.SubSequence, payload: T) {
+    func addNode(to node: inout Node, characters: String.UTF8View.SubSequence, payload: T) {
         let character = Int(characters[characters.startIndex])
         if character == Int(asterisk) || character == Int(colon) {
             if node.wildcard == nil {
@@ -103,7 +103,7 @@ public struct RouteMatcher<T> {
         }
     }
 
-    mutating func findNode(in node: Node<T>, characters: String.UTF8View.SubSequence, result: inout [T]) {
+    mutating func findNode(in node: Node, characters: String.UTF8View.SubSequence, result: inout [T]) {
         guard characters.startIndex < characters.endIndex else {
             var node = node // accessing lazy initializer on immutable type
             if node.payload.count > 0 {
