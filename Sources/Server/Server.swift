@@ -22,6 +22,12 @@ public class Server {
         self.socket = try Socket(awaiter: async.awaiter)
     }
 
+    convenience
+    public init(host: String, reusePort: UInt16, async: Async) throws {
+        try self.init(host: host, port: reusePort, async: async)
+        socket.configure(reusePort: true)
+    }
+
     deinit {
         try? socket.close(silent: true)
     }
