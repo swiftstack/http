@@ -61,14 +61,10 @@ public class Server {
                     break
                 }
                 let request = try Request(from: bytes)
-                if isDebugBuild {
-                    Log.debug(">> \(request.url.path)")
-                }
+                Log.debug(">> \(request.url.path)")
 
                 let response = provideResponse(for: request)
-                if isDebugBuild {
-                    Log.debug("<< \(response.status)")
-                }
+                Log.debug("<< \(response.status)")
 
                 _ = try client.send(bytes: response.bytes)
             }
