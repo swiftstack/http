@@ -1,6 +1,6 @@
 import Log
 import Async
-import Socket
+import Network
 import Reflection
 
 @_exported import HTTP

@@ -1,6 +1,6 @@
 import HTTP
 @testable import Client
-import Socket
+import Network
 
 class ClientTests: TestCase {
     func testClient() {

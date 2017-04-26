@@ -1,6 +1,6 @@
 import XCTest
 @testable import Server
-import Socket
+import Network
 
 class ServerTests: TestCase {
     func testServer() {
