@@ -17,8 +17,8 @@ public struct RouteMatcher<T> {
 
     public init() {}
 
-    public mutating func add(route bytes: String.UTF8View, payload: T) {
-        guard let first = bytes.first, first == separator else {
+    public mutating func add(route bytes: UnsafeRawBufferPointer, payload: T) {
+        guard bytes.count > 0, bytes[0] == separator else {
             return
         }
 
@@ -38,7 +38,7 @@ public struct RouteMatcher<T> {
         addNode(to: &root, characters: bytes.dropFirst(), payload: payload)
     }
 
-    public mutating func matches(route bytes: String.UTF8View) -> [T] {
+    public mutating func matches(route bytes: UnsafeRawBufferPointer) -> [T] {
         let startIndex = bytes.startIndex
         guard bytes[startIndex] == separator else {
             return []
@@ -64,7 +64,7 @@ public struct RouteMatcher<T> {
         return result
     }
 
-    func addNode(to node: inout Node, characters: String.UTF8View.SubSequence, payload: T) {
+    func addNode(to node: inout Node, characters: UnsafeRawBufferPointer, payload: T) {
         let character = Int(characters[characters.startIndex])
         if character == Int(asterisk) || character == Int(colon) {
             if node.wildcard == nil {
@@ -103,7 +103,7 @@ public struct RouteMatcher<T> {
         }
     }
 
-    mutating func findNode(in node: Node, characters: String.UTF8View.SubSequence, result: inout [T]) {
+    mutating func findNode(in node: Node, characters: UnsafeRawBufferPointer, result: inout [T]) {
         guard characters.startIndex < characters.endIndex else {
             var node = node // accessing lazy initializer on immutable type
             if node.payload.count > 0 {
@@ -136,14 +136,18 @@ public struct RouteMatcher<T> {
 
 extension RouteMatcher {
     public mutating func add(route: String, payload: T) {
-        add(route: route.utf8, payload: payload)
+        let bytes = [UInt8](route)
+        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
+        add(route: buffer, payload: payload)
     }
 
     public mutating func matches(route: String) -> [T] {
-        return matches(route: route.utf8)
+        let bytes = [UInt8](route)
+        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
+        return matches(route: buffer)
     }
 
     public mutating func first(route: String) -> T? {
-        return matches(route: route.utf8).first
+        return matches(route: route).first
     }
 }

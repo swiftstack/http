@@ -87,7 +87,7 @@ public class Server {
     }
 
     func provideResponse(for request: Request) -> Response {
-        let routes = routeMatcher.matches(route: request.url.path.utf8)
+        let routes = routeMatcher.matches(route: request.url.path)
         guard let route = routes.first(where: {$0.type == request.method}) else {
             return Response(status: .notFound)
         }

@@ -12,7 +12,7 @@ extension Server {
         handler: @escaping (Void) throws -> Any
     ) {
         let route = Route(type: method, handler: { _ in try handler() })
-        routeMatcher.add(route: url.utf8, payload: route)
+        routeMatcher.add(route: url, payload: route)
     }
 
     // request
@@ -22,7 +22,7 @@ extension Server {
         handler: @escaping (Request) throws -> Any
     ) {
         let route = Route(type: method, handler: handler)
-        routeMatcher.add(route: url.utf8, payload: route)
+        routeMatcher.add(route: url, payload: route)
     }
 
     // MARK: Reflection
@@ -127,7 +127,7 @@ extension Server {
             return try handler(request, values)
         }
         let route = Route(type: method, handler: wrapper)
-        routeMatcher.add(route: url.utf8, payload: route)
+        routeMatcher.add(route: url, payload: route)
     }
 
     // Convenience constructors
