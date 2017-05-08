@@ -192,7 +192,7 @@ class DecodeRequestTests: TestCase {
                 "User: guest\r\n" +
                 "\r\n")
             let request = try Request(from: bytes)
-            assertEqual(request.customHeaders["User"], "guest")
+            assertEqual(request.headers["User"], "guest")
         } catch {
             fail(String(describing: error))
         }

@@ -119,7 +119,7 @@ class EncodeRequestTests: TestCase {
             "User: guest\r\n" +
             "\r\n"
         var request = Request()
-        request.customHeaders["User"] = "guest"
+        request.headers["User"] = "guest"
         assertEqual(String(bytes: request.bytes), expected)
     }
 

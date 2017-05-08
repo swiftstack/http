@@ -8,7 +8,7 @@ public struct Response {
     public var contentLength: Int? = nil
     public var transferEncoding: String? = nil
 
-    public var customHeaders: [String : String] = [:]
+    public var headers: [String : String] = [:]
 
     public var rawBody: [UInt8]? = nil {
         didSet {
@@ -131,7 +131,7 @@ extension Response {
                 value: ASCII(transferEncoding))
         }
 
-        for (key, value) in customHeaders {
+        for (key, value) in headers {
             writeHeader(name: ASCII(key), value: ASCII(value))
         }
 
@@ -208,7 +208,7 @@ extension Response {
                         self.transferEncoding = headerValueString
                     default:
                         let headerNameString = String(buffer: headerNameBuffer)
-                        customHeaders[headerNameString] = headerValueString
+                        headers[headerNameString] = headerValueString
                     }
 
                     startIndex = endIndex.advanced(by: 2)

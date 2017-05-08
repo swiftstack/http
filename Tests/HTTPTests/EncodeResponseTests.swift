@@ -112,7 +112,7 @@ class EncodeResponseTests: TestCase {
             "User: guest\r\n" +
             "\r\n"
         var response = Response(status: .ok)
-        response.customHeaders["User"] = "guest"
+        response.headers["User"] = "guest"
         assertEqual(String(bytes: response.bytes), expected)
     }
 
