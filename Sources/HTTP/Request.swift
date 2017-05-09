@@ -187,11 +187,19 @@ extension Request {
 
     public init(from bytes: UnsafeRawBufferPointer) throws {
         var startIndex = 0
-        var endIndex = try bytes.index(of: Character.whitespace, offset: startIndex)
+        guard let index =
+            bytes.index(of: Character.whitespace, offset: startIndex) else {
+                throw HTTPError.unexpectedEnd
+        }
+        var endIndex = index
         self.method = try Request.Method(from: bytes[startIndex..<endIndex])
 
         startIndex = endIndex.advanced(by: 1)
-        endIndex = try bytes.index(of: Character.whitespace, offset: startIndex)
+        guard let urlEndIndex =
+            bytes.index(of: Character.whitespace, offset: startIndex) else {
+                throw HTTPError.unexpectedEnd
+        }
+        endIndex = urlEndIndex
         self.url = URL(from: bytes[startIndex..<endIndex])
 
         startIndex = endIndex.advanced(by: 1)
@@ -215,16 +223,22 @@ extension Request {
             && !bytes.suffix(from: startIndex)
                 .starts(with: Constants.lineEnd) {
 
-                endIndex = try bytes.index(
+                guard let headerNameEndIndex = bytes.index(
                     of: Character.colon,
-                    offset: startIndex)
+                    offset: startIndex) else {
+                        throw HTTPError.unexpectedEnd
+                }
+                endIndex = headerNameEndIndex
                 let headerNameBuffer = bytes[startIndex..<endIndex]
                 let headerName = try HeaderName(from: headerNameBuffer)
 
                 startIndex = endIndex.advanced(by: 1)
-                endIndex = try bytes.index(
+                guard let headerValueEndIndex = bytes.index(
                     of: Character.cr,
-                    offset: startIndex)
+                    offset: startIndex) else {
+                        throw HTTPError.unexpectedEnd
+                }
+                endIndex = headerValueEndIndex
 
                 var headerValue = bytes[startIndex..<endIndex]
                 if headerValue[0] == Character.whitespace {
@@ -299,7 +313,11 @@ extension Request {
         self.rawBody = []
 
         while startIndex + Constants.minimumChunkLength <= bytes.endIndex {
-            endIndex = try bytes.index(of: Character.cr, offset: startIndex)
+            guard let lineEndIndex =
+                bytes.index(of: Character.cr, offset: startIndex) else {
+                    throw HTTPError.unexpectedEnd
+            }
+            endIndex = lineEndIndex
             guard bytes[endIndex.advanced(by: 1)] == Character.lf else {
                 throw HTTPError.invalidRequest
             }

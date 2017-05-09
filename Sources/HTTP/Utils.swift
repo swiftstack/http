@@ -63,9 +63,9 @@ extension String {
 
 extension UnsafeRawBufferPointer {
     @inline(__always)
-    func index(of element: UInt8, offset: Int) throws -> Int {
+    func index(of element: UInt8, offset: Int) -> Int? {
         guard let index = self.suffix(from: offset).index(of: element) else {
-            throw HTTPError.unexpectedEnd
+            return nil
         }
         return index + offset
     }

@@ -157,7 +157,11 @@ extension Response {
         self.version = try Version(from: bytes[startIndex..<endIndex])
 
         startIndex = endIndex.advanced(by: 1)
-        endIndex = try bytes.index(of: Character.cr, offset: startIndex)
+        guard let index =
+            bytes.index(of: Character.cr, offset: startIndex) else {
+                throw HTTPError.unexpectedEnd
+        }
+        endIndex = index
 
         self.status = try Status(from: bytes[startIndex..<endIndex])
 
@@ -173,17 +177,22 @@ extension Response {
         while startIndex + Constants.minimumHeaderLength < bytes.endIndex
             && !bytes.suffix(from: startIndex)
                 .starts(with: Constants.lineEnd) {
-
-                    endIndex = try bytes.index(
+                    guard let headerNameEndIndex = bytes.index(
                         of: Character.colon,
-                        offset: startIndex)
+                        offset: startIndex) else {
+                            throw HTTPError.unexpectedEnd
+                    }
+                    endIndex = headerNameEndIndex
                     let headerNameBuffer = bytes[startIndex..<endIndex]
                     let headerName = try HeaderName(from: headerNameBuffer)
 
                     startIndex = endIndex.advanced(by: 1)
-                    endIndex = try bytes.index(
+                    guard let lineEnd = bytes.index(
                         of: Character.cr,
-                        offset: startIndex)
+                        offset: startIndex) else {
+                            throw HTTPError.unexpectedEnd
+                    }
+                    endIndex = lineEnd
 
                     var headerValue = bytes[startIndex..<endIndex]
                     if headerValue[0] == Character.whitespace {
@@ -246,7 +255,12 @@ extension Response {
         self.rawBody = []
 
         while startIndex + Constants.minimumChunkLength <= bytes.endIndex {
-            endIndex = try bytes.index(of: Character.cr, offset: startIndex)
+            guard let chunkEnd =
+                bytes.index(of: Character.cr, offset: startIndex) else {
+                    throw HTTPError.unexpectedEnd
+            }
+            endIndex = chunkEnd
+            
             guard bytes[endIndex.advanced(by: 1)] == Character.lf else {
                 throw HTTPError.invalidRequest
             }
