@@ -103,31 +103,31 @@ extension Response {
 
         if let contentType = self.contentType {
             writeHeader(
-                name: ResponseHeader.contentType.bytes,
+                name: HeaderNames.contentType.bytes,
                 value: contentType.bytes)
         }
 
         if let contentLength = self.contentLength {
             writeHeader(
-                name: ResponseHeader.contentLength.bytes,
+                name: HeaderNames.contentLength.bytes,
                 value: ASCII(String(contentLength)))
         }
         
         if let connection = self.connection {
             writeHeader(
-                name: ResponseHeader.connection.bytes,
+                name: HeaderNames.connection.bytes,
                 value: ASCII(connection))
         }
 
         if let contentEncoding = self.contentEncoding {
             writeHeader(
-                name: ResponseHeader.contentEncoding.bytes,
+                name: HeaderNames.contentEncoding.bytes,
                 value: ASCII(contentEncoding))
         }
 
         if let transferEncoding = self.transferEncoding {
             writeHeader(
-                name: ResponseHeader.transferEncoding.bytes,
+                name: HeaderNames.transferEncoding.bytes,
                 value: ASCII(transferEncoding))
         }
 
@@ -205,15 +205,15 @@ extension Response {
 
                     let headerValueString = String(buffer: headerValue)
                     switch headerName {
-                    case ResponseHeader.connection:
+                    case HeaderNames.connection:
                         self.connection = headerValueString
-                    case ResponseHeader.contentEncoding:
+                    case HeaderNames.contentEncoding:
                         self.contentEncoding = headerValueString
-                    case ResponseHeader.contentLength:
+                    case HeaderNames.contentLength:
                         self.contentLength = Int(headerValueString)
-                    case ResponseHeader.contentType:
+                    case HeaderNames.contentType:
                         self.contentType = try ContentType(from: headerValue)
-                    case ResponseHeader.transferEncoding:
+                    case HeaderNames.transferEncoding:
                         self.transferEncoding = headerValueString
                     default:
                         let headerNameString = String(buffer: headerNameBuffer)
@@ -284,8 +284,8 @@ extension Response {
             rawBody!.append(contentsOf: [UInt8](bytes[startIndex..<endIndex]))
             startIndex = endIndex.advanced(by: 2)
         }
-        
-        
+
+
         guard startIndex == bytes.endIndex || (
             startIndex == bytes.endIndex.advanced(by: -2) &&
                 bytes.suffix(from: startIndex)

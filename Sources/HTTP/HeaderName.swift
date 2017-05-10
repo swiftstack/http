@@ -1,23 +1,27 @@
-public struct RequestHeader {
-    static let host = HeaderName("Host")
-    static let userAgent = HeaderName("User-Agent")
-    static let accept = HeaderName("Accept")
-    static let acceptLanguage = HeaderName("Accept-Language")
-    static let acceptEncoding = HeaderName("Accept-Encoding")
-    static let acceptCharset = HeaderName("Accept-Charset")
-    static let keepAlive = HeaderName("Keep-Alive")
-    static let connection = HeaderName("Connection")
-    static let contentLength = HeaderName("Content-Length")
-    static let contentType = HeaderName("Content-Type")
-    static let transferEncoding = HeaderName("Transfer-Encoding")
+extension Request {
+    public struct HeaderNames {
+        static let host = HeaderName("Host")
+        static let userAgent = HeaderName("User-Agent")
+        static let accept = HeaderName("Accept")
+        static let acceptLanguage = HeaderName("Accept-Language")
+        static let acceptEncoding = HeaderName("Accept-Encoding")
+        static let acceptCharset = HeaderName("Accept-Charset")
+        static let keepAlive = HeaderName("Keep-Alive")
+        static let connection = HeaderName("Connection")
+        static let contentLength = HeaderName("Content-Length")
+        static let contentType = HeaderName("Content-Type")
+        static let transferEncoding = HeaderName("Transfer-Encoding")
+    }
 }
 
-public struct ResponseHeader {
-    static let connection = HeaderName("Connection")
-    static let contentEncoding = HeaderName("Content-Encoding")
-    static let contentLength = HeaderName("Content-Length")
-    static let contentType = HeaderName("Content-Type")
-    static let transferEncoding = HeaderName("Transfer-Encoding")
+extension Response {
+    public struct HeaderNames {
+        static let connection = HeaderName("Connection")
+        static let contentEncoding = HeaderName("Content-Encoding")
+        static let contentLength = HeaderName("Content-Length")
+        static let contentType = HeaderName("Content-Type")
+        static let transferEncoding = HeaderName("Transfer-Encoding")
+    }
 }
 
 public struct HeaderName: Hashable {
