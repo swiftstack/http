@@ -40,7 +40,7 @@ public struct HeaderName: Hashable {
     }
 
     public var hashValue: Int {
-        return bytes.hashValue
+        return bytes.lowercasedHashValue
     }
 }
 

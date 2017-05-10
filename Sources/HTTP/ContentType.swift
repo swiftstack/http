@@ -8,12 +8,12 @@ public enum ContentType {
 
 extension ContentType {
     init(from bytes: UnsafeRawBufferPointer) throws {
-        switch bytes.hashValue {
-        case Mapping.text.hashValue: self = .text
-        case Mapping.html.hashValue: self = .html
-        case Mapping.stream.hashValue: self = .stream
-        case Mapping.json.hashValue: self = .json
-        case Mapping.urlEncoded.hashValue: self = .urlEncoded
+        switch bytes.lowercasedHashValue {
+        case Mapping.text.lowercasedHashValue: self = .text
+        case Mapping.html.lowercasedHashValue: self = .html
+        case Mapping.stream.lowercasedHashValue: self = .stream
+        case Mapping.json.lowercasedHashValue: self = .json
+        case Mapping.urlEncoded.lowercasedHashValue: self = .urlEncoded
         default: throw HTTPError.unsupportedContentType
         }
     }

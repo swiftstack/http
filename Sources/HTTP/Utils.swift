@@ -1,7 +1,7 @@
 // MARK: Hash
 
 extension Sequence where Iterator.Element == UInt8 {
-    public var hashValue: Int {
+    public var lowercasedHashValue: Int {
         var hash = 5381
         for byte in self {
             hash = ((hash << 5) &+ hash) &+ Int(byte | 0x20)
