@@ -10,7 +10,7 @@ public struct Request {
     public var accept: String? = nil
     public var acceptLanguage: String? = nil
     public var acceptEncoding: String? = nil
-    public var acceptCharset: String? = nil
+    public var acceptCharset: [AcceptCharset]? = nil
     public var keepAlive: Int? = nil
     public var connection: String? = nil
     public var contentType: ContentType? = nil
@@ -144,7 +144,7 @@ extension Request {
         if let acceptCharset = self.acceptCharset {
             writeHeader(
                 name: RequestHeader.acceptCharset.bytes,
-                value: ASCII(acceptCharset))
+                value: ASCII(acceptCharset.bytes))
         }
 
         if let keepAlive = self.keepAlive {
@@ -262,7 +262,7 @@ extension Request {
                 case RequestHeader.acceptEncoding:
                     self.acceptEncoding = headerValueString
                 case RequestHeader.acceptCharset:
-                    self.acceptCharset = headerValueString
+                    self.acceptCharset = try [AcceptCharset](from: headerValue)
                 case RequestHeader.keepAlive:
                     self.keepAlive = Int(headerValueString)
                 case RequestHeader.connection:

@@ -62,10 +62,15 @@ class EncodeRequestTests: TestCase {
 
     func testAcceptCharset() {
         let expected = "GET / HTTP/1.1\r\n" +
-            "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n" +
+            "Accept-Charset: ISO-8859-1,utf-7,utf-8;q=0.7,*;q=0.7\r\n" +
             "\r\n"
         var request = Request()
-        request.acceptCharset = "ISO-8859-1,utf-8;q=0.7,*;q=0.7"
+        request.acceptCharset = [
+            AcceptCharset(.isoLatin1),
+            AcceptCharset(.custom("utf-7")),
+            AcceptCharset(.utf8, priority: 0.7),
+            AcceptCharset(.any, priority: 0.7)
+        ]
         assertEqual(String(bytes: request.bytes), expected)
     }
 

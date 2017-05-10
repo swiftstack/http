@@ -185,6 +185,28 @@ class DecodeRequestTests: TestCase {
         }
     }
 
+    func testAcceptCharset() {
+        do {
+            let bytes = ASCII(
+                "GET / HTTP/1.1\r\n" +
+                "Accept-Charset: ISO-8859-1,utf-7,utf-8;q=0.7,*;q=0.7\r\n" +
+                "\r\n")
+            let request = try Request(from: bytes)
+            let expectedAcceptCharset = [
+                AcceptCharset(.isoLatin1),
+                AcceptCharset(.custom("utf-7")),
+                AcceptCharset(.utf8, priority: 0.7),
+                AcceptCharset(.any, priority: 0.7)
+            ]
+            assertNotNil(request.acceptCharset)
+            if let acceptCharset = request.acceptCharset {
+                assertEqual(acceptCharset, expectedAcceptCharset)
+            }
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
     func testCustomHeader() {
         do {
             let bytes = ASCII(

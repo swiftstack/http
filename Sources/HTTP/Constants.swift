@@ -3,19 +3,30 @@ struct Character {
     static let cr = ASCII("\r").first!
     static let lf = ASCII("\n").first!
     static let colon = ASCII(":").first!
+    static let semicolon = ASCII(";").first!
+    static let comma = ASCII(",").first!
     static let questionMark = ASCII("?").first!
 }
 
 struct Constants {
     static let httpSlash = ASCII("HTTP/")
     static let oneOne = ASCII("1.1")
-    static let chunked = ASCII("chunked")
 
     static let lineEnd = [Character.cr, Character.lf]
 
     static let versionLength = httpSlash.count + oneOne.count
     static let minimumHeaderLength = ASCII("a:a\r\n").count
+
+    static let chunked = ASCII("chunked")
     static let minimumChunkLength = ASCII("0\r\n").count
+
+    static let qEqual = ASCII("q=")
+
+    struct Encoding {
+        static let isoLatin1 = ASCII("ISO-8859-1")
+        static let utf8 = ASCII("utf-8")
+        static let any = ASCII("*")
+    }
 }
 
 let tokens: [Bool] = [

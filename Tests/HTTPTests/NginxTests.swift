@@ -41,7 +41,11 @@ class NginxTests: TestCase {
             assertEqual(request.accept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
             assertEqual(request.acceptLanguage, "en-us,en;q=0.5")
             assertEqual(request.acceptEncoding, "gzip,deflate")
-            assertEqual(request.acceptCharset, "ISO-8859-1,utf-8;q=0.7,*;q=0.7")
+            assertEqual(request.acceptCharset ?? [], [
+                AcceptCharset(.isoLatin1),
+                AcceptCharset(.utf8, priority: 0.7),
+                AcceptCharset(.any, priority: 0.7)
+            ])
             assertEqual(request.keepAlive, 300)
             assertEqual(request.connection, "keep-alive")
         } catch {

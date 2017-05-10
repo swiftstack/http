@@ -38,8 +38,7 @@ extension UInt8: ExpressibleByStringLiteral {
     }
 }
 
-// MARK: Safe String parsing
-
+// MARK: String initializer from byte sequence (without null terminator)
 
 extension String {
     public init(buffer: UnsafeRawBufferPointer) {

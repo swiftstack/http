@@ -6,6 +6,8 @@ enum HTTPError: Error {
     case invalidStatus
     case invalidVersion
     case invalidHeaderName
+    case invalidHeaderValue
     case unsupportedContentType
+    case unsupportedAcceptCharset
     case unexpectedEnd
 }
