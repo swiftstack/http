@@ -69,17 +69,25 @@ extension Array where Element == AcceptCharset {
 }
 
 extension AcceptCharset {
+    struct Bytes {
+        static let isoLatin1 = ASCII("ISO-8859-1")
+        static let utf8 = ASCII("utf-8")
+        static let any = ASCII("*")
+
+        static let qEqual = ASCII("q=")
+    }
+
     init(from bytes: UnsafeRawBufferPointer) throws {
         let semicolonIndex = bytes.index(of: Character.semicolon, offset: 0)
 
         let charsetEndIndex = semicolonIndex ?? bytes.endIndex
         let charsetBytes = bytes.prefix(upTo: charsetEndIndex)
 
-        if charsetBytes.elementsEqual(Constants.Encoding.utf8) {
+        if charsetBytes.elementsEqual(Bytes.utf8) {
             self.charset = .utf8
-        } else if charsetBytes.elementsEqual(Constants.Encoding.isoLatin1) {
+        } else if charsetBytes.elementsEqual(Bytes.isoLatin1) {
             self.charset = .isoLatin1
-        } else if charsetBytes.elementsEqual(Constants.Encoding.any) {
+        } else if charsetBytes.elementsEqual(Bytes.any) {
             self.charset = .any
         } else {
             self.charset = .custom(String(buffer: charsetBytes))
@@ -89,7 +97,7 @@ extension AcceptCharset {
             let priorityBytes = bytes.suffix(
                 from: semicolonIndex.advanced(by: 1))
             guard priorityBytes.count == 5,
-                priorityBytes.starts(with: Constants.qEqual),
+                priorityBytes.starts(with: Bytes.qEqual),
                 let priority = Double(
                     String(buffer: priorityBytes.suffix(from: 2))) else {
                         throw HTTPError.invalidHeaderValue
@@ -103,18 +111,18 @@ extension AcceptCharset {
     func encode(to buffer: inout [UInt8]) {
         switch self.charset {
         case .utf8:
-            buffer.append(contentsOf: Constants.Encoding.utf8)
+            buffer.append(contentsOf: Bytes.utf8)
         case .isoLatin1:
-            buffer.append(contentsOf: Constants.Encoding.isoLatin1)
+            buffer.append(contentsOf: Bytes.isoLatin1)
         case .any:
-            buffer.append(contentsOf: Constants.Encoding.any)
+            buffer.append(contentsOf: Bytes.any)
         case .custom(let value):
             buffer.append(contentsOf: [UInt8](value))
         }
 
         if priority < 1.0 {
             buffer.append(Character.semicolon)
-            buffer.append(contentsOf: Constants.qEqual)
+            buffer.append(contentsOf: Bytes.qEqual)
             buffer.append(contentsOf: [UInt8](String(describing: priority)))
         }
     }

@@ -19,14 +19,6 @@ struct Constants {
 
     static let chunked = ASCII("chunked")
     static let minimumChunkLength = ASCII("0\r\n").count
-
-    static let qEqual = ASCII("q=")
-
-    struct Encoding {
-        static let isoLatin1 = ASCII("ISO-8859-1")
-        static let utf8 = ASCII("utf-8")
-        static let any = ASCII("*")
-    }
 }
 
 let tokens: [Bool] = [
