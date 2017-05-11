@@ -12,7 +12,7 @@ public struct Request {
     public var acceptEncoding: [ContentEncoding]? = nil
     public var acceptCharset: [AcceptCharset]? = nil
     public var keepAlive: Int? = nil
-    public var connection: String? = nil
+    public var connection: Connection? = nil
     public var contentType: ContentType? = nil
     public var contentLength: Int? = nil
     public var transferEncoding: String? = nil
@@ -28,7 +28,7 @@ public struct Request {
 
 extension Request {
     public var shouldKeepAlive: Bool {
-        if self.connection?.lowercased() == "close" {
+        if self.connection == .close {
             return false
         }
         return true
@@ -156,7 +156,7 @@ extension Request {
         if let connection = self.connection {
             writeHeader(
                 name: HeaderNames.connection.bytes,
-                value: ASCII(connection))
+                value: ASCII(connection.bytes))
         }
 
         if let transferEncoding = self.transferEncoding {
@@ -267,7 +267,7 @@ extension Request {
                 case HeaderNames.keepAlive:
                     self.keepAlive = Int(headerValueString)
                 case HeaderNames.connection:
-                    self.connection = headerValueString
+                    self.connection = try Connection(from: headerValue)
                 case HeaderNames.contentLength:
                     self.contentLength = Int(headerValueString)
                 case HeaderNames.contentType:

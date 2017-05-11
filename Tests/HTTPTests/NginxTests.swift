@@ -48,7 +48,7 @@ class NginxTests: TestCase {
                 AcceptCharset(.any, priority: 0.7)
             ])
             assertEqual(request.keepAlive, 300)
-            assertEqual(request.connection, "keep-alive")
+            assertEqual(request.connection, .keepAlive)
         } catch {
             fail(String(describing: error))
         }
