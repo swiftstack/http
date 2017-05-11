@@ -40,7 +40,8 @@ class NginxTests: TestCase {
             assertEqual(request.userAgent, "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008061015 Firefox/3.0")
             assertEqual(request.accept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
             assertEqual(request.acceptLanguage, "en-us,en;q=0.5")
-            assertEqual(request.acceptEncoding, "gzip,deflate")
+            assertNotNil(request.acceptEncoding)
+            assertEqual(request.acceptEncoding ?? [], [.gzip, .deflate])
             assertEqual(request.acceptCharset ?? [], [
                 AcceptCharset(.isoLatin1),
                 AcceptCharset(.utf8, priority: 0.7),
