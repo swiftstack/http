@@ -3,8 +3,8 @@ import PackageDescription
 let package = Package(
     name: "HTTP",
     targets: [
-        Target(name: "HTTP"),
-        Target(name: "Server", dependencies: ["HTTP"]),
+        Target(name: "HTTP", dependencies: ["JSON"]),
+        Target(name: "Server", dependencies: ["HTTP", "JSON"]),
         Target(name: "Client", dependencies: ["HTTP"]),
     ],
     dependencies: [

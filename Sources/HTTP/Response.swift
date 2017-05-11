@@ -1,3 +1,5 @@
+import JSON
+
 public struct Response {
     public var status: Status = .ok
     public var version: Version = .oneOne
@@ -51,7 +53,7 @@ extension Response {
     }
 
     public init(json object: Any) throws {
-        let bytes = try JSON.serialize(object)
+        let bytes = try JSON.encode(object)
 
         contentType = .json
         rawBody = bytes
