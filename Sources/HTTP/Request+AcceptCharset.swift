@@ -44,6 +44,10 @@ extension Array where Element == AcceptCharset {
                 bytes.endIndex
             values.append(try AcceptCharset(from: bytes[startIndex..<endIndex]))
             startIndex = endIndex.advanced(by: 1)
+            if startIndex < bytes.endIndex &&
+                bytes[startIndex] == Character.whitespace {
+                    startIndex += 1
+            }
         }
         self = values
     }
