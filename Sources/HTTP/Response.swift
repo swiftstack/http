@@ -4,7 +4,7 @@ public struct Response {
     public var status: Status = .ok
     public var version: Version = .oneOne
 
-    public var connection: String? = nil
+    public var connection: Connection? = nil
     public var contentEncoding: String? = nil
     public var contentType: ContentType? = nil
     public var contentLength: Int? = nil
@@ -118,7 +118,7 @@ extension Response {
         if let connection = self.connection {
             writeHeader(
                 name: HeaderNames.connection.bytes,
-                value: ASCII(connection))
+                value: ASCII(connection.bytes))
         }
 
         if let contentEncoding = self.contentEncoding {
@@ -208,7 +208,7 @@ extension Response {
                     let headerValueString = String(buffer: headerValue)
                     switch headerName {
                     case HeaderNames.connection:
-                        self.connection = headerValueString
+                        self.connection = try Connection(from: headerValue)
                     case HeaderNames.contentEncoding:
                         self.contentEncoding = headerValueString
                     case HeaderNames.contentLength:

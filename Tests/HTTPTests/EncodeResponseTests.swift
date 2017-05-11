@@ -82,7 +82,7 @@ class EncodeResponseTests: TestCase {
             "Connection: close\r\n" +
             "\r\n"
         var response = Response(status: .ok)
-        response.connection = "close"
+        response.connection = .close
         assertEqual(String(bytes: response.bytes), expected)
     }
 
