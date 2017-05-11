@@ -8,7 +8,7 @@ class URLTests: TestCase {
 
     func testQuery() {
         let url = try! URL("/test?query=true")
-        assertEqual(url.query, "query=true")
+        assertEqual(url.query, ["query" : "true"])
     }
 
     func testHost() {

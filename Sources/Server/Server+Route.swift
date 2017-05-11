@@ -103,14 +103,14 @@ extension Server {
 
             let queryValues: [String: Any]?
 
-            if method == .get, let query = request.url.query {
-                queryValues = QueryParser.parse(urlEncoded: query)
+            if method == .get {
+                queryValues = request.url.query
             } else if let body = request.rawBody,
                 let contentType = request.contentType {
                     switch contentType {
                     case .urlEncoded:
                         let query = String(cString: body + [0])
-                        queryValues = QueryParser.parse(urlEncoded: query)
+                        queryValues = URL.decode(urlEncoded: query)
                     case .json:
                         queryValues = JSON.decode(body)
                     default:

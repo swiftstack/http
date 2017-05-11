@@ -11,7 +11,7 @@ class EncodeRequestTests: TestCase {
         let expected = "GET /test?query=true HTTP/1.1\r\n\r\n"
         let request = Request(
             method: .get,
-            url: URL(path: "/test", query: "query=true"))
+            url: URL(path: "/test", query: ["query" : "true"]))
         assertEqual(String(bytes: request.bytes), expected)
     }
 

@@ -28,6 +28,6 @@ class RequestTests: TestCase {
     func testFromString() {
         let request = Request(url: "/test?query=true")
         assertEqual(request.url.path, "/test")
-        assertEqual(request.url.query, "query=true")
+        assertEqual(request.url.query, ["query" : "true"])
     }
 }
