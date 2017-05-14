@@ -5,7 +5,7 @@ public struct Response {
     public var version: Version = .oneOne
 
     public var connection: Connection? = nil
-    public var contentEncoding: String? = nil
+    public var contentEncoding: [ContentEncoding]? = nil
     public var contentType: ContentType? = nil
     public var contentLength: Int? = nil
     public var transferEncoding: [TransferEncoding]? = nil
@@ -124,7 +124,7 @@ extension Response {
         if let contentEncoding = self.contentEncoding {
             writeHeader(
                 name: HeaderNames.contentEncoding.bytes,
-                value: ASCII(contentEncoding))
+                value: contentEncoding.bytes)
         }
 
         if let transferEncoding = self.transferEncoding {
@@ -210,7 +210,8 @@ extension Response {
                     case HeaderNames.connection:
                         self.connection = try Connection(from: headerValue)
                     case HeaderNames.contentEncoding:
-                        self.contentEncoding = headerValueString
+                        self.contentEncoding =
+                            try [ContentEncoding](from: headerValue)
                     case HeaderNames.contentLength:
                         self.contentLength = Int(headerValueString)
                     case HeaderNames.contentType:

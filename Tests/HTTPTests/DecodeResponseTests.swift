@@ -109,7 +109,7 @@ class DecodeResponseTests: TestCase {
                 "Content-Encoding: gzip,deflate\r\n" +
                 "\r\n")
             let response = try Response(from: bytes)
-            assertEqual(response.contentEncoding, "gzip,deflate")
+            assertEqual(response.contentEncoding ?? [], [.gzip, .deflate])
         } catch {
             fail(String(describing: error))
         }
@@ -120,10 +120,10 @@ class DecodeResponseTests: TestCase {
             let bytes = ASCII(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: 0\r\n" +
-                "Transfer-Encoding: chunked\r\n" +
+                "Transfer-Encoding: gzip, chunked\r\n" +
                 "\r\n")
             let response = try Response(from: bytes)
-            assertEqual(response.transferEncoding ?? [], [.chunked])
+            assertEqual(response.transferEncoding ?? [], [.gzip, .chunked])
         } catch {
             fail(String(describing: error))
         }
