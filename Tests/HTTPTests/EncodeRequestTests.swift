@@ -44,10 +44,13 @@ class EncodeRequestTests: TestCase {
 
     func testAcceptLanguage() {
         let expected = "GET / HTTP/1.1\r\n" +
-            "Accept-Language: en-us,en;q=0.5\r\n" +
+            "Accept-Language: en-US,en;q=0.5\r\n" +
             "\r\n"
         var request = Request()
-        request.acceptLanguage = "en-us,en;q=0.5"
+        request.acceptLanguage = [
+            AcceptLanguage(.enUS, priority: 1.0),
+            AcceptLanguage(.en, priority: 0.5)
+        ]
         assertEqual(String(bytes: request.bytes), expected)
     }
 

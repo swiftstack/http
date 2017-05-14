@@ -8,7 +8,7 @@ public struct Request {
     public var host: String? = nil
     public var userAgent: String? = nil
     public var accept: String? = nil
-    public var acceptLanguage: String? = nil
+    public var acceptLanguage: [AcceptLanguage]? = nil
     public var acceptEncoding: [ContentEncoding]? = nil
     public var acceptCharset: [AcceptCharset]? = nil
     public var keepAlive: Int? = nil
@@ -132,7 +132,7 @@ extension Request {
         if let acceptLanguage = self.acceptLanguage {
             writeHeader(
                 name: HeaderNames.acceptLanguage.bytes,
-                value: ASCII(acceptLanguage))
+                value: acceptLanguage.bytes)
         }
 
         if let acceptEncoding = self.acceptEncoding {
@@ -258,7 +258,8 @@ extension Request {
                 case HeaderNames.accept:
                     self.accept = headerValueString
                 case HeaderNames.acceptLanguage:
-                    self.acceptLanguage = headerValueString
+                    self.acceptLanguage =
+                        try [AcceptLanguage](from: headerValue)
                 case HeaderNames.acceptEncoding:
                     self.acceptEncoding =
                         try [ContentEncoding](from: headerValue)
