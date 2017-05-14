@@ -102,7 +102,7 @@ class EncodeResponseTests: TestCase {
             "Transfer-Encoding: chunked\r\n" +
             "\r\n"
         var response = Response(status: .ok)
-        response.transferEncoding = "chunked"
+        response.transferEncoding = [.chunked]
         assertEqual(String(bytes: response.bytes), expected)
     }
 

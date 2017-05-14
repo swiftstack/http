@@ -63,7 +63,7 @@ class NginxTests: TestCase {
                 "0\r\n" +
                 "\r\n")
             let request = try Request(from: bytes)
-            assertEqual(request.transferEncoding, "chunked")
+            assertEqual(request.transferEncoding ?? [], [.chunked])
             assertEqual(request.body, "all your base are belong to us")
         } catch {
             fail(String(describing: error))

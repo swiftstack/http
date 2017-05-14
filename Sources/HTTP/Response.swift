@@ -8,7 +8,7 @@ public struct Response {
     public var contentEncoding: String? = nil
     public var contentType: ContentType? = nil
     public var contentLength: Int? = nil
-    public var transferEncoding: String? = nil
+    public var transferEncoding: [TransferEncoding]? = nil
 
     public var headers: [String : String] = [:]
 
@@ -118,7 +118,7 @@ extension Response {
         if let connection = self.connection {
             writeHeader(
                 name: HeaderNames.connection.bytes,
-                value: ASCII(connection.bytes))
+                value: connection.bytes)
         }
 
         if let contentEncoding = self.contentEncoding {
@@ -130,7 +130,7 @@ extension Response {
         if let transferEncoding = self.transferEncoding {
             writeHeader(
                 name: HeaderNames.transferEncoding.bytes,
-                value: ASCII(transferEncoding))
+                value: transferEncoding.bytes)
         }
 
         for (key, value) in headers {
@@ -216,7 +216,8 @@ extension Response {
                     case HeaderNames.contentType:
                         self.contentType = try ContentType(from: headerValue)
                     case HeaderNames.transferEncoding:
-                        self.transferEncoding = headerValueString
+                        self.transferEncoding =
+                            try [TransferEncoding](from: headerValue)
                     default:
                         let headerNameString = String(buffer: headerNameBuffer)
                         headers[headerNameString] = headerValueString
@@ -250,7 +251,7 @@ extension Response {
 
         // 2. chunked
         guard let transferEncoding = self.transferEncoding,
-            transferEncoding.utf8.elementsEqual(Constants.chunked) else {
+            transferEncoding.contains(.chunked) else {
                 return
         }
 

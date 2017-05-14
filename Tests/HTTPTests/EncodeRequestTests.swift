@@ -115,7 +115,7 @@ class EncodeRequestTests: TestCase {
             "Transfer-Encoding: chunked\r\n" +
             "\r\n"
         var request = Request()
-        request.transferEncoding = "chunked"
+        request.transferEncoding = [.chunked]
         assertEqual(String(bytes: request.bytes), expected)
     }
 

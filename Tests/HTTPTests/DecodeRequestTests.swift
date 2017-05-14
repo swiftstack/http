@@ -409,7 +409,7 @@ class DecodeRequestTests: TestCase {
                 "Transfer-Encoding: chunked\r\n" +
                 "\r\n")
             let request = try Request(from: bytes)
-            assertEqual(request.transferEncoding?.lowercased(), "chunked")
+            assertEqual(request.transferEncoding ?? [], [.chunked])
         } catch {
             fail(String(describing: error))
         }

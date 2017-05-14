@@ -123,7 +123,7 @@ class DecodeResponseTests: TestCase {
                 "Transfer-Encoding: chunked\r\n" +
                 "\r\n")
             let response = try Response(from: bytes)
-            assertEqual(response.transferEncoding, "chunked")
+            assertEqual(response.transferEncoding ?? [], [.chunked])
         } catch {
             fail(String(describing: error))
         }

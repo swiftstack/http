@@ -15,7 +15,7 @@ public struct Request {
     public var connection: Connection? = nil
     public var contentType: ContentType? = nil
     public var contentLength: Int? = nil
-    public var transferEncoding: String? = nil
+    public var transferEncoding: [TransferEncoding]? = nil
 
     public var headers: [String : String] = [:]
 
@@ -138,13 +138,13 @@ extension Request {
         if let acceptEncoding = self.acceptEncoding {
             writeHeader(
                 name: HeaderNames.acceptEncoding.bytes,
-                value: ASCII(acceptEncoding.bytes))
+                value: acceptEncoding.bytes)
         }
 
         if let acceptCharset = self.acceptCharset {
             writeHeader(
                 name: HeaderNames.acceptCharset.bytes,
-                value: ASCII(acceptCharset.bytes))
+                value: acceptCharset.bytes)
         }
 
         if let keepAlive = self.keepAlive {
@@ -162,7 +162,7 @@ extension Request {
         if let transferEncoding = self.transferEncoding {
             writeHeader(
                 name: HeaderNames.transferEncoding.bytes,
-                value: ASCII(transferEncoding))
+                value: transferEncoding.bytes)
         }
 
         for (key, value) in headers {
@@ -273,7 +273,8 @@ extension Request {
                 case HeaderNames.contentType:
                     self.contentType = try ContentType(from: headerValue)
                 case HeaderNames.transferEncoding:
-                    self.transferEncoding = headerValueString
+                    self.transferEncoding =
+                        try [TransferEncoding](from: headerValue)
                 default:
                     let headerNameString = String(buffer: headerNameBuffer)
                     headers[headerNameString] = headerValueString
@@ -307,7 +308,7 @@ extension Request {
 
         // 2. chunked
         guard let transferEncoding = self.transferEncoding,
-            transferEncoding.utf8.elementsEqual(Constants.chunked) else {
+            transferEncoding.contains(.chunked) else {
                 return
         }
 
