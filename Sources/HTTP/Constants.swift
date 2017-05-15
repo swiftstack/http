@@ -9,15 +9,8 @@ struct Character {
 }
 
 struct Constants {
-    static let httpSlash = ASCII("HTTP/")
-    static let oneOne = ASCII("1.1")
-
     static let lineEnd = [Character.cr, Character.lf]
-
-    static let versionLength = httpSlash.count + oneOne.count
     static let minimumHeaderLength = ASCII("a:a\r\n").count
-
-    static let chunked = ASCII("chunked")
     static let minimumChunkLength = ASCII("0\r\n").count
 }
 

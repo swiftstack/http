@@ -87,7 +87,6 @@ extension Response {
 
     func encode(to buffer: inout [UInt8]) {
         // Start line
-        buffer.append(contentsOf: Constants.httpSlash)
         version.encode(to: &buffer)
         buffer.append(Character.whitespace)
         status.encode(to: &buffer)
@@ -164,16 +163,18 @@ extension Response {
 
     public init(from bytes: UnsafeRawBufferPointer) throws {
         var startIndex = 0
-        var endIndex = Constants.httpSlash.count + Constants.oneOne.count
+        guard let index = bytes.index(of: Character.whitespace) else {
+            throw HTTPError.unexpectedEnd
+        }
+        var endIndex = index
         self.version = try Version(from: bytes[startIndex..<endIndex])
 
         startIndex = endIndex.advanced(by: 1)
-        guard let index =
+        guard let lineEnd =
             bytes.index(of: Character.cr, offset: startIndex) else {
                 throw HTTPError.unexpectedEnd
         }
-        endIndex = index
-
+        endIndex = lineEnd
         self.status = try Status(from: bytes[startIndex..<endIndex])
 
         startIndex = endIndex.advanced(by: 2)

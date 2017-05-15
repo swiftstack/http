@@ -84,8 +84,7 @@ extension Request {
         buffer.append(Character.whitespace)
         url.encode(to: &buffer)
         buffer.append(Character.whitespace)
-        buffer.append(contentsOf: Constants.httpSlash)
-        buffer.append(contentsOf: Constants.oneOne)
+        version.encode(to: &buffer)
         buffer.append(contentsOf: Constants.lineEnd)
 
         // Headers
@@ -196,9 +195,8 @@ extension Request {
 
     public init(from bytes: UnsafeRawBufferPointer) throws {
         var startIndex = 0
-        guard let index =
-            bytes.index(of: Character.whitespace, offset: startIndex) else {
-                throw HTTPError.unexpectedEnd
+        guard let index = bytes.index(of: Character.whitespace) else {
+            throw HTTPError.unexpectedEnd
         }
         var endIndex = index
         self.method = try Request.Method(from: bytes[startIndex..<endIndex])
@@ -212,11 +210,11 @@ extension Request {
         self.url = URL(from: bytes[startIndex..<endIndex])
 
         startIndex = endIndex.advanced(by: 1)
-        endIndex = startIndex + Constants.versionLength
-        guard endIndex < bytes.endIndex else {
-            throw HTTPError.unexpectedEnd
+        guard let lineEnd =
+            bytes.index(of: Character.cr, offset: startIndex) else {
+                throw HTTPError.unexpectedEnd
         }
-
+        endIndex = lineEnd
         self.version = try Version(from: bytes[startIndex..<endIndex])
 
         startIndex = endIndex.advanced(by: 2)

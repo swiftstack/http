@@ -126,7 +126,7 @@ class DecodeRequestTests: TestCase {
     func testInvalidVersion2() {
         let bytes = ASCII("GET /test HTTP/1.1WUT\r\n\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .invalidRequest)
+            assertEqual(error as? HTTPError, .invalidVersion)
         }
     }
 
