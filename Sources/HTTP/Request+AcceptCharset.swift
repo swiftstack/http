@@ -1,10 +1,3 @@
-public enum Charset {
-    case isoLatin1
-    case utf8
-    case any
-    case custom(String)
-}
-
 public struct AcceptCharset {
     public let charset: Charset
     public let priority: Double
@@ -64,10 +57,6 @@ extension Array where Element == AcceptCharset {
 
 extension AcceptCharset {
     private struct Bytes {
-        static let isoLatin1 = ASCII("ISO-8859-1")
-        static let utf8 = ASCII("utf-8")
-        static let any = ASCII("*")
-
         static let qEqual = ASCII("q=")
     }
 
@@ -77,15 +66,7 @@ extension AcceptCharset {
         let charsetEndIndex = semicolonIndex ?? bytes.endIndex
         let charsetBytes = bytes.prefix(upTo: charsetEndIndex)
 
-        if charsetBytes.elementsEqual(Bytes.utf8) {
-            self.charset = .utf8
-        } else if charsetBytes.elementsEqual(Bytes.isoLatin1) {
-            self.charset = .isoLatin1
-        } else if charsetBytes.elementsEqual(Bytes.any) {
-            self.charset = .any
-        } else {
-            self.charset = .custom(String(buffer: charsetBytes))
-        }
+        self.charset = try Charset(from: charsetBytes)
 
         if let semicolonIndex = semicolonIndex {
             let priorityBytes = bytes.suffix(
@@ -103,16 +84,7 @@ extension AcceptCharset {
     }
 
     func encode(to buffer: inout [UInt8]) {
-        switch self.charset {
-        case .utf8:
-            buffer.append(contentsOf: Bytes.utf8)
-        case .isoLatin1:
-            buffer.append(contentsOf: Bytes.isoLatin1)
-        case .any:
-            buffer.append(contentsOf: Bytes.any)
-        case .custom(let value):
-            buffer.append(contentsOf: [UInt8](value))
-        }
+        charset.encode(to: &buffer)
 
         if priority < 1.0 {
             buffer.append(Character.semicolon)
