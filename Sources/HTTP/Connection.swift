@@ -5,28 +5,26 @@ public enum Connection {
 }
 
 extension Connection {
-    init(from bytes: UnsafeRawBufferPointer) throws {
-        switch bytes.lowercasedHashValue {
-        case Mapping.keepAlive.lowercasedHashValue: self = .keepAlive
-        case Mapping.close.lowercasedHashValue: self = .close
-        case Mapping.upgrade.lowercasedHashValue: self = .upgrade
-        default: throw HTTPError.unsupportedContentType
-        }
-    }
-}
-
-extension Connection {
-    fileprivate struct Mapping {
+    private struct Bytes {
         static let keepAlive = ASCII("keep-alive")
         static let close = ASCII("close")
         static let upgrade = ASCII("Upgrade")
     }
 
-    var bytes: [UInt8] {
+    init(from bytes: UnsafeRawBufferPointer) throws {
+        switch bytes.lowercasedHashValue {
+        case Bytes.keepAlive.lowercasedHashValue: self = .keepAlive
+        case Bytes.close.lowercasedHashValue: self = .close
+        case Bytes.upgrade.lowercasedHashValue: self = .upgrade
+        default: throw HTTPError.unsupportedContentType
+        }
+    }
+
+    func encode(to buffer: inout [UInt8]) {
         switch self {
-        case .keepAlive: return Mapping.keepAlive
-        case .close: return Mapping.close
-        case .upgrade: return Mapping.upgrade
+        case .keepAlive: buffer.append(contentsOf: Bytes.keepAlive)
+        case .close: buffer.append(contentsOf: Bytes.close)
+        case .upgrade: buffer.append(contentsOf: Bytes.upgrade)
         }
     }
 }

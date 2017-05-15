@@ -80,69 +80,78 @@ extension Response {
 
 extension Response {
     public var bytes: [UInt8] {
-        var bytes: [UInt8] = []
+        var bytes = [UInt8]()
         encode(to: &bytes)
         return bytes
     }
 
-    func encode(to bytes: inout [UInt8]) {
+    func encode(to buffer: inout [UInt8]) {
         // Start line
-        bytes.append(contentsOf: Constants.httpSlash)
-        bytes.append(contentsOf: version.bytes)
-        bytes.append(Character.whitespace)
-        bytes.append(contentsOf: status.bytes)
-        bytes.append(contentsOf: Constants.lineEnd)
+        buffer.append(contentsOf: Constants.httpSlash)
+        version.encode(to: &buffer)
+        buffer.append(Character.whitespace)
+        status.encode(to: &buffer)
+        buffer.append(contentsOf: Constants.lineEnd)
 
         // Headers
         @inline(__always)
-        func writeHeader(name: [UInt8], value: [UInt8]) {
-            bytes.append(contentsOf: name)
-            bytes.append(Character.colon)
-            bytes.append(Character.whitespace)
-            bytes.append(contentsOf: value)
-            bytes.append(contentsOf: Constants.lineEnd)
+        func writeHeader(name: [UInt8], encoder: (inout [UInt8]) -> Void) {
+            buffer.append(contentsOf: name)
+            buffer.append(Character.colon)
+            buffer.append(Character.whitespace)
+            encoder(&buffer)
+            buffer.append(contentsOf: Constants.lineEnd)
+        }
+
+        @inline(__always)
+        func makeEncoder(for value: [UInt8]) -> (inout [UInt8]) -> Void {
+            return { buffer in
+                buffer.append(contentsOf: value)
+            }
         }
 
         if let contentType = self.contentType {
             writeHeader(
                 name: HeaderNames.contentType.bytes,
-                value: contentType.bytes)
+                encoder: contentType.encode)
         }
 
         if let contentLength = self.contentLength {
             writeHeader(
                 name: HeaderNames.contentLength.bytes,
-                value: ASCII(String(contentLength)))
+                encoder: makeEncoder(for: ASCII(String(contentLength))))
         }
         
         if let connection = self.connection {
             writeHeader(
                 name: HeaderNames.connection.bytes,
-                value: connection.bytes)
+                encoder: connection.encode)
         }
 
         if let contentEncoding = self.contentEncoding {
             writeHeader(
                 name: HeaderNames.contentEncoding.bytes,
-                value: contentEncoding.bytes)
+                encoder: contentEncoding.encode)
         }
 
         if let transferEncoding = self.transferEncoding {
             writeHeader(
                 name: HeaderNames.transferEncoding.bytes,
-                value: transferEncoding.bytes)
+                encoder: transferEncoding.encode)
         }
 
         for (key, value) in headers {
-            writeHeader(name: ASCII(key), value: ASCII(value))
+            writeHeader(
+                name: ASCII(key),
+                encoder: makeEncoder(for: ASCII(value)))
         }
 
         // Separator
-        bytes.append(contentsOf: Constants.lineEnd)
+        buffer.append(contentsOf: Constants.lineEnd)
 
         // Body
         if let rawBody = rawBody {
-            bytes.append(contentsOf: rawBody)
+            buffer.append(contentsOf: rawBody)
         }
     }
 }

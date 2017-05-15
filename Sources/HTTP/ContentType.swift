@@ -7,20 +7,7 @@ public enum ContentType {
 }
 
 extension ContentType {
-    init(from bytes: UnsafeRawBufferPointer) throws {
-        switch bytes.lowercasedHashValue {
-        case Mapping.text.lowercasedHashValue: self = .text
-        case Mapping.html.lowercasedHashValue: self = .html
-        case Mapping.stream.lowercasedHashValue: self = .stream
-        case Mapping.json.lowercasedHashValue: self = .json
-        case Mapping.urlEncoded.lowercasedHashValue: self = .urlEncoded
-        default: throw HTTPError.unsupportedContentType
-        }
-    }
-}
-
-extension ContentType {
-    fileprivate struct Mapping {
+    private struct Bytes {
         static let text = ASCII("text/plain")
         static let html = ASCII("text/html")
         static let stream = ASCII("application/stream")
@@ -28,13 +15,24 @@ extension ContentType {
         static let urlEncoded = ASCII("application/x-www-form-urlencoded")
     }
 
-    var bytes: [UInt8] {
+    init(from bytes: UnsafeRawBufferPointer) throws {
+        switch bytes.lowercasedHashValue {
+        case Bytes.text.lowercasedHashValue: self = .text
+        case Bytes.html.lowercasedHashValue: self = .html
+        case Bytes.stream.lowercasedHashValue: self = .stream
+        case Bytes.json.lowercasedHashValue: self = .json
+        case Bytes.urlEncoded.lowercasedHashValue: self = .urlEncoded
+        default: throw HTTPError.unsupportedContentType
+        }
+    }
+
+    func encode(to buffer: inout [UInt8]) {
         switch self {
-        case .text: return Mapping.text
-        case .html: return Mapping.html
-        case .stream: return Mapping.stream
-        case .json: return Mapping.json
-        case .urlEncoded: return Mapping.urlEncoded
+        case .text: buffer.append(contentsOf: Bytes.text)
+        case .html: buffer.append(contentsOf: Bytes.html)
+        case .stream: buffer.append(contentsOf: Bytes.stream)
+        case .json: buffer.append(contentsOf: Bytes.json)
+        case .urlEncoded: buffer.append(contentsOf: Bytes.urlEncoded)
         }
     }
 }

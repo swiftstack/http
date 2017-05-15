@@ -484,7 +484,7 @@ extension AcceptLanguage: Equatable {
     }
 }
 
-extension Array   where Element == AcceptLanguage {
+extension Array where Element == AcceptLanguage {
     init(from bytes: UnsafeRawBufferPointer) throws {
         var startIndex = 0
         var endIndex = 0
@@ -502,12 +502,6 @@ extension Array   where Element == AcceptLanguage {
             }
         }
         self = values
-    }
-
-    var bytes: [UInt8] {
-        var bytes = [UInt8]()
-        encode(to: &bytes)
-        return bytes
     }
 
     func encode(to buffer: inout [UInt8]) {

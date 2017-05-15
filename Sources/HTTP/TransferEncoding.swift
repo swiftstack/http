@@ -42,12 +42,6 @@ extension Array where Element == TransferEncoding {
         self = values
     }
 
-    var bytes: [UInt8] {
-        var bytes = [UInt8]()
-        encode(to: &bytes)
-        return bytes
-    }
-
     func encode(to buffer: inout [UInt8]) {
         for i in startIndex..<endIndex {
             if i != startIndex {

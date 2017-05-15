@@ -78,103 +78,112 @@ extension Request {
         return bytes
     }
 
-    func encode(to bytes: inout [UInt8]) {
+    func encode(to buffer: inout [UInt8]) {
         // Start Line
-        bytes.append(contentsOf: method.bytes)
-        bytes.append(Character.whitespace)
-        bytes.append(contentsOf: url.bytes)
-        bytes.append(Character.whitespace)
-        bytes.append(contentsOf: Constants.httpSlash)
-        bytes.append(contentsOf: Constants.oneOne)
-        bytes.append(contentsOf: Constants.lineEnd)
+        method.encode(to: &buffer)
+        buffer.append(Character.whitespace)
+        url.encode(to: &buffer)
+        buffer.append(Character.whitespace)
+        buffer.append(contentsOf: Constants.httpSlash)
+        buffer.append(contentsOf: Constants.oneOne)
+        buffer.append(contentsOf: Constants.lineEnd)
 
         // Headers
         @inline(__always)
-        func writeHeader(name: [UInt8], value: [UInt8]) {
-            bytes.append(contentsOf: name)
-            bytes.append(Character.colon)
-            bytes.append(Character.whitespace)
-            bytes.append(contentsOf: value)
-            bytes.append(contentsOf: Constants.lineEnd)
+        func writeHeader(name: [UInt8], encoder: (inout [UInt8]) -> Void) {
+            buffer.append(contentsOf: name)
+            buffer.append(Character.colon)
+            buffer.append(Character.whitespace)
+            encoder(&buffer)
+            buffer.append(contentsOf: Constants.lineEnd)
+        }
+
+        @inline(__always)
+        func makeEncoder(for value: [UInt8]) -> (inout [UInt8]) -> Void {
+            return { buffer in
+                buffer.append(contentsOf: value)
+            }
         }
 
         if let host = self.host {
             writeHeader(
                 name: HeaderNames.host.bytes,
-                value: ASCII(host))
+                encoder: makeEncoder(for: ASCII(host)))
         }
 
         if let contentType = self.contentType {
             writeHeader(
                 name: HeaderNames.contentType.bytes,
-                value: contentType.bytes)
+                encoder: contentType.encode)
         }
 
         if let contentLength = self.contentLength {
             let length = String(contentLength)
             writeHeader(
                 name: HeaderNames.contentLength.bytes,
-                value: ASCII(length))
+                encoder: makeEncoder(for: ASCII(length)))
         }
 
         if let userAgent = self.userAgent {
             writeHeader(
                 name: HeaderNames.userAgent.bytes,
-                value: ASCII(userAgent))
+                encoder: makeEncoder(for: ASCII(userAgent)))
         }
 
         if let accept = self.accept {
             writeHeader(
                 name: HeaderNames.accept.bytes,
-                value: ASCII(accept))
+                encoder: makeEncoder(for: ASCII(accept)))
         }
 
         if let acceptLanguage = self.acceptLanguage {
             writeHeader(
                 name: HeaderNames.acceptLanguage.bytes,
-                value: acceptLanguage.bytes)
+                encoder: acceptLanguage.encode)
         }
 
         if let acceptEncoding = self.acceptEncoding {
             writeHeader(
                 name: HeaderNames.acceptEncoding.bytes,
-                value: acceptEncoding.bytes)
+                encoder: acceptEncoding.encode)
         }
 
         if let acceptCharset = self.acceptCharset {
             writeHeader(
                 name: HeaderNames.acceptCharset.bytes,
-                value: acceptCharset.bytes)
+                encoder: acceptCharset.encode)
         }
 
         if let keepAlive = self.keepAlive {
             writeHeader(
                 name: HeaderNames.keepAlive.bytes,
-                value: ASCII(String(keepAlive)))
+                encoder: makeEncoder(for: ASCII(String(keepAlive))))
         }
 
         if let connection = self.connection {
             writeHeader(
                 name: HeaderNames.connection.bytes,
-                value: ASCII(connection.bytes))
+                encoder: connection.encode)
         }
 
         if let transferEncoding = self.transferEncoding {
             writeHeader(
                 name: HeaderNames.transferEncoding.bytes,
-                value: transferEncoding.bytes)
+                encoder: transferEncoding.encode)
         }
 
         for (key, value) in headers {
-            writeHeader(name: ASCII(key), value: ASCII(value))
+            writeHeader(
+                name: ASCII(key),
+                encoder: makeEncoder(for: ASCII(value)))
         }
 
         // Separator
-        bytes.append(contentsOf: Constants.lineEnd)
+        buffer.append(contentsOf: Constants.lineEnd)
 
         // Body
         if let rawBody = rawBody {
-            bytes.append(contentsOf: rawBody)
+            buffer.append(contentsOf: rawBody)
         }
     }
 }

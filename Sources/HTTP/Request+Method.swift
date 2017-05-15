@@ -10,19 +10,6 @@ extension Request {
 }
 
 extension Request.Method {
-    var bytes: [UInt8] {
-        switch self {
-        case .get: return RequestMethodBytes.get
-        case .head: return RequestMethodBytes.head
-        case .post: return RequestMethodBytes.post
-        case .put: return RequestMethodBytes.put
-        case .delete: return RequestMethodBytes.delete
-        case .options: return RequestMethodBytes.options
-        }
-    }
-}
-
-extension Request.Method {
     init(from buffer: UnsafeRawBufferPointer) throws {
         for (type, bytes) in RequestMethodBytes.values {
             if buffer.elementsEqual(bytes) {
@@ -31,6 +18,17 @@ extension Request.Method {
             }
         }
         throw HTTPError.invalidMethod
+    }
+
+    func encode(to buffer: inout [UInt8]) {
+        switch self {
+        case .get: buffer.append(contentsOf: RequestMethodBytes.get)
+        case .head: buffer.append(contentsOf: RequestMethodBytes.head)
+        case .post: buffer.append(contentsOf: RequestMethodBytes.post)
+        case .put: buffer.append(contentsOf: RequestMethodBytes.put)
+        case .delete: buffer.append(contentsOf: RequestMethodBytes.delete)
+        case .options: buffer.append(contentsOf: RequestMethodBytes.options)
+        }
     }
 }
 

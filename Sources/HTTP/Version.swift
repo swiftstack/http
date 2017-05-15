@@ -16,9 +16,9 @@ extension Version {
 }
 
 extension Version {
-    var bytes: [UInt8] {
+    func encode(to buffer: inout [UInt8]) {
         switch self {
-        case .oneOne: return Constants.oneOne
+        case .oneOne: buffer.append(contentsOf: Constants.oneOne)
         }
     }
 }

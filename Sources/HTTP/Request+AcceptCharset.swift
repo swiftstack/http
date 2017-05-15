@@ -52,12 +52,6 @@ extension Array where Element == AcceptCharset {
         self = values
     }
 
-    var bytes: [UInt8] {
-        var bytes = [UInt8]()
-        encode(to: &bytes)
-        return bytes
-    }
-
     func encode(to buffer: inout [UInt8]) {
         for i in startIndex..<endIndex {
             if i != startIndex {
@@ -69,7 +63,7 @@ extension Array where Element == AcceptCharset {
 }
 
 extension AcceptCharset {
-    struct Bytes {
+    private struct Bytes {
         static let isoLatin1 = ASCII("ISO-8859-1")
         static let utf8 = ASCII("utf-8")
         static let any = ASCII("*")

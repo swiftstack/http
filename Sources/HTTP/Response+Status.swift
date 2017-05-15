@@ -10,27 +10,7 @@ extension Response {
 }
 
 extension Response.Status {
-    public init(from bytes: UnsafeRawBufferPointer) throws {
-        if bytes.elementsEqual(StatusCodeMapping.ok) {
-            self = .ok
-        } else if bytes.elementsEqual(StatusCodeMapping.moved) {
-            self = .moved
-        } else if bytes.elementsEqual(StatusCodeMapping.badRequest) {
-            self = .badRequest
-        } else if bytes.elementsEqual(StatusCodeMapping.unauthorized) {
-            self = .unauthorized
-        } else if bytes.elementsEqual(StatusCodeMapping.notFound) {
-            self = .notFound
-        } else if bytes.elementsEqual(StatusCodeMapping.internalServerError) {
-            self = .internalServerError
-        } else {
-            throw HTTPError.invalidStatus
-        }
-    }
-}
-
-extension Response.Status {
-    fileprivate struct StatusCodeMapping {
+    private struct Bytes {
         static let ok = ASCII("200 OK")
         static let moved = ASCII("301 Moved Permanently")
         static let badRequest = ASCII("400 Bad Request")
@@ -39,14 +19,32 @@ extension Response.Status {
         static let internalServerError = ASCII("500 Internal Server Error")
     }
 
-    var bytes: [UInt8] {
+    public init(from bytes: UnsafeRawBufferPointer) throws {
+        if bytes.elementsEqual(Bytes.ok) {
+            self = .ok
+        } else if bytes.elementsEqual(Bytes.moved) {
+            self = .moved
+        } else if bytes.elementsEqual(Bytes.badRequest) {
+            self = .badRequest
+        } else if bytes.elementsEqual(Bytes.unauthorized) {
+            self = .unauthorized
+        } else if bytes.elementsEqual(Bytes.notFound) {
+            self = .notFound
+        } else if bytes.elementsEqual(Bytes.internalServerError) {
+            self = .internalServerError
+        } else {
+            throw HTTPError.invalidStatus
+        }
+    }
+
+    func encode(to buffer: inout [UInt8]) {
         switch self {
-        case .ok: return StatusCodeMapping.ok
-        case .moved: return StatusCodeMapping.moved
-        case .badRequest: return StatusCodeMapping.badRequest
-        case .unauthorized: return StatusCodeMapping.unauthorized
-        case .notFound: return StatusCodeMapping.notFound
-        case .internalServerError: return StatusCodeMapping.internalServerError
+        case .ok: buffer.append(contentsOf: Bytes.ok)
+        case .moved: buffer.append(contentsOf: Bytes.moved)
+        case .badRequest: buffer.append(contentsOf: Bytes.badRequest)
+        case .unauthorized: buffer.append(contentsOf: Bytes.unauthorized)
+        case .notFound: buffer.append(contentsOf: Bytes.notFound)
+        case .internalServerError: buffer.append(contentsOf: Bytes.internalServerError)
         }
     }
 }

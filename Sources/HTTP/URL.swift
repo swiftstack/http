@@ -73,19 +73,6 @@ extension URL {
 }
 
 extension URL {
-    var bytes: [UInt8] {
-        var bytes = [UInt8]()
-        bytes.append(contentsOf: [UInt8](path.utf8))
-        if query.count > 0 {
-            bytes.append(Character.questionMark)
-            // TODO: optimize
-            bytes.append(contentsOf: [UInt8](URL.encode(values: query).utf8))
-        }
-        return bytes
-    }
-}
-
-extension URL {
     init(from buffer: UnsafeRawBufferPointer) {
         if let index = buffer.index(of: Character.questionMark) {
             self.path = String(buffer: buffer.prefix(upTo: index))
@@ -95,6 +82,15 @@ extension URL {
         } else {
             self.path = String(buffer: buffer)
             self.query = [:]
+        }
+    }
+
+    func encode(to buffer: inout [UInt8]) {
+        buffer.append(contentsOf: [UInt8](path.utf8))
+        if query.count > 0 {
+            buffer.append(Character.questionMark)
+            // TODO: optimize
+            buffer.append(contentsOf: [UInt8](URL.encode(values: query).utf8))
         }
     }
 }
