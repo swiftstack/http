@@ -69,3 +69,21 @@ extension UnsafeRawBufferPointer {
         return index + offset
     }
 }
+
+extension UnsafeRawBufferPointer {
+    @inline(__always)
+    func trimmingLeftSpace() -> UnsafeRawBufferPointer {
+        if startIndex < endIndex && self[startIndex] == Character.whitespace {
+            return self.dropFirst()
+        }
+        return self
+    }
+
+    @inline(__always)
+    func trimmingRightSpace() -> UnsafeRawBufferPointer {
+        if startIndex < endIndex && self[endIndex-1] == Character.whitespace {
+            return self.dropLast()
+        }
+        return self
+    }
+}

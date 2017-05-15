@@ -247,14 +247,9 @@ extension Request {
                 }
                 endIndex = headerValueEndIndex
 
-                var headerValue = bytes[startIndex..<endIndex]
-                if headerValue[0] == Character.whitespace {
-                    headerValue = headerValue.dropFirst()
-                }
-                if headerValue[headerValue.endIndex-1]
-                    == Character.whitespace {
-                        headerValue = headerValue.dropLast()
-                }
+                let headerValue = bytes[startIndex..<endIndex]
+                    .trimmingLeftSpace()
+                    .trimmingRightSpace()
 
                 let headerValueString = String(buffer: headerValue)
                 switch headerName {
