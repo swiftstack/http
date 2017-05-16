@@ -38,7 +38,9 @@ class EncodeRequestTests: TestCase {
             "Accept: */*\r\n" +
             "\r\n"
         var request = Request()
-        request.accept = "*/*"
+        request.accept = [
+            Accept(.any, priority: 1.0)
+        ]
         assertEqual(String(bytes: request.bytes), expected)
     }
 
@@ -100,7 +102,7 @@ class EncodeRequestTests: TestCase {
             "Content-Type: text/plain\r\n" +
             "\r\n"
         var request = Request()
-        request.contentType = .text
+        request.contentType = try! ContentType(mediaType: .text(.plain))
         assertEqual(String(bytes: request.bytes), expected)
     }
 

@@ -107,11 +107,11 @@ extension Server {
                 queryValues = request.url.query
             } else if let body = request.rawBody,
                 let contentType = request.contentType {
-                    switch contentType {
-                    case .urlEncoded:
+                    switch contentType.mediaType {
+                    case .application(.urlEncoded):
                         let query = String(cString: body + [0])
                         queryValues = URL.decode(urlEncoded: query)
-                    case .json:
+                    case .application(.json):
                         queryValues = JSON.decode(body)
                     default:
                         queryValues = nil

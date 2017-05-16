@@ -35,19 +35,19 @@ extension Response {
     }
 
     public init(string: String) {
-        contentType = .text
+        contentType = try! ContentType(mediaType: .text(.plain))
         rawBody = [UInt8](string.utf8)
         contentLength = rawBody!.count
     }
 
     public init(html: String) {
-        contentType = .html
+        contentType = try! ContentType(mediaType: .text(.html))
         rawBody = [UInt8](html.utf8)
         contentLength = rawBody!.count
     }
 
     public init(bytes: [UInt8]) {
-        contentType = .stream
+        contentType = try! ContentType(mediaType: .application(.stream))
         rawBody = bytes
         contentLength = bytes.count
     }
@@ -55,7 +55,7 @@ extension Response {
     public init(json object: Any) throws {
         let bytes = try JSON.encode(object)
 
-        contentType = .json
+        contentType = try! ContentType(mediaType: .application(.json))
         rawBody = bytes
         contentLength = bytes.count
     }
@@ -63,7 +63,7 @@ extension Response {
     public init(urlEncoded values: [String : String]) {
         let bytes = [UInt8](URL.encode(values: values).utf8)
 
-        contentType = .urlEncoded
+        contentType = try! ContentType(mediaType: .application(.urlEncoded))
         rawBody = bytes
         contentLength = bytes.count
     }

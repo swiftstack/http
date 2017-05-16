@@ -331,11 +331,70 @@ class DecodeRequestTests: TestCase {
                 "Hello")
             let request = try Request(from: bytes)
             assertNotNil(request.contentType)
-            if let contentType = request.contentType {
-                assertEqual(contentType, .urlEncoded)
-            }
+            assertEqual(
+                request.contentType,
+                try ContentType(mediaType: .application(.urlEncoded))
+            )
         } catch {
             fail(String(describing: error))
+        }
+    }
+
+    func testContentTypeCharset() {
+        do {
+            let bytes = ASCII(
+                "GET / HTTP/1.1\r\n" +
+                "Content-Type: text/plain; charset=utf-8\r\n" +
+                "\r\n" +
+                "Hello")
+            let request = try Request(from: bytes)
+            assertNotNil(request.contentType)
+            assertEqual(
+                request.contentType,
+                try ContentType(mediaType: .text(.plain), charset: .utf8)
+            )
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
+    func testContentTypeEmptyCharset() {
+        let bytes = ASCII(
+            "GET / HTTP/1.1\r\n" +
+            "Content-Type: text/plain;" +
+            "\r\n")
+        assertThrowsError(try Request(from: bytes)) { error in
+            assertEqual((error as! HTTPError), HTTPError.invalidContentType)
+        }
+    }
+
+    func testContentTypeBoundary() {
+        do {
+            let bytes = ASCII(
+                "GET / HTTP/1.1\r\n" +
+                "Content-Type: multipart/form-data; boundary=---\r\n" +
+                "\r\n" +
+                "Hello")
+            let request = try Request(from: bytes)
+            assertNotNil(request.contentType)
+            assertEqual(
+                request.contentType,
+                try ContentType(
+                    mediaType: .multipart(.formData),
+                    boundary: Boundary("---"))
+            )
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
+    func testContentTypeEmptyBoundary() {
+        let bytes = ASCII(
+            "GET / HTTP/1.1\r\n" +
+            "Content-Type: multipart/form-data;\r\n" +
+            "\r\n")
+        assertThrowsError(try Request(from: bytes)) { error in
+            assertEqual((error as! HTTPError), HTTPError.invalidContentType)
         }
     }
 

@@ -61,8 +61,7 @@ class EncodeResponseTests: TestCase {
             "Content-Length: 0\r\n" +
             "\r\n"
         var response = Response()
-        response.contentType = .text
-        assertEqual(response.contentType, .text)
+        response.contentType = try! ContentType(mediaType: .text(.plain))
         assertEqual(response.contentLength, 0)
         assertEqual(String(bytes: response.bytes), expected)
     }
@@ -130,7 +129,10 @@ class EncodeResponseTests: TestCase {
         }
         assertEqual(body, "Hello")
         assertEqual(rawBody, ASCII("Hello"))
-        assertEqual(response.contentType, .text)
+        assertEqual(
+            response.contentType,
+            try! ContentType(mediaType: .text(.plain))
+        )
         assertEqual(response.contentLength, ASCII("Hello").count)
         assertEqual(String(bytes: response.bytes), expected)
     }
@@ -149,7 +151,10 @@ class EncodeResponseTests: TestCase {
         }
         assertEqual(body, "<html></html>")
         assertEqual(rawBody, ASCII("<html></html>"))
-        assertEqual(response.contentType, .html)
+        assertEqual(
+            response.contentType,
+            try! ContentType(mediaType: .text(.html))
+        )
         assertEqual(response.contentLength, 13)
         assertEqual(String(bytes: response.bytes), expected)
     }
@@ -166,7 +171,10 @@ class EncodeResponseTests: TestCase {
             return
         }
         assertEqual(rawBody, data)
-        assertEqual(response.contentType, .stream)
+        assertEqual(
+            response.contentType,
+            try! ContentType(mediaType: .application(.stream))
+        )
         assertEqual(response.contentLength, 3)
         assertEqual(response.bytes, expected)
     }
@@ -185,7 +193,10 @@ class EncodeResponseTests: TestCase {
         }
         assertEqual(body, "{\"message\":\"Hello, World!\"}")
         assertEqual(rawBody, ASCII("{\"message\":\"Hello, World!\"}"))
-        assertEqual(response.contentType, .json)
+        assertEqual(
+            response.contentType,
+            try! ContentType(mediaType: .application(.json))
+        )
         assertEqual(response.contentLength, 27)
         assertEqual(String(bytes: response.bytes), expected)
     }
@@ -204,7 +215,10 @@ class EncodeResponseTests: TestCase {
         }
         assertEqual(body, "message=Hello,%20World!")
         assertEqual(rawBody, ASCII("message=Hello,%20World!"))
-        assertEqual(response.contentType, .urlEncoded)
+        assertEqual(
+            response.contentType,
+            try! ContentType(mediaType: .application(.urlEncoded))
+        )
         assertEqual(response.contentLength, 23)
         assertEqual(String(bytes: response.bytes), expected)
     }

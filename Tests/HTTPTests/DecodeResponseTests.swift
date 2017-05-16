@@ -81,7 +81,8 @@ class DecodeResponseTests: TestCase {
                 "Content-Length: 0\r\n" +
                 "\r\n")
             let response = try Response(from: bytes)
-            assertEqual(response.contentType, .text)
+            let expected = try! ContentType(mediaType: .text(.plain))
+            assertEqual(response.contentType, expected)
         } catch {
             fail(String(describing: error))
         }
@@ -152,7 +153,10 @@ class DecodeResponseTests: TestCase {
                 "\r\n" +
                 "Hello")
             let response = try Response(from: bytes)
-            assertEqual(response.contentType, .text)
+            assertEqual(
+                response.contentType,
+                try! ContentType(mediaType: .text(.plain))
+            )
             assertEqual(response.contentLength, 5)
             guard let rawBody = response.rawBody else {
                 fail("body is nil")
@@ -174,7 +178,10 @@ class DecodeResponseTests: TestCase {
                 "\r\n" +
                 "<html></html>")
             let response = try Response(from: bytes)
-            assertEqual(response.contentType, .html)
+            assertEqual(
+                response.contentType,
+                try! ContentType(mediaType: .text(.html))
+            )
             assertEqual(response.contentLength, 13)
             guard let rawBody = response.rawBody else {
                 fail("body is nil")
@@ -195,7 +202,10 @@ class DecodeResponseTests: TestCase {
                 "Content-Length: 3\r\n" +
                 "\r\n") + [1,2,3]
             let response = try Response(from: bytes)
-            assertEqual(response.contentType, .stream)
+            assertEqual(
+                response.contentType,
+                try! ContentType(mediaType: .application(.stream))
+            )
             assertEqual(response.contentLength, 3)
             guard let rawBody = response.rawBody else {
                 fail("body is nil")
@@ -216,7 +226,10 @@ class DecodeResponseTests: TestCase {
                 "\r\n" +
                 "{'message': 'Hello, World!'}")
             let response = try Response(from: bytes)
-            assertEqual(response.contentType, .json)
+            assertEqual(
+                response.contentType,
+                try! ContentType(mediaType: .application(.json))
+            )
             assertEqual(response.contentLength, 28)
             guard let rawBody = response.rawBody else {
                 fail("body is nil")

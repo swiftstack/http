@@ -7,7 +7,7 @@ public struct Request {
 
     public var host: String? = nil
     public var userAgent: String? = nil
-    public var accept: String? = nil
+    public var accept: [Accept]? = nil
     public var acceptLanguage: [AcceptLanguage]? = nil
     public var acceptEncoding: [ContentEncoding]? = nil
     public var acceptCharset: [AcceptCharset]? = nil
@@ -52,7 +52,7 @@ extension Request {
     public init(method: Method, url: URL, json object: Any) throws {
         let bytes = [UInt8](try JSONSerialization.data(withJSONObject: object))
         self.init(method: method, url: url)
-        self.contentType = .json
+        self.contentType = try! ContentType(mediaType: .application(.json))
         self.rawBody = bytes
         self.contentLength = bytes.count
     }
@@ -65,7 +65,8 @@ extension Request {
         let bytes = [UInt8](URL.encode(values: values).utf8)
 
         self.init(method: method, url: url)
-        self.contentType = .urlEncoded
+        self.contentType =
+            try! ContentType(mediaType: .application(.urlEncoded))
         self.rawBody = bytes
         self.contentLength = bytes.count
     }
@@ -134,7 +135,7 @@ extension Request {
         if let accept = self.accept {
             writeHeader(
                 name: HeaderNames.accept.bytes,
-                value: ASCII(String(accept)))
+                encoder: accept.encode)
         }
 
         if let acceptLanguage = self.acceptLanguage {
@@ -260,7 +261,7 @@ extension Request {
                 case HeaderNames.userAgent:
                     self.userAgent = headerValueString
                 case HeaderNames.accept:
-                    self.accept = headerValueString
+                    self.accept = try [Accept](from: headerValue)
                 case HeaderNames.acceptLanguage:
                     self.acceptLanguage =
                         try [AcceptLanguage](from: headerValue)

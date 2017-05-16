@@ -38,7 +38,12 @@ class NginxTests: TestCase {
             assertEqual(request.version, .oneOne)
             assertEqual(request.host, "0.0.0.0=5000")
             assertEqual(request.userAgent, "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008061015 Firefox/3.0")
-            assertEqual(request.accept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+            assertEqual(request.accept ?? [], [
+                Accept(.text(.html), priority: 1.0),
+                Accept(.application(.xhtml), priority: 1.0),
+                Accept(.application(.xml), priority: 0.9),
+                Accept(.any, priority: 0.8)]
+            )
             assertEqual(request.acceptLanguage ?? [], [
                 AcceptLanguage(.enUS, priority: 1.0),
                 AcceptLanguage(.en, priority: 0.5)]
