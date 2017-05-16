@@ -79,28 +79,25 @@ public class Server {
         }
     }
 
-    public typealias RequestHandler = (Request) throws -> Any
+    public typealias RequestHandler = (Request) throws -> Response
 
     struct Route {
-        let type: Request.Method
+        let method: Request.Method
         let handler: RequestHandler
     }
 
     func provideResponse(for request: Request) -> Response {
         let routes = routeMatcher.matches(route: request.url.path)
-        guard let route = routes.first(where: {$0.type == request.method}) else {
+        guard let route = routes.first(where: { route in
+            route.method == request.method
+        }) else {
             return Response(status: .notFound)
         }
 
         do {
-            let object = try route.handler(request)
-            switch object {
-            case let response as Response: return response
-            case let string as String: return Response(string: string)
-            case is Void: return Response(status: .ok)
-            default: return try Response(json: object)
-            }
+            return try route.handler(request)
         } catch {
+            Log.debug(String(describing: error))
             return Response(status: .internalServerError)
         }
     }

@@ -4,6 +4,17 @@ import JSON
 
 extension Server {
 
+    // MARK: Transform convenient router result into Response
+
+    static func parseAnyResponse(_ object: Any) throws -> Response {
+        switch object {
+        case let response as Response: return response
+        case let string as String: return Response(string: string)
+        case is Void: return Response(status: .ok)
+        default: return try Response(json: object)
+        }
+    }
+
     // MARK: Simple routes
 
     // void
@@ -12,7 +23,9 @@ extension Server {
         url: String,
         handler: @escaping (Void) throws -> Any
     ) {
-        let route = Route(type: method, handler: { _ in try handler() })
+        let route = Route(
+            method: method,
+            handler: { _ in try Server.parseAnyResponse(try handler()) })
         routeMatcher.add(route: url, payload: route)
     }
 
@@ -22,7 +35,9 @@ extension Server {
         url: String,
         handler: @escaping (Request) throws -> Any
     ) {
-        let route = Route(type: method, handler: handler)
+        let route = Route(
+            method: method,
+            handler: { try Server.parseAnyResponse(try handler($0)) })
         routeMatcher.add(route: url, payload: route)
     }
 
@@ -125,9 +140,9 @@ extension Server {
                     values[key] = value
                 }
             }
-            return try handler(request, values)
+            return try Server.parseAnyResponse(try handler(request, values))
         }
-        let route = Route(type: method, handler: wrapper)
+        let route = Route(method: method, handler: wrapper)
         routeMatcher.add(route: url, payload: route)
     }
 
