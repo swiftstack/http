@@ -98,16 +98,18 @@ extension Request {
         }
 
         @inline(__always)
-        func makeEncoder(for value: [UInt8]) -> (inout [UInt8]) -> Void {
-            return { buffer in
-                buffer.append(contentsOf: value)
-            }
+        func writeHeader(name: [UInt8], value: [UInt8]) {
+            buffer.append(contentsOf: name)
+            buffer.append(Character.colon)
+            buffer.append(Character.whitespace)
+            buffer.append(contentsOf: value)
+            buffer.append(contentsOf: Constants.lineEnd)
         }
 
         if let host = self.host {
             writeHeader(
                 name: HeaderNames.host.bytes,
-                encoder: makeEncoder(for: ASCII(host)))
+                value: ASCII(host))
         }
 
         if let contentType = self.contentType {
@@ -120,19 +122,19 @@ extension Request {
             let length = String(contentLength)
             writeHeader(
                 name: HeaderNames.contentLength.bytes,
-                encoder: makeEncoder(for: ASCII(length)))
+                value: ASCII(length))
         }
 
         if let userAgent = self.userAgent {
             writeHeader(
                 name: HeaderNames.userAgent.bytes,
-                encoder: makeEncoder(for: ASCII(userAgent)))
+                value: ASCII(userAgent))
         }
 
         if let accept = self.accept {
             writeHeader(
                 name: HeaderNames.accept.bytes,
-                encoder: makeEncoder(for: ASCII(accept)))
+                value: ASCII(String(accept)))
         }
 
         if let acceptLanguage = self.acceptLanguage {
@@ -156,7 +158,7 @@ extension Request {
         if let keepAlive = self.keepAlive {
             writeHeader(
                 name: HeaderNames.keepAlive.bytes,
-                encoder: makeEncoder(for: ASCII(String(keepAlive))))
+                value: ASCII(String(keepAlive)))
         }
 
         if let connection = self.connection {
@@ -174,7 +176,7 @@ extension Request {
         for (key, value) in headers {
             writeHeader(
                 name: ASCII(key),
-                encoder: makeEncoder(for: ASCII(value)))
+                value: ASCII(value))
         }
 
         // Separator

@@ -103,10 +103,12 @@ extension Response {
         }
 
         @inline(__always)
-        func makeEncoder(for value: [UInt8]) -> (inout [UInt8]) -> Void {
-            return { buffer in
-                buffer.append(contentsOf: value)
-            }
+        func writeHeader(name: [UInt8], value: [UInt8]) {
+            buffer.append(contentsOf: name)
+            buffer.append(Character.colon)
+            buffer.append(Character.whitespace)
+            buffer.append(contentsOf: value)
+            buffer.append(contentsOf: Constants.lineEnd)
         }
 
         if let contentType = self.contentType {
@@ -118,7 +120,7 @@ extension Response {
         if let contentLength = self.contentLength {
             writeHeader(
                 name: HeaderNames.contentLength.bytes,
-                encoder: makeEncoder(for: ASCII(String(contentLength))))
+                value: ASCII(String(contentLength)))
         }
         
         if let connection = self.connection {
@@ -142,7 +144,7 @@ extension Response {
         for (key, value) in headers {
             writeHeader(
                 name: ASCII(key),
-                encoder: makeEncoder(for: ASCII(value)))
+                value: ASCII(value))
         }
 
         // Separator
