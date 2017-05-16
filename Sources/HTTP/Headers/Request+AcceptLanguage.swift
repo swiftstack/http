@@ -1,14 +1,17 @@
-public struct AcceptLanguage {
-    public let language: Language
-    public let priority: Double
+extension Request {
+    public struct AcceptLanguage {
+        public let language: Language
+        public let priority: Double
 
-    public init(_ language: Language, priority: Double = 1.0) {
-        self.language = language
-        self.priority = priority
+        public init(_ language: Language, priority: Double = 1.0) {
+            self.language = language
+            self.priority = priority
+        }
     }
 }
 
-extension AcceptLanguage: Equatable {
+extension Request.AcceptLanguage: Equatable {
+    public typealias AcceptLanguage = Request.AcceptLanguage
     public static func ==(lhs: AcceptLanguage, rhs: AcceptLanguage) -> Bool {
         switch (lhs.language, rhs.language) {
         case (.af, .af)       where lhs.priority == rhs.priority: return true
@@ -241,7 +244,7 @@ extension AcceptLanguage: Equatable {
         case (.zuZA, .zuZA)   where lhs.priority == rhs.priority: return true
         case (.any, .any)     where lhs.priority == rhs.priority: return true
         case let (.custom(lhsValue), .custom(rhsValue))
-              where lhsValue == rhsValue && lhs.priority == rhs.priority:
+            where lhsValue == rhsValue && lhs.priority == rhs.priority:
             return true
         default:
             return false
@@ -249,7 +252,8 @@ extension AcceptLanguage: Equatable {
     }
 }
 
-extension Array where Element == AcceptLanguage {
+extension Array where Element == Request.AcceptLanguage {
+    public typealias AcceptLanguage = Request.AcceptLanguage
     init(from bytes: UnsafeRawBufferPointer) throws {
         var startIndex = 0
         var endIndex = 0
@@ -279,7 +283,7 @@ extension Array where Element == AcceptLanguage {
     }
 }
 
-extension AcceptLanguage {
+extension Request.AcceptLanguage {
     private struct Bytes {
         static let qEqual = ASCII("q=")
     }

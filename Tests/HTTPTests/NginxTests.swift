@@ -39,21 +39,21 @@ class NginxTests: TestCase {
             assertEqual(request.host, "0.0.0.0=5000")
             assertEqual(request.userAgent, "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008061015 Firefox/3.0")
             assertEqual(request.accept ?? [], [
-                Accept(.text(.html), priority: 1.0),
-                Accept(.application(.xhtml), priority: 1.0),
-                Accept(.application(.xml), priority: 0.9),
-                Accept(.any, priority: 0.8)]
+                Request.Accept(.text(.html), priority: 1.0),
+                Request.Accept(.application(.xhtml), priority: 1.0),
+                Request.Accept(.application(.xml), priority: 0.9),
+                Request.Accept(.any, priority: 0.8)]
             )
             assertEqual(request.acceptLanguage ?? [], [
-                AcceptLanguage(.enUS, priority: 1.0),
-                AcceptLanguage(.en, priority: 0.5)]
+                Request.AcceptLanguage(.enUS, priority: 1.0),
+                Request.AcceptLanguage(.en, priority: 0.5)]
             )
             assertNotNil(request.acceptEncoding)
             assertEqual(request.acceptEncoding ?? [], [.gzip, .deflate])
             assertEqual(request.acceptCharset ?? [], [
-                AcceptCharset(.isoLatin1),
-                AcceptCharset(.utf8, priority: 0.7),
-                AcceptCharset(.any, priority: 0.7)]
+                Request.AcceptCharset(.isoLatin1),
+                Request.AcceptCharset(.utf8, priority: 0.7),
+                Request.AcceptCharset(.any, priority: 0.7)]
             )
             assertEqual(request.keepAlive, 300)
             assertEqual(request.connection, .keepAlive)

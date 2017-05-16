@@ -193,10 +193,10 @@ class DecodeRequestTests: TestCase {
                 "\r\n")
             let request = try Request(from: bytes)
             let expectedAcceptCharset = [
-                AcceptCharset(.isoLatin1),
-                AcceptCharset(.custom("utf-7")),
-                AcceptCharset(.utf8, priority: 0.7),
-                AcceptCharset(.any, priority: 0.7)
+                Request.AcceptCharset(.isoLatin1),
+                Request.AcceptCharset(.custom("utf-7")),
+                Request.AcceptCharset(.utf8, priority: 0.7),
+                Request.AcceptCharset(.any, priority: 0.7)
             ]
             assertNotNil(request.acceptCharset)
             if let acceptCharset = request.acceptCharset {
@@ -215,8 +215,8 @@ class DecodeRequestTests: TestCase {
                 "\r\n")
             let request = try Request(from: bytes)
             let expectedAcceptCharset = [
-                AcceptCharset(.isoLatin1),
-                AcceptCharset(.utf8)
+                Request.AcceptCharset(.isoLatin1),
+                Request.AcceptCharset(.utf8)
             ]
             assertNotNil(request.acceptCharset)
             if let acceptCharset = request.acceptCharset {

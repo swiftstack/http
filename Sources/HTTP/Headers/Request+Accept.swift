@@ -1,21 +1,25 @@
-public struct Accept {
-    public let mediaType: MediaType
-    public let priority: Double
+extension Request {
+    public struct Accept {
+        public let mediaType: MediaType
+        public let priority: Double
 
-    public init(_ mediaType: MediaType, priority: Double = 1.0) {
-        self.mediaType = mediaType
-        self.priority = priority
+        public init(_ mediaType: MediaType, priority: Double = 1.0) {
+            self.mediaType = mediaType
+            self.priority = priority
+        }
     }
 }
 
-extension Accept: Equatable {
+extension Request.Accept: Equatable {
+    public typealias Accept = Request.Accept
     public static func ==(lhs: Accept, rhs: Accept) -> Bool {
         return lhs.mediaType == rhs.mediaType &&
             lhs.priority == rhs.priority
     }
 }
 
-extension Array where Element == Accept {
+extension Array where Element == Request.Accept {
+    public typealias Accept = Request.Accept
     init(from bytes: UnsafeRawBufferPointer) throws {
         var startIndex = 0
         var endIndex = 0
@@ -44,7 +48,7 @@ extension Array where Element == Accept {
     }
 }
 
-extension Accept {
+extension Request.Accept {
     private struct Bytes {
         static let qEqual = ASCII("q=")
     }

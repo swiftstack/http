@@ -1,14 +1,17 @@
-public struct AcceptCharset {
-    public let charset: Charset
-    public let priority: Double
+extension Request {
+    public struct AcceptCharset {
+        public let charset: Charset
+        public let priority: Double
 
-    public init(_ charset: Charset, priority: Double = 1.0) {
-        self.charset = charset
-        self.priority = priority
+        public init(_ charset: Charset, priority: Double = 1.0) {
+            self.charset = charset
+            self.priority = priority
+        }
     }
 }
 
-extension AcceptCharset: Equatable {
+extension Request.AcceptCharset: Equatable {
+    public typealias AcceptCharset = Request.AcceptCharset
     public static func ==(lhs: AcceptCharset, rhs: AcceptCharset) -> Bool {
         switch (lhs.charset, rhs.charset) {
         case (.utf8, .utf8) where lhs.priority == rhs.priority:
@@ -26,7 +29,8 @@ extension AcceptCharset: Equatable {
     }
 }
 
-extension Array where Element == AcceptCharset {
+extension Array where Element == Request.AcceptCharset {
+    public typealias AcceptCharset = Request.AcceptCharset
     init(from bytes: UnsafeRawBufferPointer) throws {
         var startIndex = 0
         var endIndex = 0
@@ -55,7 +59,7 @@ extension Array where Element == AcceptCharset {
     }
 }
 
-extension AcceptCharset {
+extension Request.AcceptCharset {
     private struct Bytes {
         static let qEqual = ASCII("q=")
     }

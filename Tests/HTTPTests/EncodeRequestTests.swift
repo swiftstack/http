@@ -39,7 +39,7 @@ class EncodeRequestTests: TestCase {
             "\r\n"
         var request = Request()
         request.accept = [
-            Accept(.any, priority: 1.0)
+            Request.Accept(.any, priority: 1.0)
         ]
         assertEqual(String(bytes: request.bytes), expected)
     }
@@ -50,8 +50,8 @@ class EncodeRequestTests: TestCase {
             "\r\n"
         var request = Request()
         request.acceptLanguage = [
-            AcceptLanguage(.enUS, priority: 1.0),
-            AcceptLanguage(.en, priority: 0.5)
+            Request.AcceptLanguage(.enUS, priority: 1.0),
+            Request.AcceptLanguage(.en, priority: 0.5)
         ]
         assertEqual(String(bytes: request.bytes), expected)
     }
@@ -71,10 +71,10 @@ class EncodeRequestTests: TestCase {
             "\r\n"
         var request = Request()
         request.acceptCharset = [
-            AcceptCharset(.isoLatin1),
-            AcceptCharset(.custom("utf-7")),
-            AcceptCharset(.utf8, priority: 0.7),
-            AcceptCharset(.any, priority: 0.7)
+            Request.AcceptCharset(.isoLatin1),
+            Request.AcceptCharset(.custom("utf-7")),
+            Request.AcceptCharset(.utf8, priority: 0.7),
+            Request.AcceptCharset(.any, priority: 0.7)
         ]
         assertEqual(String(bytes: request.bytes), expected)
     }
