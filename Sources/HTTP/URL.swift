@@ -48,7 +48,7 @@ extension URL {
 
 extension URL {
     static func encode(values: [String : String]) -> String {
-        // FIXME: speedup
+        // TODO: optimize
         let queryString = values.map({ "\($0)=\($1)" }).joined(separator: "&")
         let encodedQuery = queryString.addingPercentEncoding(
             withAllowedCharacters: CharacterSet.urlQueryAllowed) ?? ""

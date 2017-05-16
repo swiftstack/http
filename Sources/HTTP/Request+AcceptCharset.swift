@@ -61,16 +61,10 @@ extension AcceptCharset {
     }
 
     init(from bytes: UnsafeRawBufferPointer) throws {
-        let semicolonIndex = bytes.index(of: Character.semicolon, offset: 0)
+        if let semicolon = bytes.index(of: Character.semicolon, offset: 0) {
+            self.charset = try Charset(from: bytes.prefix(upTo: semicolon))
 
-        let charsetEndIndex = semicolonIndex ?? bytes.endIndex
-        let charsetBytes = bytes.prefix(upTo: charsetEndIndex)
-
-        self.charset = try Charset(from: charsetBytes)
-
-        if let semicolonIndex = semicolonIndex {
-            let priorityBytes = bytes.suffix(
-                from: semicolonIndex.advanced(by: 1))
+            let priorityBytes = bytes.suffix(from: semicolon.advanced(by: 1))
             guard priorityBytes.count == 5,
                 priorityBytes.starts(with: Bytes.qEqual),
                 let priority = Double(
@@ -79,6 +73,7 @@ extension AcceptCharset {
             }
             self.priority = priority
         } else {
+            self.charset = try Charset(from: bytes)
             self.priority = 1.0
         }
     }

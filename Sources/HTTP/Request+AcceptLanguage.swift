@@ -258,8 +258,8 @@ extension Array where Element == AcceptLanguage {
             endIndex =
                 bytes.index(of: Character.comma, offset: startIndex) ??
                 bytes.endIndex
-            let value = try AcceptLanguage(from: bytes[startIndex..<endIndex])
-            values.append(value)
+            values.append(
+                try AcceptLanguage(from: bytes[startIndex..<endIndex]))
             startIndex = endIndex.advanced(by: 1)
             if startIndex < bytes.endIndex &&
                 bytes[startIndex] == Character.whitespace {
@@ -285,16 +285,10 @@ extension AcceptLanguage {
     }
 
     init(from bytes: UnsafeRawBufferPointer) throws {
-        let semicolonIndex = bytes.index(of: Character.semicolon, offset: 0)
+        if let semicolon = bytes.index(of: Character.semicolon, offset: 0) {
+            self.language = try Language(from: bytes.prefix(upTo: semicolon))
 
-        let valueEndIndex = semicolonIndex ?? bytes.endIndex
-        let valueBytes = bytes.prefix(upTo: valueEndIndex)
-
-        self.language = try Language(from: valueBytes)
-
-        if let semicolonIndex = semicolonIndex {
-            let priorityBytes = bytes.suffix(
-                from: semicolonIndex.advanced(by: 1))
+            let priorityBytes = bytes.suffix(from: semicolon.advanced(by: 1))
             guard priorityBytes.count == 5,
                 priorityBytes.starts(with: Bytes.qEqual),
                 let priority = Double(
@@ -303,6 +297,7 @@ extension AcceptLanguage {
             }
             self.priority = priority
         } else {
+            self.language = try Language(from: bytes)
             self.priority = 1.0
         }
     }
