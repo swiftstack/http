@@ -67,11 +67,7 @@ public class Server {
                     break
                 }
                 let request = try Request(from: bytes)
-                Log.debug(">> \(request.url.path)")
-
                 let response = provideResponse(for: request)
-                Log.debug("<< \(response.status)")
-
                 _ = try client.send(bytes: response.bytes)
             }
         } catch {
