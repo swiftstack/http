@@ -198,10 +198,10 @@ extension Request {
 
     public init(from bytes: UnsafeRawBufferPointer) throws {
         var startIndex = 0
-        guard let index = bytes.index(of: Character.whitespace) else {
+        guard let whitespace = bytes.index(of: Character.whitespace) else {
             throw HTTPError.unexpectedEnd
         }
-        var endIndex = index
+        var endIndex = whitespace
         self.method = try Request.Method(from: bytes[startIndex..<endIndex])
 
         startIndex = endIndex.advanced(by: 1)
