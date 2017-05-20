@@ -21,20 +21,16 @@ extension Array where Element == UInt8 {
 }
 
 extension UInt8: ExpressibleByStringLiteral {
-    private init(_ value: String) {
-        self = ASCII(value)[0]
-    }
-
     public init(stringLiteral value: String) {
-        self.init(value)
+        self.init(ascii: value.unicodeScalars.first!)
     }
 
     public init(extendedGraphemeClusterLiteral value: String) {
-        self.init(value)
+        self.init(ascii: value.unicodeScalars.first!)
     }
 
     public init(unicodeScalarLiteral value: String) {
-        self.init(value)
+        self.init(ascii: value.unicodeScalars.first!)
     }
 }
 

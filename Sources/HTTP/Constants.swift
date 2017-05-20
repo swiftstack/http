@@ -1,13 +1,13 @@
 struct Character {
-    static let whitespace = ASCII(" ").first!
-    static let cr = ASCII("\r").first!
-    static let lf = ASCII("\n").first!
-    static let colon = ASCII(":").first!
-    static let semicolon = ASCII(";").first!
-    static let comma = ASCII(",").first!
-    static let questionMark = ASCII("?").first!
-    static let slash = ASCII("/").first!
-    static let asterisk = ASCII("*").first!
+    static let whitespace = UInt8(ascii: " ")
+    static let cr = UInt8(ascii: "\r")
+    static let lf = UInt8(ascii: "\n")
+    static let colon = UInt8(ascii: ":")
+    static let semicolon = UInt8(ascii: ";")
+    static let comma = UInt8(ascii: ",")
+    static let questionMark = UInt8(ascii: "?")
+    static let slash = UInt8(ascii: "/")
+    static let asterisk = UInt8(ascii: "*")
 }
 
 struct Constants {
