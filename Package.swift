@@ -8,9 +8,30 @@ let package = Package(
         Target(name: "Client", dependencies: ["HTTP"]),
     ],
     dependencies: [
-        .Package(url: "https://github.com/swift-stack/log.git", majorVersion: 0),
-        .Package(url: "https://github.com/swift-stack/async.git", majorVersion: 0),
-        .Package(url: "https://github.com/swift-stack/network.git", majorVersion: 0),
-        .Package(url: "https://github.com/swift-stack/reflection.git", majorVersion: 0),
+        .Package(
+            url: "https://github.com/swift-stack/log.git",
+            majorVersion: 0,
+            minor: 3
+        ),
+        .Package(
+            url: "https://github.com/swift-stack/async.git",
+            majorVersion: 0,
+            minor: 3
+        ),
+        .Package(
+            url: "https://github.com/swift-stack/network.git",
+            majorVersion: 0,
+            minor: 3
+        ),
+        .Package(
+            url: "https://github.com/swift-stack/reflection.git",
+            majorVersion: 0,
+            minor: 3
+        ),
+        .Package(
+            url: "https://github.com/swift-stack/fiber.git",
+            majorVersion: 0,
+            minor: 3
+        ),
     ]
 )
