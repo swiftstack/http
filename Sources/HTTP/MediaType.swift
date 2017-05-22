@@ -116,6 +116,7 @@ public enum ApplicationSubtype {
     case pdf
     case zip
     case gzip
+    case xgzip
     case xml
     case xhtml
     case any
@@ -130,6 +131,7 @@ extension ApplicationSubtype {
         static let pdf = ASCII("pdf")
         static let zip = ASCII("zip")
         static let gzip = ASCII("gzip")
+        static let xgzip = ASCII("x-gzip")
         static let xml = ASCII("xml")
         static let xhtml = ASCII("xhtml+xml")
         static let any = ASCII("*")
@@ -144,6 +146,7 @@ extension ApplicationSubtype {
         case Bytes.pdf.lowercasedHashValue: self = .pdf
         case Bytes.zip.lowercasedHashValue: self = .zip
         case Bytes.gzip.lowercasedHashValue: self = .gzip
+        case Bytes.xgzip.lowercasedHashValue: self = .xgzip
         case Bytes.xml.lowercasedHashValue: self = .xml
         case Bytes.xhtml.lowercasedHashValue: self = .xhtml
         case Bytes.any.lowercasedHashValue:  self = .any
@@ -160,6 +163,7 @@ extension ApplicationSubtype {
         case .pdf: buffer.append(contentsOf: Bytes.pdf)
         case .zip: buffer.append(contentsOf: Bytes.zip)
         case .gzip: buffer.append(contentsOf: Bytes.gzip)
+        case .xgzip: buffer.append(contentsOf: Bytes.xgzip)
         case .xml: buffer.append(contentsOf: Bytes.xml)
         case .xhtml: buffer.append(contentsOf: Bytes.xhtml)
         case .any: buffer.append(contentsOf: Bytes.any)
