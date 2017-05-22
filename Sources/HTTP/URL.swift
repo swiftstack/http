@@ -49,7 +49,8 @@ extension URL {
 extension URL {
     static func encode(values: [String : String]) -> String {
         // TODO: optimize
-        let queryString = values.map({ "\($0)=\($1)" }).joined(separator: "&")
+        let queryString = values.map({ "\($0.key)=\($0.value)" })
+            .joined(separator: "&")
         let encodedQuery = queryString.addingPercentEncoding(
             withAllowedCharacters: CharacterSet.urlQueryAllowed) ?? ""
         return encodedQuery
@@ -60,8 +61,9 @@ extension URL {
         let pairs = query.components(separatedBy: "&")
         for pair in pairs {
             if let index = pair.characters.index(of: "=") {
-                let name = pair.characters.prefix(upTo: index)
-                let value = pair.characters.suffix(from: pair.characters.index(after: index))
+                let name = pair.characters[..<index]
+                let valueIndex = pair.characters.index(after: index)
+                let value = pair.characters[valueIndex...]
                 if let decodedName = String(name).removingPercentEncoding,
                     let decodedValue = String(value).removingPercentEncoding {
                     values[decodedName] = decodedValue
@@ -73,12 +75,13 @@ extension URL {
 }
 
 extension URL {
-    init(from buffer: UnsafeRawBufferPointer) {
+    init(from buffer: RandomAccessSlice<UnsafeRawBufferPointer>) {
         if let index = buffer.index(of: Character.questionMark) {
-            self.path = String(buffer: buffer.prefix(upTo: index))
+            self.path = String(buffer: buffer[..<index])
             // TODO: optimize
-            self.query = URL.decode(
-                urlEncoded: String(buffer: buffer.suffix(from: index + 1)))
+            let queryIndex = index + 1
+            let query = String(buffer: buffer[queryIndex...])
+            self.query = URL.decode(urlEncoded: query)
         } else {
             self.path = String(buffer: buffer)
             self.query = [:]

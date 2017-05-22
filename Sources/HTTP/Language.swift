@@ -465,7 +465,7 @@ extension Language {
         static let any   = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer) throws {
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         switch bytes.lowercasedHashValue {
         case Bytes.af.lowercasedHashValue:    self = .af
         case Bytes.afZA.lowercasedHashValue:  self = .afZA

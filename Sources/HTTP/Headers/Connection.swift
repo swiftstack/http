@@ -11,7 +11,7 @@ extension Connection {
         static let upgrade = ASCII("Upgrade")
     }
 
-    init(from bytes: UnsafeRawBufferPointer) throws {
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         switch bytes.lowercasedHashValue {
         case Bytes.keepAlive.lowercasedHashValue: self = .keepAlive
         case Bytes.close.lowercasedHashValue: self = .close

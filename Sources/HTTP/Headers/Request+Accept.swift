@@ -20,9 +20,10 @@ extension Request.Accept: Equatable {
 
 extension Array where Element == Request.Accept {
     public typealias Accept = Request.Accept
-    init(from bytes: UnsafeRawBufferPointer) throws {
-        var startIndex = 0
-        var endIndex = 0
+
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
+        var startIndex = bytes.startIndex
+        var endIndex = startIndex
         var values = [Accept]()
         while endIndex < bytes.endIndex {
             endIndex =
@@ -53,16 +54,16 @@ extension Request.Accept {
         static let qEqual = ASCII("q=")
     }
 
-    init(from bytes: UnsafeRawBufferPointer) throws {
-        if let semicolon = bytes.index(of: Character.semicolon, offset: 0) {
-            self.mediaType = try MediaType(from: bytes.prefix(upTo: semicolon))
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
+        if let semicolon = bytes.index(of: Character.semicolon) {
+            self.mediaType = try MediaType(from: bytes[..<semicolon])
 
-            let priorityBytes = bytes.suffix(from: semicolon.advanced(by: 1))
-            guard priorityBytes.count == 5,
-                priorityBytes.starts(with: Bytes.qEqual),
-                let priority = Double(
-                    String(buffer: priorityBytes.suffix(from: 2))) else {
-                        throw HTTPError.invalidHeaderValue
+            let index = semicolon.advanced(by: 1)
+            let bytes = UnsafeRawBufferPointer(rebasing: bytes[index...])
+            guard bytes.count == 5,
+                bytes.starts(with: Bytes.qEqual),
+                let priority = Double(String(buffer: bytes[2...])) else {
+                    throw HTTPError.invalidHeaderValue
             }
             self.priority = priority
         } else {

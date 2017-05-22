@@ -26,7 +26,7 @@ extension Response {
 
 public struct HeaderName: Hashable {
     let bytes: [UInt8]
-    init(from buffer: UnsafeRawBufferPointer) throws {
+    init(from buffer: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         for byte in buffer {
             guard Int(byte) < tokens.count && tokens[Int(byte)] else {
                 throw HTTPError.invalidHeaderName

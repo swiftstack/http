@@ -1,3 +1,4 @@
+import Test
 @testable import HTTP
 
 class UtilsTests: TestCase {

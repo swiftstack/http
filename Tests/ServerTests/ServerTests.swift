@@ -1,4 +1,4 @@
-import XCTest
+import Test
 @testable import Server
 import Network
 

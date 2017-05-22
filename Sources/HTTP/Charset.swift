@@ -27,7 +27,7 @@ extension Charset {
         static let any = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer) throws {
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         switch bytes.lowercasedHashValue {
         case Bytes.utf8.lowercasedHashValue: self = .utf8
         case Bytes.ascii.lowercasedHashValue: self = .ascii

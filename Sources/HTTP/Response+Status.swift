@@ -19,7 +19,7 @@ extension Response.Status {
         static let internalServerError = ASCII("500 Internal Server Error")
     }
 
-    public init(from bytes: UnsafeRawBufferPointer) throws {
+    public init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         if bytes.elementsEqual(Bytes.ok) {
             self = .ok
         } else if bytes.elementsEqual(Bytes.moved) {

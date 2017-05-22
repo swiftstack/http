@@ -31,9 +31,10 @@ extension Request.AcceptCharset: Equatable {
 
 extension Array where Element == Request.AcceptCharset {
     public typealias AcceptCharset = Request.AcceptCharset
-    init(from bytes: UnsafeRawBufferPointer) throws {
-        var startIndex = 0
-        var endIndex = 0
+
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
+        var startIndex = bytes.startIndex
+        var endIndex = startIndex
         var values = [AcceptCharset]()
         while endIndex < bytes.endIndex {
             endIndex =
@@ -64,16 +65,16 @@ extension Request.AcceptCharset {
         static let qEqual = ASCII("q=")
     }
 
-    init(from bytes: UnsafeRawBufferPointer) throws {
-        if let semicolon = bytes.index(of: Character.semicolon, offset: 0) {
-            self.charset = try Charset(from: bytes.prefix(upTo: semicolon))
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
+        if let semicolon = bytes.index(of: Character.semicolon) {
+            self.charset = try Charset(from: bytes[..<semicolon])
 
-            let priorityBytes = bytes.suffix(from: semicolon.advanced(by: 1))
-            guard priorityBytes.count == 5,
-                priorityBytes.starts(with: Bytes.qEqual),
-                let priority = Double(
-                    String(buffer: priorityBytes.suffix(from: 2))) else {
-                        throw HTTPError.invalidHeaderValue
+            let index = semicolon.advanced(by: 1)
+            let bytes = UnsafeRawBufferPointer(rebasing: bytes[index...])
+            guard bytes.count == 5,
+                bytes.starts(with: Bytes.qEqual),
+                let priority = Double(String(buffer: bytes[2...])) else {
+                    throw HTTPError.invalidHeaderValue
             }
             self.priority = priority
         } else {

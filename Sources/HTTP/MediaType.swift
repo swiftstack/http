@@ -34,14 +34,15 @@ extension MediaType {
         static let any = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer) throws {
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         guard let slashIndex = bytes.index(of: Character.slash) else {
             throw HTTPError.invalidMediaType
         }
 
-        let mediaType = bytes.prefix(upTo: slashIndex)
-        let subtype = bytes.suffix(from: slashIndex + 1)
+        let mediaType = bytes[..<slashIndex]
 
+        let subtypeIndex = slashIndex + 1
+        let subtype = bytes[subtypeIndex...]
 
         switch mediaType.lowercasedHashValue {
         case Bytes.application.lowercasedHashValue:
@@ -137,7 +138,7 @@ extension ApplicationSubtype {
         static let any = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer) throws {
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         switch bytes.lowercasedHashValue {
         case Bytes.json.lowercasedHashValue: self = .json
         case Bytes.javascript.lowercasedHashValue: self = .javascript
@@ -190,7 +191,7 @@ extension AudioSubtype {
         static let any = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer) throws {
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         switch bytes.lowercasedHashValue {
         case Bytes.mp4.lowercasedHashValue: self = .mp4
         case Bytes.aac.lowercasedHashValue: self = .aac
@@ -236,7 +237,7 @@ extension ImageSubtype {
         static let any = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer) throws {
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         switch bytes.lowercasedHashValue {
         case Bytes.gif.lowercasedHashValue: self = .gif
         case Bytes.jpeg.lowercasedHashValue: self = .jpeg
@@ -273,7 +274,7 @@ extension MultipartSubtype {
         static let any = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer) throws {
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         switch bytes.lowercasedHashValue {
         case Bytes.formData.lowercasedHashValue: self = .formData
         case Bytes.any.lowercasedHashValue: self = .any
@@ -310,7 +311,7 @@ extension TextSubtype {
         static let any = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer) throws {
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         switch bytes.lowercasedHashValue {
         case Bytes.css.lowercasedHashValue: self = .css
         case Bytes.csv.lowercasedHashValue: self = .csv
@@ -355,7 +356,7 @@ extension VideoSubtype {
         static let any = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer) throws {
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         switch bytes.lowercasedHashValue {
         case Bytes.mpeg.lowercasedHashValue: self = .mpeg
         case Bytes.mp4.lowercasedHashValue: self = .mp4

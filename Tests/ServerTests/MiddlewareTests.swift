@@ -1,6 +1,6 @@
-import XCTest
-@testable import Server
+import Test
 import Network
+@testable import Server
 
 class MiddlewareTests: TestCase {
     func testMiddleware() {

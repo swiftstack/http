@@ -64,7 +64,7 @@ public struct RouteMatcher<T> {
         return result
     }
 
-    func addNode(to node: inout Node, characters: UnsafeRawBufferPointer, payload: T) {
+    func addNode(to node: inout Node, characters: RandomAccessSlice<UnsafeRawBufferPointer>, payload: T) {
         let character = Int(characters[characters.startIndex])
         if character == Int(asterisk) || character == Int(colon) {
             if node.wildcard == nil {
@@ -87,7 +87,7 @@ public struct RouteMatcher<T> {
             }
 
             let next = characters.index(after: index)
-            addNode(to: &node.wildcard![Int(separator)], characters: characters.suffix(from: next), payload: payload)
+            addNode(to: &node.wildcard![Int(separator)], characters: characters[next...], payload: payload)
         } else {
             if node.rlist == nil {
                 node.rlist = [Node](repeating: Node(), count: 128)
@@ -99,11 +99,11 @@ public struct RouteMatcher<T> {
             }
 
             let next = characters.index(after: characters.startIndex)
-            addNode(to: &node.rlist![character], characters: characters.suffix(from: next), payload: payload)
+            addNode(to: &node.rlist![character], characters: characters[next...], payload: payload)
         }
     }
 
-    mutating func findNode(in node: Node, characters: UnsafeRawBufferPointer, result: inout [T]) {
+    mutating func findNode(in node: Node, characters: RandomAccessSlice<UnsafeRawBufferPointer>, result: inout [T]) {
         guard characters.startIndex < characters.endIndex else {
             var node = node // accessing lazy initializer on immutable type
             if node.payload.count > 0 {
@@ -115,7 +115,7 @@ public struct RouteMatcher<T> {
         if let rlist = node.rlist  {
             let childNode = rlist[Int(characters[characters.startIndex])]
             let next = characters.index(after: characters.startIndex)
-            findNode(in: childNode, characters: characters.suffix(from: next), result: &result)
+            findNode(in: childNode, characters: characters[next...], result: &result)
         }
 
         if let wildcard = node.wildcard {
@@ -129,7 +129,7 @@ public struct RouteMatcher<T> {
                 wildcard[Int(asterisk)]
 
             let next = characters.index(after: index)
-            findNode(in: childNode, characters: characters.suffix(from: next), result: &result)
+            findNode(in: childNode, characters: characters[next...], result: &result)
         }
     }
 }

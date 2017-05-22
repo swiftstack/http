@@ -1,6 +1,7 @@
+import Test
 import HTTP
-@testable import Client
 import Network
+@testable import Client
 
 class ClientTests: TestCase {
     func testClient() {
@@ -23,7 +24,7 @@ class ClientTests: TestCase {
                 let count = try client.receive(to: &buffer)
                 _ = try client.send(bytes: [UInt8](result.utf8))
 
-                let request = String(bytes: [UInt8](buffer.prefix(upTo: count)))
+                let request = String(bytes: [UInt8](buffer[..<count]))
                 assertEqual(request, expected)
             } catch {
                 async.breakLoop()

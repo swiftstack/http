@@ -10,7 +10,7 @@ extension Request {
 }
 
 extension Request.Method {
-    init(from buffer: UnsafeRawBufferPointer) throws {
+    init(from buffer: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         for (type, bytes) in RequestMethodBytes.values {
             if buffer.elementsEqual(bytes) {
                 self = type

@@ -23,9 +23,9 @@ extension TransferEncoding: Equatable {
 }
 
 extension Array where Element == TransferEncoding {
-    init(from bytes: UnsafeRawBufferPointer) throws {
-        var startIndex = 0
-        var endIndex = 0
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
+        var startIndex = bytes.startIndex
+        var endIndex = startIndex
         var values = [TransferEncoding]()
         while endIndex < bytes.endIndex {
             endIndex =
@@ -61,7 +61,7 @@ extension TransferEncoding {
         static let identity = ASCII("identity")
     }
 
-    init(from bytes: UnsafeRawBufferPointer) throws {
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         switch bytes.lowercasedHashValue {
         case Bytes.chunked.lowercasedHashValue: self = .chunked
         case Bytes.compress.lowercasedHashValue: self = .compress

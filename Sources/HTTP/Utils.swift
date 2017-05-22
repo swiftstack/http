@@ -48,6 +48,10 @@ extension String {
         self = String(_storage: storage)
     }
 
+    public init(buffer: UnsafeRawBufferPointer.SubSequence) {
+        self.init(buffer: UnsafeRawBufferPointer(rebasing: buffer))
+    }
+
     public init(bytes: [UInt8]) {
         self = String(
             buffer: UnsafeRawBufferPointer(start: bytes, count: bytes.count))
@@ -56,19 +60,19 @@ extension String {
 
 // MARK: UnsafeRawBufferPointer extension
 
-extension UnsafeRawBufferPointer {
+extension RandomAccessSlice where Element == UInt8, Base.Index == Int {
     @inline(__always)
     func index(of element: UInt8, offset: Int) -> Int? {
-        guard let index = self.suffix(from: offset).index(of: element) else {
+        guard let index = self[offset...].index(of: element) else {
             return nil
         }
-        return index + offset
+        return index
     }
 }
 
-extension UnsafeRawBufferPointer {
+extension RandomAccessSlice where Element == UInt8, Base.Index == Int {
     @inline(__always)
-    func trimmingLeftSpace() -> UnsafeRawBufferPointer {
+    func trimmingLeftSpace() -> RandomAccessSlice<Base> {
         if startIndex < endIndex && self[startIndex] == Character.whitespace {
             return self.dropFirst()
         }
@@ -76,7 +80,7 @@ extension UnsafeRawBufferPointer {
     }
 
     @inline(__always)
-    func trimmingRightSpace() -> UnsafeRawBufferPointer {
+    func trimmingRightSpace() -> RandomAccessSlice<Base> {
         if startIndex < endIndex && self[endIndex-1] == Character.whitespace {
             return self.dropLast()
         }

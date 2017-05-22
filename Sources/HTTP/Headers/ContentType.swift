@@ -37,12 +37,12 @@ extension ContentType {
         static let charset = ASCII("charset=")
     }
 
-    init(from bytes: UnsafeRawBufferPointer) throws {
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         let semicolonIndex = bytes.index(of: Character.semicolon)
 
         self.mediaType = semicolonIndex == nil
             ? try MediaType(from: bytes)
-            : try MediaType(from: bytes.prefix(upTo: semicolonIndex!))
+            : try MediaType(from: bytes[..<semicolonIndex!])
 
         switch self.mediaType {
         case .multipart:
@@ -50,11 +50,10 @@ extension ContentType {
                 semicolonIndex < bytes.endIndex else {
                     throw HTTPError.invalidContentType
             }
-            let boundary = bytes
-                .suffix(from: semicolonIndex + 1)
-                .trimmingLeftSpace()
+            let startIndex = semicolonIndex + 1
             self.charset = nil
-            self.boundary = try Boundary(from: boundary)
+            self.boundary = try Boundary(
+                from: bytes[startIndex...].trimmingLeftSpace())
 
         default:
             guard let semicolonIndex = semicolonIndex else {
@@ -62,14 +61,13 @@ extension ContentType {
                 self.boundary = nil
                 break
             }
-            let charset = bytes
-                .suffix(from: semicolonIndex + 1)
-                .trimmingLeftSpace()
+            let startIndex = semicolonIndex + 1
+            let charset = UnsafeRawBufferPointer(
+                rebasing: bytes[startIndex...].trimmingLeftSpace())
             guard charset.count > Bytes.charset.count else {
                 throw HTTPError.invalidContentType
             }
-            let charsetValue = charset.suffix(from: Bytes.charset.count)
-            self.charset = try Charset(from: charsetValue)
+            self.charset = try Charset(from: charset[Bytes.charset.count...])
             self.boundary = nil
         }
     }
@@ -108,10 +106,11 @@ extension Boundary {
         static let boundary = ASCII("boundary=")
     }
 
-    init(from bytes: UnsafeRawBufferPointer) throws {
-        guard bytes.startIndex + Bytes.boundary.count < bytes.endIndex else {
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
+        let boundaryStart = bytes.startIndex + Bytes.boundary.count
+        guard boundaryStart < bytes.endIndex else {
             throw HTTPError.invalidContentType
         }
-        self = try Boundary([UInt8](bytes.suffix(from: Bytes.boundary.count)))
+        self = try Boundary([UInt8](bytes[boundaryStart...]))
     }
 }

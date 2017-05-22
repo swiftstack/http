@@ -193,10 +193,10 @@ extension Request {
 extension Request {
     public init(from bytes: [UInt8]) throws {
         let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
-        try self.init(from: buffer)
+        try self.init(from: buffer[...])
     }
 
-    public init(from bytes: UnsafeRawBufferPointer) throws {
+    public init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         var startIndex = 0
         guard let whitespace = bytes.index(of: Character.whitespace) else {
             throw HTTPError.unexpectedEnd
@@ -230,9 +230,7 @@ extension Request {
         }
 
         while startIndex + Constants.minimumHeaderLength < bytes.endIndex
-            && !bytes.suffix(from: startIndex)
-                .starts(with: Constants.lineEnd) {
-
+            && !bytes[startIndex...].starts(with: Constants.lineEnd) {
                 guard let headerNameEndIndex = bytes.index(
                     of: Character.colon,
                     offset: startIndex) else {
@@ -353,9 +351,8 @@ extension Request {
 
         guard startIndex == bytes.endIndex || (
             startIndex == bytes.endIndex.advanced(by: -2) &&
-                bytes.suffix(from: startIndex)
-                    .elementsEqual(Constants.lineEnd)) else {
-                        throw HTTPError.unexpectedEnd
+                bytes[startIndex...].elementsEqual(Constants.lineEnd)) else {
+                    throw HTTPError.unexpectedEnd
         }
     }
 }
