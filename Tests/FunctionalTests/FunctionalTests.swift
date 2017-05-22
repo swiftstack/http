@@ -36,6 +36,7 @@ class FunctionalTests: TestCase {
 
                 async.breakLoop()
             } catch {
+                async.breakLoop()
                 fail(String(describing: error))
             }
         }
