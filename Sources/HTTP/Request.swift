@@ -11,6 +11,7 @@ public struct Request {
     public var acceptLanguage: [AcceptLanguage]? = nil
     public var acceptEncoding: [ContentEncoding]? = nil
     public var acceptCharset: [AcceptCharset]? = nil
+    public var authorization: Authorization? = nil
     public var keepAlive: Int? = nil
     public var connection: Connection? = nil
     public var contentType: ContentType? = nil
@@ -156,6 +157,12 @@ extension Request {
                 encoder: acceptCharset.encode)
         }
 
+        if let authorization = self.authorization {
+            writeHeader(
+                name: HeaderNames.authorization.bytes,
+                encoder: authorization.encode)
+        }
+
         if let keepAlive = self.keepAlive {
             writeHeader(
                 name: HeaderNames.keepAlive.bytes,
@@ -268,6 +275,8 @@ extension Request {
                         try [ContentEncoding](from: headerValue)
                 case HeaderNames.acceptCharset:
                     self.acceptCharset = try [AcceptCharset](from: headerValue)
+                case HeaderNames.authorization:
+                    self.authorization = try Authorization(from: headerValue)
                 case HeaderNames.keepAlive:
                     self.keepAlive = Int(headerValueString)
                 case HeaderNames.connection:

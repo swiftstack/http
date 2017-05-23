@@ -6,6 +6,7 @@ extension Request {
         static let acceptLanguage = HeaderName("Accept-Language")
         static let acceptEncoding = HeaderName("Accept-Encoding")
         static let acceptCharset = HeaderName("Accept-Charset")
+        static let authorization = HeaderName("Authorization")
         static let keepAlive = HeaderName("Keep-Alive")
         static let connection = HeaderName("Connection")
         static let contentLength = HeaderName("Content-Length")

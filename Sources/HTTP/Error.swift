@@ -13,5 +13,6 @@ enum HTTPError: Error {
     case unsupportedMediaType
     case unsupportedContentType
     case unsupportedAcceptCharset
+    case unsupportedAuthorization
     case unexpectedEnd
 }

@@ -228,6 +228,24 @@ class DecodeRequestTests: TestCase {
         }
     }
 
+    func testAuthorization() {
+        do {
+            let bytes = ASCII(
+                "GET / HTTP/1.1\r\n" +
+                "Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\n" +
+                "\r\n")
+            let request = try Request(from: bytes)
+            let expected: Request.Authorization = .basic(
+                credentials: "QWxhZGRpbjpvcGVuIHNlc2FtZQ==")
+            assertNotNil(request.authorization)
+            if let authorization = request.authorization {
+                assertEqual(authorization, expected)
+            }
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
     func testCustomHeader() {
         do {
             let bytes = ASCII(
