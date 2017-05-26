@@ -74,7 +74,7 @@ extension Response {
         guard let rawBody = rawBody else {
             return nil
         }
-        return String(cString: rawBody + [0])
+        return String(bytes: rawBody, encoding: .utf8)
     }
 }
 

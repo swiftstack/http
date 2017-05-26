@@ -36,10 +36,10 @@ extension Request {
     }
 
     public var body: String? {
-        guard let bytes = rawBody else {
+        guard let rawBody = rawBody else {
             return nil
         }
-        return String(bytes: bytes)
+        return String(bytes: rawBody, encoding: .utf8)
     }
 
     public init(method: Method = .get, url: URL = URL(path: "/")) {
