@@ -13,7 +13,8 @@ public class Server {
     public let port: UInt16
 
     public let bufferSize = 1024
-    internal var routeMatcher = RouteMatcher<Route>()
+
+    var router = Router()
 
     public init(host: String, port: UInt16, async: Async) throws {
         self.host = host
@@ -49,15 +50,6 @@ public class Server {
         }
     }
 
-    func handleError (_ error: Error) {
-        if let error = error as? SocketError, error.number == ECONNRESET {
-            /* connection reset by peer */
-            /* do nothing, it's fine. */
-        } else {
-            log(event: .error, message: String(describing: error))
-        }
-    }
-
     func handleClient(_ client: Socket) {
         do {
             var bytes = [UInt8](repeating: 0, count: bufferSize)
@@ -67,7 +59,7 @@ public class Server {
                     break
                 }
                 let request = try Request(from: bytes)
-                let response = provideResponse(for: request)
+                let response = router.handleRequest(request)
                 _ = try client.send(bytes: response.bytes)
             }
         } catch {
@@ -75,26 +67,12 @@ public class Server {
         }
     }
 
-    public typealias RequestHandler = (Request) throws -> Response
-
-    struct Route {
-        let method: Request.Method
-        let handler: RequestHandler
-    }
-
-    func provideResponse(for request: Request) -> Response {
-        let routes = routeMatcher.matches(route: request.url.path)
-        guard let route = routes.first(where: { route in
-            route.method == request.method
-        }) else {
-            return Response(status: .notFound)
-        }
-
-        do {
-            return try route.handler(request)
-        } catch {
-            Log.debug(String(describing: error))
-            return Response(status: .internalServerError)
+    func handleError (_ error: Error) {
+        if let error = error as? SocketError, error.number == ECONNRESET {
+            /* connection reset by peer */
+            /* do nothing, it's fine. */
+        } else {
+            log(event: .error, message: String(describing: error))
         }
     }
 }
