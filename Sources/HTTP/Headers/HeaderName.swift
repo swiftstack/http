@@ -1,28 +1,22 @@
-extension Request {
-    public struct HeaderNames {
-        static let host = HeaderName("Host")
-        static let userAgent = HeaderName("User-Agent")
-        static let accept = HeaderName("Accept")
-        static let acceptLanguage = HeaderName("Accept-Language")
-        static let acceptEncoding = HeaderName("Accept-Encoding")
-        static let acceptCharset = HeaderName("Accept-Charset")
-        static let authorization = HeaderName("Authorization")
-        static let keepAlive = HeaderName("Keep-Alive")
-        static let connection = HeaderName("Connection")
-        static let contentLength = HeaderName("Content-Length")
-        static let contentType = HeaderName("Content-Type")
-        static let transferEncoding = HeaderName("Transfer-Encoding")
-    }
-}
+extension HeaderName {
+    // General headers
+    static let connection = HeaderName("Connection")
+    static let keepAlive = HeaderName("Keep-Alive")
 
-extension Response {
-    public struct HeaderNames {
-        static let connection = HeaderName("Connection")
-        static let contentEncoding = HeaderName("Content-Encoding")
-        static let contentLength = HeaderName("Content-Length")
-        static let contentType = HeaderName("Content-Type")
-        static let transferEncoding = HeaderName("Transfer-Encoding")
-    }
+    // Entity headers
+    static let contentLength = HeaderName("Content-Length")
+    static let contentType = HeaderName("Content-Type")
+    static let contentEncoding = HeaderName("Content-Encoding")
+    static let transferEncoding = HeaderName("Transfer-Encoding")
+
+    // Request headers
+    static let host = HeaderName("Host")
+    static let userAgent = HeaderName("User-Agent")
+    static let accept = HeaderName("Accept")
+    static let acceptLanguage = HeaderName("Accept-Language")
+    static let acceptEncoding = HeaderName("Accept-Encoding")
+    static let acceptCharset = HeaderName("Accept-Charset")
+    static let authorization = HeaderName("Authorization")
 }
 
 public struct HeaderName: Hashable {

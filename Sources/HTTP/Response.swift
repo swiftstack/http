@@ -10,7 +10,7 @@ public struct Response {
     public var contentLength: Int? = nil
     public var transferEncoding: [TransferEncoding]? = nil
 
-    public var headers: [String : String] = [:]
+    public var headers: [HeaderName : String] = [:]
 
     public var rawBody: [UInt8]? = nil {
         didSet {
@@ -94,8 +94,8 @@ extension Response {
 
         // Headers
         @inline(__always)
-        func writeHeader(name: [UInt8], encoder: (inout [UInt8]) -> Void) {
-            buffer.append(contentsOf: name)
+        func writeHeader(_ name: HeaderName, encoder: (inout [UInt8]) -> Void) {
+            buffer.append(contentsOf: name.bytes)
             buffer.append(Character.colon)
             buffer.append(Character.whitespace)
             encoder(&buffer)
@@ -103,48 +103,36 @@ extension Response {
         }
 
         @inline(__always)
-        func writeHeader(name: [UInt8], value: [UInt8]) {
-            buffer.append(contentsOf: name)
+        func writeHeader(_ name: HeaderName, value: String) {
+            buffer.append(contentsOf: name.bytes)
             buffer.append(Character.colon)
             buffer.append(Character.whitespace)
-            buffer.append(contentsOf: value)
+            buffer.append(contentsOf: value.utf8)
             buffer.append(contentsOf: Constants.lineEnd)
         }
 
         if let contentType = self.contentType {
-            writeHeader(
-                name: HeaderNames.contentType.bytes,
-                encoder: contentType.encode)
+            writeHeader(.contentType, encoder: contentType.encode)
         }
 
         if let contentLength = self.contentLength {
-            writeHeader(
-                name: HeaderNames.contentLength.bytes,
-                value: ASCII(String(contentLength)))
+            writeHeader(.contentLength, value: String(contentLength))
         }
         
         if let connection = self.connection {
-            writeHeader(
-                name: HeaderNames.connection.bytes,
-                encoder: connection.encode)
+            writeHeader(.connection, encoder: connection.encode)
         }
 
         if let contentEncoding = self.contentEncoding {
-            writeHeader(
-                name: HeaderNames.contentEncoding.bytes,
-                encoder: contentEncoding.encode)
+            writeHeader(.contentEncoding, encoder: contentEncoding.encode)
         }
 
         if let transferEncoding = self.transferEncoding {
-            writeHeader(
-                name: HeaderNames.transferEncoding.bytes,
-                encoder: transferEncoding.encode)
+            writeHeader(.transferEncoding, encoder: transferEncoding.encode)
         }
 
         for (key, value) in headers {
-            writeHeader(
-                name: ASCII(key),
-                value: ASCII(value))
+            writeHeader(key, value: value)
         }
 
         // Separator
@@ -211,23 +199,21 @@ extension Response {
                         .trimmingLeftSpace()
                         .trimmingRightSpace()
 
-                    let headerValueString = String(buffer: headerValue)
                     switch headerName {
-                    case HeaderNames.connection:
+                    case .connection:
                         self.connection = try Connection(from: headerValue)
-                    case HeaderNames.contentEncoding:
+                    case .contentEncoding:
                         self.contentEncoding =
                             try [ContentEncoding](from: headerValue)
-                    case HeaderNames.contentLength:
-                        self.contentLength = Int(headerValueString)
-                    case HeaderNames.contentType:
+                    case .contentLength:
+                        self.contentLength = Int(String(buffer: headerValue))
+                    case .contentType:
                         self.contentType = try ContentType(from: headerValue)
-                    case HeaderNames.transferEncoding:
+                    case .transferEncoding:
                         self.transferEncoding =
                             try [TransferEncoding](from: headerValue)
                     default:
-                        let headerNameString = String(buffer: headerNameBuffer)
-                        headers[headerNameString] = headerValueString
+                        headers[headerName] = String(buffer: headerValue)
                     }
 
                     startIndex = endIndex.advanced(by: 2)
