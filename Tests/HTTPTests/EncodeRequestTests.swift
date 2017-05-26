@@ -114,7 +114,7 @@ class EncodeRequestTests: TestCase {
             "Content-Type: text/plain\r\n" +
             "\r\n"
         var request = Request()
-        request.contentType = try! ContentType(mediaType: .text(.plain))
+        request.contentType = ContentType(mediaType: .text(.plain))
         assertEqual(String(bytes: request.bytes), expected)
     }
 

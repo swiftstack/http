@@ -55,7 +55,7 @@ extension Request {
     public init(method: Method, url: URL, json object: Any) throws {
         let bytes = [UInt8](try JSONSerialization.data(withJSONObject: object))
         self.init(method: method, url: url)
-        self.contentType = try! ContentType(mediaType: .application(.json))
+        self.contentType = ContentType(mediaType: .application(.json))
         self.rawBody = bytes
         self.contentLength = bytes.count
     }
@@ -68,8 +68,7 @@ extension Request {
         let bytes = [UInt8](URL.encode(values: values).utf8)
 
         self.init(method: method, url: url)
-        self.contentType =
-            try! ContentType(mediaType: .application(.urlEncoded))
+        self.contentType = ContentType(mediaType: .application(.urlEncoded))
         self.rawBody = bytes
         self.contentLength = bytes.count
     }

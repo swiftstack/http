@@ -5,20 +5,17 @@ public struct ContentType {
 }
 
 extension ContentType {
-    public init(mediaType: MediaType, charset: Charset? = nil) throws {
+    public init?(mediaType: MediaType, charset: Charset? = nil) {
         if case .multipart = mediaType {
-            throw HTTPError.invalidMediaType
+            return nil
         }
         self.mediaType = mediaType
         self.charset = charset
         self.boundary = nil
     }
 
-    public init(mediaType: MediaType, boundary: Boundary) throws {
-        guard case .multipart = mediaType else {
-            throw HTTPError.invalidMediaType
-        }
-        self.mediaType = mediaType
+    public init(multipart subtype: MultipartSubtype, boundary: Boundary) {
+        self.mediaType = .multipart(subtype)
         self.boundary = boundary
         self.charset = nil
     }
