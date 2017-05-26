@@ -162,8 +162,8 @@ class EncodeRequestTests: TestCase {
             "Content-Length: 23\r\n" +
             "\r\n" +
             "message=Hello,%20World!"
-        let values = ["message": "Hello, World!"]
-        let request = try! Request(method: .post, url: "/", urlEncoded: values)
+        let query: URL.Query = ["message": "Hello, World!"]
+        let request = try! Request(method: .post, url: "/", urlEncoded: query)
         assertEqual(String(bytes: request.bytes), expected)
     }
 

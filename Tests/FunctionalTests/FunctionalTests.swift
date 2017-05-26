@@ -192,8 +192,8 @@ class FunctionalTests: TestCase {
                 }
             },
             clientCode: { client in
-                let dictionary = ["message" : "Hello, Server!"]
-                let response = try client.post("/", urlEncoded: dictionary)
+                let query: URL.Query = ["message" : "Hello, Server!"]
+                let response = try client.post("/", urlEncoded: query)
                 assertEqual(response.status, .ok)
                 assertEqual(response.body, "message=Hello,%20Client!")
             }

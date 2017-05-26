@@ -93,9 +93,9 @@ extension Client {
 
     public func post(
         _ url: URL,
-        urlEncoded values: [String : String]
+        urlEncoded query: URL.Query
     ) throws -> Response {
-        let request = try Request(method: .post, url: url, urlEncoded: values)
+        let request = try Request(method: .post, url: url, urlEncoded: query)
         return try makeRequest(request)
     }
 }

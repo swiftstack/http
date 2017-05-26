@@ -63,14 +63,15 @@ extension Request {
     public init(
         method: Method,
         url: URL,
-        urlEncoded values: [String : String]
+        urlEncoded query: URL.Query
     ) throws {
-        let bytes = [UInt8](URL.encode(values: values).utf8)
+        var urlEncodedBytes = [UInt8]()
+        query.encode(to: &urlEncodedBytes)
 
         self.init(method: method, url: url)
         self.contentType = ContentType(mediaType: .application(.urlEncoded))
-        self.rawBody = bytes
-        self.contentLength = bytes.count
+        self.rawBody = urlEncodedBytes
+        self.contentLength = urlEncodedBytes.count
     }
 }
 
@@ -196,7 +197,7 @@ extension Request {
                 throw HTTPError.unexpectedEnd
         }
         endIndex = urlEndIndex
-        self.url = URL(from: bytes[startIndex..<endIndex])
+        self.url = try URL(from: bytes[startIndex..<endIndex])
 
         startIndex = endIndex.advanced(by: 1)
         guard let lineEnd =

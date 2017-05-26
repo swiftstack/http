@@ -6,17 +6,22 @@ public struct URL {
         case http
         case https
     }
+
+    public struct Query {
+        public var values: [String : String]
+    }
+
     public var host: String?
     public var port: Int?
     public var path: String
-    public var query: [String : String]
+    public var query: Query
     public var scheme: Scheme?
 
     public init(
         host: String? = nil,
         port: Int? = nil,
         path: String,
-        query: [String : String] = [:],
+        query: Query = [:],
         scheme: Scheme? = nil
     ) {
         self.host = host
@@ -36,7 +41,7 @@ extension URL {
         self.port = url.port
         self.path = url.path
         if let query = url.query {
-            self.query = URL.decode(urlEncoded: query)
+            self.query = Query(from: query)
         } else {
             self.query = [:]
         }
@@ -46,42 +51,94 @@ extension URL {
     }
 }
 
-extension URL {
-    static func encode(values: [String : String]) -> String {
-        // TODO: optimize
-        let queryString = values.map({ "\($0.key)=\($0.value)" })
-            .joined(separator: "&")
-        let encodedQuery = queryString.addingPercentEncoding(
-            withAllowedCharacters: CharacterSet.urlQueryAllowed) ?? ""
-        return encodedQuery
+extension URL.Query {
+    public init(_ values: [String : String]) {
+        self.values = values
     }
 
-    public static func decode(urlEncoded query: String) -> [String : String] {
+    public subscript(_ name: String) -> String? {
+        get {
+            return values[name]
+        }
+        set {
+            values[name] = newValue
+        }
+    }
+}
+
+extension URL.Query {
+    public init(from string: String) {
         var values =  [String : String]()
-        let pairs = query.components(separatedBy: "&")
-        for pair in pairs {
-            if let index = pair.characters.index(of: "=") {
-                let name = pair.characters[..<index]
-                let valueIndex = pair.characters.index(after: index)
-                let value = pair.characters[valueIndex...]
+        for pair in string.components(separatedBy: "&") {
+            if let index = pair.index(of: "=") {
+                let name = pair[..<index]
+                let valueIndex = pair.index(after: index)
+                let value = pair[valueIndex...]
                 if let decodedName = String(name).removingPercentEncoding,
                     let decodedValue = String(value).removingPercentEncoding {
                     values[decodedName] = decodedValue
                 }
             }
         }
-        return values
+        self.values = values
+    }
+
+    public init(from bytes: [UInt8]) throws {
+        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
+        try self.init(from: buffer[...])
+    }
+
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
+        var values =  [String : String]()
+
+        var startIndex = bytes.startIndex
+        var endIndex = startIndex
+        while startIndex < bytes.endIndex {
+            guard let equalIndex =
+                bytes.index(of: Character.equal, offset: startIndex) else {
+                    throw HTTPError.invalidURL
+            }
+            guard let name = String(buffer: bytes[startIndex..<equalIndex])
+                .removingPercentEncoding else {
+                    throw HTTPError.invalidURL
+            }
+
+            startIndex = equalIndex + 1
+            guard startIndex < bytes.endIndex else {
+                throw HTTPError.invalidURL
+            }
+
+            endIndex = bytes.index(of: Character.equal, offset: startIndex)
+                ?? bytes.endIndex
+            guard let value = String(buffer: bytes[startIndex..<endIndex])
+                .removingPercentEncoding else {
+                    throw HTTPError.invalidURL
+            }
+
+            values[name] = value
+            startIndex = endIndex
+        }
+
+        self.values = values
+    }
+
+    public func encode(to buffer: inout [UInt8]) {
+        let queryString = values
+            .map({ "\($0.key)=\($0.value)" })
+            .joined(separator: "&")
+            .addingPercentEncoding(
+                withAllowedCharacters: CharacterSet.urlQueryAllowed)
+            ?? ""
+        buffer.append(contentsOf: queryString.utf8)
     }
 }
 
 extension URL {
-    init(from buffer: RandomAccessSlice<UnsafeRawBufferPointer>) {
+    init(from buffer: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         if let index = buffer.index(of: Character.questionMark) {
             self.path = String(buffer: buffer[..<index])
-            // TODO: optimize
             let queryIndex = index + 1
-            let query = String(buffer: buffer[queryIndex...])
-            self.query = URL.decode(urlEncoded: query)
+            self.query = try Query(from: buffer[queryIndex...])
         } else {
             self.path = String(buffer: buffer)
             self.query = [:]
@@ -90,11 +147,16 @@ extension URL {
 
     func encode(to buffer: inout [UInt8]) {
         buffer.append(contentsOf: [UInt8](path.utf8))
-        if query.count > 0 {
+        if query.values.count > 0 {
             buffer.append(Character.questionMark)
-            // TODO: optimize
-            buffer.append(contentsOf: [UInt8](URL.encode(values: query).utf8))
+            query.encode(to: &buffer)
         }
+    }
+}
+
+extension URL.Query: Equatable {
+    public static func ==(lhs: URL.Query, rhs: URL.Query) -> Bool {
+        return lhs.values == rhs.values
     }
 }
 
@@ -108,6 +170,12 @@ extension URL: Equatable {
             return false
         }
         return lhs == rhs
+    }
+}
+
+extension URL.Query: ExpressibleByDictionaryLiteral {
+    public init(dictionaryLiteral elements: (String, String)...) {
+        self.values = Dictionary(uniqueKeysWithValues: elements)
     }
 }
 

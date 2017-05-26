@@ -60,12 +60,13 @@ extension Response {
         contentLength = bytes.count
     }
 
-    public init(urlEncoded values: [String : String]) {
-        let bytes = [UInt8](URL.encode(values: values).utf8)
+    public init(urlEncoded query: URL.Query) {
+        var urlEncodedBytes = [UInt8]()
+        query.encode(to: &urlEncodedBytes)
 
         contentType = ContentType(mediaType: .application(.urlEncoded))
-        rawBody = bytes
-        contentLength = bytes.count
+        rawBody = urlEncodedBytes
+        contentLength = urlEncodedBytes.count
     }
 }
 
