@@ -8,6 +8,7 @@ struct Character {
     static let questionMark = UInt8(ascii: "?")
     static let slash = UInt8(ascii: "/")
     static let asterisk = UInt8(ascii: "*")
+    static let equal = UInt8(ascii: "=")
 }
 
 struct Constants {

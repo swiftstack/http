@@ -20,6 +20,8 @@ public struct Request {
 
     public var headers: [HeaderName : String] = [:]
 
+    public var cookies: [Cookie] = []
+
     public var rawBody: [UInt8]? = nil {
         didSet {
             contentLength = rawBody?.count
@@ -160,6 +162,11 @@ extension Request {
             writeHeader(key, value: value)
         }
 
+        // Cookies
+        for cookie in cookies {
+            writeHeader(.cookie, encoder: cookie.encode)
+        }
+
         // Separator
         buffer.append(contentsOf: Constants.lineEnd)
 
@@ -260,6 +267,9 @@ extension Request {
                 case .transferEncoding:
                     self.transferEncoding =
                         try [TransferEncoding](from: headerValue)
+                case .cookie:
+                    self.cookies.append(
+                        contentsOf: try [Cookie](from: headerValue))
                 default:
                     headers[headerName] = String(buffer: headerValue)
                 }

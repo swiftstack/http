@@ -166,4 +166,17 @@ class EncodeRequestTests: TestCase {
         let request = try! Request(method: .post, url: "/", urlEncoded: values)
         assertEqual(String(bytes: request.bytes), expected)
     }
+
+    func testCookie() {
+        let expected = "GET / HTTP/1.1\r\n" +
+            "Cookie: username=tony\r\n" +
+            "Cookie: lang=aurebesh\r\n" +
+            "\r\n"
+        var request = Request()
+        request.cookies = [
+            Cookie(name: "username", value: "tony"),
+            Cookie(name: "lang", value: "aurebesh")
+        ]
+        assertEqual(String(bytes: request.bytes), expected)
+    }
 }

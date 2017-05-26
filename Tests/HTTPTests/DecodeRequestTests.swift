@@ -557,4 +557,37 @@ class DecodeRequestTests: TestCase {
             assertEqual(error as? HTTPError, .unexpectedEnd)
         }
     }
+
+    func testCookies() {
+        do {
+            let bytes = ASCII(
+                "GET / HTTP/1.1\r\n" +
+                "Cookie: username=tony\r\n" +
+                "Cookie: lang=aurebesh\r\n" +
+                "\r\n")
+            let request = try Request(from: bytes)
+            assertEqual(request.cookies, [
+                Cookie(name: "username", value: "tony"),
+                Cookie(name: "lang", value: "aurebesh")
+            ])
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
+    func testCookiesJoined() {
+        do {
+            let bytes = ASCII(
+                "GET / HTTP/1.1\r\n" +
+                "Cookie: username=tony; lang=aurebesh\r\n" +
+                "\r\n")
+            let request = try Request(from: bytes)
+            assertEqual(request.cookies, [
+                Cookie(name: "username", value: "tony"),
+                Cookie(name: "lang", value: "aurebesh")
+            ])
+        } catch {
+            fail(String(describing: error))
+        }
+    }
 }
