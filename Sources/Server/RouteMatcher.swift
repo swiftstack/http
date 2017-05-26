@@ -8,7 +8,7 @@ enum RouterError: Error {
 
 public struct RouteMatcher<T> {
     struct Node {
-        lazy var payload: [T] = []
+        var payload: [T] = []
         var wildcard: [Node]? = nil
         var rlist: [Node]? = nil
     }
@@ -38,7 +38,7 @@ public struct RouteMatcher<T> {
         addNode(to: &root, characters: bytes.dropFirst(), payload: payload)
     }
 
-    public mutating func matches(route bytes: UnsafeRawBufferPointer) -> [T] {
+    public func matches(route bytes: UnsafeRawBufferPointer) -> [T] {
         let startIndex = bytes.startIndex
         guard bytes[startIndex] == separator else {
             return []
@@ -103,9 +103,8 @@ public struct RouteMatcher<T> {
         }
     }
 
-    mutating func findNode(in node: Node, characters: RandomAccessSlice<UnsafeRawBufferPointer>, result: inout [T]) {
+    func findNode(in node: Node, characters: RandomAccessSlice<UnsafeRawBufferPointer>, result: inout [T]) {
         guard characters.startIndex < characters.endIndex else {
-            var node = node // accessing lazy initializer on immutable type
             if node.payload.count > 0 {
                 result.append(contentsOf: node.payload)
             }
@@ -141,7 +140,7 @@ extension RouteMatcher {
         add(route: buffer, payload: payload)
     }
 
-    public mutating func matches(route: String) -> [T] {
+    public func matches(route: String) -> [T] {
         let bytes = [UInt8](route)
         let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
         return matches(route: buffer)
