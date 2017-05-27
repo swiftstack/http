@@ -115,13 +115,12 @@ struct Router {
             let queryValues: [String: Any]?
 
             if method == .get {
-                queryValues = request.url.query
+                queryValues = request.url.query.values
             } else if let body = request.rawBody,
                 let contentType = request.contentType {
                 switch contentType.mediaType {
                 case .application(.urlEncoded):
-                    let query = String(cString: body + [0])
-                    queryValues = URL.decode(urlEncoded: query)
+                    queryValues = try URL.Query(from: body).values
                 case .application(.json):
                     queryValues = JSON.decode(body)
                 default:
