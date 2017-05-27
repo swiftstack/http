@@ -106,7 +106,7 @@ struct Router {
         method: Request.Method,
         url: String,
         handler: @escaping (Request, [String : Any]) throws -> Any
-        ) -> RequestHandler {
+    ) -> RequestHandler {
         let urlMatcher = URLParamMatcher(url)
 
         return { request in

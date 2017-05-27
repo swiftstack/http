@@ -61,8 +61,7 @@ extension ContentEncoding {
         case Bytes.gzip.lowercasedHashValue: self = .gzip
         case Bytes.deflate.lowercasedHashValue: self = .deflate
         default:
-            guard let encoding =
-                String(validating: bytes, allowedCharacters: .token) else {
+            guard let encoding = String(validating: bytes, as: .token) else {
                     throw HTTPError.invalidContentEncoding
             }
             self = .custom(encoding)

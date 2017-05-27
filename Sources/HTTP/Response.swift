@@ -214,8 +214,8 @@ extension Response {
                         self.transferEncoding =
                             try [TransferEncoding](from: headerValue)
                     default:
-                        headers[headerName] = String(
-                            validating: headerValue, allowedCharacters: .text)
+                        headers[headerName] =
+                            String(validating: headerValue, as: .text)
                     }
 
                     startIndex = endIndex.advanced(by: 2)

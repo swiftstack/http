@@ -18,7 +18,7 @@ struct Constants {
     static let minimumChunkLength = ASCII("0\r\n").count
 }
 
-public struct AllowedCharacters: ExpressibleByArrayLiteral {
+public struct ASCIICharacterSet: ExpressibleByArrayLiteral {
     let table: [Bool]
 
     init(table: [Bool]) {
@@ -42,7 +42,7 @@ public struct AllowedCharacters: ExpressibleByArrayLiteral {
     //                | "," | ";" | ":" | "\" | <">
     //                | "/" | "[" | "]" | "?" | "="
     //                | "{" | "}" | SP  | HT
-    public static let token = AllowedCharacters(table: [
+    public static let token = ASCIICharacterSet(table: [
         /* nul   soh   stx    etx    eot    enq    ack    bel */
         false, false, false, false, false, false, false, false,
         /* bs    ht     nl    vt     np     cr     so     si  */
@@ -77,7 +77,7 @@ public struct AllowedCharacters: ExpressibleByArrayLiteral {
         true,  true,  true,  false, true,  false, true,  false ])
 
     // <any OCTET except CTLs, but including LWS>
-    public static let text = AllowedCharacters(table: [
+    public static let text = ASCIICharacterSet(table: [
         /* nul   soh   stx    etx    eot    enq    ack    bel */
         false, false, false, false, false, false, false, false,
         /* bs    ht     nl    vt     np     cr     so     si  */
@@ -112,7 +112,7 @@ public struct AllowedCharacters: ExpressibleByArrayLiteral {
         true,  true,  true,  true,  true,  true,  true,  false ])
 
     // <any OCTET except CTLs, but including LWS and CRLF>
-    public static let ascii = AllowedCharacters(table: [
+    public static let ascii = ASCIICharacterSet(table: [
         /* nul   soh   stx    etx    eot    enq    ack    bel */
         false, false, false, false, false, false, false, false,
         /* bs    ht     nl    vt     np     cr     so     si  */

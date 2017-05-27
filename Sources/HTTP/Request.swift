@@ -241,11 +241,9 @@ extension Request {
 
                 switch headerName {
                 case .host:
-                    self.host = String(
-                        validating: headerValue, allowedCharacters: .text)
+                    self.host = String(validating: headerValue, as: .text)
                 case .userAgent:
-                    self.userAgent = String(
-                        validating: headerValue, allowedCharacters: .text)
+                    self.userAgent = String(validating: headerValue, as: .text)
                 case .accept:
                     self.accept = try [Accept](from: headerValue)
                 case .acceptLanguage:
@@ -273,8 +271,8 @@ extension Request {
                     self.cookies.append(
                         contentsOf: try [Cookie](from: headerValue))
                 default:
-                    headers[headerName] = String(
-                        validating: headerValue, allowedCharacters: .text)
+                    headers[headerName] =
+                        String(validating: headerValue, as: .text)
                 }
 
                 startIndex = endIndex.advanced(by: 2)

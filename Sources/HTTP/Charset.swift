@@ -34,9 +34,8 @@ extension Charset {
         case Bytes.isoLatin1.lowercasedHashValue: self = .isoLatin1
         case Bytes.any.lowercasedHashValue: self = .any
         default:
-            guard let encoding =
-                String(validating: bytes, allowedCharacters: .token) else {
-                    throw HTTPError.invalidContentEncoding
+            guard let encoding = String(validating: bytes, as: .token) else {
+                throw HTTPError.invalidContentEncoding
             }
             self = .custom(encoding)
         }

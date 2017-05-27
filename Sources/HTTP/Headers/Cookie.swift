@@ -53,11 +53,9 @@ extension Cookie {
         }
         guard
             let name = String(
-                validating: bytes[..<equal].trimmingRightSpace(),
-                allowedCharacters: .token),
+                validating: bytes[..<equal].trimmingRightSpace(), as: .token),
             let value = String(
-                validating: bytes[(equal+1)...].trimmingLeftSpace(),
-                allowedCharacters: .token)
+                validating: bytes[(equal+1)...].trimmingLeftSpace(), as: .token)
             else {
                 throw HTTPError.invalidCookie
         }

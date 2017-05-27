@@ -38,23 +38,23 @@ extension UInt8: ExpressibleByStringLiteral {
 
 extension String {
     public init?(ascii: UnsafeRawBufferPointer) {
-        self.init(validating: ascii, allowedCharacters: .ascii)
+        self.init(validating: ascii, as: .ascii)
     }
 
     public init?(ascii: UnsafeRawBufferPointer.SubSequence) {
-        self.init(validating: ascii, allowedCharacters: .ascii)
+        self.init(validating: ascii, as: .ascii)
     }
 
     public init?(ascii: [UInt8]) {
-        self.init(validating: ascii, allowedCharacters: .ascii)
+        self.init(validating: ascii, as: .ascii)
     }
 
     public init?(
         validating bytes: UnsafeRawBufferPointer,
-        allowedCharacters: AllowedCharacters
+        as characterSet: ASCIICharacterSet
     ) {
         for byte in bytes {
-            guard byte != 0 && allowedCharacters.contains(byte) else {
+            guard byte != 0 && characterSet.contains(byte) else {
                 return nil
             }
         }
@@ -70,22 +70,22 @@ extension String {
 
     public init?(
         validating bytes: UnsafeRawBufferPointer.SubSequence,
-        allowedCharacters: AllowedCharacters
+        as characterSet: ASCIICharacterSet
     ) {
         self.init(
             validating: UnsafeRawBufferPointer(rebasing: bytes),
-            allowedCharacters: allowedCharacters
+            as: characterSet
         )
     }
 
     public init?(
         validating bytes: [UInt8],
-        allowedCharacters: AllowedCharacters
+        as characterSet: ASCIICharacterSet
     ) {
         self.init(
             validating: UnsafeRawBufferPointer(
                 start: bytes, count: bytes.count),
-            allowedCharacters: allowedCharacters
+            as: characterSet
         )
     }
 }
@@ -119,7 +119,7 @@ extension Int {
             }
         }
         // FIXME: validate using hex table or parse manually
-        let string = String(validating: bytes, allowedCharacters: .text)!
+        let string = String(validating: bytes, as: .text)!
         self.init(string, radix: radix)
     }
 }
