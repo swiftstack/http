@@ -207,14 +207,15 @@ extension Response {
                         self.contentEncoding =
                             try [ContentEncoding](from: headerValue)
                     case .contentLength:
-                        self.contentLength = Int(String(buffer: headerValue))
+                        self.contentLength = Int(from: headerValue)
                     case .contentType:
                         self.contentType = try ContentType(from: headerValue)
                     case .transferEncoding:
                         self.transferEncoding =
                             try [TransferEncoding](from: headerValue)
                     default:
-                        headers[headerName] = String(buffer: headerValue)
+                        headers[headerName] = String(
+                            validating: headerValue, allowedCharacters: .text)
                     }
 
                     startIndex = endIndex.advanced(by: 2)
@@ -263,9 +264,9 @@ extension Response {
             }
 
             // TODO: optimize using hex table
-            let hexSize = String(buffer: bytes[startIndex..<endIndex])
-            guard let size = Int(hexSize, radix: 16) else {
-                throw HTTPError.invalidRequest
+            guard let size =
+                Int(from: bytes[startIndex..<endIndex], radix: 16) else {
+                    throw HTTPError.invalidRequest
             }
             guard size > 0 else {
                 startIndex = endIndex.advanced(by: 2)

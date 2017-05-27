@@ -73,7 +73,7 @@ extension Request.AcceptCharset {
             let bytes = UnsafeRawBufferPointer(rebasing: bytes[index...])
             guard bytes.count == 5,
                 bytes.starts(with: Bytes.qEqual),
-                let priority = Double(String(buffer: bytes[2...])) else {
+                let priority = Double(from: bytes[2...]) else {
                     throw HTTPError.invalidHeaderValue
             }
             self.priority = priority

@@ -37,24 +37,127 @@ extension UInt8: ExpressibleByStringLiteral {
 // MARK: String initializer from byte sequence (without null terminator)
 
 extension String {
-    public init(buffer: UnsafeRawBufferPointer) {
-        _debugPrecondition(!buffer.contains(0), "invalid data")
-        let count = buffer.count
+    public init?(ascii: UnsafeRawBufferPointer) {
+        self.init(validating: ascii, allowedCharacters: .ascii)
+    }
+
+    public init?(ascii: UnsafeRawBufferPointer.SubSequence) {
+        self.init(validating: ascii, allowedCharacters: .ascii)
+    }
+
+    public init?(ascii: [UInt8]) {
+        self.init(validating: ascii, allowedCharacters: .ascii)
+    }
+
+    public init?(
+        validating bytes: UnsafeRawBufferPointer,
+        allowedCharacters: AllowedCharacters
+    ) {
+        for byte in bytes {
+            guard byte != 0 && allowedCharacters.contains(byte) else {
+                return nil
+            }
+        }
+
+        let count = bytes.count
         let storage = _StringBuffer(
             capacity: count,
             initialSize: count,
             elementWidth: 1)
-        storage.start.copyBytes(from: buffer.baseAddress!, count: count)
+        storage.start.copyBytes(from: bytes.baseAddress!, count: count)
         self = String(_storage: storage)
     }
 
-    public init(buffer: UnsafeRawBufferPointer.SubSequence) {
-        self.init(buffer: UnsafeRawBufferPointer(rebasing: buffer))
+    public init?(
+        validating bytes: UnsafeRawBufferPointer.SubSequence,
+        allowedCharacters: AllowedCharacters
+    ) {
+        self.init(
+            validating: UnsafeRawBufferPointer(rebasing: bytes),
+            allowedCharacters: allowedCharacters
+        )
     }
 
-    public init(bytes: [UInt8]) {
-        self = String(
-            buffer: UnsafeRawBufferPointer(start: bytes, count: bytes.count))
+    public init?(
+        validating bytes: [UInt8],
+        allowedCharacters: AllowedCharacters
+    ) {
+        self.init(
+            validating: UnsafeRawBufferPointer(
+                start: bytes, count: bytes.count),
+            allowedCharacters: allowedCharacters
+        )
+    }
+}
+
+// MARK: Numeric parsers
+
+extension Int {
+    init?(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) {
+        var result = 0
+        let zero = 48
+        let nine = 57
+        for byte in bytes {
+            guard byte >= zero && byte <= nine else {
+                return nil
+            }
+            result *= 10
+            result += Int(byte) - zero
+        }
+        self = result
+    }
+
+    init?(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>, radix: Int) {
+        let zero = 48
+        let nine = 57
+        let a = 97
+        let f = 102
+        for byte in bytes {
+            guard (byte >= zero && byte <= nine)
+            || (byte | 0x20) >= a && (byte | 0x20) <= f else {
+                return nil
+            }
+        }
+        // FIXME: validate using hex table or parse manually
+        let string = String(validating: bytes, allowedCharacters: .text)!
+        self.init(string, radix: radix)
+    }
+}
+
+extension Double {
+    init?(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) {
+        let dot = 46
+        let zero = 48
+        let nine = 57
+        var integer: Int = 0
+        var fractional: Int = 0
+        var isFractional = false
+        for byte in bytes {
+            guard (byte >= zero && byte <= nine)
+                || (byte == dot && !isFractional) else {
+                    return nil
+            }
+            if byte == dot {
+                isFractional = true
+                continue
+            }
+            switch isFractional {
+            case false:
+                integer *= 10
+                integer += Int(byte) - zero
+            case true:
+                fractional *= 10
+                fractional += Int(byte) - zero
+            }
+        }
+        let del: Int
+        switch fractional % 10 {
+        case 0:
+            del = fractional * 10
+        default:
+            del = (fractional / 10 + 1) * 10
+        }
+        self = Double(integer) + Double(fractional) / Double(del)
     }
 }
 

@@ -5,7 +5,7 @@ class EncodeRequestTests: TestCase {
     func testRequest() {
         let expected = "GET /test HTTP/1.1\r\n\r\n"
         let request = Request(method: .get, url: "/test")
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testUrlQuery() {
@@ -13,7 +13,7 @@ class EncodeRequestTests: TestCase {
         let request = Request(
             method: .get,
             url: URL(path: "/test", query: ["query" : "true"]))
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testHost() {
@@ -22,7 +22,7 @@ class EncodeRequestTests: TestCase {
             "\r\n"
         var request = Request()
         request.host = "0.0.0.0:5000"
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testUserAgent() {
@@ -31,7 +31,7 @@ class EncodeRequestTests: TestCase {
             "\r\n"
         var request = Request()
         request.userAgent = "Mozilla/5.0"
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testAccept() {
@@ -42,7 +42,7 @@ class EncodeRequestTests: TestCase {
         request.accept = [
             Request.Accept(.any, priority: 1.0)
         ]
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testAcceptLanguage() {
@@ -54,7 +54,7 @@ class EncodeRequestTests: TestCase {
             Request.AcceptLanguage(.enUS, priority: 1.0),
             Request.AcceptLanguage(.en, priority: 0.5)
         ]
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testAcceptEncoding() {
@@ -63,7 +63,7 @@ class EncodeRequestTests: TestCase {
             "\r\n"
         var request = Request()
         request.acceptEncoding = [.gzip, .deflate]
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testAcceptCharset() {
@@ -77,7 +77,7 @@ class EncodeRequestTests: TestCase {
             Request.AcceptCharset(.utf8, priority: 0.7),
             Request.AcceptCharset(.any, priority: 0.7)
         ]
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testAuthorization() {
@@ -88,7 +88,7 @@ class EncodeRequestTests: TestCase {
         var request = Request()
         request.authorization = .basic(
             credentials: "QWxhZGRpbjpvcGVuIHNlc2FtZQ==")
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testKeepAlive() {
@@ -97,7 +97,7 @@ class EncodeRequestTests: TestCase {
             "\r\n"
         var request = Request()
         request.keepAlive = 300
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testConnection() {
@@ -106,7 +106,7 @@ class EncodeRequestTests: TestCase {
             "\r\n"
         var request = Request()
         request.connection = .close
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testContentType() {
@@ -115,7 +115,7 @@ class EncodeRequestTests: TestCase {
             "\r\n"
         var request = Request()
         request.contentType = ContentType(mediaType: .text(.plain))
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testContentLength() {
@@ -124,7 +124,7 @@ class EncodeRequestTests: TestCase {
             "\r\n"
         var request = Request()
         request.contentLength = 0
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testTransferEncoding() {
@@ -133,7 +133,7 @@ class EncodeRequestTests: TestCase {
             "\r\n"
         var request = Request()
         request.transferEncoding = [.chunked]
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testCustomHeaders() {
@@ -142,7 +142,7 @@ class EncodeRequestTests: TestCase {
             "\r\n"
         var request = Request()
         request.headers["User"] = "guest"
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testJsonInitializer() {
@@ -153,7 +153,7 @@ class EncodeRequestTests: TestCase {
             "{\"message\":\"Hello, World!\"}"
         let values = ["message": "Hello, World!"]
         let request = try! Request(method: .post, url: "/", json: values)
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testUrlEncodedInitializer() {
@@ -164,7 +164,7 @@ class EncodeRequestTests: TestCase {
             "message=Hello,%20World!"
         let query: URL.Query = ["message": "Hello, World!"]
         let request = try! Request(method: .post, url: "/", urlEncoded: query)
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 
     func testCookie() {
@@ -177,6 +177,6 @@ class EncodeRequestTests: TestCase {
             Cookie(name: "username", value: "tony"),
             Cookie(name: "lang", value: "aurebesh")
         ]
-        assertEqual(String(bytes: request.bytes), expected)
+        assertEqual(String(ascii: request.bytes), expected)
     }
 }

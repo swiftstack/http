@@ -5,8 +5,8 @@ class UtilsTests: TestCase {
     func testString() {
         let bytes = ASCII("string")
         let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
-        assertEqual(String(bytes: bytes), "string")
-        assertEqual(String(buffer: buffer), "string")
+        assertEqual(String(ascii: bytes), "string")
+        assertEqual(String(ascii: buffer), "string")
     }
 
     func testUnsafeString() {
@@ -14,6 +14,6 @@ class UtilsTests: TestCase {
         let buffer = UnsafeRawBufferPointer(
             start: bytes,
             count: bytes.count - 1)
-        assertEqual(String(buffer: buffer), "strin")
+        assertEqual(String(ascii: buffer), "strin")
     }
 }

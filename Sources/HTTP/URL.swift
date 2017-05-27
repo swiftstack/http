@@ -98,7 +98,10 @@ extension URL.Query {
                 bytes.index(of: Character.equal, offset: startIndex) else {
                     throw HTTPError.invalidURL
             }
-            guard let name = String(buffer: bytes[startIndex..<equalIndex])
+            // FIXME: validate using url rules
+            guard let name = String(
+                validating: bytes[startIndex..<equalIndex],
+                allowedCharacters: .text)?
                 .removingPercentEncoding else {
                     throw HTTPError.invalidURL
             }
@@ -110,7 +113,10 @@ extension URL.Query {
 
             endIndex = bytes.index(of: Character.equal, offset: startIndex)
                 ?? bytes.endIndex
-            guard let value = String(buffer: bytes[startIndex..<endIndex])
+            // FIXME: validate using url rules
+            guard let value = String(
+                validating: bytes[startIndex..<endIndex],
+                allowedCharacters: .text)?
                 .removingPercentEncoding else {
                     throw HTTPError.invalidURL
             }
@@ -136,11 +142,22 @@ extension URL.Query {
 extension URL {
     init(from buffer: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         if let index = buffer.index(of: Character.questionMark) {
-            self.path = String(buffer: buffer[..<index])
+            // FIXME: validate using url rules
+            guard let path = String(
+                validating: buffer[..<index],
+                allowedCharacters: .text) else {
+                    throw HTTPError.invalidURL
+            }
+            self.path = path
             let queryIndex = index + 1
             self.query = try Query(from: buffer[queryIndex...])
         } else {
-            self.path = String(buffer: buffer)
+            // FIXME: validate using url rules
+            guard let path =
+                String(validating: buffer, allowedCharacters: .text) else {
+                    throw HTTPError.invalidURL
+            }
+            self.path = path
             self.query = [:]
         }
     }

@@ -8,9 +8,11 @@ enum HTTPError: Error {
     case invalidHeaderName
     case invalidHeaderValue
     case invalidContentType
+    case invalidContentEncoding
     case invalidMediaType
     case invalidBoundary
     case invalidCookie
+    case invalidLanguage
     case unsupportedMediaType
     case unsupportedContentType
     case unsupportedAcceptCharset

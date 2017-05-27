@@ -29,7 +29,7 @@ extension Array where Element == ContentEncoding {
             endIndex =
                 bytes.index(of: Character.comma, offset: startIndex) ??
                 bytes.endIndex
-            let value = ContentEncoding(from: bytes[startIndex..<endIndex])
+            let value = try ContentEncoding(from: bytes[startIndex..<endIndex])
             values.append(value)
             startIndex = endIndex.advanced(by: 1)
             if startIndex < bytes.endIndex &&
@@ -56,14 +56,16 @@ extension ContentEncoding {
         static let deflate = ASCII("deflate")
     }
 
-    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) {
+    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         switch bytes.lowercasedHashValue {
-        case Bytes.gzip.lowercasedHashValue:
-            self = .gzip
-        case Bytes.deflate.lowercasedHashValue:
-            self = .deflate
+        case Bytes.gzip.lowercasedHashValue: self = .gzip
+        case Bytes.deflate.lowercasedHashValue: self = .deflate
         default:
-            self = .custom(String(buffer: bytes))
+            guard let encoding =
+                String(validating: bytes, allowedCharacters: .token) else {
+                    throw HTTPError.invalidContentEncoding
+            }
+            self = .custom(encoding)
         }
     }
 
@@ -74,7 +76,7 @@ extension ContentEncoding {
         case .deflate:
             buffer.append(contentsOf: Bytes.deflate)
         case .custom(let value):
-            buffer.append(contentsOf: [UInt8](value))
+            buffer.append(contentsOf: value.utf8)
         }
     }
 }

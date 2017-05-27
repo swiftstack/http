@@ -24,7 +24,7 @@ public struct HeaderName: Hashable {
     let bytes: [UInt8]
     init(from buffer: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         for byte in buffer {
-            guard Int(byte) < tokens.count && tokens[Int(byte)] else {
+            guard AllowedCharacters.token.contains(byte) else {
                 throw HTTPError.invalidHeaderName
             }
         }

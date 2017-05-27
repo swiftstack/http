@@ -33,7 +33,12 @@ extension Charset {
         case Bytes.ascii.lowercasedHashValue: self = .ascii
         case Bytes.isoLatin1.lowercasedHashValue: self = .isoLatin1
         case Bytes.any.lowercasedHashValue: self = .any
-        default: self = .custom(String(buffer: bytes))
+        default:
+            guard let encoding =
+                String(validating: bytes, allowedCharacters: .token) else {
+                    throw HTTPError.invalidContentEncoding
+            }
+            self = .custom(encoding)
         }
     }
 

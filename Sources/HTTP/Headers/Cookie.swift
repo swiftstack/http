@@ -47,13 +47,22 @@ extension Array where Element == Cookie {
 }
 
 extension Cookie {
-    // TODO: validate allowed characters
     init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         guard let equal = bytes.index(of: Character.equal) else {
             throw HTTPError.invalidCookie
         }
-        self.name = String(buffer: bytes[..<equal].trimmingRightSpace())
-        self.value = String(buffer: bytes[(equal+1)...].trimmingRightSpace())
+        guard
+            let name = String(
+                validating: bytes[..<equal].trimmingRightSpace(),
+                allowedCharacters: .token),
+            let value = String(
+                validating: bytes[(equal+1)...].trimmingLeftSpace(),
+                allowedCharacters: .token)
+            else {
+                throw HTTPError.invalidCookie
+        }
+        self.name = name
+        self.value = value
     }
 
     func encode(to buffer: inout [UInt8]) {

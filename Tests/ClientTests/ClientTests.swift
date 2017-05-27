@@ -24,7 +24,7 @@ class ClientTests: TestCase {
                 let count = try client.receive(to: &buffer)
                 _ = try client.send(bytes: [UInt8](result.utf8))
 
-                let request = String(bytes: [UInt8](buffer[..<count]))
+                let request = String(ascii: [UInt8](buffer[..<count]))
                 assertEqual(request, expected)
             } catch {
                 async.breakLoop()

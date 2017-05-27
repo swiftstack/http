@@ -29,7 +29,12 @@ extension Request.Authorization {
                 bytes[index-1] == Character.whitespace else {
                     throw HTTPError.invalidHeaderValue
             }
-            return String(buffer: bytes[index...])
+            guard let type = String(
+                validating: bytes[index...],
+                allowedCharacters: .text) else {
+                    throw HTTPError.invalidHeaderValue
+            }
+            return type
         }
 
         switch bytes {
