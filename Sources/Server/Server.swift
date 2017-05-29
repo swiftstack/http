@@ -12,7 +12,7 @@ public class Server {
     public let host: String
     public let port: UInt16
 
-    public let bufferSize = 1024
+    public var bufferSize = 1024
 
     var router = Router()
 
