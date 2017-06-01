@@ -1,4 +1,4 @@
-enum HTTPError: Error {
+public enum HTTPError: Error {
     case invalidRequest
     case invalidResponse
     case invalidURL
