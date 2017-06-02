@@ -21,19 +21,22 @@ class TestAsyncLoop: AsyncLoop {
 }
 
 class TestAsync: Async {
-    var loop: AsyncLoop
-
-    init() {
-        self.loop = TestAsyncLoop()
-    }
+    let awaiter: IOAwaiter? = nil
+    let loop: AsyncLoop = TestAsyncLoop()
 
     func breakLoop() {
         (loop as! TestAsyncLoop).stop()
     }
 
-    var task: (@escaping AsyncTask) -> Void = { task in
-        DispatchQueue.global(qos: .userInitiated).async(execute: task)
+    func task(_ closure: @escaping AsyncTask) {
+        DispatchQueue.global(qos: .userInitiated).async(execute: closure)
     }
 
-    var awaiter: IOAwaiter? = nil
+    func sleep(until deadline: Date) {
+        fatalError("not implemented")
+    }
+
+    func testCancel() throws {
+        fatalError("not implemented")
+    }
 }
