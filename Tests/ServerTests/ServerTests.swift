@@ -49,4 +49,18 @@ class ServerTests: TestCase {
 
         async.loop.run()
     }
+
+    func testServerBufferSize() {
+        do {
+            let server = try Server(
+                host: "0.0.0.0",
+                port: 4002,
+                async: TestAsync())
+
+            server.bufferSize = 16 * 1024
+            assertEqual(server.bufferSize, 16 * 1024)
+        } catch {
+            fail(String(describing: error))
+        }
+    }
 }
