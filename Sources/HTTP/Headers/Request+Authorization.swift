@@ -2,6 +2,8 @@ extension Request {
     public enum Authorization {
         case basic(credentials: String)
         case bearer(credentials: String)
+        case token(credentials: String)
+        case custom(scheme: String, credentials: String)
     }
 }
 
@@ -11,6 +13,8 @@ extension Request.Authorization: Equatable {
         switch (lhs, rhs) {
         case let (.basic(lhs), .basic(rhs)) where lhs == rhs: return true
         case let (.bearer(lhs), .bearer(rhs)) where lhs == rhs: return true
+        case let (.token(lhs), .token(rhs)) where lhs == rhs: return true
+        case let (.custom(lhs), .custom(rhs)) where lhs == rhs: return true
         default: return false
         }
     }
@@ -20,6 +24,7 @@ extension Request.Authorization {
     private struct Bytes {
         static let basic = ASCII("Basic")
         static let bearer = ASCII("Bearer")
+        static let token = ASCII("Token")
     }
 
     init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
@@ -36,15 +41,27 @@ extension Request.Authorization {
             return type
         }
 
-        switch bytes {
-        case _ where bytes.starts(with: Bytes.basic):
+        guard let schemaEndIndex = bytes.index(of: Character.whitespace) else {
+            throw HTTPError.invalidHeaderValue
+        }
+        let scheme = bytes[..<schemaEndIndex]
+
+        switch scheme.lowercasedHashValue {
+        case Bytes.basic.lowercasedHashValue:
             let credentials = try suffix(from: Bytes.basic.count)
             self = .basic(credentials: credentials)
-        case _ where bytes.starts(with: Bytes.bearer):
+        case Bytes.bearer.lowercasedHashValue:
             let credentials = try suffix(from: Bytes.bearer.count)
             self = .bearer(credentials: credentials)
+        case Bytes.token.lowercasedHashValue:
+            let token = try suffix(from: Bytes.token.count)
+            self = .token(credentials: token)
         default:
-            throw HTTPError.unsupportedAuthorization
+            guard let scheme = String(validating: scheme, as: .text) else {
+                throw HTTPError.invalidHeaderValue
+            }
+            let credentials = try suffix(from: schemaEndIndex)
+            self = .custom(scheme: scheme, credentials: credentials)
         }
     }
 
@@ -56,6 +73,14 @@ extension Request.Authorization {
             buffer.append(contentsOf: credentials.utf8)
         case .bearer(let credentials):
             buffer.append(contentsOf: Bytes.bearer)
+            buffer.append(Character.whitespace)
+            buffer.append(contentsOf: credentials.utf8)
+        case .token(let credentials):
+            buffer.append(contentsOf: Bytes.token)
+            buffer.append(Character.whitespace)
+            buffer.append(contentsOf: credentials.utf8)
+        case .custom(let schema, let credentials):
+            buffer.append(contentsOf: schema.utf8)
             buffer.append(Character.whitespace)
             buffer.append(contentsOf: credentials.utf8)
         }
