@@ -10,7 +10,11 @@ class JSONTests: TestCase {
             }
             let bytes = try JSON.encode(Person())
             let string = String(cString: bytes + [0])
-            assertEqual(string, "{\"name\":\"Tony\",\"age\":16}")
+            guard string == "{\"name\":\"Tony\",\"age\":16}" ||
+                string == "{\"age\":16,\"name\":\"Tony\"}"  else {
+                    fail()
+                    return
+            }
         } catch {
             fail(String(describing: error))
         }
@@ -65,7 +69,11 @@ class JSONTests: TestCase {
 
             let bytes = try JSON.encode(Model())
             let string = String(cString: bytes + [0])
-            assertEqual(string, "{\"person\":{\"name\":\"Tony\",\"age\":16}}")
+            guard string == "{\"person\":{\"name\":\"Tony\",\"age\":16}}" ||
+                string == "{\"person\":{\"age\":16,\"name\":\"Tony\"}}" else {
+                    fail()
+                    return
+            }
         } catch {
             fail(String(describing: error))
         }
