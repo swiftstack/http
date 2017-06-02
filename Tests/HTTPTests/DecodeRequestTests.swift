@@ -73,24 +73,13 @@ class DecodeRequestTests: TestCase {
 
     func testUrl() {
         do {
-            let bytes = ASCII("GET /test HTTP/1.1\r\n\r\n")
+            let bytes = ASCII("GET /test?key=value#fragment HTTP/1.1\r\n\r\n")
             let request = try Request(from: bytes)
             assertNotNil(request)
             assertNotNil(request.url)
             assertEqual(request.url.path, "/test")
-        } catch {
-            fail(String(describing: error))
-        }
-    }
-
-    func testUrlString() {
-        do {
-            let bytes = ASCII("GET /test HTTP/1.1\r\n\r\n")
-            let request = try Request(from: bytes)
-            assertNotNil(request)
-            assertNotNil(request.url)
-            assertEqual(request.url.path, "/test")
-            assertEqual(request.url, "/test")
+            assertEqual(request.url.query.values, ["key": "value"])
+            assertEqual(request.url.fragment, "fragment")
         } catch {
             fail(String(describing: error))
         }

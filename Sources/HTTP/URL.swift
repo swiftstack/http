@@ -11,24 +11,34 @@ public struct URL {
         public var values: [String : String]
     }
 
+    public var scheme: Scheme?
     public var host: String?
     public var port: Int?
     public var path: String
     public var query: Query
-    public var scheme: Scheme?
+    public var fragment: String?
+
 
     public init(
+        scheme: Scheme? = nil,
         host: String? = nil,
         port: Int? = nil,
         path: String,
         query: Query = [:],
-        scheme: Scheme? = nil
+        fragment: String? = nil
     ) {
         self.host = host
         self.port = port
         self.path = path
         self.query = query
         self.scheme = scheme
+        self.fragment = fragment
+    }
+}
+
+extension URL {
+    public var absoluteString: String {
+        return String(describing: self)
     }
 }
 
@@ -37,16 +47,20 @@ extension URL {
         guard let url = Foundation.URL(string: url) else {
             throw HTTPError.invalidURL
         }
+
+        if let scheme = url.scheme {
+            self.scheme = Scheme(rawValue: scheme)
+        }
+
         self.host = url.host
         self.port = url.port
         self.path = url.path
+        self.fragment = url.fragment
+
         if let query = url.query {
             self.query = Query(from: query)
         } else {
             self.query = [:]
-        }
-        if let scheme = url.scheme {
-            self.scheme = Scheme(rawValue: scheme)
         }
     }
 }
@@ -62,6 +76,50 @@ extension URL.Query {
         }
         set {
             values[name] = newValue
+        }
+    }
+}
+
+extension URL {
+    init(from buffer: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
+        var endIndex = buffer.endIndex
+        if let index = buffer.index(of: Character.hash) {
+            // FIXME: validate using url rules
+            guard let fragment =
+                String(validating: buffer[(index+1)...], as: .text) else {
+                    throw HTTPError.invalidURL
+            }
+            self.fragment = fragment
+            endIndex = index
+        } else {
+            self.fragment = nil
+        }
+
+        if let index = buffer[..<endIndex].index(of: Character.questionMark) {
+            // FIXME: validate using url rules
+            self.query = try Query(from: buffer[(index+1)..<endIndex])
+            endIndex = index
+        } else {
+            self.query = [:]
+        }
+
+        // FIXME: validate using url rules
+        guard let path =
+            String(validating: buffer[..<endIndex], as: .text) else {
+                throw HTTPError.invalidURL
+        }
+        self.path = path
+    }
+
+    func encode(to buffer: inout [UInt8]) {
+        buffer.append(contentsOf: [UInt8](path.utf8))
+        if query.values.count > 0 {
+            buffer.append(Character.questionMark)
+            query.encode(to: &buffer)
+        }
+        if let fragment = fragment {
+            buffer.append(Character.hash)
+            buffer.append(contentsOf: fragment.utf8)
         }
     }
 }
@@ -101,8 +159,8 @@ extension URL.Query {
             // FIXME: validate using url rules
             guard let name =
                 String(validating: bytes[startIndex..<equalIndex], as: .text)?
-                .removingPercentEncoding else {
-                    throw HTTPError.invalidURL
+                    .removingPercentEncoding else {
+                        throw HTTPError.invalidURL
             }
 
             startIndex = equalIndex + 1
@@ -115,8 +173,8 @@ extension URL.Query {
             // FIXME: validate using url rules
             guard let value =
                 String(validating: bytes[startIndex..<endIndex], as: .text)?
-                .removingPercentEncoding else {
-                    throw HTTPError.invalidURL
+                    .removingPercentEncoding else {
+                        throw HTTPError.invalidURL
             }
 
             values[name] = value
@@ -137,42 +195,6 @@ extension URL.Query {
     }
 }
 
-extension URL {
-    init(from buffer: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
-        if let index = buffer.index(of: Character.questionMark) {
-            // FIXME: validate using url rules
-            guard let path =
-                String(validating: buffer[..<index], as: .text) else {
-                    throw HTTPError.invalidURL
-            }
-            self.path = path
-            let queryIndex = index + 1
-            self.query = try Query(from: buffer[queryIndex...])
-        } else {
-            // FIXME: validate using url rules
-            guard let path = String(validating: buffer, as: .text) else {
-                throw HTTPError.invalidURL
-            }
-            self.path = path
-            self.query = [:]
-        }
-    }
-
-    func encode(to buffer: inout [UInt8]) {
-        buffer.append(contentsOf: [UInt8](path.utf8))
-        if query.values.count > 0 {
-            buffer.append(Character.questionMark)
-            query.encode(to: &buffer)
-        }
-    }
-}
-
-extension URL.Query: Equatable {
-    public static func ==(lhs: URL.Query, rhs: URL.Query) -> Bool {
-        return lhs.values == rhs.values
-    }
-}
-
 extension URL: Equatable {
     public static func ==(lhs: URL, rhs: URL) -> Bool {
         return lhs.path == rhs.path && lhs.query == rhs.query
@@ -186,9 +208,9 @@ extension URL: Equatable {
     }
 }
 
-extension URL.Query: ExpressibleByDictionaryLiteral {
-    public init(dictionaryLiteral elements: (String, String)...) {
-        self.values = Dictionary(uniqueKeysWithValues: elements)
+extension URL.Query: Equatable {
+    public static func ==(lhs: URL.Query, rhs: URL.Query) -> Bool {
+        return lhs.values == rhs.values
     }
 }
 
@@ -204,5 +226,49 @@ extension URL: ExpressibleByStringLiteral {
     }
     public init(unicodeScalarLiteral value: String) {
         self.init(stringLiteral: value)
+    }
+}
+
+extension URL.Query: ExpressibleByDictionaryLiteral {
+    public init(dictionaryLiteral elements: (String, String)...) {
+        self.values = Dictionary(uniqueKeysWithValues: elements)
+    }
+}
+
+extension URL: CustomStringConvertible {
+    public var description: String {
+        var url = ""
+        if let scheme = self.scheme {
+            url.append(scheme.rawValue)
+            url.append("://")
+        }
+        if let host = self.host {
+            url.append(host)
+            if let port = port {
+                url.append(":")
+                url.append(String(describing: port))
+            }
+        }
+        url.append(path)
+        if query.values.count > 0 {
+            url.append("?")
+            url.append(String(describing: query))
+        }
+        if let fragment = self.fragment {
+            url.append("#")
+            url.append(fragment)
+        }
+        return url
+    }
+}
+
+extension URL.Query: CustomStringConvertible {
+    public var description: String {
+        return values
+            .map({ "\($0.key)=\($0.value)" })
+            .joined(separator: "&")
+            .addingPercentEncoding(
+                withAllowedCharacters: CharacterSet.urlQueryAllowed)
+            ?? ""
     }
 }

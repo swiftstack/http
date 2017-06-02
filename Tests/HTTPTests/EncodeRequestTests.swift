@@ -8,11 +8,14 @@ class EncodeRequestTests: TestCase {
         assertEqual(String(ascii: request.bytes), expected)
     }
 
-    func testUrlQuery() {
-        let expected = "GET /test?query=true HTTP/1.1\r\n\r\n"
+    func testUrl() {
+        let expected = "GET /test?key=value#fragment HTTP/1.1\r\n\r\n"
         let request = Request(
             method: .get,
-            url: URL(path: "/test", query: ["query" : "true"]))
+            url: URL(
+                path: "/test",
+                query: ["key" : "value"],
+                fragment: "fragment"))
         assertEqual(String(ascii: request.bytes), expected)
     }
 
