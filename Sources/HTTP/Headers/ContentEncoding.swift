@@ -7,15 +7,10 @@ public enum ContentEncoding {
 extension ContentEncoding: Equatable {
     public static func ==(lhs: ContentEncoding, rhs: ContentEncoding) -> Bool {
         switch (lhs, rhs) {
-        case (.gzip, .gzip):
-            return true
-        case (.deflate, .deflate):
-            return true
-        case let (.custom(lhsValue), .custom(rhsValue))
-            where lhsValue == rhsValue:
-            return true
-        default:
-            return false
+        case (.gzip, .gzip): return true
+        case (.deflate, .deflate): return true
+        case let (.custom(lhs), .custom(rhs)): return lhs == rhs
+        default: return false
         }
     }
 }
@@ -62,7 +57,7 @@ extension ContentEncoding {
         case Bytes.deflate.lowercasedHashValue: self = .deflate
         default:
             guard let encoding = String(validating: bytes, as: .token) else {
-                    throw HTTPError.invalidContentEncoding
+                throw HTTPError.invalidContentEncoding
             }
             self = .custom(encoding)
         }
@@ -70,12 +65,9 @@ extension ContentEncoding {
 
     func encode(to buffer: inout [UInt8]) {
         switch self {
-        case .gzip:
-            buffer.append(contentsOf: Bytes.gzip)
-        case .deflate:
-            buffer.append(contentsOf: Bytes.deflate)
-        case .custom(let value):
-            buffer.append(contentsOf: value.utf8)
+        case .gzip: buffer.append(contentsOf: Bytes.gzip)
+        case .deflate: buffer.append(contentsOf: Bytes.deflate)
+        case .custom(let value): buffer.append(contentsOf: value.utf8)
         }
     }
 }
