@@ -13,18 +13,15 @@ extension Request {
 extension Request.AcceptCharset: Equatable {
     public typealias AcceptCharset = Request.AcceptCharset
     public static func ==(lhs: AcceptCharset, rhs: AcceptCharset) -> Bool {
-        switch (lhs.charset, rhs.charset) {
-        case (.utf8, .utf8) where lhs.priority == rhs.priority:
-            return true
-        case (.isoLatin1, .isoLatin1) where lhs.priority == rhs.priority:
-            return true
-        case (.any, .any) where lhs.priority == rhs.priority:
-            return true
-        case let (.custom(lhsValue), .custom(rhsValue))
-            where lhsValue == rhsValue && lhs.priority == rhs.priority:
-            return true
-        default:
+        guard lhs.priority == rhs.priority else {
             return false
+        }
+        switch (lhs.charset, rhs.charset) {
+        case (.utf8, .utf8): return true
+        case (.isoLatin1, .isoLatin1): return true
+        case (.any, .any): return true
+        case let (.custom(lhs), .custom(rhs)): return lhs == rhs
+        default: return false
         }
     }
 }
