@@ -26,6 +26,14 @@ extension Array where Element == Cookie {
                 offset: startIndex)
                 ?? bytes.endIndex
 
+            // should be separated by a semi-colon and a space ('; ')
+            if endIndex < bytes.endIndex {
+                guard endIndex + 1 < bytes.endIndex,
+                    bytes[endIndex + 1] == Character.whitespace else {
+                        throw HTTPError.invalidCookie
+                }
+            }
+
             let cookie = try Cookie(
                 from: bytes[startIndex..<endIndex].trimmingLeftSpace())
 
