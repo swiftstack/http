@@ -20,20 +20,15 @@ extension Response.Status {
     }
 
     public init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
-        if bytes.elementsEqual(Bytes.ok) {
-            self = .ok
-        } else if bytes.elementsEqual(Bytes.moved) {
-            self = .moved
-        } else if bytes.elementsEqual(Bytes.badRequest) {
-            self = .badRequest
-        } else if bytes.elementsEqual(Bytes.unauthorized) {
-            self = .unauthorized
-        } else if bytes.elementsEqual(Bytes.notFound) {
-            self = .notFound
-        } else if bytes.elementsEqual(Bytes.internalServerError) {
+        switch bytes.lowercasedHashValue {
+        case Bytes.ok.lowercasedHashValue: self = .ok
+        case Bytes.moved.lowercasedHashValue: self = .moved
+        case Bytes.badRequest.lowercasedHashValue: self = .badRequest
+        case Bytes.unauthorized.lowercasedHashValue: self = .unauthorized
+        case Bytes.notFound.lowercasedHashValue: self = .notFound
+        case Bytes.internalServerError.lowercasedHashValue:
             self = .internalServerError
-        } else {
-            throw HTTPError.invalidStatus
+        default: throw HTTPError.invalidStatus
         }
     }
 
@@ -44,7 +39,8 @@ extension Response.Status {
         case .badRequest: buffer.append(contentsOf: Bytes.badRequest)
         case .unauthorized: buffer.append(contentsOf: Bytes.unauthorized)
         case .notFound: buffer.append(contentsOf: Bytes.notFound)
-        case .internalServerError: buffer.append(contentsOf: Bytes.internalServerError)
+        case .internalServerError:
+            buffer.append(contentsOf: Bytes.internalServerError)
         }
     }
 }
