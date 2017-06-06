@@ -223,4 +223,24 @@ class EncodeResponseTests: TestCase {
         assertEqual(response.contentLength, 23)
         assertEqual(String(ascii: response.bytes), expected)
     }
+
+    func testSetCookie() {
+        let expected = "HTTP/1.1 200 OK\r\n" +
+            "Content-Length: 0\r\n" +
+            "Set-Cookie: user=tony; Secure; HttpOnly\r\n" +
+            "Set-Cookie: token=1234; Max-Age=42; Secure\r\n" +
+            "\r\n"
+        var response = Response()
+        response.setCookie = [
+            Response.SetCookie(
+                Cookie(name: "user", value: "tony"),
+                secure: true,
+                httpOnly: true),
+            Response.SetCookie(
+                Cookie(name: "token", value: "1234"),
+                maxAge: 42,
+                secure: true)
+        ]
+        assertEqual(String(ascii: response.bytes), expected)
+    }
 }

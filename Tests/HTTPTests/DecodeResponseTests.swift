@@ -257,4 +257,29 @@ class DecodeResponseTests: TestCase {
             fail(String(describing: error))
         }
     }
+
+    func testSetCookie() {
+        do {
+            let bytes = ASCII(
+                "HTTP/1.1 200 OK\r\n" +
+                "Set-Cookie: num=0; Max-Age=42; Path=/; Secure; HttpOnly\r\n" +
+                "Set-Cookie: key=value; Secure; HttpOnly\r\n" +
+                "\r\n")
+            let response = try Response(from: bytes)
+            assertEqual(response.setCookie, [
+                Response.SetCookie(
+                    Cookie(name: "num", value: "0"),
+                    maxAge: 42,
+                    path: "/",
+                    secure: true,
+                    httpOnly: true),
+                Response.SetCookie(
+                    Cookie(name: "key", value: "value"),
+                    secure: true,
+                    httpOnly: true)
+            ])
+        } catch {
+            fail(String(describing: error))
+        }
+    }
 }

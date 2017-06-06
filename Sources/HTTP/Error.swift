@@ -12,6 +12,7 @@ public enum HTTPError: Error {
     case invalidMediaType
     case invalidBoundary
     case invalidCookie
+    case invalidSetCookie
     case invalidLanguage
     case unsupportedMediaType
     case unsupportedContentType
