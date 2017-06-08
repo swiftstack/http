@@ -5,27 +5,27 @@ import class Foundation.DateFormatter
 extension Response {
     public struct SetCookie {
         public var cookie: Cookie
-        public var expires: Date? = nil
-        public var maxAge: Int? = nil
         public var domain: String? = nil
         public var path: String? = nil
+        public var expires: Date? = nil
+        public var maxAge: Int? = nil
         public var secure: Bool? = nil
         public var httpOnly: Bool? = nil
 
         public init(
             _ cookie: Cookie,
-            expires: Date? = nil,
-            maxAge: Int? = nil,
             domain: String? = nil,
             path: String? = nil,
+            expires: Date? = nil,
+            maxAge: Int? = nil,
             secure: Bool? = nil,
             httpOnly: Bool? = nil
         ) {
             self.cookie = cookie
-            self.expires = expires
-            self.maxAge = maxAge
             self.domain = domain
             self.path = path
+            self.expires = expires
+            self.maxAge = maxAge
             self.secure = secure
             self.httpOnly = httpOnly
         }
@@ -36,10 +36,10 @@ extension Response.SetCookie: Equatable {
     public typealias SetCookie = Response.SetCookie
     public static func ==(lhs: SetCookie, rhs: SetCookie) -> Bool {
         return lhs.cookie == rhs.cookie &&
-            lhs.expires == rhs.expires &&
-            lhs.maxAge == rhs.maxAge &&
             lhs.domain == rhs.domain &&
             lhs.path == rhs.path &&
+            lhs.expires == rhs.expires &&
+            lhs.maxAge == rhs.maxAge &&
             lhs.secure == rhs.secure &&
             lhs.httpOnly == rhs.httpOnly
     }
@@ -89,6 +89,10 @@ extension Response.SetCookie {
 
                 // TODO: validate values using special rules
                 switch attributeName.lowercasedHashValue {
+                case Bytes.domain.lowercasedHashValue:
+                    self.domain = String(validating: attributeValue, as: .text)
+                case Bytes.path.lowercasedHashValue:
+                    self.path = String(validating: attributeValue, as: .text)
                 case Bytes.expires.lowercasedHashValue:
                     guard let dateString =
                             String(validating: attributeValue, as: .text),
@@ -103,10 +107,6 @@ extension Response.SetCookie {
                             throw HTTPError.invalidSetCookie
                     }
                     self.maxAge = maxAge
-                case Bytes.domain.lowercasedHashValue:
-                    self.domain = String(validating: attributeValue, as: .text)
-                case Bytes.path.lowercasedHashValue:
-                    self.path = String(validating: attributeValue, as: .text)
                 default:
                     throw HTTPError.invalidSetCookie
                 }
@@ -125,20 +125,6 @@ extension Response.SetCookie {
 
     func encode(to buffer: inout [UInt8]) {
         cookie.encode(to: &buffer)
-        if let expires = self.expires {
-            buffer.append(Character.semicolon)
-            buffer.append(Character.whitespace)
-            buffer.append(contentsOf: Bytes.expires)
-            buffer.append(Character.equal)
-            expires.encode(to: &buffer)
-        }
-        if let maxAge = self.maxAge {
-            buffer.append(Character.semicolon)
-            buffer.append(Character.whitespace)
-            buffer.append(contentsOf: Bytes.maxAge)
-            buffer.append(Character.equal)
-            buffer.append(contentsOf: String(describing: maxAge).utf8)
-        }
         if let domain = self.domain {
             buffer.append(Character.semicolon)
             buffer.append(Character.whitespace)
@@ -152,6 +138,20 @@ extension Response.SetCookie {
             buffer.append(contentsOf: Bytes.path)
             buffer.append(Character.equal)
             buffer.append(contentsOf: path.utf8)
+        }
+        if let expires = self.expires {
+            buffer.append(Character.semicolon)
+            buffer.append(Character.whitespace)
+            buffer.append(contentsOf: Bytes.expires)
+            buffer.append(Character.equal)
+            expires.encode(to: &buffer)
+        }
+        if let maxAge = self.maxAge {
+            buffer.append(Character.semicolon)
+            buffer.append(Character.whitespace)
+            buffer.append(contentsOf: Bytes.maxAge)
+            buffer.append(Character.equal)
+            buffer.append(contentsOf: String(describing: maxAge).utf8)
         }
         if self.secure == true {
             buffer.append(Character.semicolon)
