@@ -12,7 +12,10 @@ extension Server {
         handler: @escaping () throws -> Any
     ) {
         router.route(
-            method: .get, url: url, middleware: middleware, handler: handler)
+            methods: [.get],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route(
@@ -21,7 +24,10 @@ extension Server {
         handler: @escaping (Request) throws -> Any
     ) {
         router.route(
-            method: .get, url: url, middleware: middleware, handler: handler)
+            methods: [.get],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A: Primitive>(
@@ -30,7 +36,10 @@ extension Server {
         handler: @escaping (A) throws -> Any
     ) {
         router.route(
-            method: .get, url: url, middleware: middleware, handler: handler)
+            methods: [.get],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A: Primitive>(
@@ -39,7 +48,10 @@ extension Server {
         handler: @escaping (Request, A) throws -> Any
     ) {
         router.route(
-            method: .get, url: url, middleware: middleware, handler: handler)
+            methods: [.get],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A>(
@@ -48,7 +60,10 @@ extension Server {
         handler: @escaping (A) throws -> Any
     ) {
         router.route(
-            method: .get, url: url, middleware: middleware, handler: handler)
+            methods: [.get],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A>(
@@ -57,7 +72,10 @@ extension Server {
         handler: @escaping (Request, A) throws -> Any
     ) {
         router.route(
-            method: .get, url: url, middleware: middleware, handler: handler)
+            methods: [.get],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     // HEAD
@@ -67,7 +85,10 @@ extension Server {
         handler: @escaping () throws -> Any
     ) {
         router.route(
-            method: .head, url: url, middleware: middleware, handler: handler)
+            methods: [.head],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route(
@@ -76,7 +97,10 @@ extension Server {
         handler: @escaping (Request) throws -> Any
     ) {
         router.route(
-            method: .head, url: url, middleware: middleware, handler: handler)
+            methods: [.head],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A: Primitive>(
@@ -85,7 +109,10 @@ extension Server {
         handler: @escaping (A) throws -> Any
     ) {
         router.route(
-            method: .head, url: url, middleware: middleware, handler: handler)
+            methods: [.head],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A: Primitive>(
@@ -94,7 +121,10 @@ extension Server {
         handler: @escaping (Request, A) throws -> Any
     ) {
         router.route(
-            method: .head, url: url, middleware: middleware, handler: handler)
+            methods: [.head],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A>(
@@ -103,7 +133,10 @@ extension Server {
         handler: @escaping (A) throws -> Any
     ) {
         router.route(
-            method: .head, url: url, middleware: middleware, handler: handler)
+            methods: [.head],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A>(
@@ -112,7 +145,10 @@ extension Server {
         handler: @escaping (Request, A) throws -> Any
     ) {
         router.route(
-            method: .head, url: url, middleware: middleware, handler: handler)
+            methods: [.head],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     // POST
@@ -122,7 +158,10 @@ extension Server {
         handler: @escaping () throws -> Any
     ) {
         router.route(
-            method: .post, url: url, middleware: middleware, handler: handler)
+            methods: [.post],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route(
@@ -131,7 +170,10 @@ extension Server {
         handler: @escaping (Request) throws -> Any
     ) {
         router.route(
-            method: .post, url: url, middleware: middleware, handler: handler)
+            methods: [.post],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A: Primitive>(
@@ -140,7 +182,10 @@ extension Server {
         handler: @escaping (A) throws -> Any
     ) {
         router.route(
-            method: .post, url: url, middleware: middleware, handler: handler)
+            methods: [.post],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A: Primitive>(
@@ -149,7 +194,10 @@ extension Server {
         handler: @escaping (Request, A) throws -> Any
     ) {
         router.route(
-            method: .post, url: url, middleware: middleware, handler: handler)
+            methods: [.post],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A>(
@@ -158,7 +206,10 @@ extension Server {
         handler: @escaping (A) throws -> Any
     ) {
         router.route(
-            method: .post, url: url, middleware: middleware, handler: handler)
+            methods: [.post],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A>(
@@ -167,7 +218,10 @@ extension Server {
         handler: @escaping (Request, A) throws -> Any
     ) {
         router.route(
-            method: .post, url: url, middleware: middleware, handler: handler)
+            methods: [.post],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     // PUT
@@ -177,7 +231,10 @@ extension Server {
         handler: @escaping () throws -> Any
     ) {
         router.route(
-            method: .put, url: url, middleware: middleware, handler: handler)
+            methods: [.put],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route(
@@ -186,7 +243,10 @@ extension Server {
         handler: @escaping (Request) throws -> Any
     ) {
         router.route(
-            method: .put, url: url, middleware: middleware, handler: handler)
+            methods: [.put],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A: Primitive>(
@@ -195,7 +255,10 @@ extension Server {
         handler: @escaping (A) throws -> Any
     ) {
         router.route(
-            method: .put, url: url, middleware: middleware, handler: handler)
+            methods: [.put],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A: Primitive>(
@@ -204,7 +267,10 @@ extension Server {
         handler: @escaping (Request, A) throws -> Any
     ) {
         router.route(
-            method: .put, url: url, middleware: middleware, handler: handler)
+            methods: [.put],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A>(
@@ -213,7 +279,10 @@ extension Server {
         handler: @escaping (A) throws -> Any
     ) {
         router.route(
-            method: .put, url: url, middleware: middleware, handler: handler)
+            methods: [.put],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A>(
@@ -222,7 +291,10 @@ extension Server {
         handler: @escaping (Request, A) throws -> Any
     ) {
         router.route(
-            method: .put, url: url, middleware: middleware, handler: handler)
+            methods: [.put],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     // DELETE
@@ -232,7 +304,10 @@ extension Server {
         handler: @escaping () throws -> Any
     ) {
         router.route(
-            method: .delete, url: url, middleware: middleware, handler: handler)
+            methods: [.delete],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route(
@@ -241,7 +316,10 @@ extension Server {
         handler: @escaping (Request) throws -> Any
     ) {
         router.route(
-            method: .delete, url: url, middleware: middleware, handler: handler)
+            methods: [.delete],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A: Primitive>(
@@ -250,7 +328,10 @@ extension Server {
         handler: @escaping (A) throws -> Any
     ) {
         router.route(
-            method: .delete, url: url, middleware: middleware, handler: handler)
+            methods: [.delete],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A: Primitive>(
@@ -259,7 +340,10 @@ extension Server {
         handler: @escaping (Request, A) throws -> Any
     ) {
         router.route(
-            method: .delete, url: url, middleware: middleware, handler: handler)
+            methods: [.delete],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A>(
@@ -268,7 +352,10 @@ extension Server {
         handler: @escaping (A) throws -> Any
     ) {
         router.route(
-            method: .delete, url: url, middleware: middleware, handler: handler)
+            methods: [.delete],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     public func route<A>(
@@ -277,7 +364,10 @@ extension Server {
         handler: @escaping (Request, A) throws -> Any
     ) {
         router.route(
-            method: .delete, url: url, middleware: middleware, handler: handler)
+            methods: [.delete],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 
     // OPTIONS
@@ -287,11 +377,10 @@ extension Server {
         handler: @escaping () throws -> Any
     ) {
         router.route(
-            method: .options,
+            methods: [.options],
             url: url,
             middleware: middleware,
-            handler: handler
-        )
+            handler: handler)
     }
 
     public func route(
@@ -300,11 +389,10 @@ extension Server {
         handler: @escaping (Request) throws -> Any
     ) {
         router.route(
-            method: .options,
+            methods: [.options],
             url: url,
             middleware: middleware,
-            handler: handler
-        )
+            handler: handler)
     }
 
     public func route<A: Primitive>(
@@ -313,11 +401,10 @@ extension Server {
         handler: @escaping (A) throws -> Any
     ) {
         router.route(
-            method: .options,
+            methods: [.options],
             url: url,
             middleware: middleware,
-            handler: handler
-        )
+            handler: handler)
     }
 
     public func route<A: Primitive>(
@@ -326,11 +413,10 @@ extension Server {
         handler: @escaping (Request, A) throws -> Any
     ) {
         router.route(
-            method: .options,
+            methods: [.options],
             url: url,
             middleware: middleware,
-            handler: handler
-        )
+            handler: handler)
     }
 
     public func route<A>(
@@ -339,11 +425,10 @@ extension Server {
         handler: @escaping (A) throws -> Any
     ) {
         router.route(
-            method: .options,
+            methods: [.options],
             url: url,
             middleware: middleware,
-            handler: handler
-        )
+            handler: handler)
     }
 
     public func route<A>(
@@ -352,10 +437,84 @@ extension Server {
         handler: @escaping (Request, A) throws -> Any
     ) {
         router.route(
-            method: .options,
+            methods: [.options],
+            url: url,
+            middleware: middleware,
+            handler: handler)
+    }
+
+    // ALL
+    public func route(
+        all url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping () throws -> Any
+    ) {
+        router.route(
+            methods: [.all],
             url: url,
             middleware: middleware,
             handler: handler
         )
+    }
+    
+    public func route(
+        all url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping (Request) throws -> Any
+    ) {
+        router.route(
+            methods: [.all],
+            url: url,
+            middleware: middleware,
+            handler: handler
+        )
+    }
+    
+    public func route<A: Primitive>(
+        all url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping (A) throws -> Any
+    ) {
+        router.route(
+            methods: [.all],
+            url: url,
+            middleware: middleware,
+            handler: handler)
+    }
+    
+    public func route<A: Primitive>(
+        all url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping (Request, A) throws -> Any
+    ) {
+        router.route(
+            methods: [.all],
+            url: url,
+            middleware: middleware,
+            handler: handler)
+    }
+    
+    public func route<A>(
+        all url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping (A) throws -> Any
+    ) {
+        router.route(
+            methods: [.all],
+            url: url,
+            middleware: middleware,
+            handler: handler)
+    }
+    
+    public func route<A>(
+        all url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping (Request, A) throws -> Any
+    ) {
+        router.route(
+            methods: [.all],
+            url: url,
+            middleware: middleware,
+            handler: handler)
     }
 }

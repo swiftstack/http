@@ -158,9 +158,39 @@ class FunctionalTests: TestCase {
         )
     }
 
-    func testJson() {
+    func testAll() {
         setup(
             port: 6007,
+            serverCode: { server in
+                server.route(all: "/") {
+                    return Response(status: .ok)
+                }
+            },
+            clientCode: { client in
+                let getResponse = try client.get("/")
+                assertEqual(getResponse.status, .ok)
+
+                let headResponse = try client.head("/")
+                assertEqual(headResponse.status, .ok)
+
+                let postResponse = try client.post("/")
+                assertEqual(postResponse.status, .ok)
+
+                let putResponse = try client.put("/")
+                assertEqual(putResponse.status, .ok)
+
+                let deleteResponse = try client.delete("/")
+                assertEqual(deleteResponse.status, .ok)
+
+                let optionsResponse = try client.post("/")
+                assertEqual(optionsResponse.status, .ok)
+            }
+        )
+    }
+
+    func testJson() {
+        setup(
+            port: 6008,
             serverCode: { server in
                 struct Model {
                     var message: String
@@ -181,7 +211,7 @@ class FunctionalTests: TestCase {
 
     func testFormEncoded() {
         setup(
-            port: 6008,
+            port: 6009,
             serverCode: { server in
                 struct Model {
                     var message: String
