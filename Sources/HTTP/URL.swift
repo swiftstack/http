@@ -168,7 +168,7 @@ extension URL.Query {
                 throw HTTPError.invalidURL
             }
 
-            endIndex = bytes.index(of: Character.equal, offset: startIndex)
+            endIndex = bytes.index(of: Character.ampersand, offset: startIndex)
                 ?? bytes.endIndex
             // FIXME: validate using url rules
             guard let value =
@@ -178,7 +178,7 @@ extension URL.Query {
             }
 
             values[name] = value
-            startIndex = endIndex
+            startIndex = endIndex + 1
         }
 
         self.values = values
