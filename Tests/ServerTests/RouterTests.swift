@@ -163,6 +163,69 @@ class RouterTests: TestCase {
         }
     }
 
+    func testGetURLMatchModel() {
+        var router = Router()
+
+        struct Page: URLDecodable {
+            let name: String
+            let number: Int
+        }
+        struct Params: Decodable {
+            let id: Int
+            let token: String
+        }
+
+        router.route(methods: [.get], url: "/:name/:number")
+        { (page: Page, params: Params) in
+            assertEqual(page.name, "news")
+            assertEqual(page.number, 2)
+            assertEqual(params.id, 1)
+            assertEqual(params.token, "abcdef")
+            return Response(status: .ok)
+        }
+
+        let request = Request(method: .get, url: "/news/2?id=1&token=abcdef")
+        let response = router.handleRequest(request)
+        assertEqual(response.status, .ok)
+    }
+
+    func testPostURLMatchModel() {
+        var router = Router()
+
+        struct Page: URLDecodable {
+            let name: String
+            let number: Int
+        }
+        struct Params: Codable {
+            let id: Int
+            let token: String
+        }
+
+        router.route(methods: [.post], url: "/:name/:number")
+        { (page: Page, params: Params) in
+            assertEqual(page.name, "news")
+            assertEqual(page.number, 2)
+            assertEqual(params.id, 1)
+            assertEqual(params.token, "abcdef")
+            return Response(status: .ok)
+        }
+
+        do {
+            let model = Params(id: 1, token: "abcdef")
+            let request = try Request(
+                method: .post, url: "/news/2", json: model)
+            let response = router.handleRequest(request)
+            assertEqual(response.status, .ok)
+
+            let urlEncodedRequest = try Request(
+                method: .post, url: "/news/2", urlEncoded: model)
+            let urlEncodedResponse = router.handleRequest(urlEncodedRequest)
+            assertEqual(urlEncodedResponse.status, .ok)
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
     func testGetRequestURLMatch() {
         var router = Router()
 

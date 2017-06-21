@@ -312,6 +312,34 @@ struct Router {
         methods: MethodSet,
         url: String,
         middleware: [Middleware.Type] = [],
+        handler: @escaping (URLMatch, Model) throws -> Any
+    ) {
+        let keyValueDecoder = KeyValueDecoder()
+        let urlMatcher = URLParamMatcher(url)
+
+        guard urlMatcher.params.count > 0 else {
+            fatalError("invalid url mask, more than 0 arguments was expected")
+        }
+
+        let handler: RequestHandler = { request in
+            let values = urlMatcher.match(from: request.url.path)
+            let match = try keyValueDecoder.decode(URLMatch.self, from: values)
+            let model = try Router.decodeModel(Model.self, from: request)
+            return try Router.parseAnyResponse(
+                try handler(match, model))
+        }
+        registerRoute(
+            methods: methods,
+            url: url,
+            middleware: middleware,
+            handler: handler
+        )
+    }
+
+    public mutating func route<URLMatch: URLDecodable, Model: Decodable>(
+        methods: MethodSet,
+        url: String,
+        middleware: [Middleware.Type] = [],
         handler: @escaping (Request, URLMatch, Model) throws -> Any
     ) {
         let keyValueDecoder = KeyValueDecoder()

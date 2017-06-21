@@ -80,6 +80,18 @@ extension Server {
     public func route<URLMatch: URLDecodable, Model: Decodable>(
         get url: String,
         middleware: [Middleware.Type] = [],
+        handler: @escaping (URLMatch, Model) throws -> Any
+    ) {
+        router.route(
+            methods: [.get],
+            url: url,
+            middleware: middleware,
+            handler: handler)
+    }
+
+    public func route<URLMatch: URLDecodable, Model: Decodable>(
+        get url: String,
+        middleware: [Middleware.Type] = [],
         handler: @escaping (Request, URLMatch, Model) throws -> Any
     ) {
         router.route(
@@ -154,6 +166,18 @@ extension Server {
         head url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping (Request, Model) throws -> Any
+    ) {
+        router.route(
+            methods: [.head],
+            url: url,
+            middleware: middleware,
+            handler: handler)
+    }
+
+    public func route<URLMatch: URLDecodable, Model: Decodable>(
+        head url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping (URLMatch, Model) throws -> Any
     ) {
         router.route(
             methods: [.head],
@@ -250,6 +274,18 @@ extension Server {
     public func route<URLMatch: URLDecodable, Model: Decodable>(
         post url: String,
         middleware: [Middleware.Type] = [],
+        handler: @escaping (URLMatch, Model) throws -> Any
+    ) {
+        router.route(
+            methods: [.post],
+            url: url,
+            middleware: middleware,
+            handler: handler)
+    }
+
+    public func route<URLMatch: URLDecodable, Model: Decodable>(
+        post url: String,
+        middleware: [Middleware.Type] = [],
         handler: @escaping (Request, URLMatch, Model) throws -> Any
     ) {
         router.route(
@@ -324,6 +360,18 @@ extension Server {
         put url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping (Request, Model) throws -> Any
+    ) {
+        router.route(
+            methods: [.put],
+            url: url,
+            middleware: middleware,
+            handler: handler)
+    }
+
+    public func route<URLMatch: URLDecodable, Model: Decodable>(
+        put url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping (URLMatch, Model) throws -> Any
     ) {
         router.route(
             methods: [.put],
@@ -420,6 +468,18 @@ extension Server {
     public func route<URLMatch: URLDecodable, Model: Decodable>(
         delete url: String,
         middleware: [Middleware.Type] = [],
+        handler: @escaping (URLMatch, Model) throws -> Any
+    ) {
+        router.route(
+            methods: [.delete],
+            url: url,
+            middleware: middleware,
+            handler: handler)
+    }
+
+    public func route<URLMatch: URLDecodable, Model: Decodable>(
+        delete url: String,
+        middleware: [Middleware.Type] = [],
         handler: @escaping (Request, URLMatch, Model) throws -> Any
     ) {
         router.route(
@@ -505,6 +565,18 @@ extension Server {
     public func route<URLMatch: URLDecodable, Model: Decodable>(
         options url: String,
         middleware: [Middleware.Type] = [],
+        handler: @escaping (URLMatch, Model) throws -> Any
+        ) {
+        router.route(
+            methods: [.options],
+            url: url,
+            middleware: middleware,
+            handler: handler)
+    }
+
+    public func route<URLMatch: URLDecodable, Model: Decodable>(
+        options url: String,
+        middleware: [Middleware.Type] = [],
         handler: @escaping (Request, URLMatch, Model) throws -> Any
     ) {
         router.route(
@@ -579,6 +651,18 @@ extension Server {
         all url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping (Request, Model) throws -> Any
+    ) {
+        router.route(
+            methods: [.all],
+            url: url,
+            middleware: middleware,
+            handler: handler)
+    }
+
+    public func route<URLMatch: URLDecodable, Model: Decodable>(
+        all url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping (URLMatch, Model) throws -> Any
     ) {
         router.route(
             methods: [.all],
