@@ -165,8 +165,11 @@ class EncodeRequestTests: TestCase {
             "Content-Length: 23\r\n" +
             "\r\n" +
             "message=Hello,%20World!"
-        let query: URL.Query = ["message": "Hello, World!"]
-        let request = try! Request(method: .post, url: "/", urlEncoded: query)
+
+        struct Query: Encodable {
+            let message = "Hello, World!"
+        }
+        let request = try! Request(method: .post, url: "/", urlEncoded: Query())
         assertEqual(String(ascii: request.bytes), expected)
     }
 

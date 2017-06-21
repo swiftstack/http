@@ -54,12 +54,13 @@ extension Response {
         contentLength = bytes.count
     }
 
-    public init(json object: Any) throws {
-        let bytes = try JSON.encode(object)
+    public init(json object: Encodable) throws {
+        let encoder = JSONEncoder()
+        let json = try encoder.encode(object)
 
         contentType = ContentType(mediaType: .application(.json))
-        rawBody = bytes
-        contentLength = bytes.count
+        rawBody = [UInt8](json.utf8)
+        contentLength = rawBody!.count
     }
 
     public init(urlEncoded query: URL.Query) {

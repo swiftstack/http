@@ -22,7 +22,7 @@ let package = Package(
             from: "0.4.0"
         ),
         .package(
-            url: "https://github.com/swift-stack/reflection.git",
+            url: "https://github.com/swift-stack/json.git",
             from: "0.4.0"
         ),
         .package(
@@ -35,23 +35,26 @@ let package = Package(
         )
     ],
     targets: [
-        .target(name: "JSON"),
-        .target(name: "HTTP", dependencies: ["JSON"]),
+        .target(name: "KeyValueCodable"),
+        .target(name: "HTTP", dependencies: ["JSON", "KeyValueCodable"]),
         .target(
             name: "Server",
-            dependencies: ["Async", "Network", "HTTP", "Reflection", "Log"]
+            dependencies: ["Log", "Async", "Network", "HTTP"]
         ),
         .target(
             name: "Client",
-            dependencies: ["Async", "Network", "HTTP", "Log"]
+            dependencies: ["Log", "Async", "Network", "HTTP"]
         ),
-        .testTarget(name: "JSONTests", dependencies: ["JSON", "Test"]),
         .testTarget(name: "HTTPTests", dependencies: ["HTTP", "Test"]),
         .testTarget(name: "ServerTests", dependencies: ["Server", "Test"]),
         .testTarget(name: "ClientTests", dependencies: ["Client", "Test"]),
         .testTarget(
             name: "FunctionalTests",
             dependencies: ["Server", "Client", "Test"]
+        ),
+        .testTarget(
+            name: "KeyValueCodableTests",
+            dependencies: ["KeyValueCodable", "Test"]
         )
     ]
 )

@@ -1,10 +1,20 @@
 import Log
 import JSON
-import Reflection
+import KeyValueCodable
+
+public protocol URLDecodable: Decodable {}
 
 public typealias RequestHandler = (Request) throws -> Response
 
 struct Router {
+    enum Error: Swift.Error {
+        case invalidModel
+        case invalidUrlMask
+        case invalidRequest
+        case invalidResponse
+        case invalidContentType
+    }
+
     struct MethodSet: OptionSet {
         let rawValue: UInt8
 
@@ -38,7 +48,7 @@ struct Router {
         let handler: RequestHandler
     }
 
-    var routeMatcher = RouteMatcher<Route>()
+    private var routeMatcher = RouteMatcher<Route>()
 
     func handleRequest(_ request: Request) -> Response {
         let routes = routeMatcher.matches(route: request.url.path)
@@ -63,7 +73,8 @@ struct Router {
         case let response as Response: return response
         case let string as String: return Response(string: string)
         case is Void: return Response(status: .ok)
-        default: return try Response(json: object)
+        case let encodable as Encodable: return try Response(json: encodable)
+        default: throw Error.invalidResponse
         }
     }
 
@@ -127,61 +138,97 @@ struct Router {
         )
     }
 
-    // MARK: Reflection
+    // MARK: Decoder
 
     @inline(__always)
-    func createReflectionWrapper(
+    func createDecoderWrapper<URLMatch, Model>(
         methods: MethodSet,
         url: String,
-        handler: @escaping (Request, [String : Any]) throws -> Any
-    ) -> RequestHandler {
+        handler: @escaping (Request, URLMatch?, Model?) throws -> Any
+    ) -> RequestHandler where URLMatch: URLDecodable, Model: Decodable {
         let urlMatcher = URLParamMatcher(url)
+        let keyValueDecoder = KeyValueDecoder()
+        let jsonDecoder = JSONDecoder()
 
         return { request in
-            var values = urlMatcher.match(from: request.url.path)
+            // find url matches
+            let urlMatch: URLMatch?
+            if urlMatcher.params.count > 0 {
+                let values = urlMatcher.match(from: request.url.path)
+                urlMatch =
+                    try keyValueDecoder.decode(URLMatch.self, from: values)
+            } else {
+                urlMatch = nil
+            }
 
-            let queryValues: [String: Any]?
-
+            // decode model from json or form-urlencoded
+            let model: Model?
             if request.method == .get {
-                queryValues = request.url.query.values
+                let values = request.url.query.values
+                model = try keyValueDecoder.decode(Model.self, from: values)
             } else if let body = request.rawBody,
                 let contentType = request.contentType {
                 switch contentType.mediaType {
                 case .application(.urlEncoded):
-                    queryValues = try URL.Query(from: body).values
+                    let values = try URL.Query(from: body).values
+                    model = try keyValueDecoder.decode(Model.self, from: values)
                 case .application(.json):
-                    queryValues = JSON.decode(body)
+                    let json = String(decoding: body, as: UTF8.self)
+                    model = try jsonDecoder.decode(Model.self, from: json)
                 default:
-                    queryValues = nil
+                    throw Error.invalidContentType
                 }
             } else {
-                queryValues = nil
+                model = nil
             }
 
-            if let queryValues = queryValues {
-                for (key, value) in queryValues {
-                    values[key] = value
-                }
-            }
-            return try Router.parseAnyResponse(try handler(request, values))
+            // convert Any to Response
+            return try Router.parseAnyResponse(
+                try handler(request, urlMatch, model))
         }
     }
 
-    // primitive type: String | Bool | Int | Double.
-    public mutating func route<Model: Primitive>(
+    @inline(__always)
+    private static func decodeModel<T: Decodable>(
+        _ type: T.Type,
+        from request: Request
+    ) throws -> T {
+        switch request.method {
+        case .get:
+            let values = request.url.query.values
+            return try KeyValueDecoder().decode(type, from: values)
+
+        case _ where request.rawBody != nil && request.contentType != nil:
+            let body = request.rawBody!
+            let contentType = request.contentType!
+
+            switch contentType.mediaType {
+            case .application(.json):
+                let json = String(decoding: body, as: UTF8.self)
+                return try JSONDecoder().decode(type, from: json)
+
+            case .application(.urlEncoded):
+                let values = try URL.Query(from: body).values
+                return try KeyValueDecoder().decode(type, from: values)
+
+            default:
+                throw Error.invalidContentType
+            }
+
+        default:
+            throw Error.invalidRequest
+        }
+    }
+
+    public mutating func route<Model: Decodable>(
         methods: MethodSet,
         url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping (Model) throws -> Any
     ) {
-        let handler = createReflectionWrapper(methods: methods, url: url) {
-            _, values in
-            // TODO: handle single value properly
-            guard let value = values.first?.value as? String,
-                let param = Model(param: value) else {
-                    return Response(status: .badRequest)
-            }
-            return try handler(param)
+        let handler: RequestHandler = { request in
+            let model = try Router.decodeModel(Model.self, from: request)
+            return try Router.parseAnyResponse(try handler(model))
         }
         registerRoute(
             methods: methods,
@@ -191,21 +238,67 @@ struct Router {
         )
     }
 
-    // pass request + primitive type: String | Bool | Int | Double.
-    public mutating func route<Model: Primitive>(
+    public mutating func route<URLMatch: URLDecodable>(
+        methods: MethodSet,
+        url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping (URLMatch) throws -> Any
+    ) {
+        let keyValueDecoder = KeyValueDecoder()
+        let urlMatcher = URLParamMatcher(url)
+
+        guard urlMatcher.params.count > 0 else {
+            fatalError("invalid url mask, more than 0 arguments was expected")
+        }
+
+        let handler: RequestHandler = { request in
+            let values = urlMatcher.match(from: request.url.path)
+            let match = try keyValueDecoder.decode(URLMatch.self, from: values)
+            return try Router.parseAnyResponse(try handler(match))
+        }
+        registerRoute(
+            methods: methods,
+            url: url,
+            middleware: middleware,
+            handler: handler
+        )
+    }
+
+    public mutating func route<URLMatch: URLDecodable>(
+        methods: MethodSet,
+        url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping (Request, URLMatch) throws -> Any
+    ) {
+        let keyValueDecoder = KeyValueDecoder()
+        let urlMatcher = URLParamMatcher(url)
+
+        guard urlMatcher.params.count > 0 else {
+            fatalError("invalid url mask, more than 0 arguments was expected")
+        }
+
+        let handler: RequestHandler = { request in
+            let values = urlMatcher.match(from: request.url.path)
+            let match = try keyValueDecoder.decode(URLMatch.self, from: values)
+            return try Router.parseAnyResponse(try handler(request, match))
+        }
+        registerRoute(
+            methods: methods,
+            url: url,
+            middleware: middleware,
+            handler: handler
+        )
+    }
+
+    public mutating func route<Model: Decodable>(
         methods: MethodSet,
         url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping (Request, Model) throws -> Any
     ) {
-        let handler = createReflectionWrapper(methods: methods, url: url) {
-            request, values in
-            // TODO: handle single value properly
-            guard let value = values.first?.value as? String,
-                let param = Model(param: value) else {
-                    return Response(status: .badRequest)
-            }
-            return try handler(request, param)
+        let handler: RequestHandler = { request in
+            let model = try Router.decodeModel(Model.self, from: request)
+            return try Router.parseAnyResponse(try handler(request, model))
         }
         registerRoute(
             methods: methods,
@@ -215,43 +308,25 @@ struct Router {
         )
     }
 
-    // foreign struct
-    public mutating func route<Model>(
+    public mutating func route<URLMatch: URLDecodable, Model: Decodable>(
         methods: MethodSet,
         url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Model) throws -> Any
+        handler: @escaping (Request, URLMatch, Model) throws -> Any
     ) {
-        let handler = createReflectionWrapper(methods: methods, url: url) {
-            _, values in
-            guard let model = Blueprint(of: Model.self)
-                .construct(using: values) else {
-                    return Response(status: .badRequest)
-            }
-            return try handler(model)
-        }
-        registerRoute(
-            methods: methods,
-            url: url,
-            middleware: middleware,
-            handler: handler
-        )
-    }
+        let keyValueDecoder = KeyValueDecoder()
+        let urlMatcher = URLParamMatcher(url)
 
-    // reflection: request data + POD value type
-    public mutating func route<Model>(
-        methods: MethodSet,
-        url: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, Model) throws -> Any
-    ) {
-        let handler = createReflectionWrapper(methods: methods, url: url) {
-            request, values in
-            guard let model = Blueprint(of: Model.self)
-                .construct(using: values) else {
-                    return Response(status: .badRequest)
-            }
-            return try handler(request, model)
+        guard urlMatcher.params.count > 0 else {
+            fatalError("invalid url mask, more than 0 arguments was expected")
+        }
+
+        let handler: RequestHandler = { request in
+            let values = urlMatcher.match(from: request.url.path)
+            let match = try keyValueDecoder.decode(URLMatch.self, from: values)
+            let model = try Router.decodeModel(Model.self, from: request)
+            return try Router.parseAnyResponse(
+                try handler(request, match, model))
         }
         registerRoute(
             methods: methods,

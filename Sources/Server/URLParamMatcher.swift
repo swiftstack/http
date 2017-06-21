@@ -8,15 +8,16 @@ public struct URLParamMatcher {
         var params: [(name: String, index: Int)] = []
         for (index, item) in components.enumerated() {
             if item.hasPrefix(":") {
-                let name = item.substring(from: item.index(after: item.startIndex))
+                let name = item.substring(
+                    from: item.index(after: item.startIndex))
                 params.append((name, index))
             }
         }
         self.params = params
     }
 
-    public func match(from url: String) -> [String : Any] {
-        var dictionary: [String : Any] = [:]
+    public func match(from url: String) -> [String : String] {
+        var dictionary: [String : String] = [:]
 
         let unicode = url.unicodeScalars
         var startIndex = unicode.index(after: unicode.startIndex)

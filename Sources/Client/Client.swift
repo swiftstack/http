@@ -1,7 +1,6 @@
 import Log
 import Async
 import Network
-import Reflection
 
 @_exported import HTTP
 
@@ -86,16 +85,19 @@ extension Client {
 }
 
 extension Client {
-    public func post(_ url: URL, json object: Any) throws -> Response {
+    public func post<T: Encodable>(
+        _ url: URL,
+        json object: T
+    ) throws -> Response {
         let request = try Request(method: .post, url: url, json: object)
         return try makeRequest(request)
     }
 
-    public func post(
+    public func post<T: Encodable>(
         _ url: URL,
-        urlEncoded query: URL.Query
+        urlEncoded object: T
     ) throws -> Response {
-        let request = try Request(method: .post, url: url, urlEncoded: query)
+        let request = try Request(method: .post, url: url, urlEncoded: object)
         return try makeRequest(request)
     }
 }

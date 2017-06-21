@@ -192,7 +192,7 @@ class FunctionalTests: TestCase {
         setup(
             port: 6008,
             serverCode: { server in
-                struct Model {
+                struct Model: Codable {
                     var message: String
                 }
                 server.route(post: "/") { (model: Model) in
@@ -213,7 +213,7 @@ class FunctionalTests: TestCase {
         setup(
             port: 6009,
             serverCode: { server in
-                struct Model {
+                struct Model: Decodable {
                     var message: String
                 }
                 server.route(post: "/") { (model: Model) in
@@ -222,8 +222,10 @@ class FunctionalTests: TestCase {
                 }
             },
             clientCode: { client in
-                let query: URL.Query = ["message" : "Hello, Server!"]
-                let response = try client.post("/", urlEncoded: query)
+                struct Query: Encodable {
+                    let message = "Hello, Server!"
+                }
+                let response = try client.post("/", urlEncoded: Query())
                 assertEqual(response.status, .ok)
                 assertEqual(response.body, "message=Hello,%20Client!")
             }

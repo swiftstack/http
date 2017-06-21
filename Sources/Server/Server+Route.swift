@@ -1,6 +1,5 @@
 import HTTP
 import JSON
-import Reflection
 
 // Convenience constructors
 
@@ -30,10 +29,10 @@ extension Server {
             handler: handler)
     }
 
-    public func route<A: Primitive>(
+    public func route<Model: Decodable>(
         get url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (A) throws -> Any
+        handler: @escaping (Model) throws -> Any
     ) {
         router.route(
             methods: [.get],
@@ -42,34 +41,10 @@ extension Server {
             handler: handler)
     }
 
-    public func route<A: Primitive>(
+    public func route<Model: Decodable>(
         get url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, A) throws -> Any
-    ) {
-        router.route(
-            methods: [.get],
-            url: url,
-            middleware: middleware,
-            handler: handler)
-    }
-
-    public func route<A>(
-        get url: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (A) throws -> Any
-    ) {
-        router.route(
-            methods: [.get],
-            url: url,
-            middleware: middleware,
-            handler: handler)
-    }
-
-    public func route<A>(
-        get url: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, A) throws -> Any
+        handler: @escaping (Request, Model) throws -> Any
     ) {
         router.route(
             methods: [.get],
@@ -103,10 +78,10 @@ extension Server {
             handler: handler)
     }
 
-    public func route<A: Primitive>(
+    public func route<Model: Decodable>(
         head url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (A) throws -> Any
+        handler: @escaping (Model) throws -> Any
     ) {
         router.route(
             methods: [.head],
@@ -115,34 +90,10 @@ extension Server {
             handler: handler)
     }
 
-    public func route<A: Primitive>(
+    public func route<Model: Decodable>(
         head url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, A) throws -> Any
-    ) {
-        router.route(
-            methods: [.head],
-            url: url,
-            middleware: middleware,
-            handler: handler)
-    }
-
-    public func route<A>(
-        head url: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (A) throws -> Any
-    ) {
-        router.route(
-            methods: [.head],
-            url: url,
-            middleware: middleware,
-            handler: handler)
-    }
-
-    public func route<A>(
-        head url: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, A) throws -> Any
+        handler: @escaping (Request, Model) throws -> Any
     ) {
         router.route(
             methods: [.head],
@@ -176,10 +127,10 @@ extension Server {
             handler: handler)
     }
 
-    public func route<A: Primitive>(
+    public func route<Model: Decodable>(
         post url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (A) throws -> Any
+        handler: @escaping (Model) throws -> Any
     ) {
         router.route(
             methods: [.post],
@@ -188,34 +139,10 @@ extension Server {
             handler: handler)
     }
 
-    public func route<A: Primitive>(
+    public func route<Model: Decodable>(
         post url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, A) throws -> Any
-    ) {
-        router.route(
-            methods: [.post],
-            url: url,
-            middleware: middleware,
-            handler: handler)
-    }
-
-    public func route<A>(
-        post url: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (A) throws -> Any
-    ) {
-        router.route(
-            methods: [.post],
-            url: url,
-            middleware: middleware,
-            handler: handler)
-    }
-
-    public func route<A>(
-        post url: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, A) throws -> Any
+        handler: @escaping (Request, Model) throws -> Any
     ) {
         router.route(
             methods: [.post],
@@ -249,10 +176,10 @@ extension Server {
             handler: handler)
     }
 
-    public func route<A: Primitive>(
+    public func route<Model: Decodable>(
         put url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (A) throws -> Any
+        handler: @escaping (Model) throws -> Any
     ) {
         router.route(
             methods: [.put],
@@ -261,34 +188,10 @@ extension Server {
             handler: handler)
     }
 
-    public func route<A: Primitive>(
+    public func route<Model: Decodable>(
         put url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, A) throws -> Any
-    ) {
-        router.route(
-            methods: [.put],
-            url: url,
-            middleware: middleware,
-            handler: handler)
-    }
-
-    public func route<A>(
-        put url: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (A) throws -> Any
-    ) {
-        router.route(
-            methods: [.put],
-            url: url,
-            middleware: middleware,
-            handler: handler)
-    }
-
-    public func route<A>(
-        put url: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, A) throws -> Any
+        handler: @escaping (Request, Model) throws -> Any
     ) {
         router.route(
             methods: [.put],
@@ -322,10 +225,10 @@ extension Server {
             handler: handler)
     }
 
-    public func route<A: Primitive>(
+    public func route<Model: Decodable>(
         delete url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (A) throws -> Any
+        handler: @escaping (Model) throws -> Any
     ) {
         router.route(
             methods: [.delete],
@@ -334,34 +237,10 @@ extension Server {
             handler: handler)
     }
 
-    public func route<A: Primitive>(
+    public func route<Model: Decodable>(
         delete url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, A) throws -> Any
-    ) {
-        router.route(
-            methods: [.delete],
-            url: url,
-            middleware: middleware,
-            handler: handler)
-    }
-
-    public func route<A>(
-        delete url: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (A) throws -> Any
-    ) {
-        router.route(
-            methods: [.delete],
-            url: url,
-            middleware: middleware,
-            handler: handler)
-    }
-
-    public func route<A>(
-        delete url: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, A) throws -> Any
+        handler: @escaping (Request, Model) throws -> Any
     ) {
         router.route(
             methods: [.delete],
@@ -395,10 +274,10 @@ extension Server {
             handler: handler)
     }
 
-    public func route<A: Primitive>(
+    public func route<Model: Decodable>(
         options url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (A) throws -> Any
+        handler: @escaping (Model) throws -> Any
     ) {
         router.route(
             methods: [.options],
@@ -407,34 +286,10 @@ extension Server {
             handler: handler)
     }
 
-    public func route<A: Primitive>(
+    public func route<Model: Decodable>(
         options url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, A) throws -> Any
-    ) {
-        router.route(
-            methods: [.options],
-            url: url,
-            middleware: middleware,
-            handler: handler)
-    }
-
-    public func route<A>(
-        options url: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (A) throws -> Any
-    ) {
-        router.route(
-            methods: [.options],
-            url: url,
-            middleware: middleware,
-            handler: handler)
-    }
-
-    public func route<A>(
-        options url: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, A) throws -> Any
+        handler: @escaping (Request, Model) throws -> Any
     ) {
         router.route(
             methods: [.options],
@@ -469,11 +324,11 @@ extension Server {
             handler: handler
         )
     }
-    
-    public func route<A: Primitive>(
+
+    public func route<Model: Decodable>(
         all url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (A) throws -> Any
+        handler: @escaping (Model) throws -> Any
     ) {
         router.route(
             methods: [.all],
@@ -481,35 +336,11 @@ extension Server {
             middleware: middleware,
             handler: handler)
     }
-    
-    public func route<A: Primitive>(
+
+    public func route<Model: Decodable>(
         all url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, A) throws -> Any
-    ) {
-        router.route(
-            methods: [.all],
-            url: url,
-            middleware: middleware,
-            handler: handler)
-    }
-    
-    public func route<A>(
-        all url: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (A) throws -> Any
-    ) {
-        router.route(
-            methods: [.all],
-            url: url,
-            middleware: middleware,
-            handler: handler)
-    }
-    
-    public func route<A>(
-        all url: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, A) throws -> Any
+        handler: @escaping (Request, Model) throws -> Any
     ) {
         router.route(
             methods: [.all],
