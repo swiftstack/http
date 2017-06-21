@@ -32,7 +32,10 @@ class _KeyValueEncoder: Encoder {
     }
 
     func singleValueContainer() -> SingleValueEncodingContainer {
-        fatalError("unsupported container")
+        guard values.count == 0 else {
+            fatalError()
+        }
+        return KeyValueSingleValueEncodingContainer(self)
     }
 }
 
@@ -129,6 +132,77 @@ struct KeyValueKeyedEncodingContainer<K: CodingKey>
     }
 
     mutating func superEncoder(forKey key: K) -> Encoder {
+        fatalError("unsupported")
+    }
+}
+
+struct KeyValueSingleValueEncodingContainer: SingleValueEncodingContainer {
+    let encoder: _KeyValueEncoder
+    init(_ encoder: _KeyValueEncoder) {
+        self.encoder = encoder
+    }
+
+    mutating func encodeNil() throws {
+        fatalError("unsupported")
+    }
+
+    mutating func encode(_ value: Bool) throws {
+        encoder.values["boolean"] = value.description
+    }
+
+    mutating func encode(_ value: Int) throws {
+        encoder.values["integer"] = value.description
+    }
+
+    mutating func encode(_ value: Int8) throws {
+        encoder.values["integer"] = value.description
+    }
+
+    mutating func encode(_ value: Int16) throws {
+        encoder.values["integer"] = value.description
+    }
+
+    mutating func encode(_ value: Int32) throws {
+        encoder.values["integer"] = value.description
+    }
+
+    mutating func encode(_ value: Int64) throws {
+        encoder.values["integer"] = value.description
+    }
+
+    mutating func encode(_ value: UInt) throws {
+        encoder.values["unsigned"] = value.description
+    }
+
+    mutating func encode(_ value: UInt8) throws {
+        encoder.values["unsigned"] = value.description
+    }
+
+    mutating func encode(_ value: UInt16) throws {
+        encoder.values["unsigned"] = value.description
+    }
+
+    mutating func encode(_ value: UInt32) throws {
+        encoder.values["unsigned"] = value.description
+    }
+
+    mutating func encode(_ value: UInt64) throws {
+        encoder.values["unsigned"] = value.description
+    }
+
+    mutating func encode(_ value: Float) throws {
+        encoder.values["float"] = value.description
+    }
+
+    mutating func encode(_ value: Double) throws {
+        encoder.values["double"] = value.description
+    }
+
+    mutating func encode(_ value: String) throws {
+        encoder.values["string"] = value.description
+    }
+
+    mutating func encode<T>(_ value: T) throws where T : Encodable {
         fatalError("unsupported")
     }
 }
