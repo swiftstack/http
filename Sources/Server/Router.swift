@@ -139,54 +139,6 @@ struct Router {
     // MARK: Decoder
 
     @inline(__always)
-    func createDecoderWrapper<URLMatch, Model>(
-        methods: MethodSet,
-        url: String,
-        handler: @escaping (Request, URLMatch?, Model?) throws -> Any
-    ) -> RequestHandler where URLMatch: Decodable, Model: Decodable {
-        let urlMatcher = URLParamMatcher(url)
-        let keyValueDecoder = KeyValueDecoder()
-        let jsonDecoder = JSONDecoder()
-
-        return { request in
-            // find url matches
-            let urlMatch: URLMatch?
-            if urlMatcher.params.count > 0 {
-                let values = urlMatcher.match(from: request.url.path)
-                urlMatch =
-                    try keyValueDecoder.decode(URLMatch.self, from: values)
-            } else {
-                urlMatch = nil
-            }
-
-            // decode model from json or form-urlencoded
-            let model: Model?
-            if request.method == .get {
-                let values = request.url.query.values
-                model = try keyValueDecoder.decode(Model.self, from: values)
-            } else if let body = request.rawBody,
-                let contentType = request.contentType {
-                switch contentType.mediaType {
-                case .application(.urlEncoded):
-                    let values = try URL.Query(from: body).values
-                    model = try keyValueDecoder.decode(Model.self, from: values)
-                case .application(.json):
-                    let json = String(decoding: body, as: UTF8.self)
-                    model = try jsonDecoder.decode(Model.self, from: json)
-                default:
-                    throw Error.invalidContentType
-                }
-            } else {
-                model = nil
-            }
-
-            // convert Any to Response
-            return try Router.parseAnyResponse(
-                try handler(request, urlMatch, model))
-        }
-    }
-
-    @inline(__always)
     private static func decodeModel<T: Decodable>(
         _ type: T.Type,
         from request: Request
