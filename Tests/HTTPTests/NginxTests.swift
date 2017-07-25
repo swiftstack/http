@@ -14,6 +14,7 @@ class NginxTests: TestCase {
             assertEqual(request.url.path, "/test")
             assertEqual(request.url, "/test")
             assertEqual(request.version, .oneOne)
+            assertEqual(request.userAgent, "curl/7.18.0 (i486-pc-linux-gnu) libcurl/7.18.0 OpenSSL/0.9.8g zlib/1.2.3.3 libidn/1.1")
             assertEqual(request.host, "0.0.0.0=5000")
         } catch {
             fail(String(describing: error))
