@@ -11,7 +11,7 @@ public struct KeyValueDecoder {
 }
 
 struct _KeyValueDecoder: Decoder {
-    var codingPath: [CodingKey?] {
+    var codingPath: [CodingKey] {
         return []
     }
     var userInfo: [CodingUserInfoKey : Any] {
@@ -41,7 +41,7 @@ struct _KeyValueDecoder: Decoder {
 
 struct KeyValueKeyedDecodingContainer<K : CodingKey>
 : KeyedDecodingContainerProtocol {
-    var codingPath: [CodingKey?] {
+    var codingPath: [CodingKey] {
         return []
     }
     var allKeys: [K] {
@@ -49,6 +49,7 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
     }
 
     let decoder: _KeyValueDecoder
+
     init(_ decoder: _KeyValueDecoder) {
         self.decoder = decoder
     }
@@ -57,9 +58,13 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
         return decoder.values[key.stringValue] != nil
     }
 
-    func decodeIfPresent(_ type: Bool.Type, forKey key: K) throws -> Bool? {
+    func decodeNil(forKey key: K) throws -> Bool {
+        fatalError()
+    }
+
+    func decode(_ type: Bool.Type, forKey key: K) throws -> Bool {
         guard let value = decoder.values[key.stringValue] else {
-            return nil
+            throw DecodingError.keyNotFound(key, nil)
         }
         guard let result = Bool(value) else {
             throw DecodingError.typeMismatch(
@@ -68,9 +73,9 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
         return result
     }
 
-    func decodeIfPresent(_ type: Int.Type, forKey key: K) throws -> Int? {
+    func decode(_ type: Int.Type, forKey key: K) throws -> Int {
         guard let value = decoder.values[key.stringValue] else {
-            return nil
+            throw DecodingError.keyNotFound(key, nil)
         }
         guard let result = Int(value) else {
             throw DecodingError.typeMismatch(
@@ -79,9 +84,9 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
         return result
     }
 
-    func decodeIfPresent(_ type: Int8.Type, forKey key: K) throws -> Int8? {
+    func decode(_ type: Int8.Type, forKey key: K) throws -> Int8 {
         guard let value = decoder.values[key.stringValue] else {
-            return nil
+            throw DecodingError.keyNotFound(key, nil)
         }
         guard let result = Int8(value) else {
             throw DecodingError.typeMismatch(
@@ -90,9 +95,9 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
         return result
     }
 
-    func decodeIfPresent(_ type: Int16.Type, forKey key: K) throws -> Int16? {
+    func decode(_ type: Int16.Type, forKey key: K) throws -> Int16 {
         guard let value = decoder.values[key.stringValue] else {
-            return nil
+            throw DecodingError.keyNotFound(key, nil)
         }
         guard let result = Int16(value) else {
             throw DecodingError.typeMismatch(
@@ -101,9 +106,9 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
         return result
     }
 
-    func decodeIfPresent(_ type: Int32.Type, forKey key: K) throws -> Int32? {
+    func decode(_ type: Int32.Type, forKey key: K) throws -> Int32 {
         guard let value = decoder.values[key.stringValue] else {
-            return nil
+            throw DecodingError.keyNotFound(key, nil)
         }
         guard let result = Int32(value) else {
             throw DecodingError.typeMismatch(
@@ -112,9 +117,9 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
         return result
     }
 
-    func decodeIfPresent(_ type: Int64.Type, forKey key: K) throws -> Int64? {
+    func decode(_ type: Int64.Type, forKey key: K) throws -> Int64 {
         guard let value = decoder.values[key.stringValue] else {
-            return nil
+            throw DecodingError.keyNotFound(key, nil)
         }
         guard let result = Int64(value) else {
             throw DecodingError.typeMismatch(
@@ -123,9 +128,9 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
         return result
     }
 
-    func decodeIfPresent(_ type: UInt.Type, forKey key: K) throws -> UInt? {
+    func decode(_ type: UInt.Type, forKey key: K) throws -> UInt {
         guard let value = decoder.values[key.stringValue] else {
-            return nil
+            throw DecodingError.keyNotFound(key, nil)
         }
         guard let result = UInt(value) else {
             throw DecodingError.typeMismatch(
@@ -134,9 +139,9 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
         return result
     }
 
-    func decodeIfPresent(_ type: UInt8.Type, forKey key: K) throws -> UInt8? {
+    func decode(_ type: UInt8.Type, forKey key: K) throws -> UInt8 {
         guard let value = decoder.values[key.stringValue] else {
-            return nil
+            throw DecodingError.keyNotFound(key, nil)
         }
         guard let result = UInt8(value) else {
             throw DecodingError.typeMismatch(
@@ -145,9 +150,9 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
         return result
     }
 
-    func decodeIfPresent(_ type: UInt16.Type, forKey key: K) throws -> UInt16? {
+    func decode(_ type: UInt16.Type, forKey key: K) throws -> UInt16 {
         guard let value = decoder.values[key.stringValue] else {
-            return nil
+            throw DecodingError.keyNotFound(key, nil)
         }
         guard let result = UInt16(value) else {
             throw DecodingError.typeMismatch(
@@ -156,9 +161,9 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
         return result
     }
 
-    func decodeIfPresent(_ type: UInt32.Type, forKey key: K) throws -> UInt32? {
+    func decode(_ type: UInt32.Type, forKey key: K) throws -> UInt32 {
         guard let value = decoder.values[key.stringValue] else {
-            return nil
+            throw DecodingError.keyNotFound(key, nil)
         }
         guard let result = UInt32(value) else {
             throw DecodingError.typeMismatch(
@@ -167,9 +172,9 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
         return result
     }
 
-    func decodeIfPresent(_ type: UInt64.Type, forKey key: K) throws -> UInt64? {
+    func decode(_ type: UInt64.Type, forKey key: K) throws -> UInt64 {
         guard let value = decoder.values[key.stringValue] else {
-            return nil
+            throw DecodingError.keyNotFound(key, nil)
         }
         guard let result = UInt64(value) else {
             throw DecodingError.typeMismatch(
@@ -178,9 +183,9 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
         return result
     }
 
-    func decodeIfPresent(_ type: Float.Type, forKey key: K) throws -> Float? {
+    func decode(_ type: Float.Type, forKey key: K) throws -> Float {
         guard let value = decoder.values[key.stringValue] else {
-            return nil
+            throw DecodingError.keyNotFound(key, nil)
         }
         guard let result = Float(value) else {
             throw DecodingError.typeMismatch(
@@ -189,9 +194,9 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
         return result
     }
 
-    func decodeIfPresent(_ type: Double.Type, forKey key: K) throws -> Double? {
+    func decode(_ type: Double.Type, forKey key: K) throws -> Double {
         guard let value = decoder.values[key.stringValue] else {
-            return nil
+            throw DecodingError.keyNotFound(key, nil)
         }
         guard let result = Double(value) else {
             throw DecodingError.typeMismatch(
@@ -200,16 +205,16 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
         return result
     }
 
-    func decodeIfPresent(_ type: String.Type, forKey key: K) throws -> String? {
+    func decode(_ type: String.Type, forKey key: K) throws -> String {
         guard let value = decoder.values[key.stringValue] else {
-            return nil
+            throw DecodingError.keyNotFound(key, nil)
         }
         return value
     }
 
-    func decodeIfPresent<T>(
+    func decode<T>(
         _ type: T.Type, forKey key: K
-    ) throws -> T? where T : Decodable {
+    ) throws -> T where T : Decodable {
         fatalError("unsupported")
     }
 
@@ -235,6 +240,10 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
 }
 
 struct KeyValueSingleValueDecodingContainer: SingleValueDecodingContainer {
+    var codingPath: [CodingKey] {
+        return []
+    }
+
     let decoder: _KeyValueDecoder
     init(_ decoder: _KeyValueDecoder) {
         self.decoder = decoder

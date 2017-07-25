@@ -11,7 +11,7 @@ public struct KeyValueEncoder {
 }
 
 class _KeyValueEncoder: Encoder {
-    var codingPath: [CodingKey?] {
+    var codingPath: [CodingKey] {
         return []
     }
     var userInfo: [CodingUserInfoKey : Any] {
@@ -43,13 +43,18 @@ struct KeyValueKeyedEncodingContainer<K: CodingKey>
 : KeyedEncodingContainerProtocol {
     typealias Key = K
 
-    var codingPath: [CodingKey?] {
+    var codingPath: [CodingKey] {
         return []
     }
 
     let encoder: _KeyValueEncoder
+
     init(_ encoder: _KeyValueEncoder) {
         self.encoder = encoder
+    }
+
+    mutating func encodeNil(forKey key: K) throws {
+        fatalError("unsupported")
     }
 
     mutating func encode(_ value: Bool, forKey key: K) throws {
@@ -137,7 +142,12 @@ struct KeyValueKeyedEncodingContainer<K: CodingKey>
 }
 
 struct KeyValueSingleValueEncodingContainer: SingleValueEncodingContainer {
+    var codingPath: [CodingKey] {
+        return []
+    }
+
     let encoder: _KeyValueEncoder
+
     init(_ encoder: _KeyValueEncoder) {
         self.encoder = encoder
     }

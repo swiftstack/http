@@ -20,6 +20,7 @@ extension DecodingError.Context: ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
         self.codingPath = []
         self.debugDescription = value
+        self.underlyingError = nil
     }
 }
 
@@ -27,5 +28,6 @@ extension DecodingError.Context: ExpressibleByNilLiteral {
     public init(nilLiteral: ()) {
         self.codingPath = []
         self.debugDescription = ""
+        self.underlyingError = nil
     }
 }
