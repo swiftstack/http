@@ -8,8 +8,7 @@ public struct URLParamMatcher {
         var params: [(name: String, index: Int)] = []
         for (index, item) in components.enumerated() {
             if item.hasPrefix(":") {
-                let name = item.substring(
-                    from: item.index(after: item.startIndex))
+                let name = String(item[item.index(after: item.startIndex)...])
                 params.append((name, index))
             }
         }
