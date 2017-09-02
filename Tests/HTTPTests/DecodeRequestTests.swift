@@ -534,19 +534,6 @@ class DecodeRequestTests: TestCase {
         }
     }
 
-    func testChunkedJunkAfterBody() {
-        let bytes = ASCII(
-            "GET / HTTP/1.1\r\n" +
-            "Transfer-Encoding: chunked\r\n" +
-            "\r\n" +
-            "5\r\nHello\r\n" +
-            "0\r\n" +
-            "WAT")
-        assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .unexpectedEnd)
-        }
-    }
-
     func testCookies() {
         do {
             let bytes = ASCII(

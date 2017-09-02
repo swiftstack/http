@@ -2,6 +2,7 @@ import Log
 import Async
 import Network
 import Foundation
+import Buffer
 
 @_exported import HTTP
 
@@ -51,13 +52,11 @@ public class Server {
 
     func handleClient(_ client: Socket) {
         do {
-            var bytes = [UInt8](repeating: 0, count: bufferSize)
+            let stream = NetworkStream(socket: client)
+            let buffer = InputBuffer(capacity: bufferSize, source: stream)
+
             while true {
-                let read = try client.receive(to: &bytes)
-                guard read > 0 else {
-                    break
-                }
-                let request = try Request(from: bytes)
+                let request = try Request(from: buffer)
                 let response = router.handleRequest(request)
                 _ = try client.send(bytes: response.bytes)
             }

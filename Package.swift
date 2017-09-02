@@ -18,6 +18,14 @@ let package = Package(
             from: "0.4.0"
         ),
         .package(
+            url: "https://github.com/swift-stack/memory.git",
+            from: "0.4.0"
+        ),
+        .package(
+            url: "https://github.com/swift-stack/stream.git",
+            from: "0.4.0"
+        ),
+        .package(
             url: "https://github.com/swift-stack/network.git",
             from: "0.4.0"
         ),
@@ -36,7 +44,11 @@ let package = Package(
     ],
     targets: [
         .target(name: "KeyValueCodable"),
-        .target(name: "HTTP", dependencies: ["JSON", "KeyValueCodable"]),
+        .target(
+            name: "HTTP",
+            dependencies: [
+                "MemoryStream", "Buffer", "JSON", "KeyValueCodable"
+            ]),
         .target(
             name: "Server",
             dependencies: ["Log", "Async", "Network", "HTTP"]
