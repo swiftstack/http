@@ -32,6 +32,15 @@ class TestAsync: Async {
         DispatchQueue.global(qos: .userInitiated).async(execute: closure)
     }
 
+    func syncTask<T>(
+        onQueue queue: DispatchQueue,
+        qos: DispatchQoS,
+        deadline: Date,
+        task: @escaping () throws -> T
+    ) throws -> T {
+        return try task()
+    }
+
     func sleep(until deadline: Date) {
         fatalError("not implemented")
     }
