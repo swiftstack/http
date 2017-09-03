@@ -11,36 +11,25 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/swift-stack/log.git",
-            from: "0.4.0"
-        ),
+            from: "0.4.0"),
         .package(
             url: "https://github.com/swift-stack/async.git",
-            from: "0.4.0"
-        ),
-        .package(
-            url: "https://github.com/swift-stack/stream.git",
-            from: "0.4.0"
-        ),
+            from: "0.4.0"),
         .package(
             url: "https://github.com/swift-stack/memory.git",
-            from: "0.4.0"
-        ),
+            from: "0.4.0"),
         .package(
             url: "https://github.com/swift-stack/network.git",
-            from: "0.4.0"
-        ),
+            from: "0.4.0"),
         .package(
             url: "https://github.com/swift-stack/json.git",
-            from: "0.4.0"
-        ),
+            from: "0.4.0"),
         .package(
             url: "https://github.com/swift-stack/fiber.git",
-            from: "0.4.0"
-        ),
+            from: "0.4.0"),
         .package(
             url: "https://github.com/swift-stack/test.git",
-            from: "0.4.0"
-        )
+            from: "0.4.0")
     ],
     targets: [
         .target(name: "KeyValueCodable"),
@@ -62,11 +51,9 @@ let package = Package(
         .testTarget(name: "ClientTests", dependencies: ["Client", "Test"]),
         .testTarget(
             name: "FunctionalTests",
-            dependencies: ["Server", "Client", "Test"]
-        ),
+            dependencies: ["Server", "Client", "Test"]),
         .testTarget(
             name: "KeyValueCodableTests",
-            dependencies: ["KeyValueCodable", "Test"]
-        )
+            dependencies: ["KeyValueCodable", "Test"])
     ]
 )
