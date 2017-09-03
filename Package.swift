@@ -18,11 +18,11 @@ let package = Package(
             from: "0.4.0"
         ),
         .package(
-            url: "https://github.com/swift-stack/memory.git",
+            url: "https://github.com/swift-stack/stream.git",
             from: "0.4.0"
         ),
         .package(
-            url: "https://github.com/swift-stack/stream.git",
+            url: "https://github.com/swift-stack/memory.git",
             from: "0.4.0"
         ),
         .package(
