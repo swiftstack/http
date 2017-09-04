@@ -29,15 +29,30 @@ extension Request {
         }
         self.version = try Version(from: version)
 
-        guard try buffer.read(count: 2).elementsEqual(Constants.lineEnd) else {
-            throw HTTPError.invalidRequest
-        }
-
-        while buffer.peek(count: 2)?.starts(with: Constants.lineEnd) == false {
-            guard let name = try buffer.read(until: Character.colon) else {
+        @inline(__always)
+        func readLineEnd() throws {
+            guard let lineEnd = try? buffer.read(count: 2) else {
                 throw HTTPError.unexpectedEnd
             }
-            let headerName = try HeaderName(from: name)
+            guard lineEnd.elementsEqual(Constants.lineEnd) else {
+                throw HTTPError.invalidRequest
+            }
+        }
+
+        try readLineEnd()
+
+        while true {
+            guard let headerStart = try buffer.read(while: {
+                $0 != Character.colon && $0 != Character.lf
+            }) else {
+                throw HTTPError.unexpectedEnd
+            }
+            // "\r\n" found
+            guard headerStart.first != Character.cr else {
+                try buffer.consume(count: 1)
+                break
+            }
+            let headerName = try HeaderName(from: headerStart)
 
             try buffer.consume(count: 1)
 
@@ -46,10 +61,7 @@ extension Request {
             }
             let headerValue = value.trimmingLeftSpace().trimmingRightSpace()
 
-            guard try buffer.read(count: 2)
-                .elementsEqual(Constants.lineEnd) else {
-                    throw HTTPError.invalidRequest
-            }
+            try readLineEnd()
 
             switch headerName {
             case .host:
@@ -88,11 +100,6 @@ extension Request {
             }
         }
 
-        guard buffer.count >= 2, try buffer.read(count: 2)
-            .elementsEqual(Constants.lineEnd) else {
-                throw HTTPError.unexpectedEnd
-        }
-
         // Body
 
         // 1. content-lenght
@@ -113,14 +120,11 @@ extension Request {
 
         var body = [UInt8]()
 
-        while buffer.count >= Constants.minimumChunkLength {
+        while true {
             guard let sizeBytes = try buffer.read(until: Character.cr) else {
                 throw HTTPError.unexpectedEnd
             }
-            guard try buffer.read(count: 2)
-                .elementsEqual(Constants.lineEnd) else {
-                    throw HTTPError.invalidRequest
-            }
+            try readLineEnd()
 
             // TODO: optimize using hex table
             guard let size = Int(from: sizeBytes, radix: 16) else {
@@ -130,18 +134,8 @@ extension Request {
                 break
             }
 
-            // TODO: move the check?
-            guard buffer.count >= size + 2 else {
-                throw HTTPError.unexpectedEnd
-            }
-
-            let chunk = try buffer.read(count: size)
-            guard try buffer.read(count: 2)
-                .elementsEqual(Constants.lineEnd) else {
-                    throw HTTPError.invalidRequest
-            }
-
-            body.append(contentsOf: chunk)
+            body.append(contentsOf: try buffer.read(count: size))
+            try readLineEnd()
         }
 
         self.rawBody = body

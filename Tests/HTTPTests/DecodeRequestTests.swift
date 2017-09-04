@@ -292,14 +292,14 @@ class DecodeRequestTests: TestCase {
             "User-Agent; Mozilla/5.0\r\n" +
             "\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .unexpectedEnd)
+            assertEqual(error as? HTTPError, .invalidHeaderName)
         }
     }
 
     func testInvalidHeaderEnd() {
         let bytes = ASCII(
             "GET / HTTP/1.1\r\n" +
-            "User-Agent; Mozilla/5.0\n\n")
+            "User-Agent: Mozilla/5.0\n\n")
         assertThrowsError(try Request(from: bytes)) { error in
             assertEqual(error as? HTTPError, .unexpectedEnd)
         }
@@ -474,7 +474,8 @@ class DecodeRequestTests: TestCase {
             let bytes = ASCII(
                 "GET / HTTP/1.1\r\n" +
                 "Transfer-Encoding: chunked\r\n" +
-                "\r\n")
+                "\r\n" +
+                "0\r\n")
             let request = try Request(from: bytes)
             assertEqual(request.transferEncoding ?? [], [.chunked])
         } catch {
