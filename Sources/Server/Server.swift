@@ -7,7 +7,6 @@ import Buffer
 @_exported import HTTP
 
 public class Server {
-    let async: Async
     let socket: Socket
     public let host: String
     public let port: UInt16
@@ -16,16 +15,15 @@ public class Server {
 
     var router = Router()
 
-    public init(host: String, port: UInt16, async: Async) throws {
+    public init(host: String, port: UInt16) throws {
         self.host = host
         self.port = port
-        self.async = async
-        self.socket = try Socket(awaiter: async.awaiter)
+        self.socket = try Socket()
     }
 
     convenience
-    public init(host: String, reusePort: UInt16, async: Async) throws {
-        try self.init(host: host, port: reusePort, async: async)
+    public init(host: String, reusePort: UInt16) throws {
+        try self.init(host: host, port: reusePort)
         socket.configure(reusePort: true)
     }
 
@@ -40,7 +38,7 @@ public class Server {
             while true {
                 do {
                     let client = try self.socket.accept()
-                    self.async.task { [unowned self] in
+                    async.task { [unowned self] in
                         self.handleClient(client)
                     }
                 } catch {

@@ -9,14 +9,12 @@ public enum ClientError: Error {
 }
 
 public class Client {
-    let async: Async
     let socket: Socket
 
     var isConnected: Bool = false
 
-    public init(async: Async) throws {
-        self.async = async
-        self.socket = try Socket(awaiter: async.awaiter)
+    public init() throws {
+        self.socket = try Socket()
     }
 
     deinit {

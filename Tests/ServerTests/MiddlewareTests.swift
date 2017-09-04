@@ -3,9 +3,14 @@ import Network
 @testable import Server
 
 class MiddlewareTests: TestCase {
+    override func setUp() {
+        if async == nil {
+            TestAsync().registerGlobal()
+        }
+    }
+
     func testMiddleware() {
         let condition = AtomicCondition()
-        let async = TestAsync()
 
         struct TestMiddleware: Middleware {
             public static func createMiddleware(
@@ -23,7 +28,7 @@ class MiddlewareTests: TestCase {
         async.task {
             do {
                 let server =
-                    try Server(host: "127.0.0.1", port: 4201, async: async)
+                    try Server(host: "127.0.0.1", port: 4201)
 
                 server.route(
                     get: "/middleware",
@@ -36,7 +41,7 @@ class MiddlewareTests: TestCase {
                 try server.start()
             } catch {
                 fail(String(describing: error))
-                async.breakLoop()
+                (async.loop as! TestAsyncLoop).stop()
             }
         }
 
@@ -52,7 +57,7 @@ class MiddlewareTests: TestCase {
                     "\r\n"
                 var buffer = [UInt8](repeating: 0, count: 1000)
 
-                let socket = try Socket(awaiter: async.awaiter)
+                let socket = try Socket()
                 try socket.connect(to: "127.0.0.1", port: 4201)
                 _ = try socket.send(bytes: [UInt8](request.utf8))
                 _ = try socket.receive(to: &buffer)
@@ -60,10 +65,10 @@ class MiddlewareTests: TestCase {
 
                 assertEqual(response, expected)
 
-                async.breakLoop()
+                (async.loop as! TestAsyncLoop).stop()
             } catch {
                 fail(String(describing: error))
-                async.breakLoop()
+                (async.loop as! TestAsyncLoop).stop()
             }
         }
 
@@ -72,7 +77,6 @@ class MiddlewareTests: TestCase {
 
     func testMiddlewareOrder() {
         let condition = AtomicCondition()
-        let async = TestAsync()
 
         struct FirstMiddleware: Middleware {
             public static func createMiddleware(
@@ -103,7 +107,7 @@ class MiddlewareTests: TestCase {
         async.task {
             do {
                 let server =
-                    try Server(host: "127.0.0.1", port: 4202, async: async)
+                    try Server(host: "127.0.0.1", port: 4202)
 
                 server.route(
                     get: "/middleware",
@@ -116,7 +120,7 @@ class MiddlewareTests: TestCase {
                 try server.start()
             } catch {
                 fail(String(describing: error))
-                async.breakLoop()
+                (async.loop as! TestAsyncLoop).stop()
             }
         }
 
@@ -127,7 +131,7 @@ class MiddlewareTests: TestCase {
                 let request = "GET /middleware HTTP/1.1\r\n\r\n"
                 var buffer = [UInt8](repeating: 0, count: 1000)
 
-                let socket = try Socket(awaiter: async.awaiter)
+                let socket = try Socket()
                 try socket.connect(to: "127.0.0.1", port: 4202)
                 _ = try socket.send(bytes: [UInt8](request.utf8))
                 _ = try socket.receive(to: &buffer)
@@ -151,10 +155,10 @@ class MiddlewareTests: TestCase {
                 assertEqual(secondMiddleware, "SecondMiddleware: true")
                 assertEqual(middleware, "Middleware: first")
 
-                async.breakLoop()
+                (async.loop as! TestAsyncLoop).stop()
             } catch {
                 fail(String(describing: error))
-                async.breakLoop()
+                (async.loop as! TestAsyncLoop).stop()
             }
         }
 

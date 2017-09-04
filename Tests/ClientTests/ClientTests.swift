@@ -4,9 +4,14 @@ import Network
 @testable import Client
 
 class ClientTests: TestCase {
+    override func setUp() {
+        if async == nil {
+            TestAsync().registerGlobal()
+        }
+    }
+
     func testClient() {
         let condition = AtomicCondition()
-        let async = TestAsync()
 
         async.task {
             do {
@@ -14,7 +19,7 @@ class ClientTests: TestCase {
                 let result = "HTTP/1.1 200 OK\r\n\r\n"
                 var buffer = [UInt8](repeating: 0, count: 100)
 
-                let socket = try Socket(awaiter: async.awaiter)
+                let socket = try Socket()
                     .bind(to: "127.0.0.1", port: 5001)
                     .listen()
 
@@ -27,7 +32,7 @@ class ClientTests: TestCase {
                 let request = String(ascii: [UInt8](buffer[..<count]))
                 assertEqual(request, expected)
             } catch {
-                async.breakLoop()
+                (async.loop as! TestAsyncLoop).stop()
                 fail(String(describing: error))
             }
         }
@@ -38,16 +43,16 @@ class ClientTests: TestCase {
             do {
                 let request = Request()
 
-                let client = try Client(async: async)
+                let client = try Client()
                 try client.connect(to: URL("http://127.0.0.1:5001/"))
                 let response = try client.makeRequest(request)
 
                 assertEqual(response.status, .ok)
                 assertNil(response.body)
 
-                async.breakLoop()
+                (async.loop as! TestAsyncLoop).stop()
             } catch {
-                async.breakLoop()
+                (async.loop as! TestAsyncLoop).stop()
                 fail(String(describing: error))
             }
         }

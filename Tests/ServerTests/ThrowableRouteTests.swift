@@ -9,25 +9,30 @@ func makeMistake() throws {
 }
 
 class ThrowableRouteTests: TestCase {
+    override func setUp() {
+        if async == nil {
+            TestAsync().registerGlobal()
+        }
+    }
+
     func setup(
         port: UInt16,
         serverCode: @escaping (Server) throws -> Void,
         clientCode: @escaping (Client) throws -> Void
     ) {
         let condition = AtomicCondition()
-        let async = TestAsync()
 
         async.task {
             do {
                 let server =
-                    try Server(host: "127.0.0.1", port: port, async: async)
+                    try Server(host: "127.0.0.1", port: port)
 
                 try serverCode(server)
 
                 condition.signal()
                 try server.start()
             } catch {
-                async.breakLoop()
+                (async.loop as! TestAsyncLoop).stop()
                 fail(String(describing: error))
             }
         }
@@ -36,12 +41,12 @@ class ThrowableRouteTests: TestCase {
 
         async.task {
             do {
-                let client = try Client(async: async)
+                let client = try Client()
                 try client.connect(to: URL("http://127.0.0.1:\(port)/"))
 
                 try clientCode(client)
 
-                async.breakLoop()
+                (async.loop as! TestAsyncLoop).stop()
             } catch {
                 fail(String(describing: error))
             }

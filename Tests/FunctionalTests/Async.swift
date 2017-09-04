@@ -1,4 +1,6 @@
-import Async
+@_exported import Async
+
+import Platform
 import Dispatch
 import Foundation
 
@@ -21,11 +23,18 @@ class TestAsyncLoop: AsyncLoop {
 }
 
 class TestAsync: Async {
-    let awaiter: IOAwaiter? = nil
     let loop: AsyncLoop = TestAsyncLoop()
 
-    func breakLoop() {
-        (loop as! TestAsyncLoop).stop()
+    func wait(
+        for descriptor: Descriptor,
+        event: IOEvent,
+        deadline: Date
+    ) throws {
+        let event = event == .read ? Int16(POLLIN) : Int16(POLLOUT)
+        var fd = pollfd(fd: descriptor, events: event, revents: 0)
+        guard poll(&fd, 1, -1) > 0 else {
+            throw SystemError()
+        }
     }
 
     func task(_ closure: @escaping AsyncTask) {
