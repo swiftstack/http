@@ -57,6 +57,9 @@ public class Server {
                 let request = try Request(from: buffer)
                 let response = router.handleRequest(request)
                 _ = try client.send(bytes: response.bytes)
+                if request.connection == .close {
+                    break
+                }
             }
         } catch {
             handleError(error)
