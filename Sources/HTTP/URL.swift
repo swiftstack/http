@@ -54,7 +54,10 @@ extension URL {
 
         self.host = url.host
         self.port = url.port
-        self.path = url.path
+        switch url.path {
+        case "": self.path = "/"
+        default: self.path = url.path
+        }
         self.fragment = url.fragment
 
         if let query = url.query {

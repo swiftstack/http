@@ -28,6 +28,18 @@ class EncodeRequestTests: TestCase {
         assertEqual(String(ascii: request.bytes), expected)
     }
 
+    func testURLHost() {
+        do {
+            let expected = "GET / HTTP/1.1\r\n" +
+                "Host: domain.zone:5000\r\n" +
+                "\r\n"
+            let request = Request(url: try URL("http://domain.zone:5000"))
+            assertEqual(String(ascii: request.bytes), expected)
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
     func testUserAgent() {
         let expected = "GET / HTTP/1.1\r\n" +
             "User-Agent: Mozilla/5.0\r\n" +
