@@ -1,6 +1,8 @@
 import Test
 @testable import HTTP
 
+import struct Foundation.Date
+
 class DecodeResponseTests: TestCase {
     func testOk() {
         do {
@@ -264,6 +266,8 @@ class DecodeResponseTests: TestCase {
                 "HTTP/1.1 200 OK\r\n" +
                 "Set-Cookie: num=0; Path=/; Max-Age=42; Secure; HttpOnly\r\n" +
                 "Set-Cookie: key=value; Secure; HttpOnly\r\n" +
+                "Set-Cookie: date=; Expires=Thu, 06-Sep-18 12:41:14 GMT\r\n" +
+                "Set-Cookie: date=; Expires=Thu, 06 Sep 2018 12:41:14 GMT\r\n" +
                 "\r\n")
             let response = try Response(from: bytes)
             assertEqual(response.setCookie, [
@@ -276,7 +280,13 @@ class DecodeResponseTests: TestCase {
                 Response.SetCookie(
                     Cookie(name: "key", value: "value"),
                     secure: true,
-                    httpOnly: true)
+                    httpOnly: true),
+                Response.SetCookie(
+                    Cookie(name: "date", value: ""),
+                    expires: Date(timeIntervalSince1970: 1536237674.0)),
+                Response.SetCookie(
+                    Cookie(name: "date", value: ""),
+                    expires: Date(timeIntervalSince1970: 1536237674.0))
             ])
         } catch {
             fail(String(describing: error))

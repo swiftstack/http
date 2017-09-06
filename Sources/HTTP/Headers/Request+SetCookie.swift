@@ -170,7 +170,7 @@ extension Date {
     static var formatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss z"
+        formatter.dateFormat = "EEE, dd'-'MMM'-'yy HH:mm:ss z"
         return formatter
     }
 
