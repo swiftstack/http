@@ -167,21 +167,28 @@ extension Response.SetCookie {
 }
 
 extension Date {
-    static var formatter: DateFormatter {
+    static var decodeFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
         formatter.dateFormat = "EEE, dd'-'MMM'-'yy HH:mm:ss z"
         return formatter
     }
 
+    static var encodeFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss z"
+        return formatter
+    }
+
     init?(from string: String) {
-        guard let date = Date.formatter.date(from: string) else {
+        guard let date = Date.decodeFormatter.date(from: string) else {
             return nil
         }
         self = date
     }
 
     func encode(to buffer: inout [UInt8]) {
-        buffer.append(contentsOf: Date.formatter.string(from: self).utf8)
+        buffer.append(contentsOf: Date.encodeFormatter.string(from: self).utf8)
     }
 }
