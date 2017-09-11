@@ -36,45 +36,42 @@ extension Response {
         try readLineEnd()
 
         while true {
-            guard let headerStart = try buffer.read(while: {
+            guard let nameSlice = try buffer.read(while: {
                 $0 != Character.colon && $0 != Character.lf
             }) else {
                 throw HTTPError.unexpectedEnd
             }
             // "\r\n" found
-            guard headerStart.first != Character.cr else {
+            guard nameSlice.first != Character.cr else {
                 try buffer.consume(count: 1)
                 break
             }
-            let headerName = try HeaderName(from: headerStart)
+            let name = try HeaderName(from: nameSlice)
 
             try buffer.consume(count: 1)
 
-            guard let value = try buffer.read(until: Character.cr) else {
+            guard var value = try buffer.read(until: Character.cr) else {
                 throw HTTPError.unexpectedEnd
             }
-            let headerValue = value.trimmingLeftSpace().trimmingRightSpace()
+            value = value.trimmingLeftSpace().trimmingRightSpace()
 
             try readLineEnd()
 
-            switch headerName {
+            switch name {
             case .connection:
-                self.connection = try Connection(from: headerValue)
+                self.connection = try Connection(from: value)
             case .contentEncoding:
-                self.contentEncoding =
-                    try [ContentEncoding](from: headerValue)
+                self.contentEncoding = try [ContentEncoding](from: value)
             case .contentLength:
-                self.contentLength = Int(from: headerValue)
+                self.contentLength = Int(from: value)
             case .contentType:
-                self.contentType = try ContentType(from: headerValue)
+                self.contentType = try ContentType(from: value)
             case .transferEncoding:
-                self.transferEncoding =
-                    try [TransferEncoding](from: headerValue)
+                self.transferEncoding = try [TransferEncoding](from: value)
             case .setCookie:
-                self.setCookie.append(try SetCookie(from: headerValue))
+                self.setCookie.append(try SetCookie(from: value))
             default:
-                headers[headerName] =
-                    String(validating: headerValue, as: .text)
+                headers[name] = String(validating: value, as: .text)
             }
         }
 

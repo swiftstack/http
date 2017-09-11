@@ -42,61 +42,56 @@ extension Request {
         try readLineEnd()
 
         while true {
-            guard let headerStart = try buffer.read(while: {
+            guard let nameSlice = try buffer.read(while: {
                 $0 != Character.colon && $0 != Character.lf
             }) else {
                 throw HTTPError.unexpectedEnd
             }
             // "\r\n" found
-            guard headerStart.first != Character.cr else {
+            guard nameSlice.first != Character.cr else {
                 try buffer.consume(count: 1)
                 break
             }
-            let headerName = try HeaderName(from: headerStart)
+            let name = try HeaderName(from: nameSlice)
 
             try buffer.consume(count: 1)
 
-            guard let value = try buffer.read(until: Character.cr) else {
+            guard var value = try buffer.read(until: Character.cr) else {
                 throw HTTPError.unexpectedEnd
             }
-            let headerValue = value.trimmingLeftSpace().trimmingRightSpace()
+            value = value.trimmingLeftSpace().trimmingRightSpace()
 
             try readLineEnd()
 
-            switch headerName {
+            switch name {
             case .host:
-                self.host = String(validating: headerValue, as: .text)
+                self.host = String(validating: value, as: .text)
             case .userAgent:
-                self.userAgent = String(validating: headerValue, as: .text)
+                self.userAgent = String(validating: value, as: .text)
             case .accept:
-                self.accept = try [Accept](from: headerValue)
+                self.accept = try [Accept](from: value)
             case .acceptLanguage:
-                self.acceptLanguage =
-                    try [AcceptLanguage](from: headerValue)
+                self.acceptLanguage = try [AcceptLanguage](from: value)
             case .acceptEncoding:
-                self.acceptEncoding =
-                    try [ContentEncoding](from: headerValue)
+                self.acceptEncoding = try [ContentEncoding](from: value)
             case .acceptCharset:
-                self.acceptCharset = try [AcceptCharset](from: headerValue)
+                self.acceptCharset = try [AcceptCharset](from: value)
             case .authorization:
-                self.authorization = try Authorization(from: headerValue)
+                self.authorization = try Authorization(from: value)
             case .keepAlive:
-                self.keepAlive = Int(from: headerValue)
+                self.keepAlive = Int(from: value)
             case .connection:
-                self.connection = try Connection(from: headerValue)
+                self.connection = try Connection(from: value)
             case .contentLength:
-                self.contentLength = Int(from: headerValue)
+                self.contentLength = Int(from: value)
             case .contentType:
-                self.contentType = try ContentType(from: headerValue)
+                self.contentType = try ContentType(from: value)
             case .transferEncoding:
-                self.transferEncoding =
-                    try [TransferEncoding](from: headerValue)
+                self.transferEncoding = try [TransferEncoding](from: value)
             case .cookie:
-                self.cookies.append(
-                    contentsOf: try [Cookie](from: headerValue))
+                self.cookies.append(contentsOf: try [Cookie](from: value))
             default:
-                headers[headerName] =
-                    String(validating: headerValue, as: .text)
+                headers[name] = String(validating: value, as: .text)
             }
         }
 
