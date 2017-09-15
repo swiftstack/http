@@ -1,35 +1,35 @@
 import Test
-@testable import Server
 import Network
+import Dispatch
+import AsyncDispatch
+
+@testable import Server
 
 class ServerTests: TestCase {
     override func setUp() {
-        if async == nil {
-            TestAsync().registerGlobal()
-        }
+        AsyncDispatch().registerGlobal()
     }
 
     func testServer() {
-        let condition = AtomicCondition()
+        let semaphore = DispatchSemaphore(value: 0)
 
         async.task {
             do {
-                let server =
-                    try Server(host: "127.0.0.1", port: 4001)
+                let server = try Server(host: "127.0.0.1", port: 4001)
 
                 server.route(get: "/test") {
                     return Response(status: .ok)
                 }
 
-                condition.signal()
+                semaphore.signal()
                 try server.start()
             } catch {
                 fail(String(describing: error))
-                (async.loop as! TestAsyncLoop).stop()
+                async.loop.terminate()
             }
         }
 
-        condition.wait()
+        semaphore.wait()
 
         async.task {
             do {
@@ -45,10 +45,10 @@ class ServerTests: TestCase {
 
                 assertEqual(response, expected)
 
-                (async.loop as! TestAsyncLoop).stop()
+                async.loop.terminate()
             } catch {
                 fail(String(describing: error))
-                (async.loop as! TestAsyncLoop).stop()
+                async.loop.terminate()
             }
         }
 

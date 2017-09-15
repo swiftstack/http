@@ -47,11 +47,15 @@ let package = Package(
             dependencies: ["Log", "Async", "Network", "HTTP"]
         ),
         .testTarget(name: "HTTPTests", dependencies: ["HTTP", "Test"]),
-        .testTarget(name: "ServerTests", dependencies: ["Server", "Test"]),
-        .testTarget(name: "ClientTests", dependencies: ["Client", "Test"]),
+        .testTarget(
+            name: "ServerTests",
+            dependencies: ["Server", "Test", "AsyncDispatch"]),
+        .testTarget(
+            name: "ClientTests",
+            dependencies: ["Client", "Test", "AsyncDispatch"]),
         .testTarget(
             name: "FunctionalTests",
-            dependencies: ["Server", "Client", "Test"]),
+            dependencies: ["Server", "Client", "Test", "AsyncDispatch"]),
         .testTarget(
             name: "KeyValueCodableTests",
             dependencies: ["KeyValueCodable", "Test"])

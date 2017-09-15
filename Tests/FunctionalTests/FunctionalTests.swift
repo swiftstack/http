@@ -1,12 +1,12 @@
 import Test
 import Server
 import Client
+import Dispatch
+import AsyncDispatch
 
 class FunctionalTests: TestCase {
     override func setUp() {
-        if async == nil {
-            TestAsync().registerGlobal()
-        }
+        AsyncDispatch().registerGlobal()
     }
 
     func setup(
@@ -14,7 +14,7 @@ class FunctionalTests: TestCase {
         serverCode: @escaping (Server) throws -> Void,
         clientCode: @escaping (Client) throws -> Void
     ) {
-        let condition = AtomicCondition()
+        let semaphore = DispatchSemaphore(value: 0)
 
         async.task {
             do {
@@ -23,15 +23,15 @@ class FunctionalTests: TestCase {
 
                 try serverCode(server)
 
-                condition.signal()
+                semaphore.signal()
                 try server.start()
             } catch {
-                (async.loop as! TestAsyncLoop).stop()
+                async.loop.terminate()
                 fail(String(describing: error))
             }
         }
 
-        condition.wait()
+        semaphore.wait()
 
         async.task {
             do {
@@ -40,9 +40,9 @@ class FunctionalTests: TestCase {
 
                 try clientCode(client)
 
-                (async.loop as! TestAsyncLoop).stop()
+                async.loop.terminate()
             } catch {
-                (async.loop as! TestAsyncLoop).stop()
+                async.loop.terminate()
                 fail(String(describing: error))
             }
         }

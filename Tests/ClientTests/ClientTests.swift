@@ -1,17 +1,17 @@
 import Test
 import HTTP
 import Network
+import Dispatch
+import AsyncDispatch
 @testable import Client
 
 class ClientTests: TestCase {
     override func setUp() {
-        if async == nil {
-            TestAsync().registerGlobal()
-        }
+        AsyncDispatch().registerGlobal()
     }
 
     func testClient() {
-        let condition = AtomicCondition()
+        let semaphore = DispatchSemaphore(value: 0)
 
         async.task {
             do {
@@ -23,7 +23,7 @@ class ClientTests: TestCase {
                     .bind(to: "127.0.0.1", port: 5001)
                     .listen()
 
-                condition.signal()
+                semaphore.signal()
 
                 let client = try socket.accept()
                 let count = try client.receive(to: &buffer)
@@ -32,12 +32,12 @@ class ClientTests: TestCase {
                 let request = String(ascii: [UInt8](buffer[..<count]))
                 assertEqual(request, expected)
             } catch {
-                (async.loop as! TestAsyncLoop).stop()
+                async.loop.terminate()
                 fail(String(describing: error))
             }
         }
 
-        condition.wait()
+        semaphore.wait()
 
         async.task {
             do {
@@ -50,9 +50,9 @@ class ClientTests: TestCase {
                 assertEqual(response.status, .ok)
                 assertNil(response.body)
 
-                (async.loop as! TestAsyncLoop).stop()
+                async.loop.terminate()
             } catch {
-                (async.loop as! TestAsyncLoop).stop()
+                async.loop.terminate()
                 fail(String(describing: error))
             }
         }
