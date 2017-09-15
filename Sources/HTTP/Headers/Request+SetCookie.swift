@@ -174,6 +174,15 @@ extension Date {
         return formatter
     }
 
+    #if os(Linux)
+    static var decodeFormatterLinuxBug: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss z"
+        return formatter
+    }
+    #endif
+
     static var encodeFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
@@ -183,6 +192,12 @@ extension Date {
 
     init?(from string: String) {
         guard let date = Date.decodeFormatter.date(from: string) else {
+            #if os(Linux)
+            if let date = Date.decodeFormatterLinuxBug.date(from: string) {
+                self = date
+                return
+            }
+            #endif
             return nil
         }
         self = date
