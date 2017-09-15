@@ -43,6 +43,12 @@ public struct HeaderName: Hashable {
     }
 }
 
+extension HeaderName: CustomStringConvertible {
+    public var description: String {
+        return String(bytes: bytes, encoding: .utf8)!
+    }
+}
+
 extension HeaderName: ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
         self.init(value)
