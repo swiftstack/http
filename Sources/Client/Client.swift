@@ -48,11 +48,11 @@ public class Client {
             try connect(to: request.url)
         }
 
-        let networkStream = NetworkStream(socket: socket)
-        let buffer = InputBuffer(capacity: bufferSize, source: networkStream)
+        let stream = NetworkStream(socket: socket)
+        let buffer = InputBuffer(capacity: bufferSize, source: stream)
 
         do {
-            _ = try socket.send(bytes: request.bytes)
+            try request.encode(to: stream)
             return try Response(from: buffer)
         } catch {
             try? close()

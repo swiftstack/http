@@ -56,7 +56,7 @@ public class Server {
             while true {
                 let request = try Request(from: buffer)
                 let response = router.handleRequest(request)
-                _ = try client.send(bytes: response.bytes)
+                try response.encode(to: stream)
                 if request.connection == .close {
                     break
                 }

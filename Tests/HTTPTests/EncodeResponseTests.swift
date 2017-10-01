@@ -2,13 +2,21 @@ import Test
 @testable import HTTP
 
 class EncodeResponseTests: TestCase {
+    class Encoder {
+        static func encode(_ response: Response) -> String? {
+            var bytes = [UInt8]()
+            response.encode(to: &bytes)
+            return String(ascii: bytes)
+        }
+    }
+
     func testOk() {
         let expected = "HTTP/1.1 200 OK\r\n" +
             "Content-Length: 0\r\n" +
             "\r\n"
         let response = Response(status: .ok)
         assertEqual(response.status, .ok)
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 
     func testNotFound() {
@@ -17,7 +25,7 @@ class EncodeResponseTests: TestCase {
             "\r\n"
         let response = Response(status: .notFound)
         assertEqual(response.status, .notFound)
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 
     func testMoved() {
@@ -26,7 +34,7 @@ class EncodeResponseTests: TestCase {
             "\r\n"
         let response = Response(status: .moved)
         assertEqual(response.status, .moved)
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 
     func testBad() {
@@ -35,7 +43,7 @@ class EncodeResponseTests: TestCase {
             "\r\n"
         let response = Response(status: .badRequest)
         assertEqual(response.status, .badRequest)
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 
     func testUnauthorized() {
@@ -44,7 +52,7 @@ class EncodeResponseTests: TestCase {
             "\r\n"
         let response = Response(status: .unauthorized)
         assertEqual(response.status, .unauthorized)
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 
     func testInternalServerError() {
@@ -53,7 +61,7 @@ class EncodeResponseTests: TestCase {
             "\r\n"
         let response = Response(status: .internalServerError)
         assertEqual(response.status, .internalServerError)
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 
     func testContentType() {
@@ -64,7 +72,7 @@ class EncodeResponseTests: TestCase {
         var response = Response()
         response.contentType = ContentType(mediaType: .text(.plain))
         assertEqual(response.contentLength, 0)
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 
     func testResponseHasContentLenght() {
@@ -73,7 +81,7 @@ class EncodeResponseTests: TestCase {
             "\r\n"
         let response = Response(status: .ok)
         assertEqual(response.status, .ok)
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 
     func testConnection() {
@@ -83,7 +91,7 @@ class EncodeResponseTests: TestCase {
             "\r\n"
         var response = Response(status: .ok)
         response.connection = .close
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 
     func testContentEncoding() {
@@ -93,7 +101,7 @@ class EncodeResponseTests: TestCase {
             "\r\n"
         var response = Response(status: .ok)
         response.contentEncoding = [.gzip, .deflate]
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 
     func testTransferEncoding() {
@@ -103,7 +111,7 @@ class EncodeResponseTests: TestCase {
             "\r\n"
         var response = Response(status: .ok)
         response.transferEncoding = [.chunked]
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 
     func testCustomHeader() {
@@ -113,7 +121,7 @@ class EncodeResponseTests: TestCase {
             "\r\n"
         var response = Response(status: .ok)
         response.headers["User"] = "guest"
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 
     func testStringResponse() {
@@ -135,7 +143,7 @@ class EncodeResponseTests: TestCase {
             ContentType(mediaType: .text(.plain))
         )
         assertEqual(response.contentLength, ASCII("Hello").count)
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 
     func testHtmlResponse() {
@@ -157,7 +165,7 @@ class EncodeResponseTests: TestCase {
             ContentType(mediaType: .text(.html))
         )
         assertEqual(response.contentLength, 13)
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 
     func testBytesResponse() {
@@ -177,7 +185,9 @@ class EncodeResponseTests: TestCase {
             ContentType(mediaType: .application(.stream))
         )
         assertEqual(response.contentLength, 3)
-        assertEqual(response.bytes, expected)
+        var result = [UInt8]()
+        response.encode(to: &result)
+        assertEqual(result, expected)
     }
 
     func testJsonResponse() {
@@ -199,7 +209,7 @@ class EncodeResponseTests: TestCase {
             ContentType(mediaType: .application(.json))
         )
         assertEqual(response.contentLength, 27)
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 
     func testUrlEncodedResponse() {
@@ -221,7 +231,7 @@ class EncodeResponseTests: TestCase {
             ContentType(mediaType: .application(.urlEncoded))
         )
         assertEqual(response.contentLength, 23)
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 
     func testSetCookie() {
@@ -241,6 +251,6 @@ class EncodeResponseTests: TestCase {
                 maxAge: 42,
                 secure: true)
         ]
-        assertEqual(String(ascii: response.bytes), expected)
+        assertEqual(Encoder.encode(response), expected)
     }
 }
