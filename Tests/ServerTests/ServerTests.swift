@@ -61,8 +61,8 @@ class ServerTests: TestCase {
                 host: "0.0.0.0",
                 port: 4002)
 
-            server.bufferSize = .dynamic(minimum: 16384)
-            server.bufferSize = .static(size: 16384)
+            server.bufferSize = 16384
+            assertEqual(server.bufferSize, 16384)
         } catch {
             fail(String(describing: error))
         }

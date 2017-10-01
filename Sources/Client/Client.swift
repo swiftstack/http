@@ -14,12 +14,7 @@ public class Client {
 
     var isConnected: Bool = false
 
-    public enum BufferSize {
-        case `static`(size: Int)
-        case dynamic(minimum: Int)
-    }
-
-    public var bufferSize: BufferSize = .dynamic(minimum: 1024)
+    public var bufferSize = 4096
 
     public init() throws {
         self.socket = try Socket()
@@ -52,14 +47,10 @@ public class Client {
         if !isConnected {
             try connect(to: request.url)
         }
-        let stream = NetworkStream(socket: socket)
-        let buffer: InputBuffer<NetworkStream>
-        switch bufferSize {
-        case .`static`(let size):
-            buffer = InputBuffer(capacity: size, source: stream)
-        case .dynamic(let size):
-            buffer = InputBuffer(reservingCapacity: size, source: stream)
-        }
+
+        let networkStream = NetworkStream(socket: socket)
+        let buffer = InputBuffer(capacity: bufferSize, source: networkStream)
+
         do {
             _ = try socket.send(bytes: request.bytes)
             return try Response(from: buffer)

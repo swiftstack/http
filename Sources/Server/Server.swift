@@ -11,12 +11,7 @@ public class Server {
     public let host: String
     public let port: UInt16
 
-    public enum BufferSize {
-        case `static`(size: Int)
-        case dynamic(minimum: Int)
-    }
-
-    public var bufferSize: BufferSize = .dynamic(minimum: 1024)
+    public var bufferSize = 4096
 
     var router = Router()
 
@@ -56,13 +51,7 @@ public class Server {
     func handleClient(_ client: Socket) {
         do {
             let stream = NetworkStream(socket: client)
-            let buffer: InputBuffer<NetworkStream>
-            switch bufferSize {
-            case .`static`(let size):
-                buffer = InputBuffer(capacity: size, source: stream)
-            case .dynamic(let size):
-                buffer = InputBuffer(reservingCapacity: size, source: stream)
-            }
+            let buffer = InputBuffer(capacity: bufferSize, source: stream)
 
             while true {
                 let request = try Request(from: buffer)
