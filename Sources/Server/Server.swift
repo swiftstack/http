@@ -24,7 +24,9 @@ public class Server {
     convenience
     public init(host: String, reusePort: UInt16) throws {
         try self.init(host: host, port: reusePort)
-        socket.configure(reusePort: true)
+        socket.configure { options in
+            options.reusePort = true
+        }
     }
 
     deinit {
