@@ -1,7 +1,7 @@
 import Stream
 
 extension Request {
-    public func encode<T: OutputStream>(to stream: T) throws {
+    public func encode<T: OutputStream>(to stream: inout T) throws {
         var buffer = [UInt8]()
         encode(to: &buffer)
         var written = 0

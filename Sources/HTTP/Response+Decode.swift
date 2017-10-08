@@ -1,13 +1,10 @@
+import Stream
 import Buffer
-import MemoryStream
 
 extension Response {
     // TODO: move to Tests?
     public init(from bytes: [UInt8]) throws {
-        let stream = MemoryStream(capacity: bytes.count)
-        _ = try stream.write(bytes)
-        try stream.seek(to: 0, from: .begin)
-        let inputBuffer = InputBuffer(source: stream)
+        let inputBuffer = InputBuffer(source: InputByteStream(bytes))
         try self.init(from: inputBuffer)
     }
 
