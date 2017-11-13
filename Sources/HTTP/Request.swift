@@ -61,11 +61,10 @@ extension Request {
 extension Request {
     public init<T: Encodable>(method: Method, url: URL, json object: T) throws {
         let json = try JSON.encode(object)
-        let bytes = [UInt8](json.utf8)
         self.init(method: method, url: url)
         self.contentType = ContentType(mediaType: .application(.json))
-        self.rawBody = bytes
-        self.contentLength = bytes.count
+        self.rawBody = json
+        self.contentLength = json.count
     }
 
     public init<T: Encodable>(

@@ -154,8 +154,7 @@ struct Router {
 
             switch contentType.mediaType {
             case .application(.json):
-                let json = String(decoding: body, as: UTF8.self)
-                return try JSONDecoder().decode(type, from: json)
+                return try JSONDecoder().decode(type, from: body)
 
             case .application(.urlEncoded):
                 let values = try URL.Query(from: body).values
