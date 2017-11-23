@@ -1,4 +1,4 @@
-struct Character {
+extension UInt8 {
     static let whitespace = UInt8(ascii: " ")
     static let cr = UInt8(ascii: "\r")
     static let lf = UInt8(ascii: "\n")
@@ -14,7 +14,7 @@ struct Character {
 }
 
 struct Constants {
-    static let lineEnd = [Character.cr, Character.lf]
+    static let lineEnd: [UInt8] = [.cr, .lf]
     static let minimumHeaderLength = ASCII("a:a\r\n").count
     static let minimumChunkLength = ASCII("0\r\n").count
 }

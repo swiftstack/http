@@ -22,14 +22,14 @@ extension Array where Element == Cookie {
 
         while endIndex < bytes.endIndex {
             endIndex = bytes.index(
-                of: Character.semicolon,
+                of: .semicolon,
                 offset: startIndex)
                 ?? bytes.endIndex
 
             // should be separated by a semi-colon and a space ('; ')
             if endIndex < bytes.endIndex {
                 guard endIndex + 1 < bytes.endIndex,
-                    bytes[endIndex + 1] == Character.whitespace else {
+                    bytes[endIndex + 1] == .whitespace else {
                         throw HTTPError.invalidCookie
                 }
             }
@@ -47,8 +47,8 @@ extension Array where Element == Cookie {
         for i in 0..<count {
             self[i].encode(to: &buffer)
             if i + 1 < count {
-                buffer.append(Character.semicolon)
-                buffer.append(Character.whitespace)
+                buffer.append(.semicolon)
+                buffer.append(.whitespace)
             }
         }
     }
@@ -56,7 +56,7 @@ extension Array where Element == Cookie {
 
 extension Cookie {
     init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
-        guard let equal = bytes.index(of: Character.equal) else {
+        guard let equal = bytes.index(of: .equal) else {
             throw HTTPError.invalidCookie
         }
         guard
@@ -73,7 +73,7 @@ extension Cookie {
 
     func encode(to buffer: inout [UInt8]) {
         buffer.append(contentsOf: name.utf8)
-        buffer.append(Character.equal)
+        buffer.append(.equal)
         buffer.append(contentsOf: value.utf8)
     }
 }

@@ -35,12 +35,12 @@ extension Array where Element == Request.AcceptCharset {
         var values = [AcceptCharset]()
         while endIndex < bytes.endIndex {
             endIndex =
-                bytes.index(of: Character.comma, offset: startIndex) ??
+                bytes.index(of: .comma, offset: startIndex) ??
                 bytes.endIndex
             values.append(try AcceptCharset(from: bytes[startIndex..<endIndex]))
             startIndex = endIndex.advanced(by: 1)
             if startIndex < bytes.endIndex &&
-                bytes[startIndex] == Character.whitespace {
+                bytes[startIndex] == .whitespace {
                     startIndex += 1
             }
         }
@@ -50,7 +50,7 @@ extension Array where Element == Request.AcceptCharset {
     func encode(to buffer: inout [UInt8]) {
         for i in startIndex..<endIndex {
             if i != startIndex {
-                buffer.append(Character.comma)
+                buffer.append(.comma)
             }
             self[i].encode(to: &buffer)
         }
@@ -63,7 +63,7 @@ extension Request.AcceptCharset {
     }
 
     init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
-        if let semicolon = bytes.index(of: Character.semicolon) {
+        if let semicolon = bytes.index(of: .semicolon) {
             self.charset = try Charset(from: bytes[..<semicolon])
 
             let index = semicolon.advanced(by: 1)
@@ -84,7 +84,7 @@ extension Request.AcceptCharset {
         charset.encode(to: &buffer)
 
         if priority < 1.0 {
-            buffer.append(Character.semicolon)
+            buffer.append(.semicolon)
             buffer.append(contentsOf: Bytes.qEqual)
             buffer.append(contentsOf: [UInt8](String(describing: priority)))
         }

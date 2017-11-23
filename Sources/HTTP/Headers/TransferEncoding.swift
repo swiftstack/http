@@ -29,13 +29,13 @@ extension Array where Element == TransferEncoding {
         var values = [TransferEncoding]()
         while endIndex < bytes.endIndex {
             endIndex =
-                bytes.index(of: Character.comma, offset: startIndex) ??
+                bytes.index(of: .comma, offset: startIndex) ??
                 bytes.endIndex
             let value = try TransferEncoding(from: bytes[startIndex..<endIndex])
             values.append(value)
             startIndex = endIndex.advanced(by: 1)
             if startIndex < bytes.endIndex &&
-                bytes[startIndex] == Character.whitespace {
+                bytes[startIndex] == .whitespace {
                     startIndex += 1
             }
         }
@@ -45,7 +45,7 @@ extension Array where Element == TransferEncoding {
     func encode(to buffer: inout [UInt8]) {
         for i in startIndex..<endIndex {
             if i != startIndex {
-                buffer.append(Character.comma)
+                buffer.append(.comma)
             }
             self[i].encode(to: &buffer)
         }

@@ -9,13 +9,13 @@ extension Response {
     }
 
     public init<T: InputBufferProtocol>(from buffer: T) throws {
-        guard let version = try buffer.read(until: Character.whitespace) else {
+        guard let version = try buffer.read(until: .whitespace) else {
             throw HTTPError.unexpectedEnd
         }
         self.version = try Version(from: version)
         try buffer.consume(count: 1)
 
-        guard let status = try buffer.read(until: Character.cr) else {
+        guard let status = try buffer.read(until: .cr) else {
             throw HTTPError.unexpectedEnd
         }
         self.status = try Status(from: status)
@@ -34,12 +34,12 @@ extension Response {
 
         while true {
             guard let nameSlice = try buffer.read(while: {
-                $0 != Character.colon && $0 != Character.lf
+                $0 != .colon && $0 != .lf
             }) else {
                 throw HTTPError.unexpectedEnd
             }
             // "\r\n" found
-            guard nameSlice.first != Character.cr else {
+            guard nameSlice.first != .cr else {
                 try buffer.consume(count: 1)
                 break
             }
@@ -47,7 +47,7 @@ extension Response {
 
             try buffer.consume(count: 1)
 
-            guard var value = try buffer.read(until: Character.cr) else {
+            guard var value = try buffer.read(until: .cr) else {
                 throw HTTPError.unexpectedEnd
             }
             value = value.trimmingLeftSpace().trimmingRightSpace()
@@ -93,7 +93,7 @@ extension Response {
         var body = [UInt8]()
 
         while true {
-            guard let sizeBytes = try buffer.read(until: Character.cr) else {
+            guard let sizeBytes = try buffer.read(until: .cr) else {
                 throw HTTPError.unexpectedEnd
             }
             try readLineEnd()

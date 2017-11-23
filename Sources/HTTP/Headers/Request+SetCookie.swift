@@ -58,7 +58,7 @@ extension Response.SetCookie {
 
     init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         var startIndex = bytes.startIndex
-        var endIndex = bytes.index(of: Character.semicolon, offset: startIndex)
+        var endIndex = bytes.index(of: .semicolon, offset: startIndex)
             ?? bytes.endIndex
 
         self.cookie = try Cookie(from: bytes[startIndex..<endIndex])
@@ -68,17 +68,16 @@ extension Response.SetCookie {
 
         while endIndex < bytes.endIndex {
             endIndex =
-                bytes.index(of: Character.semicolon, offset: startIndex) ??
+                bytes.index(of: .semicolon, offset: startIndex) ??
                 bytes.endIndex
 
             // should be separated by a semi-colon and a space ('; ')
-            guard bytes[startIndex] == Character.whitespace else {
+            guard bytes[startIndex] == .whitespace else {
                 throw HTTPError.invalidSetCookie
             }
             startIndex += 1
 
-            if let equalIndex = bytes.index(
-                of: Character.equal, offset: startIndex) {
+            if let equalIndex = bytes.index(of: .equal, offset: startIndex) {
                 // attribute name=value
                 let valueStartIndex = equalIndex + 1
                 guard valueStartIndex < endIndex else {
@@ -126,41 +125,41 @@ extension Response.SetCookie {
     func encode(to buffer: inout [UInt8]) {
         cookie.encode(to: &buffer)
         if let domain = self.domain {
-            buffer.append(Character.semicolon)
-            buffer.append(Character.whitespace)
+            buffer.append(.semicolon)
+            buffer.append(.whitespace)
             buffer.append(contentsOf: Bytes.domain)
-            buffer.append(Character.equal)
+            buffer.append(.equal)
             buffer.append(contentsOf: domain.utf8)
         }
         if let path = self.path {
-            buffer.append(Character.semicolon)
-            buffer.append(Character.whitespace)
+            buffer.append(.semicolon)
+            buffer.append(.whitespace)
             buffer.append(contentsOf: Bytes.path)
-            buffer.append(Character.equal)
+            buffer.append(.equal)
             buffer.append(contentsOf: path.utf8)
         }
         if let expires = self.expires {
-            buffer.append(Character.semicolon)
-            buffer.append(Character.whitespace)
+            buffer.append(.semicolon)
+            buffer.append(.whitespace)
             buffer.append(contentsOf: Bytes.expires)
-            buffer.append(Character.equal)
+            buffer.append(.equal)
             expires.encode(to: &buffer)
         }
         if let maxAge = self.maxAge {
-            buffer.append(Character.semicolon)
-            buffer.append(Character.whitespace)
+            buffer.append(.semicolon)
+            buffer.append(.whitespace)
             buffer.append(contentsOf: Bytes.maxAge)
-            buffer.append(Character.equal)
+            buffer.append(.equal)
             buffer.append(contentsOf: String(describing: maxAge).utf8)
         }
         if self.secure == true {
-            buffer.append(Character.semicolon)
-            buffer.append(Character.whitespace)
+            buffer.append(.semicolon)
+            buffer.append(.whitespace)
             buffer.append(contentsOf: Bytes.secure)
         }
         if self.httpOnly == true {
-            buffer.append(Character.semicolon)
-            buffer.append(Character.whitespace)
+            buffer.append(.semicolon)
+            buffer.append(.whitespace)
             buffer.append(contentsOf: Bytes.httpOnly)
         }
     }

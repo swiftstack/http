@@ -22,13 +22,13 @@ extension Array where Element == ContentEncoding {
         var values = [ContentEncoding]()
         while endIndex < bytes.endIndex {
             endIndex =
-                bytes.index(of: Character.comma, offset: startIndex) ??
+                bytes.index(of: .comma, offset: startIndex) ??
                 bytes.endIndex
             let value = try ContentEncoding(from: bytes[startIndex..<endIndex])
             values.append(value)
             startIndex = endIndex.advanced(by: 1)
             if startIndex < bytes.endIndex &&
-                bytes[startIndex] == Character.whitespace {
+                bytes[startIndex] == .whitespace {
                     startIndex += 1
             }
         }
@@ -38,7 +38,7 @@ extension Array where Element == ContentEncoding {
     func encode(to buffer: inout [UInt8]) {
         for i in startIndex..<endIndex {
             if i != startIndex {
-                buffer.append(Character.comma)
+                buffer.append(.comma)
             }
             self[i].encode(to: &buffer)
         }

@@ -86,7 +86,7 @@ extension URL.Query {
 extension URL {
     init(from buffer: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         var endIndex = buffer.endIndex
-        if let index = buffer.index(of: Character.hash) {
+        if let index = buffer.index(of: .hash) {
             // FIXME: validate using url rules
             guard let fragment =
                 String(validating: buffer[(index+1)...], as: .text) else {
@@ -98,7 +98,7 @@ extension URL {
             self.fragment = nil
         }
 
-        if let index = buffer[..<endIndex].index(of: Character.questionMark) {
+        if let index = buffer[..<endIndex].index(of: .questionMark) {
             // FIXME: validate using url rules
             self.query = try Query(from: buffer[(index+1)..<endIndex])
             endIndex = index
@@ -117,11 +117,11 @@ extension URL {
     func encode(to buffer: inout [UInt8]) {
         buffer.append(contentsOf: [UInt8](path.utf8))
         if query.values.count > 0 {
-            buffer.append(Character.questionMark)
+            buffer.append(.questionMark)
             query.encode(to: &buffer)
         }
         if let fragment = fragment {
-            buffer.append(Character.hash)
+            buffer.append(.hash)
             buffer.append(contentsOf: fragment.utf8)
         }
     }
@@ -156,7 +156,7 @@ extension URL.Query {
         var endIndex = startIndex
         while startIndex < bytes.endIndex {
             guard let equalIndex =
-                bytes.index(of: Character.equal, offset: startIndex) else {
+                bytes.index(of: .equal, offset: startIndex) else {
                     throw HTTPError.invalidURL
             }
             // FIXME: validate using url rules
@@ -171,7 +171,7 @@ extension URL.Query {
                 throw HTTPError.invalidURL
             }
 
-            endIndex = bytes.index(of: Character.ampersand, offset: startIndex)
+            endIndex = bytes.index(of: .ampersand, offset: startIndex)
                 ?? bytes.endIndex
             // FIXME: validate using url rules
             guard let value =

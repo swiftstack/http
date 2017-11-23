@@ -13,7 +13,7 @@ extension Response {
     func encode(to buffer: inout [UInt8]) {
         // Start line
         version.encode(to: &buffer)
-        buffer.append(Character.whitespace)
+        buffer.append(.whitespace)
         status.encode(to: &buffer)
         buffer.append(contentsOf: Constants.lineEnd)
 
@@ -21,8 +21,8 @@ extension Response {
         @inline(__always)
         func writeHeader(_ name: HeaderName, encoder: (inout [UInt8]) -> Void) {
             buffer.append(contentsOf: name.bytes)
-            buffer.append(Character.colon)
-            buffer.append(Character.whitespace)
+            buffer.append(.colon)
+            buffer.append(.whitespace)
             encoder(&buffer)
             buffer.append(contentsOf: Constants.lineEnd)
         }
@@ -30,8 +30,8 @@ extension Response {
         @inline(__always)
         func writeHeader(_ name: HeaderName, value: String) {
             buffer.append(contentsOf: name.bytes)
-            buffer.append(Character.colon)
-            buffer.append(Character.whitespace)
+            buffer.append(.colon)
+            buffer.append(.whitespace)
             buffer.append(contentsOf: value.utf8)
             buffer.append(contentsOf: Constants.lineEnd)
         }

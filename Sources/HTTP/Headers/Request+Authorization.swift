@@ -31,7 +31,7 @@ extension Request.Authorization {
         func suffix(from index: Int) throws -> String {
             let index = bytes.startIndex + index + 1
             guard index > bytes.startIndex, index < bytes.endIndex,
-                bytes[index-1] == Character.whitespace else {
+                bytes[index-1] == .whitespace else {
                     throw HTTPError.invalidHeaderValue
             }
             guard let type =
@@ -41,7 +41,7 @@ extension Request.Authorization {
             return type
         }
 
-        guard let schemaEndIndex = bytes.index(of: Character.whitespace) else {
+        guard let schemaEndIndex = bytes.index(of: .whitespace) else {
             throw HTTPError.invalidHeaderValue
         }
         let scheme = bytes[..<schemaEndIndex]
@@ -69,19 +69,19 @@ extension Request.Authorization {
         switch self {
         case .basic(let credentials):
             buffer.append(contentsOf: Bytes.basic)
-            buffer.append(Character.whitespace)
+            buffer.append(.whitespace)
             buffer.append(contentsOf: credentials.utf8)
         case .bearer(let credentials):
             buffer.append(contentsOf: Bytes.bearer)
-            buffer.append(Character.whitespace)
+            buffer.append(.whitespace)
             buffer.append(contentsOf: credentials.utf8)
         case .token(let credentials):
             buffer.append(contentsOf: Bytes.token)
-            buffer.append(Character.whitespace)
+            buffer.append(.whitespace)
             buffer.append(contentsOf: credentials.utf8)
         case .custom(let schema, let credentials):
             buffer.append(contentsOf: schema.utf8)
-            buffer.append(Character.whitespace)
+            buffer.append(.whitespace)
             buffer.append(contentsOf: credentials.utf8)
         }
     }

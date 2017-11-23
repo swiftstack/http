@@ -261,13 +261,13 @@ extension Array where Element == Request.AcceptLanguage {
         var values = [AcceptLanguage]()
         while endIndex < bytes.endIndex {
             endIndex =
-                bytes.index(of: Character.comma, offset: startIndex) ??
+                bytes.index(of: .comma, offset: startIndex) ??
                 bytes.endIndex
             values.append(
                 try AcceptLanguage(from: bytes[startIndex..<endIndex]))
             startIndex = endIndex.advanced(by: 1)
             if startIndex < bytes.endIndex &&
-                bytes[startIndex] == Character.whitespace {
+                bytes[startIndex] == .whitespace {
                     startIndex += 1
             }
         }
@@ -277,7 +277,7 @@ extension Array where Element == Request.AcceptLanguage {
     func encode(to buffer: inout [UInt8]) {
         for i in startIndex..<endIndex {
             if i != startIndex {
-                buffer.append(Character.comma)
+                buffer.append(.comma)
             }
             self[i].encode(to: &buffer)
         }
@@ -290,7 +290,7 @@ extension Request.AcceptLanguage {
     }
 
     init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
-        if let semicolon = bytes.index(of: Character.semicolon) {
+        if let semicolon = bytes.index(of: .semicolon) {
             self.language = try Language(from: bytes[..<semicolon])
 
             let index = semicolon.advanced(by: 1)
@@ -311,7 +311,7 @@ extension Request.AcceptLanguage {
         language.encode(to: &buffer)
 
         if priority < 1.0 {
-            buffer.append(Character.semicolon)
+            buffer.append(.semicolon)
             buffer.append(contentsOf: Bytes.qEqual)
             buffer.append(contentsOf: [UInt8](String(describing: priority)))
         }
