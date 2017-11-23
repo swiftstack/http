@@ -3,7 +3,7 @@ import Test
 
 import struct Foundation.Date
 
-class SetCookieTests: TestCase {
+class HeadersSetCookieTests: TestCase {
     func testSetCookie() {
         let expected = Response.SetCookie(
             Cookie(name: "username", value: "tony"))
