@@ -11,6 +11,9 @@ extension UInt8 {
     static let equal = UInt8(ascii: "=")
     static let ampersand = UInt8(ascii: "&")
     static let hash = UInt8(ascii: "#")
+
+    static let zero = UInt8(ascii: "0")
+    static let nine = UInt8(ascii: "9")
 }
 
 struct Constants {

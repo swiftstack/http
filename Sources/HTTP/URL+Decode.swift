@@ -1,29 +1,167 @@
 import struct Foundation.URL
 
+extension URL.Scheme {
+    static let httpBytes = [UInt8]("http".utf8)
+    static let httpsBytes = [UInt8]("https".utf8)
+
+    init?(_ bytes: ArraySlice<UInt8>) {
+        switch bytes {
+        case _ where bytes.elementsEqual(URL.Scheme.httpBytes): self = .http
+        case _ where bytes.elementsEqual(URL.Scheme.httpsBytes): self = .https
+        default: return nil
+        }
+    }
+}
+
 extension URL {
+    enum State {
+        case scheme
+        case domain
+        case path
+        case query
+        case fragment
+    }
+
+    enum Error: Swift.Error {
+        case invalidScheme
+        case invalidPort
+        case invalidPath
+    }
+
     public init(_ url: String) throws {
-        guard let url = Foundation.URL(string: url) else {
-            throw HTTPError.invalidURL
+        self.scheme = nil
+        self.host = nil
+        self.port = nil
+        self.fragment = nil
+
+        let bytes = [UInt8](url.utf8)
+        var index = bytes.startIndex
+
+        var state: State = .scheme
+        self.path = "/"
+        self.query = [:]
+
+        func validDomainASCII(_ byte: UInt8) -> Bool {
+            switch byte {
+            case 45...46: return true
+            case 48...57: return true
+            case 65...90: return true
+            case 97...122: return true
+            default: return false
+            }
         }
 
-        if let scheme = url.scheme {
-            self.scheme = Scheme(rawValue: scheme)
-        } else {
-            self.scheme = nil
+        func isDigit(_ byte: UInt8) -> Bool {
+            return byte >= .zero && byte <= .nine
         }
 
-        self.host = url.host
-        self.port = url.port
-        switch url.path {
-        case "": self.path = "/"
-        default: self.path = url.path
+        func parseScheme() throws {
+            guard let slashIndex = bytes.index(of: .slash) else {
+                return
+            }
+            guard slashIndex > 1,
+                slashIndex + 1 < bytes.endIndex,
+                bytes[slashIndex-1] == .colon,
+                bytes[slashIndex+1] == .slash else {
+                    return
+            }
+            guard let scheme = Scheme(bytes[...(slashIndex-2)]) else {
+                throw Error.invalidScheme
+            }
+            self.scheme = scheme
+            index = slashIndex + 2
         }
-        self.fragment = url.fragment
 
-        if let query = url.query {
-            self.query = Query(from: query)
-        } else {
-            self.query = [:]
+        func parseDomain() throws {
+            guard validDomainASCII(bytes[index]) else {
+                return
+            }
+
+            let domainEndIndex = bytes[index...].index(where: {
+                !validDomainASCII($0)
+            }) ?? bytes.endIndex
+
+            let domain = bytes[index..<domainEndIndex]
+            self.host = String(decoding: domain, as: UTF8.self)
+            index = domainEndIndex
+
+            if index < bytes.endIndex && bytes[index] == .colon {
+                index += 1
+                try parsePort()
+            }
+        }
+
+        func parsePort() throws {
+            var port = 0
+            while index < bytes.endIndex && isDigit(bytes[index]) {
+                port *= 10
+                port += Int(bytes[index] - .zero)
+                index += 1
+            }
+            guard port > 0 else {
+                throw Error.invalidPort
+            }
+            self.port = port
+        }
+
+        func parsePath() throws {
+            guard bytes[index] == .slash else {
+                return
+            }
+            let pathEndIndex = bytes[index...].index(where: {
+                $0 == .questionMark || $0 == .hash
+            }) ?? bytes.endIndex
+
+            var pathSlice = bytes[index..<pathEndIndex]
+            if pathSlice.count > 1 && pathSlice.last == .slash {
+                pathSlice = pathSlice.dropLast()
+            }
+            let path = String(decoding: pathSlice, as: UTF8.self)
+            guard let decodedPath = path.removingPercentEncoding else {
+                throw Error.invalidPath
+            }
+            self.path = decodedPath
+            index = pathEndIndex
+        }
+
+        func parseQuery() throws {
+            guard bytes[index] == .questionMark else {
+                return
+            }
+            index += 1
+            let queryEndIndex = bytes[index...].index(where: {
+                $0 == .hash
+            }) ?? bytes.endIndex
+            self.query = try Query(from: [UInt8](bytes[index..<queryEndIndex]))
+            index = queryEndIndex
+        }
+
+        func parseFragment() throws {
+            guard bytes[index] == .hash else {
+                return
+            }
+            index += 1
+            self.fragment = String(decoding: bytes[index...], as: UTF8.self)
+        }
+
+        while index < bytes.endIndex {
+            switch state {
+            case .scheme:
+                try parseScheme()
+                state = .domain
+            case .domain:
+                try parseDomain()
+                state = .path
+            case .path:
+                try parsePath()
+                state = .query
+            case .query:
+                try parseQuery()
+                state = .fragment
+            case .fragment:
+                try parseFragment()
+                return
+            }
         }
     }
 }

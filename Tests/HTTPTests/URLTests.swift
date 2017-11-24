@@ -3,8 +3,11 @@ import Test
 
 class URLTests: TestCase {
     func testPath() {
-        let url = try! URL("/test")
-        assertEqual(url.path, "/test")
+        assertEqual(try! URL("/test").path, "/test")
+        assertEqual(try! URL("domain.com").path, "/")
+        assertEqual(try! URL("domain.com/test").path, "/test")
+        assertEqual(try! URL("domain.com/test/").path, "/test")
+        assertEqual(try! URL("domain.com/test/#fragment").path, "/test")
     }
 
     func testQuery() {
@@ -13,13 +16,13 @@ class URLTests: TestCase {
     }
 
     func testHost() {
-        let url = try! URL("http://domain.com/test")
-        assertEqual(url.host, "domain.com")
+        assertEqual(try! URL("http://domain.com").host, "domain.com")
+        assertEqual(try! URL("domain.com").host, "domain.com")
     }
 
     func testPort() {
-        let url = try! URL("http://domain.com:8080/test")
-        assertEqual(url.port, 8080)
+        assertEqual(try! URL("http://domain.com:8080").port, 8080)
+        assertEqual(try! URL("http://domain.com:8080/").port, 8080)
     }
 
     func testScheme() {
@@ -28,18 +31,51 @@ class URLTests: TestCase {
     }
 
     func testFragment() {
-        let url = try! URL("http://domain.com/#fragment")
-        assertEqual(url.fragment, "fragment")
+        let url1 = try! URL("http://domain.com/#fragment")
+        assertEqual(url1.fragment, "fragment")
+        let url2 = try! URL("http://domain.com/test/#fragment")
+        assertEqual(url2.fragment, "fragment")
     }
 
     func testAbsoluteString() {
-        let url = try! URL("http://domain.com:8080/test")
-        assertEqual(url.absoluteString, "http://domain.com:8080/test")
+        let urlString = "http://domain.com:8080/test?query=true#fragment"
+        let url = try! URL(urlString)
+        assertEqual(url.absoluteString, urlString)
     }
 
     func testDescription() {
         let urlString = "http://domain.com:8080/test?query=true#fragment"
         let url = try! URL(urlString)
         assertEqual(url.description, urlString)
+    }
+
+    func testURLEncoded() {
+        let urlString =
+            "/%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82-%D0%BC%D0%B8%D1%80?" +
+            "%D0%BA%D0%BB%D1%8E%D1%87=" +
+            "%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5&" +
+            "%D0%BA%D0%BB%D1%8E%D1%872=" +
+            "%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B52"
+
+        let url = try! URL(urlString)
+        assertEqual(url.path, "/привет-мир")
+        assertEqual(url.query.values,
+                    ["ключ" : "значение", "ключ2" : "значение2"])
+    }
+
+    func testUnicode() {
+        do {
+            let urlString = "http://domain.com:8080/тест"
+            let url = try URL(urlString)
+            assertEqual(url.description, urlString)
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
+    func testInvalidScheme() {
+        assertThrowsError(try URL("htt://")) { error in
+            assertEqual(error as? URL.Error, .invalidScheme)
+        }
     }
 }
