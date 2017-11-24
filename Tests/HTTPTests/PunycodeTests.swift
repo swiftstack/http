@@ -1,5 +1,4 @@
 import Test
-import Measure
 import HTTP
 
 class PunycodeTests: TestCase {
