@@ -26,6 +26,7 @@ extension URL {
         case invalidScheme
         case invalidPort
         case invalidPath
+        case invalidQuery
     }
 
     public init(_ url: String) throws {
@@ -41,7 +42,7 @@ extension URL {
         self.path = "/"
         self.query = [:]
 
-        func validDomainASCII(_ byte: UInt8) -> Bool {
+        func isValidDomainASCII(_ byte: UInt8) -> Bool {
             switch byte {
             case 45...46: return true
             case 48...57: return true
@@ -73,12 +74,12 @@ extension URL {
         }
 
         func parseDomain() throws {
-            guard validDomainASCII(bytes[index]) else {
+            guard isValidDomainASCII(bytes[index]) else {
                 return
             }
 
             let domainEndIndex = bytes[index...].index(where: {
-                !validDomainASCII($0)
+                !isValidDomainASCII($0)
             }) ?? bytes.endIndex
 
             let domain = bytes[index..<domainEndIndex]
@@ -132,7 +133,11 @@ extension URL {
             let queryEndIndex = bytes[index...].index(where: {
                 $0 == .hash
             }) ?? bytes.endIndex
-            self.query = try Query(from: [UInt8](bytes[index..<queryEndIndex]))
+            let querySlice = bytes[index..<queryEndIndex]
+            guard let query = Query(from: querySlice) else {
+                throw Error.invalidQuery
+            }
+            self.query = query
             index = queryEndIndex
         }
 
@@ -166,8 +171,50 @@ extension URL {
     }
 }
 
+extension URL.Query {
+    public init?(from bytes: ArraySlice<UInt8>) {
+        var values =  [String : String]()
+        for pair in bytes.split(separator: .ampersand) {
+            if let index = pair.index(of: .equal) {
+                let name = String(decoding: pair[..<index], as: UTF8.self)
+                let valueIndex = index + 1
+                guard valueIndex < bytes.endIndex else {
+                    return nil
+                }
+                let value = String(decoding: pair[valueIndex...], as: UTF8.self)
+                if let decodedName = name.removingPercentEncoding,
+                    let decodedValue = value.removingPercentEncoding {
+                    values[decodedName] = decodedValue
+                }
+            }
+        }
+        self.values = values
+    }
+
+    public init?(string: String) {
+        var values =  [String : String]()
+        for pair in string.components(separatedBy: "&") {
+            if let index = pair.index(of: "=") {
+                let name = pair[..<index]
+                let valueIndex = pair.index(after: index)
+                guard valueIndex < pair.endIndex else {
+                    return nil
+                }
+                let value = pair[valueIndex...]
+                if let decodedName = String(name).removingPercentEncoding,
+                    let decodedValue = String(value).removingPercentEncoding {
+                    values[decodedName] = decodedValue
+                }
+            }
+        }
+        self.values = values
+    }
+}
+
+// Fast decode
+
 extension URL {
-    init(from buffer: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
+    init(escaped buffer: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         self.scheme = nil
         self.host = nil
         self.port = nil
@@ -187,7 +234,7 @@ extension URL {
 
         if let index = buffer[..<endIndex].index(of: .questionMark) {
             // FIXME: validate using url rules
-            self.query = try Query(from: buffer[(index+1)..<endIndex])
+            self.query = try Query(escaped: buffer[(index+1)..<endIndex])
             endIndex = index
         } else {
             self.query = [:]
@@ -203,28 +250,12 @@ extension URL {
 }
 
 extension URL.Query {
-    public init(from string: String) {
-        var values =  [String : String]()
-        for pair in string.components(separatedBy: "&") {
-            if let index = pair.index(of: "=") {
-                let name = pair[..<index]
-                let valueIndex = pair.index(after: index)
-                let value = pair[valueIndex...]
-                if let decodedName = String(name).removingPercentEncoding,
-                    let decodedValue = String(value).removingPercentEncoding {
-                    values[decodedName] = decodedValue
-                }
-            }
-        }
-        self.values = values
-    }
-
-    public init(from bytes: [UInt8]) throws {
+    public init(escaped bytes: [UInt8]) throws {
         let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
-        try self.init(from: buffer[...])
+        try self.init(escaped: buffer[...])
     }
 
-    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
+    init(escaped bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         var values =  [String : String]()
 
         var startIndex = bytes.startIndex

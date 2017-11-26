@@ -18,7 +18,7 @@ extension Request {
         guard let url = try buffer.read(until: .whitespace) else {
             throw HTTPError.unexpectedEnd
         }
-        self.url = try URL(from: url)
+        self.url = try URL(escaped: url)
         try buffer.consume(count: 1)
 
         guard let version = try buffer.read(until: .cr) else {

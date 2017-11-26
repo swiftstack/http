@@ -82,7 +82,7 @@ extension Request {
         urlEncoded object: T
     ) throws {
         let values = try KeyValueEncoder().encode(object)
-        let query = URL.Query(values)
+        let query = URL.Query(values: values)
         var urlEncodedBytes = [UInt8]()
         query.encode(to: &urlEncodedBytes)
 
