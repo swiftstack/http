@@ -14,7 +14,7 @@ public struct URL {
     public var host: String?
     public var port: Int?
     public var path: String
-    public var query: Query
+    public var query: Query?
     public var fragment: String?
 
     public init(
@@ -111,7 +111,7 @@ extension URL: CustomStringConvertible {
             }
         }
         url.append(path)
-        if query.values.count > 0 {
+        if let query = query, query.values.count > 0 {
             url.append("?")
             url.append(String(describing: query))
         }

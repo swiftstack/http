@@ -78,7 +78,7 @@ class DecodeRequestTests: TestCase {
             assertNotNil(request)
             assertNotNil(request.url)
             assertEqual(request.url.path, "/test")
-            assertEqual(request.url.query.values, ["key": "value"])
+            assertEqual(request.url.query?.values ?? [:], ["key": "value"])
             assertEqual(request.url.fragment, "fragment")
         } catch {
             fail(String(describing: error))
