@@ -77,10 +77,11 @@ extension URL.Query: Equatable {
 
 extension URL: ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
-        guard let url = try? URL(value) else {
-            fatalError("invalid url: '\(value)'")
+        do {
+            self = try URL(value)
+        } catch {
+            fatalError("invalid url: '\(error)'")
         }
-        self = url
     }
     public init(extendedGraphemeClusterLiteral value: String) {
         self.init(stringLiteral: value)
