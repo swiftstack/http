@@ -22,13 +22,6 @@ public struct RouteMatcher<T> {
             return
         }
 
-        // ascii table
-        for byte in bytes {
-            guard byte >= 0 && byte < 128 else {
-                return
-            }
-        }
-
         // main route: "/"
         guard bytes.count > 1 else {
             root.payload.append(payload)
@@ -42,13 +35,6 @@ public struct RouteMatcher<T> {
         let startIndex = bytes.startIndex
         guard bytes[startIndex] == separator else {
             return []
-        }
-
-        // ascii table
-        for byte in bytes {
-            guard byte >= 0 && byte < 128 else {
-                return []
-            }
         }
 
         let route = bytes.dropFirst()
@@ -68,7 +54,7 @@ public struct RouteMatcher<T> {
         let character = Int(characters[characters.startIndex])
         if character == Int(asterisk) || character == Int(colon) {
             if node.wildcard == nil {
-                node.wildcard = [Node](repeating: Node(), count: 128)
+                node.wildcard = [Node](repeating: Node(), count: Int(UInt8.max))
             }
 
             var index = characters.startIndex
@@ -90,7 +76,7 @@ public struct RouteMatcher<T> {
             addNode(to: &node.wildcard![Int(separator)], characters: characters[next...], payload: payload)
         } else {
             if node.rlist == nil {
-                node.rlist = [Node](repeating: Node(), count: 128)
+                node.rlist = [Node](repeating: Node(), count: Int(UInt8.max))
             }
 
             guard characters.index(after: characters.startIndex) < characters.endIndex else {
