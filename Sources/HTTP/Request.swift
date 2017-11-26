@@ -49,11 +49,20 @@ extension Request {
         self.method = method
         self.url = url
         self.version = .oneOne
+
         if var host = url.host {
             if let port = url.port {
                 host.append(":\(port)")
             }
             self.host = host
+        }
+
+        if method == .post || method == .put, let query = url.query {
+            var bytes = [UInt8]()
+            query.encode(to: &bytes)
+            self.rawBody = bytes
+            self.contentLength = bytes.count
+            self.contentType = ContentType(mediaType: .application(.urlEncoded))
         }
     }
 }
