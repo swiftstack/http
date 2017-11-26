@@ -1,4 +1,5 @@
 import Stream
+import struct Foundation.CharacterSet
 
 extension Request {
     public func encode<T: OutputStream>(to stream: inout T) throws {
@@ -14,7 +15,11 @@ extension Request {
         // Start Line
         method.encode(to: &buffer)
         buffer.append(.whitespace)
-        url.encode(to: &buffer)
+        url.path.encode(to: &buffer, allowedCharacters: .urlPathAllowed)
+        if method == .get, let query = url.query, query.values.count > 0 {
+            buffer.append(.questionMark)
+            query.encode(to: &buffer)
+        }
         buffer.append(.whitespace)
         version.encode(to: &buffer)
         buffer.append(contentsOf: Constants.lineEnd)
@@ -102,5 +107,26 @@ extension Request {
         if let rawBody = rawBody {
             buffer.append(contentsOf: rawBody)
         }
+    }
+}
+
+extension String {
+    public func encode(
+        to buffer: inout [UInt8],
+        allowedCharacters: CharacterSet
+    ) {
+        let escaped = addingPercentEncoding(
+            withAllowedCharacters: allowedCharacters)!
+        buffer.append(contentsOf: escaped.utf8)
+    }
+}
+
+extension URL.Query {
+    public func encode(to buffer: inout [UInt8]) {
+        let queryString = values
+            .map({ "\($0.key)=\($0.value)" })
+            .joined(separator: "&")
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+        buffer.append(contentsOf: queryString.utf8)
     }
 }

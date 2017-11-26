@@ -17,7 +17,15 @@ class EncodeRequestTests: TestCase {
     }
 
     func testUrl() {
-        let expected = "GET /test?key=value#fragment HTTP/1.1\r\n\r\n"
+        let expected = "GET /test HTTP/1.1\r\n\r\n"
+        let request = Request(
+            method: .get,
+            url: URL(path: "/test", fragment: "fragment"))
+        assertEqual(Encoder.encode(request), expected)
+    }
+
+    func testUrlQueryGet() {
+        let expected = "GET /test?key=value HTTP/1.1\r\n\r\n"
         let request = Request(
             method: .get,
             url: URL(
@@ -203,6 +211,16 @@ class EncodeRequestTests: TestCase {
             Cookie(name: "username", value: "tony"),
             Cookie(name: "lang", value: "aurebesh")
         ]
+        assertEqual(Encoder.encode(request), expected)
+    }
+
+    func testEscaped() {
+        let escapedUrl = "/%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82?" +
+            "%D0%BA%D0%BB%D1%8E%D1%87=" +
+            "%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5"
+        let expected = "GET \(escapedUrl) HTTP/1.1\r\n" +
+            "\r\n"
+        let request = Request(url: try! URL("/привет?ключ=значение"))
         assertEqual(Encoder.encode(request), expected)
     }
 }
