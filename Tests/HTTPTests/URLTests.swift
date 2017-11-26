@@ -65,7 +65,7 @@ class URLTests: TestCase {
 
     func testUnicode() {
         do {
-            let urlString = "http://domain.com:8080/тест"
+            let urlString = "http://domain.com:8080/тест?ключ=значение"
             let url = try URL(urlString)
             assertEqual(url.description, urlString)
         } catch {

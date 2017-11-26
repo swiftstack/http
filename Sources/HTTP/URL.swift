@@ -128,8 +128,5 @@ extension URL.Query: CustomStringConvertible {
         return values
             .map({ "\($0.key)=\($0.value)" })
             .joined(separator: "&")
-            .addingPercentEncoding(
-                withAllowedCharacters: CharacterSet.urlQueryAllowed)
-            ?? ""
     }
 }
