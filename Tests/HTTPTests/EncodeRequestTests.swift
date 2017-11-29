@@ -59,16 +59,25 @@ class EncodeRequestTests: TestCase {
         assertEqual(Encoder.encode(request), expected)
     }
 
-    func testURLHost() {
+    func testHostDomain() {
         do {
             let expected = "GET / HTTP/1.1\r\n" +
-                "Host: domain.zone:5000\r\n" +
+                "Host: domain.com:5000\r\n" +
                 "\r\n"
-            let request = Request(url: try URL("http://domain.zone:5000"))
+            let request = Request(url: try URL("http://domain.com:5000"))
             assertEqual(Encoder.encode(request), expected)
         } catch {
             fail(String(describing: error))
         }
+    }
+
+    func testHostEncoded() {
+        let expected = "GET / HTTP/1.1\r\n" +
+            "Host: xn--d1acufc.xn--p1ai:5000\r\n" +
+            "\r\n"
+        var request = Request()
+        request.host = URL.Host(address: "домен.рф", port: 5000)
+        assertEqual(Encoder.encode(request), expected)
     }
 
     func testUserAgent() {
@@ -236,15 +245,6 @@ class EncodeRequestTests: TestCase {
         let expected = "GET \(escapedUrl) HTTP/1.1\r\n" +
             "\r\n"
         let request = Request(url: try! URL("/привет?ключ=значение"))
-        assertEqual(Encoder.encode(request), expected)
-    }
-
-    func testUnicodeHost() {
-        let expected = "GET / HTTP/1.1\r\n" +
-            "Host: xn--b1agh1afp.xn--p1ai:8080\r\n" +
-            "\r\n"
-        var request = Request()
-        request.host = URL.Host(address: "привет.рф", port: 8080)
         assertEqual(Encoder.encode(request), expected)
     }
 }

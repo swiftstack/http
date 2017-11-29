@@ -159,6 +159,38 @@ class DecodeRequestTests: TestCase {
         }
     }
 
+    func testHostDomainHeader() {
+        do {
+            let bytes = ASCII(
+                "GET / HTTP/1.1\r\n" +
+                "Host: domain.com:5000\r\n" +
+                "\r\n")
+            let request = try Request(from: bytes)
+            assertNotNil(request.host)
+            if let host = request.host {
+                assertEqual(host, URL.Host(address: "domain.com", port: 5000))
+            }
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
+    func testHostEncodedHeader() {
+        do {
+            let bytes = ASCII(
+                "GET / HTTP/1.1\r\n" +
+                "Host: xn--d1acufc.xn--p1ai:5000\r\n" +
+                "\r\n")
+            let request = try Request(from: bytes)
+            assertNotNil(request.host)
+            if let host = request.host {
+                assertEqual(host, URL.Host(address: "домен.рф", port: 5000))
+            }
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
     func testUserAgentHeader() {
         do {
             let bytes = ASCII(
