@@ -62,10 +62,11 @@ extension Request {
 
             switch name {
             case .host:
-                guard self.url.host == nil else {
-                    break
+                guard self.url.host == nil,
+                    let host = URL.Host(escaped: value) else {
+                        continue
                 }
-                self.host = try URL.Host(escaped: value)
+                self.host = host
             case .userAgent:
                 self.userAgent = String(validating: value, as: .text)
             case .accept:
