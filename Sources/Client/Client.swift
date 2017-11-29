@@ -28,13 +28,13 @@ public class Client {
         guard let host = url.host else {
             throw ClientError.missingUrlHost
         }
-        let port = url.port ?? 80
 
         if isConnected {
             try close()
         }
 
-        try socket.connect(to: host, port: UInt16(port))
+        let port = host.port ?? 80
+        try socket.connect(to: host.address, port: UInt16(port))
         isConnected = true
     }
 

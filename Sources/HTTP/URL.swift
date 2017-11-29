@@ -14,23 +14,30 @@ public struct URL {
         }
     }
 
+    public struct Host {
+        public let address: String
+        public let port: Int?
+
+        public init(address: String, port: Int? = nil) {
+            self.address = address
+            self.port = port
+        }
+    }
+
     public var scheme: Scheme?
-    public var host: String?
-    public var port: Int?
+    public var host: Host?
     public var path: String
     public var query: Query?
     public var fragment: String?
 
     public init(
         scheme: Scheme? = nil,
-        host: String? = nil,
-        port: Int? = nil,
+        host: Host? = nil,
         path: String,
         query: Query = [:],
         fragment: String? = nil
     ) {
         self.host = host
-        self.port = port
         self.path = path
         self.query = query
         self.scheme = scheme
@@ -105,8 +112,8 @@ extension URL: CustomStringConvertible {
             url.append("://")
         }
         if let host = self.host {
-            url.append(host)
-            if let port = port {
+            url.append(host.address)
+            if let port = host.port {
                 url.append(":")
                 url.append(String(describing: port))
             }
@@ -129,5 +136,12 @@ extension URL.Query: CustomStringConvertible {
         return values
             .map({ "\($0.key)=\($0.value)" })
             .joined(separator: "&")
+    }
+}
+
+extension URL.Host: Equatable {
+    public static func ==(lhs: URL.Host, rhs: URL.Host) -> Bool {
+        return lhs.address == rhs.address &&
+            lhs.port == rhs.port
     }
 }

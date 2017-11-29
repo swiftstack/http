@@ -6,7 +6,7 @@ class NginxTests: TestCase {
         do {
             let bytes = ASCII("GET /test HTTP/1.1\r\n" +
                 "User-Agent: curl/7.18.0 (i486-pc-linux-gnu) libcurl/7.18.0 OpenSSL/0.9.8g zlib/1.2.3.3 libidn/1.1\r\n" +
-                "Host: 0.0.0.0=5000\r\n" +
+                "Host: 0.0.0.0:5000\r\n" +
                 "Accept: */*\r\n" +
                 "\r\n")
             let request = try Request(from: bytes)
@@ -15,7 +15,7 @@ class NginxTests: TestCase {
             assertEqual(request.url, "/test")
             assertEqual(request.version, .oneOne)
             assertEqual(request.userAgent, "curl/7.18.0 (i486-pc-linux-gnu) libcurl/7.18.0 OpenSSL/0.9.8g zlib/1.2.3.3 libidn/1.1")
-            assertEqual(request.host, "0.0.0.0=5000")
+            assertEqual(request.host, URL.Host(address: "0.0.0.0", port: 5000))
         } catch {
             fail(String(describing: error))
         }
@@ -24,7 +24,7 @@ class NginxTests: TestCase {
     func testFirefoxGet() {
         do {
             let bytes = ASCII("GET /favicon.ico HTTP/1.1\r\n" +
-                "Host: 0.0.0.0=5000\r\n" +
+                "Host: 0.0.0.0:5000\r\n" +
                 "User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008061015 Firefox/3.0\r\n" +
                 "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n" +
                 "Accept-Language: en-us,en;q=0.5\r\n" +
@@ -38,7 +38,7 @@ class NginxTests: TestCase {
             assertEqual(request.url, "/favicon.ico")
             assertEqual(request.url.path, "/favicon.ico")
             assertEqual(request.version, .oneOne)
-            assertEqual(request.host, "0.0.0.0=5000")
+            assertEqual(request.host, URL.Host(address: "0.0.0.0", port: 5000))
             assertEqual(request.userAgent, "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008061015 Firefox/3.0")
             assertEqual(request.accept ?? [], [
                 Request.Accept(.text(.html), priority: 1.0),

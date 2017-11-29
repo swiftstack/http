@@ -147,12 +147,12 @@ class DecodeRequestTests: TestCase {
         do {
             let bytes = ASCII(
                 "GET / HTTP/1.1\r\n" +
-                "Host: 0.0.0.0=5000\r\n" +
+                "Host: 0.0.0.0:5000\r\n" +
                 "\r\n")
             let request = try Request(from: bytes)
             assertNotNil(request.host)
             if let host = request.host {
-                assertEqual(host, "0.0.0.0=5000")
+                assertEqual(host, URL.Host(address: "0.0.0.0", port: 5000))
             }
         } catch {
             fail(String(describing: error))
@@ -252,14 +252,14 @@ class DecodeRequestTests: TestCase {
         do {
             let bytes = ASCII(
                 "GET / HTTP/1.1\r\n" +
-                "Host: 0.0.0.0=5000\r\n" +
+                "Host: 0.0.0.0:5000\r\n" +
                 "User-Agent: Mozilla/5.0\r\n" +
                 "\r\n")
             let request = try Request(from: bytes)
             assertNotNil(request.host)
             assertNotNil(request.userAgent)
             if let userAgent = request.userAgent, let host = request.host {
-                assertEqual(host, "0.0.0.0=5000")
+                assertEqual(host, URL.Host(address: "0.0.0.0", port: 5000))
                 assertEqual(userAgent, "Mozilla/5.0")
             }
         } catch {
@@ -271,14 +271,14 @@ class DecodeRequestTests: TestCase {
         do {
             let bytes = ASCII(
                 "GET / HTTP/1.1\r\n" +
-                "Host:0.0.0.0=5000\r\n" +
+                "Host:0.0.0.0:5000\r\n" +
                 "User-Agent: Mozilla/5.0 \r\n" +
                 "\r\n")
             let request = try Request(from: bytes)
             assertNotNil(request.host)
             assertNotNil(request.userAgent)
             if let userAgent = request.userAgent, let host = request.host {
-                assertEqual(host, "0.0.0.0=5000")
+                assertEqual(host, URL.Host(address: "0.0.0.0", port: 5000))
                 assertEqual(userAgent, "Mozilla/5.0")
             }
         } catch {

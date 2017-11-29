@@ -32,7 +32,6 @@ extension URL {
     public init(_ url: String) throws {
         self.scheme = nil
         self.host = nil
-        self.port = nil
         self.fragment = nil
 
         let bytes = [UInt8](url.utf8)
@@ -82,17 +81,20 @@ extension URL {
                 !isValidDomainASCII($0)
             }) ?? bytes.endIndex
 
-            let domain = bytes[index..<domainEndIndex]
-            self.host = String(decoding: domain, as: UTF8.self)
+            let slice = bytes[index..<domainEndIndex]
             index = domainEndIndex
+
+            let domain = String(decoding: slice, as: UTF8.self)
+            var port: Int? = nil
 
             if index < bytes.endIndex && bytes[index] == .colon {
                 index += 1
-                try parsePort()
+                port = try parsePort()
             }
+            self.host = Host(address: domain, port: port)
         }
 
-        func parsePort() throws {
+        func parsePort() throws -> Int {
             var port = 0
             while index < bytes.endIndex && isDigit(bytes[index]) {
                 port *= 10
@@ -102,7 +104,7 @@ extension URL {
             guard port > 0 else {
                 throw Error.invalidPort
             }
-            self.port = port
+            return port
         }
 
         func parsePath() throws {
@@ -217,7 +219,6 @@ extension URL {
     init(escaped buffer: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
         self.scheme = nil
         self.host = nil
-        self.port = nil
 
         var endIndex = buffer.endIndex
         if let index = buffer.index(of: .hash) {
@@ -248,6 +249,42 @@ extension URL {
         self.path = path
     }
 }
+
+extension URL.Host {
+    static func parsePort(
+        _ bytes: RandomAccessSlice<UnsafeRawBufferPointer>
+    ) -> Int? {
+        var port = 0
+        for byte in bytes {
+            guard byte >= .zero && byte <= .nine else {
+                return nil
+            }
+            port *= 10
+            port += Int(byte - .zero)
+        }
+        guard port > 0 else {
+            return nil
+        }
+        return port
+    }
+
+    init?(escaped bytes: RandomAccessSlice<UnsafeRawBufferPointer>) {
+        var addressEndIndex = bytes.endIndex
+        if let colonIndex = bytes.index(of: .colon) {
+            addressEndIndex = colonIndex
+            let portIndex = colonIndex + 1
+            self.port = URL.Host.parsePort(bytes[portIndex...])
+        } else {
+            self.port = nil
+        }
+        guard let address = String(
+            validating: bytes[..<addressEndIndex], as: .text) else {
+                return nil
+        }
+        self.address = address
+    }
+}
+
 
 extension URL.Query {
     public init(escaped bytes: [UInt8]) throws {

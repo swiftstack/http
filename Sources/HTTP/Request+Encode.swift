@@ -44,7 +44,7 @@ extension Request {
         }
 
         if let host = self.host {
-            writeHeader(.host, value: host)
+            writeHeader(.host, encoder: host.encode)
         }
 
         if let contentType = self.contentType {
@@ -128,5 +128,15 @@ extension URL.Query {
             .joined(separator: "&")
             .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
         buffer.append(contentsOf: queryString.utf8)
+    }
+}
+
+extension URL.Host {
+    public func encode(to buffer: inout [UInt8]) {
+        buffer.append(contentsOf: Punycode.encode(domain: address).utf8)
+        if let port = port {
+            buffer.append(.colon)
+            buffer.append(contentsOf: "\(port)".utf8)
+        }
     }
 }

@@ -6,7 +6,7 @@ class EncodeRequestTests: TestCase {
         static func encode(_ request: Request) -> String? {
             var bytes = [UInt8]()
             request.encode(to: &bytes)
-            return String(ascii: bytes)
+            return String(decoding: bytes, as: UTF8.self)
         }
     }
 
@@ -55,7 +55,7 @@ class EncodeRequestTests: TestCase {
             "Host: 0.0.0.0:5000\r\n" +
             "\r\n"
         var request = Request()
-        request.host = "0.0.0.0:5000"
+        request.host = URL.Host(address: "0.0.0.0", port: 5000)
         assertEqual(Encoder.encode(request), expected)
     }
 
@@ -236,6 +236,15 @@ class EncodeRequestTests: TestCase {
         let expected = "GET \(escapedUrl) HTTP/1.1\r\n" +
             "\r\n"
         let request = Request(url: try! URL("/привет?ключ=значение"))
+        assertEqual(Encoder.encode(request), expected)
+    }
+
+    func testUnicodeHost() {
+        let expected = "GET / HTTP/1.1\r\n" +
+            "Host: xn--b1agh1afp.xn--p1ai:8080\r\n" +
+            "\r\n"
+        var request = Request()
+        request.host = URL.Host(address: "привет.рф", port: 8080)
         assertEqual(Encoder.encode(request), expected)
     }
 }

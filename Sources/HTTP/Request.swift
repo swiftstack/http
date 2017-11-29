@@ -6,7 +6,15 @@ public struct Request {
     public var url: URL
     public var version: Version
 
-    public var host: String? = nil
+    public var host: URL.Host? {
+        get {
+            return url.host
+        }
+        set {
+            url.host = newValue
+        }
+    }
+
     public var userAgent: String? = nil
     public var accept: [Accept]? = nil
     public var acceptLanguage: [AcceptLanguage]? = nil
@@ -49,13 +57,7 @@ extension Request {
         self.method = method
         self.url = url
         self.version = .oneOne
-
-        if var host = url.host {
-            if let port = url.port {
-                host.append(":\(port)")
-            }
-            self.host = host
-        }
+        self.host = host
 
         if method == .post || method == .put, let query = url.query {
             var bytes = [UInt8]()
