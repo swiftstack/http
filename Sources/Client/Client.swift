@@ -3,6 +3,10 @@ import Async
 import Network
 import Buffer
 
+// FIXME:
+// linker issue on macOS
+import struct Foundation.Date
+
 @_exported import HTTP
 
 public enum ClientError: Error {
