@@ -281,7 +281,7 @@ extension URL.Host {
             validating: bytes[..<addressEndIndex], as: .text) else {
                 return nil
         }
-        self.address = address
+        self.address = Punycode.decode(domain: address)
     }
 }
 
