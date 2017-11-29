@@ -599,4 +599,19 @@ class DecodeRequestTests: TestCase {
             fail(String(describing: error))
         }
     }
+
+    func testEscaped() {
+        do {
+            let escapedUrl = "/%D0%BF%D1%83%D1%82%D1%8C" +
+                "?%D0%BA%D0%BB%D1%8E%D1%87" +
+                "=%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5" +
+                "#%D1%84%D1%80%D0%B0%D0%B3%D0%BC%D0%B5%D0%BD%D1%82"
+            let bytes = ASCII("GET \(escapedUrl) HTTP/1.1\r\n\r\n")
+            let request = try Request(from: bytes)
+            assertEqual(request.url, try URL("/путь?ключ=значение"))
+            assertEqual(request.url.fragment, "фрагмент")
+        } catch {
+            fail(String(describing: error))
+        }
+    }
 }
