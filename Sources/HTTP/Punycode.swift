@@ -15,7 +15,7 @@ extension StringProtocol {
 
 extension Punycode {
     public static func encode(domain: String) -> String {
-        if domain.isPunycode || domain.isASCII {
+        if domain.isASCII || domain.isPunycode {
             return domain
         }
         var parts = domain.components(separatedBy: ".")
