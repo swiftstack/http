@@ -26,6 +26,15 @@ public struct Response {
 }
 
 extension Response {
+    public var body: String? {
+        guard let rawBody = rawBody else {
+            return nil
+        }
+        return String(bytes: rawBody, encoding: .utf8)
+    }
+}
+
+extension Response {
     public init(status: Status) {
         self.status = status
         self.contentLength = 0
@@ -53,31 +62,31 @@ extension Response {
         rawBody = bytes
         contentLength = bytes.count
     }
-
-    public init(json object: Encodable) throws {
-        let encoder = JSONEncoder()
-        let json = try encoder.encode(object)
-
-        contentType = ContentType(mediaType: .application(.json))
-        rawBody = json
-        contentLength = json.count
-    }
-
-    public init(urlEncoded query: URL.Query) {
-        var urlEncodedBytes = [UInt8]()
-        query.encode(to: &urlEncodedBytes)
-
-        contentType = ContentType(mediaType: .application(.urlEncoded))
-        rawBody = urlEncodedBytes
-        contentLength = urlEncodedBytes.count
-    }
 }
 
 extension Response {
-    public var body: String? {
-        guard let rawBody = rawBody else {
-            return nil
+    public init(
+        body object: Encodable,
+        contentType type: ApplicationSubtype = .json
+    ) throws {
+        var response = Response()
+
+        switch type {
+        case .json:
+            response.contentType = ContentType(
+                mediaType: .application(.json))
+            let encoder = JSONEncoder()
+            response.rawBody = try encoder.encode(object)
+
+        case .urlEncoded:
+            response.contentType = ContentType(
+                mediaType: .application(.urlEncoded))
+            response.rawBody = try URLFormEncoded.encode(encodable: object)
+
+        default:
+            throw HTTPError.unsupportedContentType
         }
-        return String(bytes: rawBody, encoding: .utf8)
+
+        self = response
     }
 }

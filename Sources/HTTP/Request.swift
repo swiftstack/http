@@ -70,27 +70,29 @@ extension Request {
 }
 
 extension Request {
-    public init<T: Encodable>(method: Method, url: URL, json object: T) throws {
-        let json = try JSON.encode(object)
-        self.init(method: method, url: url)
-        self.contentType = ContentType(mediaType: .application(.json))
-        self.rawBody = json
-        self.contentLength = json.count
-    }
-
     public init<T: Encodable>(
         method: Method,
         url: URL,
-        urlEncoded object: T
+        body: T,
+        contentType type: ApplicationSubtype = .json
     ) throws {
-        let values = try KeyValueEncoder().encode(object)
-        let query = URL.Query(values: values)
-        var urlEncodedBytes = [UInt8]()
-        query.encode(to: &urlEncodedBytes)
+        var request = Request(method: .post, url: url)
 
-        self.init(method: method, url: url)
-        self.contentType = ContentType(mediaType: .application(.urlEncoded))
-        self.rawBody = urlEncodedBytes
-        self.contentLength = urlEncodedBytes.count
+        switch type {
+        case .json:
+            request.contentType = ContentType(
+                mediaType: .application(.json))
+            request.rawBody = try JSON.encode(body)
+
+        case .urlEncoded:
+            request.contentType = ContentType(
+                mediaType: .application(.urlEncoded))
+            request.rawBody = try URLFormEncoded.encode(body)
+
+        default:
+            throw HTTPError.unsupportedContentType
+        }
+
+        self = request
     }
 }

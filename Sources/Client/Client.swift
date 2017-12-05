@@ -86,18 +86,14 @@ extension Client {
 extension Client {
     public func post<T: Encodable>(
         path: String,
-        json object: T
-    ) throws -> Response {
-        let request = try Request(method: .post, url: URL(path), json: object)
-        return try makeRequest(request)
-    }
-
-    public func post<T: Encodable>(
-        path: String,
-        urlEncoded object: T
+        object: T,
+        contentType type: ApplicationSubtype = .json
     ) throws -> Response {
         let request = try Request(
-            method: .post, url: URL(path), urlEncoded: object)
+            method: .post,
+            url: URL(path),
+            body: object,
+            contentType: type)
         return try makeRequest(request)
     }
 }

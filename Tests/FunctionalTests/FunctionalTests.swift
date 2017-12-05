@@ -207,7 +207,7 @@ class FunctionalTests: TestCase {
             },
             clientCode: { client in
                 let message = ["message": "Hello, Server!"]
-                let response = try client.post(path: "/", json: message)
+                let response = try client.post(path: "/", object: message)
                 assertEqual(response.status, .ok)
                 assertEqual(response.body, "{\"message\":\"Hello, Client!\"}")
             }
@@ -223,14 +223,19 @@ class FunctionalTests: TestCase {
                 }
                 server.route(post: "/") { (model: Model) in
                     assertEqual(model.message, "Hello, Server!")
-                    return Response(urlEncoded: ["message": "Hello, Client!"])
+                    return try Response(
+                        body: ["message": "Hello, Client!"],
+                        contentType: .urlEncoded)
                 }
             },
             clientCode: { client in
                 struct Query: Encodable {
                     let message = "Hello, Server!"
                 }
-                let response = try client.post(path: "/", urlEncoded: Query())
+                let response = try client.post(
+                    path: "/",
+                    object: Query(),
+                    contentType: .urlEncoded)
                 assertEqual(response.status, .ok)
                 assertEqual(response.body, "message=Hello,%20Client!")
             }

@@ -8,6 +8,15 @@ public struct KeyValueEncoder {
         try value.encode(to: encoder)
         return encoder.values
     }
+
+    // FIXME: the same interface shadows the generic one
+    public func encode(
+        encodable value: Encodable
+    ) throws -> [String : String] {
+        let encoder = _KeyValueEncoder()
+        try value.encode(to: encoder)
+        return encoder.values
+    }
 }
 
 class _KeyValueEncoder: Encoder {
@@ -116,7 +125,10 @@ struct KeyValueKeyedEncodingContainer<K: CodingKey>
     mutating func encode<T>(
         _ value: T, forKey key: K
     ) throws where T : Encodable {
-        fatalError("unsupported")
+        guard let string = value as? String else {
+            fatalError("unsupported")
+        }
+        encoder.values[key.stringValue] = string
     }
 
     mutating func nestedContainer<NestedKey>(
@@ -213,6 +225,9 @@ struct KeyValueSingleValueEncodingContainer: SingleValueEncodingContainer {
     }
 
     mutating func encode<T>(_ value: T) throws where T : Encodable {
-        fatalError("unsupported")
+        guard let string = value as? String else {
+            fatalError("unsupported")
+        }
+        encoder.values["string"] = string
     }
 }

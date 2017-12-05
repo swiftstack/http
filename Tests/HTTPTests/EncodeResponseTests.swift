@@ -196,7 +196,8 @@ class EncodeResponseTests: TestCase {
             "Content-Length: 27\r\n" +
             "\r\n" +
             "{\"message\":\"Hello, World!\"}"
-        guard let response = try? Response(json: ["message" : "Hello, World!"]),
+        guard let response = try? Response(
+            body: ["message" : "Hello, World!"]),
             let rawBody = response.rawBody,
             let body = response.body else {
                 fail("body shouldn't be nil")
@@ -218,8 +219,10 @@ class EncodeResponseTests: TestCase {
             "Content-Length: 23\r\n" +
             "\r\n" +
             "message=Hello,%20World!"
-        let response = Response(urlEncoded: ["message" : "Hello, World!"])
-        guard let rawBody = response.rawBody,
+        guard let response = try? Response(
+            body: ["message" : "Hello, World!"],
+            contentType: .urlEncoded),
+            let rawBody = response.rawBody,
             let body = response.body else {
                 fail("body shouldn't be nil")
                 return

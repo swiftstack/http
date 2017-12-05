@@ -150,12 +150,19 @@ class RouterTests: TestCase {
 
         do {
             let model = Page(name: "news", number: 2)
-            let request = try Request(method: .post, url: "/", json: model)
+
+            let request = try Request(
+                method: .post,
+                url: "/",
+                body: model)
             let response = router.handleRequest(request)
             assertEqual(response.status, .ok)
 
             let urlEncodedRequest = try Request(
-                method: .post, url: "/", urlEncoded: model)
+                method: .post,
+                url: "/",
+                body: model,
+                contentType: .urlEncoded)
             let urlEncodedResponse = router.handleRequest(urlEncodedRequest)
             assertEqual(urlEncodedResponse.status, .ok)
         } catch {
@@ -213,12 +220,17 @@ class RouterTests: TestCase {
         do {
             let model = Params(id: 1, token: "abcdef")
             let request = try Request(
-                method: .post, url: "/news/2", json: model)
+                method: .post,
+                url: "/news/2",
+                body: model)
             let response = router.handleRequest(request)
             assertEqual(response.status, .ok)
 
             let urlEncodedRequest = try Request(
-                method: .post, url: "/news/2", urlEncoded: model)
+                method: .post,
+                url: "/news/2",
+                body: model,
+                contentType: .urlEncoded)
             let urlEncodedResponse = router.handleRequest(urlEncodedRequest)
             assertEqual(urlEncodedResponse.status, .ok)
         } catch {
@@ -312,12 +324,18 @@ class RouterTests: TestCase {
 
         do {
             let model = Page(name: "news", number: 2)
-            let request = try Request(method: .post, url: "/", json: model)
+            let request = try Request(
+                method: .post,
+                url: "/",
+                body: model)
             let response = router.handleRequest(request)
             assertEqual(response.status, .ok)
 
             let urlEncodedRequest = try Request(
-                method: .post, url: "/", urlEncoded: model)
+                method: .post,
+                url: "/",
+                body: model,
+                contentType: .urlEncoded)
             let urlEncodedResponse = router.handleRequest(urlEncodedRequest)
             assertEqual(urlEncodedResponse.status, .ok)
         } catch {
@@ -382,12 +400,17 @@ class RouterTests: TestCase {
         do {
             let model = Params(id: 1, token: "abcdef")
             let request = try Request(
-                method: .post, url: "/news/2", json: model)
+                method: .post,
+                url: "/news/2",
+                body: model)
             let response = router.handleRequest(request)
             assertEqual(response.status, .ok)
 
             let urlEncodedRequest = try Request(
-                method: .post, url: "/news/2", urlEncoded: model)
+                method: .post,
+                url: "/news/2",
+                body: model,
+                contentType: .urlEncoded)
             let urlEncodedResponse = router.handleRequest(urlEncodedRequest)
             assertEqual(urlEncodedResponse.status, .ok)
         } catch {
