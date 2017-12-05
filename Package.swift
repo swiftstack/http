@@ -28,6 +28,9 @@ let package = Package(
             url: "https://github.com/swift-stack/fiber.git",
             from: "0.4.0"),
         .package(
+            url: "https://github.com/swift-stack/compression.git",
+            from: "0.4.0"),
+        .package(
             url: "https://github.com/swift-stack/test.git",
             from: "0.4.0")
     ],
@@ -44,7 +47,7 @@ let package = Package(
         ),
         .target(
             name: "Client",
-            dependencies: ["Log", "Async", "Network", "HTTP"]
+            dependencies: ["Log", "Async", "Network", "HTTP", "Compression"]
         ),
         .testTarget(name: "HTTPTests", dependencies: ["HTTP", "Test"]),
         .testTarget(
