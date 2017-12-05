@@ -92,28 +92,35 @@ public class Client {
 }
 
 extension Client {
+    private func makeRequest(
+        method: Request.Method,
+        path: String
+    ) throws -> Response {
+        return try makeRequest(Request(method: method, url: URL(path)))
+    }
+
     public func get(path: String) throws -> Response {
-        return try makeRequest(Request(method: .get, url: URL(path)))
+        return try makeRequest(method: .get, path: path)
     }
 
     public func head(path: String) throws -> Response {
-        return try makeRequest(Request(method: .head, url: URL(path)))
+        return try makeRequest(method: .head, path: path)
     }
 
     public func post(path: String) throws -> Response {
-        return try makeRequest(Request(method: .post, url: URL(path)))
+        return try makeRequest(method: .post, path: path)
     }
 
     public func put(path: String) throws -> Response {
-        return try makeRequest(Request(method: .put, url: URL(path)))
+        return try makeRequest(method: .put, path: path)
     }
 
     public func delete(path: String) throws -> Response {
-        return try makeRequest(Request(method: .delete, url: URL(path)))
+        return try makeRequest(method: .delete, path: path)
     }
 
     public func options(path: String) throws -> Response {
-        return try makeRequest(Request(method: .options, url: URL(path)))
+        return try makeRequest(method: .options, path: path)
     }
 }
 
