@@ -57,6 +57,7 @@ public class Client {
         }
 
         var request = request
+        request.host = host
         updateAcceptEncoding(&request)
 
         var response: Response
