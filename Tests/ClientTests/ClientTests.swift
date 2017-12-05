@@ -43,8 +43,8 @@ class ClientTests: TestCase {
             do {
                 let request = Request()
 
-                let client = try Client()
-                try client.connect(to: URL("http://127.0.0.1:5001/"))
+                let client = try Client(host: "127.0.0.1", port: 5001)
+                try client.connect()
                 let response = try client.makeRequest(request)
 
                 assertEqual(response.status, .ok)

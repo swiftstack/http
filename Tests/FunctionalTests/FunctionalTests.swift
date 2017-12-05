@@ -35,8 +35,8 @@ class FunctionalTests: TestCase {
 
         async.task {
             do {
-                let client = try Client()
-                try client.connect(to: URL("http://127.0.0.1:\(port)/"))
+                let client = try Client(host: "127.0.0.1", port: Int(port))
+                try client.connect()
 
                 try clientCode(client)
 
@@ -76,7 +76,7 @@ class FunctionalTests: TestCase {
                 }
             },
             clientCode: { client in
-                let response = try client.get("/")
+                let response = try client.get(path: "/")
                 assertEqual(response.status, .ok)
                 assertNil(response.body)
             }
@@ -92,7 +92,7 @@ class FunctionalTests: TestCase {
                 }
             },
             clientCode: { client in
-                let response = try client.head("/")
+                let response = try client.head(path: "/")
                 assertEqual(response.status, .ok)
                 assertNil(response.body)
             }
@@ -108,7 +108,7 @@ class FunctionalTests: TestCase {
                 }
             },
             clientCode: { client in
-                let response = try client.post("/")
+                let response = try client.post(path: "/")
                 assertEqual(response.status, .ok)
                 assertNil(response.body)
             }
@@ -124,7 +124,7 @@ class FunctionalTests: TestCase {
                 }
             },
             clientCode: { client in
-                let response = try client.put("/")
+                let response = try client.put(path: "/")
                 assertEqual(response.status, .ok)
                 assertNil(response.body)
             }
@@ -140,7 +140,7 @@ class FunctionalTests: TestCase {
                 }
             },
             clientCode: { client in
-                let response = try client.delete("/")
+                let response = try client.delete(path: "/")
                 assertEqual(response.status, .ok)
                 assertNil(response.body)
             }
@@ -156,7 +156,7 @@ class FunctionalTests: TestCase {
                 }
             },
             clientCode: { client in
-                let response = try client.options("/")
+                let response = try client.options(path: "/")
                 assertEqual(response.status, .ok)
                 assertNil(response.body)
             }
@@ -172,22 +172,22 @@ class FunctionalTests: TestCase {
                 }
             },
             clientCode: { client in
-                let getResponse = try client.get("/")
+                let getResponse = try client.get(path: "/")
                 assertEqual(getResponse.status, .ok)
 
-                let headResponse = try client.head("/")
+                let headResponse = try client.head(path: "/")
                 assertEqual(headResponse.status, .ok)
 
-                let postResponse = try client.post("/")
+                let postResponse = try client.post(path: "/")
                 assertEqual(postResponse.status, .ok)
 
-                let putResponse = try client.put("/")
+                let putResponse = try client.put(path: "/")
                 assertEqual(putResponse.status, .ok)
 
-                let deleteResponse = try client.delete("/")
+                let deleteResponse = try client.delete(path: "/")
                 assertEqual(deleteResponse.status, .ok)
 
-                let optionsResponse = try client.post("/")
+                let optionsResponse = try client.post(path: "/")
                 assertEqual(optionsResponse.status, .ok)
             }
         )
@@ -207,7 +207,7 @@ class FunctionalTests: TestCase {
             },
             clientCode: { client in
                 let message = ["message": "Hello, Server!"]
-                let response = try client.post("/", json: message)
+                let response = try client.post(path: "/", json: message)
                 assertEqual(response.status, .ok)
                 assertEqual(response.body, "{\"message\":\"Hello, Client!\"}")
             }
@@ -230,7 +230,7 @@ class FunctionalTests: TestCase {
                 struct Query: Encodable {
                     let message = "Hello, Server!"
                 }
-                let response = try client.post("/", urlEncoded: Query())
+                let response = try client.post(path: "/", urlEncoded: Query())
                 assertEqual(response.status, .ok)
                 assertEqual(response.body, "message=Hello,%20Client!")
             }
