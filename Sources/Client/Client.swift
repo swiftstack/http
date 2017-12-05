@@ -2,6 +2,8 @@ import Log
 import Async
 import Network
 import Buffer
+import Stream
+import Compression
 
 // FIXME:
 // linker issue on macOS
@@ -14,11 +16,18 @@ public class Client {
     var stream: NetworkStream?
     var inputBuffer: InputBuffer<NetworkStream>?
 
+    public var bufferSize = 4096
+
     public var isConnected: Bool {
         return stream != nil
     }
 
-    public var bufferSize = 4096
+    public enum Compression {
+        case none
+        case deflate
+    }
+
+    public var compression: Compression = .deflate
 
     public init(host: String, port: Int) throws {
         self.host = URL.Host(address: host, port: port)
@@ -47,12 +56,37 @@ public class Client {
             try connect()
         }
 
+        var request = request
+        updateAcceptEncoding(&request)
+
+        var response: Response
         do {
             try request.encode(to: &stream!)
-            return try Response(from: inputBuffer!)
+            response = try Response(from: inputBuffer!)
         } catch {
             disconnect()
             throw error
+        }
+        try inflate(&response)
+        return response
+    }
+
+    private func updateAcceptEncoding(_ request: inout Request) {
+        if compression == .deflate {
+            var acceptEncoding = request.acceptEncoding ?? []
+            if !acceptEncoding.contains(.deflate) {
+                acceptEncoding.append(.deflate)
+                request.acceptEncoding = acceptEncoding
+            }
+        }
+    }
+
+    private func inflate(_ response: inout Response) throws {
+        if let rawBody = response.rawBody,
+            let contentEncoding = response.contentEncoding,
+            contentEncoding.contains(.deflate) {
+            let byteStream = InputByteStream(rawBody)
+            response.rawBody = try Inflate.decode(from: byteStream)
         }
     }
 }

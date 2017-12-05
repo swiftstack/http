@@ -10,7 +10,7 @@ extension Response {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    public func encode(to buffer: inout [UInt8]) {
         // Start line
         version.encode(to: &buffer)
         buffer.append(.whitespace)
