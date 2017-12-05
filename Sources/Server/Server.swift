@@ -8,17 +8,15 @@ import Buffer
 
 public class Server {
     let socket: Socket
-    public let host: String
-    public let port: UInt16
 
     public var bufferSize = 4096
 
     var router = Router()
 
     public init(host: String, port: UInt16) throws {
-        self.host = host
-        self.port = port
-        self.socket = try Socket()
+        let socket = try Socket()
+        try socket.bind(to: host, port: port)
+        self.socket = socket
     }
 
     convenience
@@ -32,7 +30,7 @@ public class Server {
     }
 
     public func start() throws {
-        try socket.bind(to: host, port: port).listen()
+        try socket.listen()
         log(event: .info, message: "\(self) started")
         async.task {
             while true {
