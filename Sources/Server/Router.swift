@@ -71,7 +71,7 @@ struct Router {
         case let response as Response: return response
         case let string as String: return Response(string: string)
         case is Void: return Response(status: .ok)
-        case let encodable as Encodable: return try Response(json: encodable)
+        case let encodable as Encodable: return try Response(body: encodable)
         default: throw Error.invalidResponse
         }
     }
