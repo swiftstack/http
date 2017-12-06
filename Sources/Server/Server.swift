@@ -13,14 +13,14 @@ public class Server {
 
     var router = Router()
 
-    public init(host: String, port: UInt16) throws {
+    public init(host: String, port: Int) throws {
         let socket = try Socket()
         try socket.bind(to: host, port: port)
         self.socket = socket
     }
 
     convenience
-    public init(host: String, reusePort: UInt16) throws {
+    public init(host: String, reusePort: Int) throws {
         try self.init(host: host, port: reusePort)
         try socket.options.set(.reusePort, true)
     }

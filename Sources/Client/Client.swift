@@ -40,7 +40,7 @@ public class Client {
 
         let port = host.port ?? 80
         let socket = try Socket()
-        try socket.connect(to: host.address, port: UInt16(port))
+        try socket.connect(to: host.address, port: port)
 
         self.stream = NetworkStream(socket: socket)
         self.inputBuffer = InputBuffer(capacity: bufferSize, source: stream!)
