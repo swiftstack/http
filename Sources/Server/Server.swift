@@ -1,13 +1,14 @@
 import Log
 import Async
 import Network
-import Foundation
+import Platform
 import Buffer
 
 @_exported import HTTP
 
 public class Server {
     let socket: Socket
+    let host: URL.Host
 
     public var bufferSize = 4096
 
@@ -17,6 +18,7 @@ public class Server {
         let socket = try Socket()
         try socket.bind(to: host, port: port)
         self.socket = socket
+        self.host = URL.Host(address: host, port: port)
     }
 
     convenience

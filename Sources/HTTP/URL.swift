@@ -82,6 +82,13 @@ extension URL.Query: Equatable {
     }
 }
 
+extension URL.Host: Equatable {
+    public static func ==(lhs: URL.Host, rhs: URL.Host) -> Bool {
+        return lhs.address == rhs.address &&
+            lhs.port == rhs.port
+    }
+}
+
 extension URL: ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
         do {
@@ -139,9 +146,11 @@ extension URL.Query: CustomStringConvertible {
     }
 }
 
-extension URL.Host: Equatable {
-    public static func ==(lhs: URL.Host, rhs: URL.Host) -> Bool {
-        return lhs.address == rhs.address &&
-            lhs.port == rhs.port
+extension URL.Host: CustomStringConvertible {
+    public var description: String {
+        guard let port = port else {
+            return address
+        }
+        return "\(address):\(port)"
     }
 }
