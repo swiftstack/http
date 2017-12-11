@@ -255,7 +255,7 @@ extension Request.AcceptLanguage: Equatable {
 extension Array where Element == Request.AcceptLanguage {
     public typealias AcceptLanguage = Request.AcceptLanguage
 
-    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
+    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
         var startIndex = bytes.startIndex
         var endIndex = startIndex
         var values = [AcceptLanguage]()
@@ -289,7 +289,7 @@ extension Request.AcceptLanguage {
         static let qEqual = ASCII("q=")
     }
 
-    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
+    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
         if let semicolon = bytes.index(of: .semicolon) {
             self.language = try Language(from: bytes[..<semicolon])
 

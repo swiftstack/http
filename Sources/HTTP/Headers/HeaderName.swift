@@ -25,7 +25,7 @@ extension HeaderName {
 
 public struct HeaderName: Hashable {
     let bytes: [UInt8]
-    init(from buffer: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
+    init(from buffer: UnsafeRawBufferPointer.SubSequence) throws {
         for byte in buffer {
             guard ASCIICharacterSet.token.contains(byte) else {
                 throw HTTPError.invalidHeaderName

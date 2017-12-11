@@ -34,7 +34,7 @@ extension ContentType {
         static let charset = ASCII("charset=")
     }
 
-    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
+    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
         let semicolonIndex = bytes.index(of: .semicolon)
 
         self.mediaType = semicolonIndex == nil
@@ -103,7 +103,7 @@ extension Boundary {
         static let boundary = ASCII("boundary=")
     }
 
-    init(from bytes: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
+    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
         let boundaryStart = bytes.startIndex + Bytes.boundary.count
         guard boundaryStart < bytes.endIndex else {
             throw HTTPError.invalidContentType

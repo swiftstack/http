@@ -10,7 +10,7 @@ extension Version {
         static let versionLength = httpSlash.count + oneOne.count
     }
 
-    init(from buffer: RandomAccessSlice<UnsafeRawBufferPointer>) throws {
+    init(from buffer: UnsafeRawBufferPointer.SubSequence) throws {
         guard buffer.starts(with: Bytes.httpSlash) else {
             throw HTTPError.invalidVersion
         }

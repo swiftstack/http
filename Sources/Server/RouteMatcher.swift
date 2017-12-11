@@ -50,7 +50,7 @@ public struct RouteMatcher<T> {
         return result
     }
 
-    func addNode(to node: inout Node, characters: RandomAccessSlice<UnsafeRawBufferPointer>, payload: T) {
+    func addNode(to node: inout Node, characters: UnsafeRawBufferPointer.SubSequence, payload: T) {
         let character = Int(characters[characters.startIndex])
         if character == Int(asterisk) || character == Int(colon) {
             if node.wildcard == nil {
@@ -89,7 +89,7 @@ public struct RouteMatcher<T> {
         }
     }
 
-    func findNode(in node: Node, characters: RandomAccessSlice<UnsafeRawBufferPointer>, result: inout [T]) {
+    func findNode(in node: Node, characters: UnsafeRawBufferPointer.SubSequence, result: inout [T]) {
         guard characters.startIndex < characters.endIndex else {
             if node.payload.count > 0 {
                 result.append(contentsOf: node.payload)
