@@ -11,25 +11,25 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/swift-stack/log.git",
-            from: "0.4.0"),
+            .branch("master")),
         .package(
             url: "https://github.com/swift-stack/async.git",
-            from: "0.4.0"),
+            .branch("master")),
         .package(
             url: "https://github.com/swift-stack/memory.git",
-            from: "0.4.0"),
+            .branch("master")),
         .package(
             url: "https://github.com/swift-stack/network.git",
-            from: "0.4.0"),
+            .branch("master")),
         .package(
             url: "https://github.com/swift-stack/json.git",
-            from: "0.4.0"),
+            .branch("master")),
         .package(
             url: "https://github.com/swift-stack/compression.git",
-            from: "0.4.0"),
+            .branch("master")),
         .package(
             url: "https://github.com/swift-stack/test.git",
-            from: "0.4.0")
+            .branch("master"))
     ],
     targets: [
         .target(name: "KeyValueCodable"),
