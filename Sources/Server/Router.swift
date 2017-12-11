@@ -26,18 +26,16 @@ struct Router {
         static let all: MethodSet = [
             .get, .head, .post, .put, .delete, .options
         ]
-
-        func contains(_ method: Request.Method) -> Bool {
-            let member: MethodSet
+        
+        fileprivate func contains(method: Request.Method) -> Bool {
             switch method {
-            case .get: member = .get
-            case .head: member = .head
-            case .post: member = .post
-            case .put: member = .put
-            case .delete: member = .delete
-            case .options: member = .options
+            case .get: return contains(.get)
+            case .head: return contains(.head)
+            case .post: return contains(.post)
+            case .put: return contains(.put)
+            case .delete: return contains(.delete)
+            case .options: return contains(.options)
             }
-            return self.contains(member)
         }
     }
 
@@ -51,7 +49,7 @@ struct Router {
     func handleRequest(_ request: Request) -> Response {
         let routes = routeMatcher.matches(route: request.url.path)
         guard let route = routes.first(where: { route in
-            route.methods.contains(request.method)
+            route.methods.contains(method: request.method)
         }) else {
             return Response(status: .notFound)
         }
