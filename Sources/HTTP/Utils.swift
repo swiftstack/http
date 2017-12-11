@@ -163,7 +163,7 @@ extension Double {
 
 // MARK: UnsafeRawBufferPointer extension
 
-extension RandomAccessSlice where Element == UInt8, Base.Index == Int {
+extension RandomAccessCollection where Element == UInt8, Index == Int {
     @inline(__always)
     func index(of element: UInt8, offset: Int) -> Int? {
         guard let index = self[offset...].index(of: element) else {
@@ -173,20 +173,20 @@ extension RandomAccessSlice where Element == UInt8, Base.Index == Int {
     }
 }
 
-extension RandomAccessSlice where Element == UInt8, Base.Index == Int {
+extension Collection where Element == UInt8, Index == Int {
     @inline(__always)
-    func trimmingLeftSpace() -> RandomAccessSlice<Base> {
+    func trimmingLeftSpace() -> SubSequence {
         if startIndex < endIndex && self[startIndex] == .whitespace {
             return self.dropFirst()
         }
-        return self
+        return self[...]
     }
 
     @inline(__always)
-    func trimmingRightSpace() -> RandomAccessSlice<Base> {
+    func trimmingRightSpace() -> SubSequence {
         if startIndex < endIndex && self[endIndex-1] == .whitespace {
             return self.dropLast()
         }
-        return self
+        return self[...]
     }
 }
