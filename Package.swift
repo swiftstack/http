@@ -25,9 +25,6 @@ let package = Package(
             url: "https://github.com/swift-stack/json.git",
             from: "0.4.0"),
         .package(
-            url: "https://github.com/swift-stack/fiber.git",
-            from: "0.4.0"),
-        .package(
             url: "https://github.com/swift-stack/compression.git",
             from: "0.4.0"),
         .package(
