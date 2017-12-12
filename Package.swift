@@ -32,7 +32,8 @@ let package = Package(
             .branch("master"))
     ],
     targets: [
-        .target(name: "KeyValueCodable"),
+        .target(
+            name: "KeyValueCodable"),
         .target(
             name: "HTTP",
             dependencies: [
@@ -40,13 +41,13 @@ let package = Package(
             ]),
         .target(
             name: "Server",
-            dependencies: ["Log", "Async", "Network", "HTTP"]
-        ),
+            dependencies: ["Log", "Async", "Network", "HTTP"]),
         .target(
             name: "Client",
-            dependencies: ["Log", "Async", "Network", "HTTP", "Compression"]
-        ),
-        .testTarget(name: "HTTPTests", dependencies: ["HTTP", "Test"]),
+            dependencies: ["Log", "Async", "Network", "HTTP", "Compression"]),
+        .testTarget(
+            name: "HTTPTests",
+            dependencies: ["HTTP", "Test"]),
         .testTarget(
             name: "ServerTests",
             dependencies: ["Server", "Test", "AsyncDispatch"]),
