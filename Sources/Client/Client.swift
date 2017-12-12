@@ -29,6 +29,13 @@ public class Client {
 
     public var compression: Compression = .deflate
 
+    public init?(url: URL) {
+        guard let host = url.host else {
+            return nil
+        }
+        self.host = host
+    }
+
     public init(host: String, port: Int) {
         self.host = URL.Host(address: host, port: port)
     }
