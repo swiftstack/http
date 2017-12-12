@@ -41,7 +41,7 @@ class ThrowableRouteTests: TestCase {
 
         async.task {
             do {
-                let client = try Client(host: "127.0.0.1", port: Int(port))
+                let client = Client(host: "127.0.0.1", port: Int(port))
                 try client.connect()
 
                 try clientCode(client)

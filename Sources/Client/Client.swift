@@ -29,7 +29,7 @@ public class Client {
 
     public var compression: Compression = .deflate
 
-    public init(host: String, port: Int) throws {
+    public init(host: String, port: Int) {
         self.host = URL.Host(address: host, port: port)
     }
 
