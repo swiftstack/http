@@ -24,10 +24,11 @@ public class Client {
 
     public enum Compression {
         case none
+        case gzip
         case deflate
     }
 
-    public var compression: Compression = .deflate
+    public var compression: [Compression] = [.gzip, .deflate]
 
     public init?(url: URL) {
         guard let host = url.host else {
@@ -75,26 +76,36 @@ public class Client {
             disconnect()
             throw error
         }
-        try inflate(&response)
+        try decode(&response)
         return response
     }
 
     private func updateAcceptEncoding(_ request: inout Request) {
-        if compression == .deflate {
-            var acceptEncoding = request.acceptEncoding ?? []
-            if !acceptEncoding.contains(.deflate) {
-                acceptEncoding.append(.deflate)
-                request.acceptEncoding = acceptEncoding
-            }
+        guard !compression.isEmpty else {
+            return
         }
+        var acceptEncoding = request.acceptEncoding ?? []
+        if compression.contains(.gzip) &&
+            !acceptEncoding.contains(.gzip) {
+                acceptEncoding.append(.gzip)
+        }
+        if compression.contains(.deflate) &&
+            !acceptEncoding.contains(.deflate) {
+                acceptEncoding.append(.deflate)
+        }
+        request.acceptEncoding = acceptEncoding
     }
 
-    private func inflate(_ response: inout Response) throws {
-        if let rawBody = response.rawBody,
-            let contentEncoding = response.contentEncoding,
-            contentEncoding.contains(.deflate) {
-            let byteStream = InputByteStream(rawBody)
-            response.rawBody = try Inflate.decode(from: byteStream)
+    private func decode(_ response: inout Response) throws {
+        guard let rawBody = response.rawBody,
+            let contentEncoding = response.contentEncoding else {
+                return
+        }
+        let stream = InputByteStream(rawBody)
+        if contentEncoding.contains(.gzip) {
+            response.rawBody = try GZip.decode(from: stream)
+        } else if contentEncoding.contains(.deflate) {
+            response.rawBody = try Inflate.decode(from: stream)
         }
     }
 }

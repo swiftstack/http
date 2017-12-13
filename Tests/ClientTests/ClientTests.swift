@@ -79,18 +79,17 @@ class ClientTests: TestCase {
         async.loop.run()
     }
 
-    func testDeflate() {
-        let data = Data(base64Encoded: "80jNycnXUQjPL8pJUQQA")!
+    func testGZipDeflate() {
+        let gzipBase64 = "H4sIAAAAAAAAE/NIzcnJ11EIzy/KSVEEANDDSuwNAAAA"
+        let deflateBase64 = "80jNycnXUQjPL8pJUQQA"
+
+        let gzipBody = [UInt8](Data(base64Encoded: gzipBase64)!)
+        let deflateBody = [UInt8](Data(base64Encoded: deflateBase64)!)
 
         let semaphore = DispatchSemaphore(value: 0)
 
         async.task {
             do {
-                var response = Response(status: .ok)
-                response.contentType = ContentType(mediaType: .text(.plain))
-                response.contentEncoding = [.deflate]
-                response.rawBody = [UInt8](data)
-
                 let socket = try Socket()
                     .bind(to: "127.0.0.1", port: 5002)
                     .listen()
@@ -98,13 +97,29 @@ class ClientTests: TestCase {
                 semaphore.signal()
 
                 let client = try socket.accept()
+
+                // Client Headers
+
                 var buffer = [UInt8](repeating: 0, count: 100)
                 let count = try client.receive(to: &buffer)
                 let request = try Request(from: [UInt8](buffer[..<count]))
+                assertEqual(request.acceptEncoding ?? [], [.gzip, .deflate])
 
-                assertEqual(request.acceptEncoding ?? [], [.deflate])
+                // GZip
 
+                var response = Response(status: .ok)
+                response.contentType = ContentType(mediaType: .text(.plain))
+                response.contentEncoding = [.gzip]
+                response.rawBody = gzipBody
                 var responseBytes = [UInt8]()
+                response.encode(to: &responseBytes)
+                _ = try client.send(bytes: responseBytes)
+
+                // Deflate
+
+                response.contentEncoding = [.deflate]
+                response.rawBody = deflateBody
+                responseBytes = [UInt8]()
                 response.encode(to: &responseBytes)
                 _ = try client.send(bytes: responseBytes)
 
@@ -122,9 +137,13 @@ class ClientTests: TestCase {
 
                 let client = Client(host: "127.0.0.1", port: 5002)
                 try client.connect()
-                let response = try client.makeRequest(request)
 
-                assertEqual(response.status, .ok)
+                var response = try client.makeRequest(request)
+                assertEqual(response.contentEncoding, [.gzip])
+                assertEqual(response.body, "Hello, World!")
+
+                response = try client.makeRequest(request)
+                assertEqual(response.contentEncoding, [.deflate])
                 assertEqual(response.body, "Hello, World!")
 
                 async.loop.terminate()
