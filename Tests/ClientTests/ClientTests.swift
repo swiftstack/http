@@ -32,7 +32,7 @@ class ClientTests: TestCase {
             do {
                 let expected = "GET / HTTP/1.1\r\n" +
                     "Host: 127.0.0.1:5001\r\n" +
-                    "Accept-Encoding: deflate\r\n" +
+                    "Accept-Encoding: gzip, deflate\r\n" +
                     "\r\n"
 
                 let responseBytes = [UInt8]("HTTP/1.1 200 OK\r\n\r\n".utf8)
