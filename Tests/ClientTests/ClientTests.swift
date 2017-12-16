@@ -48,7 +48,7 @@ class ClientTests: TestCase {
                 let count = try client.receive(to: &buffer)
                 _ = try client.send(bytes: responseBytes)
 
-                let request = String(ascii: [UInt8](buffer[..<count]))
+                let request = String(decoding: buffer[..<count], as: UTF8.self)
                 assertEqual(request, expected)
             } catch {
                 async.loop.terminate()

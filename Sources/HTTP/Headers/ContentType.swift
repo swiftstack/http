@@ -64,7 +64,8 @@ extension ContentType {
             guard charset.count > Bytes.charset.count else {
                 throw HTTPError.invalidContentType
             }
-            self.charset = try Charset(from: charset[Bytes.charset.count...])
+            let charsetValueIndex = charset.startIndex + Bytes.charset.count
+            self.charset = try Charset(from: charset[charsetValueIndex...])
             self.boundary = nil
         }
     }
