@@ -37,56 +37,22 @@ extension UInt8: ExpressibleByStringLiteral {
 // MARK: String initializer from byte sequence (without null terminator)
 
 extension String {
-    public init?(ascii: UnsafeRawBufferPointer) {
-        self.init(validating: ascii, as: .ascii)
+    init?<T: RandomAccessCollection>(
+        ascii bytes: T
+    ) where T.Element == UInt8, T.Index == Int {
+        self.init(validating: bytes, as: .ascii)
     }
 
-    public init?(ascii: UnsafeRawBufferPointer.SubSequence) {
-        self.init(validating: ascii, as: .ascii)
-    }
-
-    public init?(ascii: [UInt8]) {
-        self.init(validating: ascii, as: .ascii)
-    }
-
-    public init?(
-        validating bytes: UnsafeRawBufferPointer,
+    init?<T: RandomAccessCollection>(
+        validating bytes: T,
         as characterSet: ASCIICharacterSet
-    ) {
+    ) where T.Element == UInt8, T.Index == Int {
         for byte in bytes {
             guard byte != 0 && characterSet.contains(byte) else {
                 return nil
             }
         }
-
-        let count = bytes.count
-        let storage = _StringBuffer(
-            capacity: count,
-            initialSize: count,
-            elementWidth: 1)
-        storage.start.copyMemory(from: bytes.baseAddress!, byteCount: count)
-        self = String(_storage: storage)
-    }
-
-    public init?(
-        validating bytes: UnsafeRawBufferPointer.SubSequence,
-        as characterSet: ASCIICharacterSet
-    ) {
-        self.init(
-            validating: UnsafeRawBufferPointer(rebasing: bytes),
-            as: characterSet
-        )
-    }
-
-    public init?(
-        validating bytes: [UInt8],
-        as characterSet: ASCIICharacterSet
-    ) {
-        self.init(
-            validating: UnsafeRawBufferPointer(
-                start: bytes, count: bytes.count),
-            as: characterSet
-        )
+        self = String(decoding: bytes, as: UTF8.self)
     }
 }
 
