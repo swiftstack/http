@@ -56,7 +56,8 @@ extension Response.SetCookie {
         static let secure = ASCII("Secure")
     }
 
-    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         var startIndex = bytes.startIndex
         var endIndex = bytes.index(of: .semicolon, offset: startIndex)
             ?? bytes.endIndex

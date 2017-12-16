@@ -16,7 +16,8 @@ extension ContentEncoding: Equatable {
 }
 
 extension Array where Element == ContentEncoding {
-    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         var startIndex = bytes.startIndex
         var endIndex = startIndex
         var values = [ContentEncoding]()
@@ -52,7 +53,8 @@ extension ContentEncoding {
         static let deflate = ASCII("deflate")
     }
 
-    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         switch bytes.lowercasedHashValue {
         case Bytes.gzip.lowercasedHashValue: self = .gzip
         case Bytes.deflate.lowercasedHashValue: self = .deflate

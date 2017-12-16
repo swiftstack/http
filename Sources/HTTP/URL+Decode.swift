@@ -216,15 +216,16 @@ extension URL.Query {
 // Fast decode
 
 extension URL {
-    init(escaped buffer: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(escaped bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         self.scheme = nil
         self.host = nil
 
-        var endIndex = buffer.endIndex
-        if let index = buffer.index(of: .hash) {
+        var endIndex = bytes.endIndex
+        if let index = bytes.index(of: .hash) {
             // FIXME: validate using url rules
             guard let fragment =
-                String(validating: buffer[(index+1)...], as: .text)?
+                String(validating: bytes[(index+1)...], as: .text)?
                     .removingPercentEncoding else {
                         throw HTTPError.invalidURL
             }
@@ -234,16 +235,16 @@ extension URL {
             self.fragment = nil
         }
 
-        if let index = buffer[..<endIndex].index(of: .questionMark) {
+        if let index = bytes[..<endIndex].index(of: .questionMark) {
             // FIXME: validate using url rules
-            self.query = try Query(escaped: buffer[(index+1)..<endIndex])
+            self.query = try Query(escaped: bytes[(index+1)..<endIndex])
             endIndex = index
         } else {
             self.query = [:]
         }
 
         // FIXME: validate using url rules
-        guard let path = String(validating: buffer[..<endIndex], as: .text)?
+        guard let path = String(validating: bytes[..<endIndex], as: .text)?
             .removingPercentEncoding else {
                 throw HTTPError.invalidURL
         }
@@ -252,9 +253,8 @@ extension URL {
 }
 
 extension URL.Host {
-    static func parsePort(
-        _ bytes: UnsafeRawBufferPointer.SubSequence
-    ) -> Int? {
+    static func parsePort<T: RandomAccessCollection>(_ bytes: T) -> Int?
+        where T.Element == UInt8, T.Index == Int {
         var port = 0
         for byte in bytes {
             guard byte >= .zero && byte <= .nine else {
@@ -269,7 +269,8 @@ extension URL.Host {
         return port
     }
 
-    init?(escaped bytes: UnsafeRawBufferPointer.SubSequence) {
+    init?<T: RandomAccessCollection>(escaped bytes: T)
+        where T.Element == UInt8, T.Index == Int {
         var addressEndIndex = bytes.endIndex
         if let colonIndex = bytes.index(of: .colon) {
             addressEndIndex = colonIndex
@@ -288,12 +289,8 @@ extension URL.Host {
 
 
 extension URL.Query {
-    public init(escaped bytes: [UInt8]) throws {
-        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
-        try self.init(escaped: buffer[...])
-    }
-
-    init(escaped bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    public init<T: RandomAccessCollection>(escaped bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         var values =  [String : String]()
 
         var startIndex = bytes.startIndex

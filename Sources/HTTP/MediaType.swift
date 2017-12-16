@@ -34,7 +34,8 @@ extension MediaType {
         static let any = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         guard let slashIndex = bytes.index(of: .slash) else {
             throw HTTPError.invalidMediaType
         }
@@ -138,7 +139,8 @@ extension ApplicationSubtype {
         static let any = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         switch bytes.lowercasedHashValue {
         case Bytes.json.lowercasedHashValue: self = .json
         case Bytes.javascript.lowercasedHashValue: self = .javascript
@@ -191,7 +193,8 @@ extension AudioSubtype {
         static let any = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         switch bytes.lowercasedHashValue {
         case Bytes.mp4.lowercasedHashValue: self = .mp4
         case Bytes.aac.lowercasedHashValue: self = .aac
@@ -237,7 +240,8 @@ extension ImageSubtype {
         static let any = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         switch bytes.lowercasedHashValue {
         case Bytes.gif.lowercasedHashValue: self = .gif
         case Bytes.jpeg.lowercasedHashValue: self = .jpeg
@@ -274,7 +278,8 @@ extension MultipartSubtype {
         static let any = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         switch bytes.lowercasedHashValue {
         case Bytes.formData.lowercasedHashValue: self = .formData
         case Bytes.any.lowercasedHashValue: self = .any
@@ -311,7 +316,8 @@ extension TextSubtype {
         static let any = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         switch bytes.lowercasedHashValue {
         case Bytes.css.lowercasedHashValue: self = .css
         case Bytes.csv.lowercasedHashValue: self = .csv
@@ -356,7 +362,8 @@ extension VideoSubtype {
         static let any = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         switch bytes.lowercasedHashValue {
         case Bytes.mpeg.lowercasedHashValue: self = .mpeg
         case Bytes.mp4.lowercasedHashValue: self = .mp4

@@ -11,7 +11,8 @@ extension Connection {
         static let upgrade = ASCII("Upgrade")
     }
 
-    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         switch bytes.lowercasedHashValue {
         case Bytes.keepAlive.lowercasedHashValue: self = .keepAlive
         case Bytes.close.lowercasedHashValue: self = .close

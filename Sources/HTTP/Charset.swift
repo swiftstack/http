@@ -27,7 +27,8 @@ extension Charset {
         static let any = ASCII("*")
     }
 
-    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         switch bytes.lowercasedHashValue {
         case Bytes.utf8.lowercasedHashValue: self = .utf8
         case Bytes.ascii.lowercasedHashValue: self = .ascii

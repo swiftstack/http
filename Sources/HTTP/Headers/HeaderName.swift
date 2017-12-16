@@ -25,13 +25,14 @@ extension HeaderName {
 
 public struct HeaderName: Hashable {
     let bytes: [UInt8]
-    init(from buffer: UnsafeRawBufferPointer.SubSequence) throws {
-        for byte in buffer {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
+        for byte in bytes {
             guard ASCIICharacterSet.token.contains(byte) else {
                 throw HTTPError.invalidHeaderName
             }
         }
-        bytes = [UInt8](buffer)
+        self.bytes = [UInt8](bytes)
     }
 
     public init(_ value: String) {

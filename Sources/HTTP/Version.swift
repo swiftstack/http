@@ -10,12 +10,13 @@ extension Version {
         static let versionLength = httpSlash.count + oneOne.count
     }
 
-    init(from buffer: UnsafeRawBufferPointer.SubSequence) throws {
-        guard buffer.starts(with: Bytes.httpSlash) else {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
+        guard bytes.starts(with: Bytes.httpSlash) else {
             throw HTTPError.invalidVersion
         }
-        let versionIndex = buffer.startIndex + Bytes.httpSlash.count
-        let version = UnsafeRawBufferPointer(rebasing: buffer[versionIndex...])
+        let versionIndex = bytes.startIndex + Bytes.httpSlash.count
+        let version = bytes[versionIndex...]
         switch version {
         case _ where version.elementsEqual(Bytes.oneOne): self = .oneOne
         default: throw HTTPError.invalidVersion

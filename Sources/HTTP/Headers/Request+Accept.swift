@@ -21,7 +21,8 @@ extension Request.Accept: Equatable {
 extension Array where Element == Request.Accept {
     public typealias Accept = Request.Accept
 
-    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         var startIndex = bytes.startIndex
         var endIndex = startIndex
         var values = [Accept]()
@@ -54,15 +55,16 @@ extension Request.Accept {
         static let qEqual = ASCII("q=")
     }
 
-    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         if let semicolon = bytes.index(of: .semicolon) {
             self.mediaType = try MediaType(from: bytes[..<semicolon])
 
             let index = semicolon.advanced(by: 1)
-            let bytes = UnsafeRawBufferPointer(rebasing: bytes[index...])
+            let bytes = bytes[index...]
             guard bytes.count == 5,
                 bytes.starts(with: Bytes.qEqual),
-                let priority = Double(from: bytes[2...]) else {
+                let priority = Double(from: bytes[(index+2)...]) else {
                     throw HTTPError.invalidHeaderValue
             }
             self.priority = priority

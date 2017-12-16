@@ -10,7 +10,8 @@ extension Request {
 }
 
 extension Request.Method {
-    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         for (type, method) in RequestMethodBytes.values {
             if bytes.elementsEqual(method) {
                 self = type

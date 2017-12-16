@@ -27,7 +27,8 @@ extension Request.Authorization {
         static let token = ASCII("Token")
     }
 
-    init(from bytes: UnsafeRawBufferPointer.SubSequence) throws {
+    init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int {
         func suffix(from index: Int) throws -> String {
             let index = bytes.startIndex + index + 1
             guard index > bytes.startIndex, index < bytes.endIndex,
