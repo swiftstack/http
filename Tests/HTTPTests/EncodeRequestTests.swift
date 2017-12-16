@@ -114,7 +114,7 @@ class EncodeRequestTests: TestCase {
 
     func testAcceptEncoding() {
         let expected = "GET / HTTP/1.1\r\n" +
-            "Accept-Encoding: gzip,deflate\r\n" +
+            "Accept-Encoding: gzip, deflate\r\n" +
             "\r\n"
         var request = Request()
         request.acceptEncoding = [.gzip, .deflate]

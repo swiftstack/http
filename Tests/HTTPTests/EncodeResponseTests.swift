@@ -97,7 +97,7 @@ class EncodeResponseTests: TestCase {
     func testContentEncoding() {
         let expected = "HTTP/1.1 200 OK\r\n" +
             "Content-Length: 0\r\n" +
-            "Content-Encoding: gzip,deflate\r\n" +
+            "Content-Encoding: gzip, deflate\r\n" +
             "\r\n"
         var response = Response(status: .ok)
         response.contentEncoding = [.gzip, .deflate]
