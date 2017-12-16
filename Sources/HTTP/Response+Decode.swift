@@ -1,14 +1,13 @@
 import Stream
-import Buffer
 
 extension Response {
     // TODO: move to Tests?
     public init(from bytes: [UInt8]) throws {
-        let inputBuffer = InputBuffer(source: InputByteStream(bytes))
-        try self.init(from: inputBuffer)
+        let stream = BufferedInputStream(baseStream: InputByteStream(bytes))
+        try self.init(from: stream)
     }
 
-    public init<T: InputBufferProtocol>(from buffer: T) throws {
+    public init<T: BufferedInputStreamReader>(from buffer: T) throws {
         guard let version = try buffer.read(until: .whitespace) else {
             throw HTTPError.unexpectedEnd
         }
@@ -47,10 +46,10 @@ extension Response {
 
             try buffer.consume(count: 1)
 
-            guard var value = try buffer.read(until: .cr) else {
+            guard let untrimmend = try buffer.read(until: .cr) else {
                 throw HTTPError.unexpectedEnd
             }
-            value = value.trimmingLeftSpace().trimmingRightSpace()
+            let value = untrimmend.trimmingLeftSpace().trimmingRightSpace()
 
             try readLineEnd()
 

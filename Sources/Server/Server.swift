@@ -2,7 +2,7 @@ import Log
 import Async
 import Network
 import Platform
-import Buffer
+import Stream
 
 @_exported import HTTP
 
@@ -51,10 +51,11 @@ public class Server {
     func handleClient(_ client: Socket) {
         do {
             var stream = NetworkStream(socket: client)
-            let buffer = InputBuffer(capacity: bufferSize, source: stream)
+            let inputStream = BufferedInputStream(
+                baseStream: stream, capacity: bufferSize)
 
             while true {
-                let request = try Request(from: buffer)
+                let request = try Request(from: inputStream)
                 let response = router.handleRequest(request)
                 try response.encode(to: &stream)
                 if request.connection == .close {

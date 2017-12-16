@@ -16,7 +16,7 @@ let package = Package(
             url: "https://github.com/swift-stack/async.git",
             .branch("master")),
         .package(
-            url: "https://github.com/swift-stack/memory.git",
+            url: "https://github.com/swift-stack/stream.git",
             .branch("master")),
         .package(
             url: "https://github.com/swift-stack/network.git",
@@ -36,9 +36,7 @@ let package = Package(
             name: "KeyValueCodable"),
         .target(
             name: "HTTP",
-            dependencies: [
-                "MemoryStream", "Buffer", "JSON", "KeyValueCodable"
-            ]),
+            dependencies: ["Stream", "JSON", "KeyValueCodable"]),
         .target(
             name: "Server",
             dependencies: ["Log", "Async", "Network", "HTTP"]),

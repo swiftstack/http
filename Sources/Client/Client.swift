@@ -1,7 +1,6 @@
 import Log
 import Async
 import Network
-import Buffer
 import Stream
 import Compression
 
@@ -14,7 +13,7 @@ import struct Foundation.Date
 public class Client {
     let host: URL.Host
     var stream: NetworkStream?
-    var inputBuffer: InputBuffer<NetworkStream>?
+    var inputStream: BufferedInputStream<NetworkStream>?
 
     public var bufferSize = 4096
 
@@ -51,12 +50,13 @@ public class Client {
         try socket.connect(to: host.address, port: port)
 
         self.stream = NetworkStream(socket: socket)
-        self.inputBuffer = InputBuffer(capacity: bufferSize, source: stream!)
+        self.inputStream = BufferedInputStream(
+            baseStream: stream!, capacity: bufferSize)
     }
 
     public func disconnect() {
         self.stream = nil
-        self.inputBuffer = nil
+        self.inputStream = nil
     }
 
     public func makeRequest(_ request: Request) throws -> Response {
@@ -71,7 +71,7 @@ public class Client {
         var response: Response
         do {
             try request.encode(to: &stream!)
-            response = try Response(from: inputBuffer!)
+            response = try Response(from: inputStream!)
         } catch {
             disconnect()
             throw error
