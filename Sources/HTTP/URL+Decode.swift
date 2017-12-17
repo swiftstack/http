@@ -4,7 +4,8 @@ extension URL.Scheme {
     static let httpBytes = [UInt8]("http".utf8)
     static let httpsBytes = [UInt8]("https".utf8)
 
-    init?(_ bytes: ArraySlice<UInt8>) {
+    init?<T: RandomAccessCollection>(from bytes: T)
+        where T.Element == UInt8, T.Index == Int {
         switch bytes {
         case _ where bytes.elementsEqual(URL.Scheme.httpBytes): self = .http
         case _ where bytes.elementsEqual(URL.Scheme.httpsBytes): self = .https
@@ -65,7 +66,7 @@ extension URL {
                 bytes[slashIndex+1] == .slash else {
                     return
             }
-            guard let scheme = Scheme(bytes[...(slashIndex-2)]) else {
+            guard let scheme = Scheme(from: bytes[...(slashIndex-2)]) else {
                 throw Error.invalidScheme
             }
             self.scheme = scheme
@@ -174,7 +175,8 @@ extension URL {
 }
 
 extension URL.Query {
-    public init?(from bytes: ArraySlice<UInt8>) {
+    public init?<T: RandomAccessCollection>(from bytes: T)
+        where T.Element == UInt8, T.Index == Int {
         var values =  [String : String]()
         for pair in bytes.split(separator: .ampersand) {
             if let index = pair.index(of: .equal) {
