@@ -5,7 +5,8 @@ extension URL.Scheme {
     static let httpsBytes = [UInt8]("https".utf8)
 
     init?<T: RandomAccessCollection>(from bytes: T)
-        where T.Element == UInt8, T.Index == Int {
+        where T.Element == UInt8, T.Index == Int
+    {
         switch bytes {
         case _ where bytes.elementsEqual(URL.Scheme.httpBytes): self = .http
         case _ where bytes.elementsEqual(URL.Scheme.httpsBytes): self = .https
@@ -120,11 +121,8 @@ extension URL {
             if pathSlice.count > 1 && pathSlice.last == .slash {
                 pathSlice = pathSlice.dropLast()
             }
-            let path = String(decoding: pathSlice, as: UTF8.self)
-            guard let decodedPath = path.removingPercentEncoding else {
-                throw Error.invalidPath
-            }
-            self.path = decodedPath
+            let decodedPath = try URL.removePercentEncoding(pathSlice)
+            self.path = String(decoding: decodedPath, as: UTF8.self)
             index = pathEndIndex
         }
 
@@ -136,11 +134,7 @@ extension URL {
             let queryEndIndex = bytes[index...].index(where: {
                 $0 == .hash
             }) ?? bytes.endIndex
-            let querySlice = bytes[index..<queryEndIndex]
-            guard let query = Query(from: querySlice) else {
-                throw Error.invalidQuery
-            }
-            self.query = query
+            self.query = try Query(from: bytes[index..<queryEndIndex])
             index = queryEndIndex
         }
 
@@ -175,40 +169,39 @@ extension URL {
 }
 
 extension URL.Query {
-    public init?<T: RandomAccessCollection>(from bytes: T)
-        where T.Element == UInt8, T.Index == Int {
+    public init<T: RandomAccessCollection>(from bytes: T) throws
+        where T.Element == UInt8, T.Index == Int
+    {
         var values =  [String : String]()
         for pair in bytes.split(separator: .ampersand) {
             if let index = pair.index(of: .equal) {
-                let name = String(decoding: pair[..<index], as: UTF8.self)
                 let valueIndex = index + 1
                 guard valueIndex < bytes.endIndex else {
-                    return nil
+                    throw URL.Error.invalidQuery
                 }
-                let value = String(decoding: pair[valueIndex...], as: UTF8.self)
-                if let decodedName = name.removingPercentEncoding,
-                    let decodedValue = value.removingPercentEncoding {
-                    values[decodedName] = decodedValue
-                }
+                let nameSlice = pair[..<index]
+                let valueSlice = pair[valueIndex...]
+                let decodedValue = try URL.removePercentEncoding(valueSlice)
+                let decodedName = try URL.removePercentEncoding(nameSlice)
+                let name = String(decoding: decodedName, as: UTF8.self)
+                let value = String(decoding: decodedValue, as: UTF8.self)
+                values[name] = value
             }
         }
         self.values = values
     }
 
-    public init?(string: String) {
+    public init(string: String) throws {
         var values =  [String : String]()
         for pair in string.components(separatedBy: "&") {
             if let index = pair.index(of: "=") {
-                let name = pair[..<index]
                 let valueIndex = pair.index(after: index)
                 guard valueIndex < pair.endIndex else {
-                    return nil
+                    throw URL.Error.invalidQuery
                 }
-                let value = pair[valueIndex...]
-                if let decodedName = String(name).removingPercentEncoding,
-                    let decodedValue = String(value).removingPercentEncoding {
-                    values[decodedName] = decodedValue
-                }
+                let name = try URL.removePercentEncoding(pair[..<index])
+                let value = try URL.removePercentEncoding(pair[valueIndex...])
+                values[name] = value
             }
         }
         self.values = values
@@ -219,19 +212,17 @@ extension URL.Query {
 
 extension URL {
     init<T: RandomAccessCollection>(escaped bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
+        where T.Element == UInt8, T.Index == Int
+    {
         self.scheme = nil
         self.host = nil
 
         var endIndex = bytes.endIndex
         if let index = bytes.index(of: .hash) {
             // FIXME: validate using url rules
-            guard let fragment =
-                String(validating: bytes[(index+1)...], as: .text)?
-                    .removingPercentEncoding else {
-                        throw HTTPError.invalidURL
-            }
-            self.fragment = fragment
+            let fragmentSlice = bytes[(index+1)...]
+            let decodedFragment = try URL.removePercentEncoding(fragmentSlice)
+            self.fragment = String(decoding: decodedFragment, as: UTF8.self)
             endIndex = index
         } else {
             self.fragment = nil
@@ -246,17 +237,15 @@ extension URL {
         }
 
         // FIXME: validate using url rules
-        guard let path = String(validating: bytes[..<endIndex], as: .text)?
-            .removingPercentEncoding else {
-                throw HTTPError.invalidURL
-        }
-        self.path = path
+        let decodedPath = try URL.removePercentEncoding(bytes[..<endIndex])
+        self.path = String(decoding: decodedPath, as: UTF8.self)
     }
 }
 
 extension URL.Host {
     static func parsePort<T: RandomAccessCollection>(_ bytes: T) -> Int?
-        where T.Element == UInt8, T.Index == Int {
+        where T.Element == UInt8, T.Index == Int
+    {
         var port = 0
         for byte in bytes {
             guard byte >= .zero && byte <= .nine else {
@@ -272,7 +261,8 @@ extension URL.Host {
     }
 
     init?<T: RandomAccessCollection>(escaped bytes: T)
-        where T.Element == UInt8, T.Index == Int {
+        where T.Element == UInt8, T.Index == Int
+    {
         var addressEndIndex = bytes.endIndex
         if let colonIndex = bytes.index(of: .colon) {
             addressEndIndex = colonIndex
@@ -289,42 +279,37 @@ extension URL.Host {
     }
 }
 
-
 extension URL.Query {
     public init<T: RandomAccessCollection>(escaped bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
+        where T.Element == UInt8, T.Index == Int
+    {
         var values =  [String : String]()
 
         var startIndex = bytes.startIndex
-        var endIndex = startIndex
         while startIndex < bytes.endIndex {
             guard let equalIndex =
                 bytes.index(of: .equal, offset: startIndex) else {
                     throw HTTPError.invalidURL
             }
-            // FIXME: validate using url rules
-            guard let name =
-                String(validating: bytes[startIndex..<equalIndex], as: .text)?
-                    .removingPercentEncoding else {
-                        throw HTTPError.invalidURL
-            }
-
-            startIndex = equalIndex + 1
-            guard startIndex < bytes.endIndex else {
+            let valueStartIndex = equalIndex + 1
+            guard valueStartIndex < bytes.endIndex else {
                 throw HTTPError.invalidURL
             }
-
-            endIndex = bytes.index(of: .ampersand, offset: startIndex)
+            let valueEndIndex = bytes[valueStartIndex...].index(of: .ampersand)
                 ?? bytes.endIndex
-            // FIXME: validate using url rules
-            guard let value =
-                String(validating: bytes[startIndex..<endIndex], as: .text)?
-                    .removingPercentEncoding else {
-                        throw HTTPError.invalidURL
-            }
 
+            // FIXME: validate using url rules
+            let nameSlice = bytes[startIndex..<equalIndex]
+            // FIXME: validate using url rules
+            let valueSlice = bytes[valueStartIndex..<valueEndIndex]
+
+            let decodedName = try URL.removePercentEncoding(nameSlice)
+            let decodedValue = try URL.removePercentEncoding(valueSlice)
+            let name = String(decoding: decodedName, as: UTF8.self)
+            let value = String(decoding: decodedValue, as: UTF8.self)
             values[name] = value
-            startIndex = endIndex + 1
+
+            startIndex = valueEndIndex + 1
         }
 
         self.values = values
