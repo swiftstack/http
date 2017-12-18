@@ -121,8 +121,7 @@ extension URL {
             if pathSlice.count > 1 && pathSlice.last == .slash {
                 pathSlice = pathSlice.dropLast()
             }
-            let decodedPath = try URL.removePercentEncoding(pathSlice)
-            self.path = String(decoding: decodedPath, as: UTF8.self)
+            self.path = try String(removingPercentEncoding: pathSlice)
             index = pathEndIndex
         }
 
@@ -174,17 +173,13 @@ extension URL.Query {
     {
         var values =  [String : String]()
         for pair in bytes.split(separator: .ampersand) {
-            if let index = pair.index(of: .equal) {
-                let valueIndex = index + 1
-                guard valueIndex < bytes.endIndex else {
+            if var index = pair.index(of: .equal) {
+                let name = try String(removingPercentEncoding: pair[..<index])
+                index += 1
+                guard index < bytes.endIndex else {
                     throw URL.Error.invalidQuery
                 }
-                let nameSlice = pair[..<index]
-                let valueSlice = pair[valueIndex...]
-                let decodedValue = try URL.removePercentEncoding(valueSlice)
-                let decodedName = try URL.removePercentEncoding(nameSlice)
-                let name = String(decoding: decodedName, as: UTF8.self)
-                let value = String(decoding: decodedValue, as: UTF8.self)
+                let value = try String(removingPercentEncoding: pair[index...])
                 values[name] = value
             }
         }
@@ -221,8 +216,7 @@ extension URL {
         if let index = bytes.index(of: .hash) {
             // FIXME: validate using url rules
             let fragmentSlice = bytes[(index+1)...]
-            let decodedFragment = try URL.removePercentEncoding(fragmentSlice)
-            self.fragment = String(decoding: decodedFragment, as: UTF8.self)
+            self.fragment = try String(removingPercentEncoding: fragmentSlice)
             endIndex = index
         } else {
             self.fragment = nil
@@ -237,8 +231,7 @@ extension URL {
         }
 
         // FIXME: validate using url rules
-        let decodedPath = try URL.removePercentEncoding(bytes[..<endIndex])
-        self.path = String(decoding: decodedPath, as: UTF8.self)
+        self.path = try String(removingPercentEncoding: bytes[..<endIndex])
     }
 }
 
@@ -303,15 +296,27 @@ extension URL.Query {
             // FIXME: validate using url rules
             let valueSlice = bytes[valueStartIndex..<valueEndIndex]
 
-            let decodedName = try URL.removePercentEncoding(nameSlice)
-            let decodedValue = try URL.removePercentEncoding(valueSlice)
-            let name = String(decoding: decodedName, as: UTF8.self)
-            let value = String(decoding: decodedValue, as: UTF8.self)
+            let name = try String(removingPercentEncoding: nameSlice)
+            let value = try String(removingPercentEncoding: valueSlice)
             values[name] = value
 
             startIndex = valueEndIndex + 1
         }
 
         self.values = values
+    }
+}
+
+extension String {
+    init<T: RandomAccessCollection>(removingPercentEncoding bytes: T) throws
+        where T.Element == UInt8, T.Index == Int
+    {
+        switch bytes.contains(.percent) {
+        case false:
+            self = String(decoding: bytes, as: UTF8.self)
+        case true:
+            let decoded = try URL.removePercentEncoding(bytes)
+            self = String(decoding: decoded, as: UTF8.self)
+        }
     }
 }
