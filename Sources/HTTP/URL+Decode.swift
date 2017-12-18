@@ -40,7 +40,7 @@ extension URL {
 
         var state: State = .scheme
         self.path = "/"
-        self.query = [:]
+        self.query = nil
 
         func isValidDomainASCII(_ byte: UInt8) -> Bool {
             switch byte {
@@ -242,7 +242,7 @@ extension URL {
             self.query = try Query(escaped: bytes[(index+1)..<endIndex])
             endIndex = index
         } else {
-            self.query = [:]
+            self.query = nil
         }
 
         // FIXME: validate using url rules
