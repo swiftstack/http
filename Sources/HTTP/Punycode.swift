@@ -1,42 +1,61 @@
-extension StringProtocol {
-    fileprivate var isPunycode: Bool {
-        return starts(with: Punycode.prefix)
+extension Punycode {
+    public static func encode(domain: String) -> String {
+        let result: [UInt8] = encode(domain: domain)
+        return String(decoding: result, as: UTF8.self)
     }
 
-    fileprivate var isASCII: Bool {
-        for unicodeScalar in self.unicodeScalars {
-            guard unicodeScalar.isASCII else {
-                return false
-            }
-        }
-        return true
+    public static func decode(domain: String) -> String {
+        let bytes = [UInt8](domain.utf8)
+        return decode(domain: bytes)
     }
 }
 
 extension Punycode {
-    public static func encode(domain: String) -> String {
-        if domain.isASCII || domain.isPunycode {
-            return domain
-        }
-        var parts = domain.components(separatedBy: ".")
-        for (index, part) in parts.enumerated() {
-            guard !part.isASCII else {
-                continue
-            }
-            parts[index] = encode(part)
-        }
-        return parts.joined(separator: ".")
+    public static func isEncoded(domain: String) -> Bool {
+        return domain.split(separator: ".").contains { $0.isPunycode }
     }
 
-    public static func decode(domain: String) -> String {
-        var parts = domain.components(separatedBy: ".")
-        for (index, part) in parts.enumerated() {
-            guard part.isPunycode else {
+    public static func isEncoded<T: RandomAccessCollection>(domain: T) -> Bool
+        where T.Element == UInt8, T.Index == Int
+    {
+        return domain.split(separator: .dot).contains { $0.isPunycode }
+    }
+}
+
+extension Punycode {
+    public static func encode<T: StringProtocol>(domain: T) -> [UInt8] {
+        if domain.isASCII || domain.isPunycode {
+            return [UInt8](domain.utf8)
+        }
+        var result = [UInt8]()
+        for part in domain.split(separator: ".") {
+            if !result.isEmpty {
+                result.append(.dot)
+            }
+            guard !part.isASCII else {
+                result.append(contentsOf: part.utf8)
                 continue
             }
-            parts[index] = decode(part)
+            result.append(contentsOf: encode(part))
         }
-        return parts.joined(separator: ".")
+        return result
+    }
+
+    public static func decode<T: RandomAccessCollection>(domain: T) -> String
+        where T.Element == UInt8, T.Index == Int
+    {
+        var result = [UInt32]()
+        for part in domain.split(separator: .dot) {
+            if result.count > 0 {
+                result.append(UInt32(UInt8.dot))
+            }
+            guard part.isPunycode else {
+                result.append(contentsOf: part.map{ UInt32($0) })
+                continue
+            }
+            result.append(contentsOf: decode(part))
+        }
+        return String(decoding: result, as: UTF32.self)
     }
 }
 
@@ -81,7 +100,7 @@ public struct Punycode {
         return k + (base - tmin + 1) * delta / (delta + skew)
     }
 
-    private static func encode(_ input: String) -> String {
+    private static func encode<T: StringProtocol>(_ input: T) -> [UInt8] {
         let input = [UnicodeScalar](input.unicodeScalars)
         var output = asciiPrefix
 
@@ -155,14 +174,15 @@ public struct Punycode {
             n += 1
         }
 
-        return String(decoding: output, as: UTF8.self)
+        return output
     }
 
-    private static func decode(_ input: String) -> String {
-        let input = [UInt8](input.utf8)
+    private static func decode<T: RandomAccessCollection>(
+        _ input: T
+    ) -> [UInt32] where T.Element == UInt8, T.Index == Int {
         var output = [UInt32]()
 
-        var index = 4
+        var index = input.startIndex + 4
 
         if let delimeter = input.lastIndex(of: .delimeter), delimeter > index {
             let basic = input[index..<delimeter].map { UInt32($0) }
@@ -213,12 +233,34 @@ public struct Punycode {
             i += 1
         }
 
-        return String(decoding: output, as: UTF32.self)
+        return output
     }
 }
 
 extension UInt8 {
-    static let delimeter = UInt8(ascii: "-")
+    fileprivate static let delimeter = UInt8(ascii: "-")
+}
+
+extension StringProtocol {
+    fileprivate var isPunycode: Bool {
+        return starts(with: Punycode.prefix)
+    }
+
+    fileprivate var isASCII: Bool {
+        for unicodeScalar in self.unicodeScalars {
+            guard unicodeScalar.isASCII else {
+                return false
+            }
+        }
+        return true
+    }
+}
+
+fileprivate let punycodePrefix = [UInt8](Punycode.prefix.utf8)
+extension RandomAccessCollection where Element == UInt8, Index == Int {
+    fileprivate var isPunycode: Bool {
+        return starts(with: punycodePrefix)
+    }
 }
 
 extension RandomAccessCollection where Element: Equatable {

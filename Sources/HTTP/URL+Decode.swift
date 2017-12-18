@@ -235,7 +235,16 @@ extension URL {
     }
 }
 
+extension Set where Element == UInt8 {
+    static let idnAllowed: Set<UInt8> = {
+        return Set<UInt8>(ASCII(
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-."
+        ))
+    }()
+}
+
 extension URL.Host {
+    @inline(__always)
     static func parsePort<T: RandomAccessCollection>(_ bytes: T) -> Int?
         where T.Element == UInt8, T.Index == Int
     {
@@ -256,19 +265,27 @@ extension URL.Host {
     init?<T: RandomAccessCollection>(escaped bytes: T)
         where T.Element == UInt8, T.Index == Int
     {
-        var addressEndIndex = bytes.endIndex
-        if let colonIndex = bytes.index(of: .colon) {
-            addressEndIndex = colonIndex
-            let portIndex = colonIndex + 1
-            self.port = URL.Host.parsePort(bytes[portIndex...])
+        var index = bytes.startIndex
+        while index < bytes.endIndex &&
+            bytes[index].contained(in: .idnAllowed) {
+                index += 1
+        }
+        guard index > bytes.startIndex else {
+            return nil
+        }
+        let domainSlice = bytes[..<index]
+        if Punycode.isEncoded(domain: domainSlice) {
+            self.address = Punycode.decode(domain: bytes[..<index])
         } else {
+            self.address = String(decoding: bytes[..<index], as: UTF8.self)
+        }
+
+        guard index < bytes.endIndex && bytes[index] == .colon else {
             self.port = nil
+            return
         }
-        guard let address = String(
-            validating: bytes[..<addressEndIndex], as: .text) else {
-                return nil
-        }
-        self.address = Punycode.decode(domain: address)
+        index += 1
+        self.port = URL.Host.parsePort(bytes[index...])
     }
 }
 
@@ -304,6 +321,12 @@ extension URL.Query {
         }
 
         self.values = values
+    }
+}
+
+extension UInt8 {
+    func contained(in set: Set<UInt8>) -> Bool {
+        return set.contains(self)
     }
 }
 

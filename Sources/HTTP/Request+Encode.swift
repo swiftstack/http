@@ -133,7 +133,7 @@ extension URL.Query {
 
 extension URL.Host {
     public func encode(to buffer: inout [UInt8]) {
-        buffer.append(contentsOf: Punycode.encode(domain: address).utf8)
+        buffer.append(contentsOf: Punycode.encode(domain: address))
         if let port = port {
             buffer.append(.colon)
             buffer.append(contentsOf: "\(port)".utf8)
