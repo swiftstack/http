@@ -280,16 +280,16 @@ extension URL.Query {
 
         var startIndex = bytes.startIndex
         while startIndex < bytes.endIndex {
-            guard let equalIndex =
-                bytes.index(of: .equal, offset: startIndex) else {
-                    throw HTTPError.invalidURL
+            guard let equalIndex = bytes[startIndex...].index(of: .equal) else {
+                throw HTTPError.invalidURL
             }
             let valueStartIndex = equalIndex + 1
             guard valueStartIndex < bytes.endIndex else {
                 throw HTTPError.invalidURL
             }
-            let valueEndIndex = bytes[valueStartIndex...].index(of: .ampersand)
-                ?? bytes.endIndex
+            let valueEndIndex =
+                bytes[valueStartIndex...].index(of: .ampersand) ??
+                bytes.endIndex
 
             // FIXME: validate using url rules
             let nameSlice = bytes[startIndex..<equalIndex]

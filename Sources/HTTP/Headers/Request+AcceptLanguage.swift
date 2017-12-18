@@ -262,7 +262,7 @@ extension Array where Element == Request.AcceptLanguage {
         var values = [AcceptLanguage]()
         while endIndex < bytes.endIndex {
             endIndex =
-                bytes.index(of: .comma, offset: startIndex) ??
+                bytes[startIndex...].index(of: .comma) ??
                 bytes.endIndex
             values.append(
                 try AcceptLanguage(from: bytes[startIndex..<endIndex]))

@@ -22,10 +22,9 @@ extension Array where Element == Cookie {
         var endIndex = startIndex
 
         while endIndex < bytes.endIndex {
-            endIndex = bytes.index(
-                of: .semicolon,
-                offset: startIndex)
-                ?? bytes.endIndex
+            endIndex =
+                bytes[startIndex...].index(of: .semicolon) ??
+                bytes.endIndex
 
             // should be separated by a semi-colon and a space ('; ')
             if endIndex < bytes.endIndex {

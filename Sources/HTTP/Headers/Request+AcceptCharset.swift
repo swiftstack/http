@@ -36,7 +36,7 @@ extension Array where Element == Request.AcceptCharset {
         var values = [AcceptCharset]()
         while endIndex < bytes.endIndex {
             endIndex =
-                bytes.index(of: .comma, offset: startIndex) ??
+                bytes[startIndex...].index(of: .comma) ??
                 bytes.endIndex
             values.append(try AcceptCharset(from: bytes[startIndex..<endIndex]))
             startIndex = endIndex.advanced(by: 1)

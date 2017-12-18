@@ -23,7 +23,7 @@ extension Array where Element == ContentEncoding {
         var values = [ContentEncoding]()
         while endIndex < bytes.endIndex {
             endIndex =
-                bytes.index(of: .comma, offset: startIndex) ??
+                bytes[startIndex...].index(of: .comma) ??
                 bytes.endIndex
             let value = try ContentEncoding(from: bytes[startIndex..<endIndex])
             values.append(value)

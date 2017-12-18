@@ -28,7 +28,7 @@ extension Array where Element == Request.Accept {
         var values = [Accept]()
         while endIndex < bytes.endIndex {
             endIndex =
-                bytes.index(of: .comma, offset: startIndex) ??
+                bytes[startIndex...].index(of: .comma) ??
                 bytes.endIndex
             values.append(try Accept(from: bytes[startIndex..<endIndex]))
             startIndex = endIndex.advanced(by: 1)
