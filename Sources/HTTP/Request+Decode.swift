@@ -1,4 +1,5 @@
 import Stream
+import Network
 
 extension Request {
     public init(from bytes: [UInt8]) throws {
@@ -6,6 +7,7 @@ extension Request {
         try self.init(from: stream)
     }
 
+    @_specialize(exported: true, where T == NetworkStream)
     public init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
         do {
             let method = try stream.read(until: .whitespace)

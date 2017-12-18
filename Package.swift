@@ -36,7 +36,7 @@ let package = Package(
             name: "KeyValueCodable"),
         .target(
             name: "HTTP",
-            dependencies: ["Stream", "JSON", "KeyValueCodable"]),
+            dependencies: ["Stream", "JSON", "KeyValueCodable", "Network"]),
         .target(
             name: "Server",
             dependencies: ["Log", "Async", "Network", "HTTP"]),
