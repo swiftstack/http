@@ -169,6 +169,23 @@ extension URL {
 }
 
 extension URL.Query {
+    public init(string: String) throws {
+        var values =  [String : String]()
+        for pair in string.components(separatedBy: "&") {
+            if let index = pair.index(of: "=") {
+                let valueIndex = pair.index(after: index)
+                guard valueIndex < pair.endIndex else {
+                    throw URL.Error.invalidQuery
+                }
+                let name = try URL.removePercentEncoding(pair[..<index])
+                let value = try URL.removePercentEncoding(pair[valueIndex...])
+                values[name] = value
+            }
+        }
+        self.values = values
+    }
+
+    // Used for decoding formEncoded body. TODO: use stream
     public init<T: RandomAccessCollection>(from bytes: T) throws
         where T.Element == UInt8, T.Index == Int
     {
@@ -186,52 +203,30 @@ extension URL.Query {
         }
         self.values = values
     }
-
-    public init(string: String) throws {
-        var values =  [String : String]()
-        for pair in string.components(separatedBy: "&") {
-            if let index = pair.index(of: "=") {
-                let valueIndex = pair.index(after: index)
-                guard valueIndex < pair.endIndex else {
-                    throw URL.Error.invalidQuery
-                }
-                let name = try URL.removePercentEncoding(pair[..<index])
-                let value = try URL.removePercentEncoding(pair[valueIndex...])
-                values[name] = value
-            }
-        }
-        self.values = values
-    }
 }
 
-// Fast decode
+// Decode from Stream
 
 extension URL {
     init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
-        let bytes = try stream.read(until: .whitespace)
-        self.scheme = nil
-        self.host = nil
+        var buffer = try stream.read(allowedBytes: .path)
+        self.path = try String(removingPercentEncoding: buffer)
 
-        var endIndex = bytes.endIndex
-        if let index = bytes.index(of: .hash) {
-            // FIXME: validate using url rules
-            let fragmentSlice = bytes[(index+1)...]
-            self.fragment = try String(removingPercentEncoding: fragmentSlice)
-            endIndex = index
-        } else {
-            self.fragment = nil
-        }
-
-        if let index = bytes[..<endIndex].index(of: .questionMark) {
-            // FIXME: validate using url rules
-            self.query = try Query(escaped: bytes[(index+1)..<endIndex])
-            endIndex = index
+        if try stream.consume(.questionMark) {
+            self.query = try Query(from: stream)
         } else {
             self.query = nil
         }
 
-        // FIXME: validate using url rules
-        self.path = try String(removingPercentEncoding: bytes[..<endIndex])
+        if try stream.consume(.hash) {
+            buffer = try stream.read(allowedBytes: .fragment)
+            self.fragment = try String(removingPercentEncoding: buffer)
+        } else {
+            self.fragment = nil
+        }
+
+        self.scheme = nil
+        self.host = nil
     }
 }
 
@@ -259,44 +254,28 @@ extension URL.Host {
 }
 
 extension URL.Query {
-    public init<T: RandomAccessCollection>(escaped bytes: T) throws
-        where T.Element == UInt8, T.Index == Int
-    {
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
         var values =  [String : String]()
 
-        var startIndex = bytes.startIndex
-        while startIndex < bytes.endIndex {
-            guard let equalIndex = bytes[startIndex...].index(of: .equal) else {
+        while true {
+            var buffer = try stream.read(allowedBytes: .queryPart)
+            let name = try String(removingPercentEncoding: buffer)
+
+            guard try stream.consume(.equal) else {
                 throw HTTPError.invalidURL
             }
-            let valueStartIndex = equalIndex + 1
-            guard valueStartIndex < bytes.endIndex else {
-                throw HTTPError.invalidURL
-            }
-            let valueEndIndex =
-                bytes[valueStartIndex...].index(of: .ampersand) ??
-                bytes.endIndex
 
-            // FIXME: validate using url rules
-            let nameSlice = bytes[startIndex..<equalIndex]
-            // FIXME: validate using url rules
-            let valueSlice = bytes[valueStartIndex..<valueEndIndex]
+            buffer = try stream.read(allowedBytes: .queryPart)
+            let value = try String(removingPercentEncoding: buffer)
 
-            let name = try String(removingPercentEncoding: nameSlice)
-            let value = try String(removingPercentEncoding: valueSlice)
             values[name] = value
 
-            startIndex = valueEndIndex + 1
+            guard try stream.consume(.ampersand) else {
+                break
+            }
         }
 
         self.values = values
-    }
-}
-
-extension UInt8 {
-    @inline(__always)
-    func contained(in set: Set<UInt8>) -> Bool {
-        return set.contains(self)
     }
 }
 

@@ -33,25 +33,43 @@ struct Constants {
 }
 
 extension Set where Element == UInt8 {
-    static let idnAllowed: Set<UInt8> = {
-        return Set<UInt8>(ASCII(
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-."
-        ))
-    }()
+    init(_ string: String) {
+        self = Set<UInt8>(ASCII(string))
+    }
 
-    static let cookieAllowed: Set<UInt8> = {
-        return idnAllowed.union(Set<UInt8>(ASCII(
-            "!#$%&'()*+/:<>?@[]^_`{|}~-, "
-        )))
-    }()
+    static let letters = Set<UInt8>(
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+    static let digits = Set<UInt8>(
+        "0123456789")
+
+    static let idnAllowed = letters.union(digits).union(Set<UInt8>(
+        "-."))
+
+    static let cookieAllowed =
+        letters.union(digits).union(Set<UInt8>(
+        "!#$%&'()*+,-./:<>?@[]^_`{|}~- "))
+
+    static let pathAllowed =
+        letters.union(digits).union(Set<UInt8>(
+        "%!$&'()*+,-./:=@_~"))
+
+    static let queryAllowed = pathAllowed.union(Set<UInt8>(";?"))
+    static let queryPartAllowed = queryAllowed.subtracting(Set<UInt8>("="))
+    static let fragmentAllowed = queryAllowed
 }
 
 extension AllowedBytes {
-    static let domain = AllowedBytes(byteSet: .idnAllowed)
-    static let cookie = AllowedBytes(byteSet: .cookieAllowed)
     static let digits = AllowedBytes(byteSet: [
         .zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine
     ])
+    static let domain = AllowedBytes(byteSet: .idnAllowed)
+    static let cookie = AllowedBytes(byteSet: .cookieAllowed)
+
+    static let path = AllowedBytes(byteSet: .pathAllowed)
+    static let query = AllowedBytes(byteSet: .queryAllowed)
+    static let queryPart = AllowedBytes(byteSet: .queryPartAllowed)
+    static let fragment = AllowedBytes(byteSet: .fragmentAllowed)
 }
 
 extension AllowedBytes {

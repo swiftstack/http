@@ -155,7 +155,7 @@ struct Router {
                 return try JSONDecoder().decode(type, from: body)
 
             case .application(.urlEncoded):
-                let values = try URL.Query(escaped: body).values
+                let values = try URL.Query(from: body).values
                 return try KeyValueDecoder().decode(type, from: values)
 
             default:
