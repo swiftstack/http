@@ -27,16 +27,11 @@ extension HeaderName {
 
 public struct HeaderName: Hashable {
     let bytes: [UInt8]
-    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
-        // FIXME: validate
-        guard let bytes = try? stream.read(until: .colon) else {
-            throw HTTPError.invalidHeaderName
-        }
 
-        for byte in bytes {
-            guard ASCIICharacterSet.token.contains(byte) else {
-                throw HTTPError.invalidHeaderName
-            }
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        let bytes = try stream.read(allowedBytes: .token)
+        guard bytes.count > 0 else {
+            throw HTTPError.invalidHeaderName
         }
         self.bytes = [UInt8](bytes)
     }
