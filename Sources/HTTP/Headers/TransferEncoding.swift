@@ -1,3 +1,5 @@
+import Stream
+
 public enum TransferEncoding {
     case chunked
     case compress
@@ -23,8 +25,10 @@ extension TransferEncoding: Equatable {
 }
 
 extension Array where Element == TransferEncoding {
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        // FIXME: validate
+        let bytes = try stream.read(until: .cr)
+
         var startIndex = bytes.startIndex
         var endIndex = startIndex
         var values = [TransferEncoding]()

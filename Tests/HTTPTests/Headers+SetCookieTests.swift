@@ -1,4 +1,5 @@
 import Test
+import Stream
 @testable import HTTP
 
 import struct Foundation.Date
@@ -9,9 +10,9 @@ class HeadersSetCookieTests: TestCase {
             Cookie(name: "username", value: "tony"))
 
         let bytes = ASCII("username=tony")
-        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
+        let stream = BufferedInputStream(baseStream: InputByteStream(bytes))
 
-        let setCookie = try? Response.SetCookie(from: buffer[...])
+        let setCookie = try? Response.SetCookie(from: stream)
         assertEqual(setCookie, expected)
 
         var encoded = [UInt8]()
@@ -26,9 +27,9 @@ class HeadersSetCookieTests: TestCase {
 
         let bytes = ASCII(
             "username=tony; Expires=Wed, 21 Oct 2015 07:28:00 GMT")
-        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
+        let stream = BufferedInputStream(baseStream: InputByteStream(bytes))
 
-        let setCookie = try? Response.SetCookie(from: buffer[...])
+        let setCookie = try? Response.SetCookie(from: stream)
         assertEqual(setCookie, expected)
 
         var encoded = [UInt8]()
@@ -41,11 +42,10 @@ class HeadersSetCookieTests: TestCase {
             Cookie(name: "username", value: "tony"),
             maxAge: 42)
 
-        let bytes = ASCII(
-            "username=tony; Max-Age=42")
-        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
+        let bytes = ASCII("username=tony; Max-Age=42")
+        let stream = BufferedInputStream(baseStream: InputByteStream(bytes))
 
-        let setCookie = try? Response.SetCookie(from: buffer[...])
+        let setCookie = try? Response.SetCookie(from: stream)
         assertEqual(setCookie, expected)
 
         var encoded = [UInt8]()
@@ -59,9 +59,9 @@ class HeadersSetCookieTests: TestCase {
             httpOnly: true)
 
         let bytes = ASCII("username=tony; HttpOnly")
-        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
+        let stream = BufferedInputStream(baseStream: InputByteStream(bytes))
 
-        let setCookie = try? Response.SetCookie(from: buffer[...])
+        let setCookie = try? Response.SetCookie(from: stream)
         assertEqual(setCookie, expected)
 
         var encoded = [UInt8]()
@@ -75,9 +75,9 @@ class HeadersSetCookieTests: TestCase {
             secure: true)
 
         let bytes = ASCII("username=tony; Secure")
-        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
+        let stream = BufferedInputStream(baseStream: InputByteStream(bytes))
 
-        let setCookie = try? Response.SetCookie(from: buffer[...])
+        let setCookie = try? Response.SetCookie(from: stream)
         assertEqual(setCookie, expected)
 
         var encoded = [UInt8]()
@@ -91,9 +91,9 @@ class HeadersSetCookieTests: TestCase {
             domain: "somedomain.com")
 
         let bytes = ASCII("username=tony; Domain=somedomain.com")
-        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
+        let stream = BufferedInputStream(baseStream: InputByteStream(bytes))
 
-        let setCookie = try? Response.SetCookie(from: buffer[...])
+        let setCookie = try? Response.SetCookie(from: stream)
         assertEqual(setCookie, expected)
 
         var encoded = [UInt8]()
@@ -107,9 +107,9 @@ class HeadersSetCookieTests: TestCase {
             path: "/")
 
         let bytes = ASCII("username=tony; Path=/")
-        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
+        let stream = BufferedInputStream(baseStream: InputByteStream(bytes))
 
-        let setCookie = try? Response.SetCookie(from: buffer[...])
+        let setCookie = try? Response.SetCookie(from: stream)
         assertEqual(setCookie, expected)
 
         var encoded = [UInt8]()

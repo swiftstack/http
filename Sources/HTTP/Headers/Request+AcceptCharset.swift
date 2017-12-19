@@ -1,3 +1,5 @@
+import Stream
+
 extension Request {
     public struct AcceptCharset {
         public let charset: Charset
@@ -29,8 +31,10 @@ extension Request.AcceptCharset: Equatable {
 extension Array where Element == Request.AcceptCharset {
     public typealias AcceptCharset = Request.AcceptCharset
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        // FIXME: validate
+        let bytes = try stream.read(until: .cr)
+
         var startIndex = bytes.startIndex
         var endIndex = startIndex
         var values = [AcceptCharset]()

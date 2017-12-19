@@ -1,3 +1,5 @@
+import Stream
+
 public enum Connection {
     case keepAlive
     case close
@@ -11,8 +13,10 @@ extension Connection {
         static let upgrade = ASCII("Upgrade")
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        // FIXME: validate
+        let bytes = try stream.read(until: .cr)
+
         switch bytes.lowercasedHashValue {
         case Bytes.keepAlive.lowercasedHashValue: self = .keepAlive
         case Bytes.close.lowercasedHashValue: self = .close

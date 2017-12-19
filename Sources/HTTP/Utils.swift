@@ -57,22 +57,24 @@ extension String {
 
 // MARK: Numeric parsers
 
-extension Int {
-    init?<T: RandomAccessCollection>(from bytes: T)
-        where T.Element == UInt8, T.Index == Int {
-        var result = 0
-        let zero = 48
-        let nine = 57
-        for byte in bytes {
-            guard byte >= zero && byte <= nine else {
-                return nil
-            }
-            result *= 10
-            result += Int(byte) - zero
-        }
-        self = result
-    }
+import Stream
 
+extension Int {
+    init?<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        let bytes = try stream.read(while: { $0 >= .zero && $0 <= .nine })
+        guard bytes.count > 0 else {
+            return nil
+        }
+        var port = 0
+        for byte in bytes {
+            port *= 10
+            port += Int(byte - .zero)
+        }
+        self = port
+    }
+}
+
+extension Int {
     init?<T: RandomAccessCollection>(from bytes: T, radix: Int)
         where T.Element == UInt8, T.Index == Int {
         let zero = 48
@@ -86,7 +88,7 @@ extension Int {
             }
         }
         // FIXME: validate using hex table or parse manually
-        let string = String(validating: bytes, as: .text)!
+        let string = String(decoding: bytes, as: UTF8.self)
         self.init(string, radix: radix)
     }
 }

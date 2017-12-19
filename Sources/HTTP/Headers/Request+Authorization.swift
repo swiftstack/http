@@ -1,3 +1,5 @@
+import Stream
+
 extension Request {
     public enum Authorization {
         case basic(credentials: String)
@@ -27,8 +29,10 @@ extension Request.Authorization {
         static let token = ASCII("Token")
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        // FIXME: validate
+        let bytes = try stream.read(until: .cr)
+
         func suffix(from index: Int) throws -> String {
             let index = bytes.startIndex + index + 1
             guard index > bytes.startIndex, index < bytes.endIndex,

@@ -1,4 +1,5 @@
 import Test
+import Stream
 @testable import HTTP
 
 class HeadersCookieTests: TestCase {
@@ -23,26 +24,26 @@ class HeadersCookieTests: TestCase {
         ]
 
         let bytes = ASCII("username=tony; lang=aurebesh")
-        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
+        let stream = BufferedInputStream(baseStream: InputByteStream(bytes))
 
-        let cookie = try? [Cookie](from: buffer[...])
+        let cookie = try? [Cookie](from: stream)
         assertEqual(cookie ?? [], expected)
     }
 
     func testJoinedCookieNoSpace() {
         let bytes = ASCII("username=tony;lang=aurebesh")
-        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
+        let stream = BufferedInputStream(baseStream: InputByteStream(bytes))
 
-        assertThrowsError(try [Cookie](from: buffer[...])) { error in
+        assertThrowsError(try [Cookie](from: stream)) { error in
             assertEqual(error as? HTTPError, .invalidCookie)
         }
     }
 
     func testTrailingSemicolon() {
         let bytes = ASCII("username=tony;")
-        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
+        let stream = BufferedInputStream(baseStream: InputByteStream(bytes))
 
-        assertThrowsError(try [Cookie](from: buffer[...])) { error in
+        assertThrowsError(try [Cookie](from: stream)) { error in
             assertEqual(error as? HTTPError, .invalidCookie)
         }
     }

@@ -1,3 +1,5 @@
+import Stream
+
 extension Request {
     public struct AcceptLanguage {
         public let language: Language
@@ -255,8 +257,10 @@ extension Request.AcceptLanguage: Equatable {
 extension Array where Element == Request.AcceptLanguage {
     public typealias AcceptLanguage = Request.AcceptLanguage
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        // FIXME: validate
+        let bytes = try stream.read(until: .cr)
+
         var startIndex = bytes.startIndex
         var endIndex = startIndex
         var values = [AcceptLanguage]()

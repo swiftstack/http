@@ -1,3 +1,5 @@
+import Stream
+
 public enum Version {
     case oneOne
 }
@@ -6,21 +8,18 @@ extension Version {
     private struct Bytes {
         static let httpSlash = ASCII("HTTP/")
         static let oneOne = ASCII("1.1")
-
-        static let versionLength = httpSlash.count + oneOne.count
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
-        guard bytes.starts(with: Bytes.httpSlash) else {
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        let prefix = try stream.read(count: Bytes.httpSlash.count)
+        guard prefix.elementsEqual(Bytes.httpSlash) else {
             throw HTTPError.invalidVersion
         }
-        let versionIndex = bytes.startIndex + Bytes.httpSlash.count
-        let version = bytes[versionIndex...]
-        switch version {
-        case _ where version.elementsEqual(Bytes.oneOne): self = .oneOne
-        default: throw HTTPError.invalidVersion
+        let varsionBytes = try stream.read(count: Bytes.oneOne.count)
+        guard varsionBytes.elementsEqual(Bytes.oneOne) else {
+            throw HTTPError.invalidVersion
         }
+        self = .oneOne
     }
 
     func encode(to buffer: inout [UInt8]) {

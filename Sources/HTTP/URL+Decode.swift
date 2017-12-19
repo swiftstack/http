@@ -1,3 +1,4 @@
+import Stream
 import struct Foundation.URL
 
 extension URL.Scheme {
@@ -206,9 +207,8 @@ extension URL.Query {
 // Fast decode
 
 extension URL {
-    init<T: RandomAccessCollection>(escaped bytes: T) throws
-        where T.Element == UInt8, T.Index == Int
-    {
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        let bytes = try stream.read(until: .whitespace)
         self.scheme = nil
         self.host = nil
 
@@ -244,48 +244,27 @@ extension Set where Element == UInt8 {
 }
 
 extension URL.Host {
-    @inline(__always)
-    static func parsePort<T: RandomAccessCollection>(_ bytes: T) -> Int?
-        where T.Element == UInt8, T.Index == Int
-    {
-        var port = 0
-        for byte in bytes {
-            guard byte >= .zero && byte <= .nine else {
-                return nil
-            }
-            port *= 10
-            port += Int(byte - .zero)
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        let bytes = try stream.read(while: { $0.contained(in: .idnAllowed) })
+        guard bytes.count > 0 else {
+            throw HTTPError.invalidHost
         }
-        guard port > 0 else {
-            return nil
-        }
-        return port
-    }
-
-    init?<T: RandomAccessCollection>(escaped bytes: T)
-        where T.Element == UInt8, T.Index == Int
-    {
-        var index = bytes.startIndex
-        while index < bytes.endIndex &&
-            bytes[index].contained(in: .idnAllowed) {
-                index += 1
-        }
-        guard index > bytes.startIndex else {
-            return nil
-        }
-        let domainSlice = bytes[..<index]
-        if Punycode.isEncoded(domain: domainSlice) {
-            self.address = Punycode.decode(domain: bytes[..<index])
+        if Punycode.isEncoded(domain: bytes) {
+            self.address = Punycode.decode(domain: bytes)
         } else {
-            self.address = String(decoding: bytes[..<index], as: UTF8.self)
+            self.address = String(decoding: bytes, as: UTF8.self)
         }
 
-        guard index < bytes.endIndex && bytes[index] == .colon else {
-            self.port = nil
-            return
+        guard let colon = try stream.peek(count: 1),
+            colon.first! == .colon else {
+                self.port = nil
+                return
         }
-        index += 1
-        self.port = URL.Host.parsePort(bytes[index...])
+        try stream.consume(count: 1)
+        guard let port = try Int(from: stream) else {
+            throw HTTPError.invalidPort
+        }
+        self.port = port
     }
 }
 

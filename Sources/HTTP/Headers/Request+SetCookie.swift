@@ -1,3 +1,5 @@
+import Stream
+
 import struct Foundation.Date
 import struct Foundation.TimeZone
 import class Foundation.DateFormatter
@@ -56,8 +58,10 @@ extension Response.SetCookie {
         static let secure = ASCII("Secure")
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        // FIXME: validate
+        let bytes = try stream.read(until: .cr)
+
         var startIndex = bytes.startIndex
         var endIndex =
             bytes[startIndex...].index(of: .semicolon) ??

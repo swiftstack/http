@@ -110,7 +110,7 @@ class DecodeResponseTests: TestCase {
             let bytes = ASCII(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: 0\r\n" +
-                "Content-Encoding: gzip,deflate\r\n" +
+                "Content-Encoding: gzip, deflate\r\n" +
                 "\r\n")
             let response = try Response(from: bytes)
             assertEqual(response.contentEncoding ?? [], [.gzip, .deflate])

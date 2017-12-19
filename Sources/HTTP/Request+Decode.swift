@@ -10,16 +10,13 @@ extension Request {
     @_specialize(exported: true, where T == NetworkStream)
     public init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
         do {
-            let method = try stream.read(until: .whitespace)
-            self.method = try Request.Method(from: method)
+            self.method = try Request.Method(from: stream)
             try stream.consume(count: 1)
 
-            let url = try stream.read(until: .whitespace)
-            self.url = try URL(escaped: url)
+            self.url = try URL(from: stream)
             try stream.consume(count: 1)
 
-            let version = try stream.read(until: .cr)
-            self.version = try Version(from: version)
+            self.version = try Version(from: stream)
 
             @inline(__always)
             func readLineEnd() throws {
@@ -32,55 +29,64 @@ extension Request {
             try readLineEnd()
 
             while true {
-                let nameSlice = try stream.read { $0 != .colon && $0 != .lf }
-                // "\r\n" found
-                guard nameSlice.first != .cr else {
-                    try stream.consume(count: 1)
+                guard let nextLine = try stream.peek(count: 2) else {
+                    throw HTTPError.unexpectedEnd
+                }
+                if nextLine.elementsEqual(Constants.lineEnd) {
+                    try stream.consume(count: 2)
                     break
                 }
-                let name = try HeaderName(from: nameSlice)
 
-                try stream.consume(count: 1)
+                let name = try HeaderName(from: stream)
 
-                let value = (try stream.read(until: .cr))
-                    .trimmingLeftSpace().trimmingRightSpace()
-
-                try readLineEnd()
+                let colon = try stream.read(count: 1)
+                guard colon[0] == .colon else {
+                    throw HTTPError.invalidRequest
+                }
+                try stream.consume(while: { $0 == .whitespace })
 
                 switch name {
                 case .host:
-                    guard self.url.host == nil,
-                        let host = URL.Host(escaped: value) else {
-                            continue
+                    guard self.url.host == nil else {
+                        try stream.consume(until: .cr)
+                        continue
                     }
-                    self.host = host
+                    self.host = try URL.Host(from: stream)
                 case .userAgent:
-                    self.userAgent = String(validating: value, as: .text)
+                    // FIXME: validate
+                    let bytes = try stream.read(until: .cr)
+                    let trimmed = bytes.trimmingRightSpace()
+                    self.userAgent = String(decoding: trimmed, as: UTF8.self)
                 case .accept:
-                    self.accept = try [Accept](from: value)
+                    self.accept = try [Accept](from: stream)
                 case .acceptLanguage:
-                    self.acceptLanguage = try [AcceptLanguage](from: value)
+                    self.acceptLanguage = try [AcceptLanguage](from: stream)
                 case .acceptEncoding:
-                    self.acceptEncoding = try [ContentEncoding](from: value)
+                    self.acceptEncoding = try [ContentEncoding](from: stream)
                 case .acceptCharset:
-                    self.acceptCharset = try [AcceptCharset](from: value)
+                    self.acceptCharset = try [AcceptCharset](from: stream)
                 case .authorization:
-                    self.authorization = try Authorization(from: value)
+                    self.authorization = try Authorization(from: stream)
                 case .keepAlive:
-                    self.keepAlive = Int(from: value)
+                    self.keepAlive = try Int(from: stream)
                 case .connection:
-                    self.connection = try Connection(from: value)
+                    self.connection = try Connection(from: stream)
                 case .contentLength:
-                    self.contentLength = Int(from: value)
+                    self.contentLength = try Int(from: stream)
                 case .contentType:
-                    self.contentType = try ContentType(from: value)
+                    self.contentType = try ContentType(from: stream)
                 case .transferEncoding:
-                    self.transferEncoding = try [TransferEncoding](from: value)
+                    self.transferEncoding = try [TransferEncoding](from: stream)
                 case .cookie:
-                    self.cookies.append(contentsOf: try [Cookie](from: value))
+                    self.cookies.append(contentsOf: try [Cookie](from: stream))
                 default:
-                    headers[name] = String(validating: value, as: .text)
+                    // FIXME: validate
+                    let bytes = try stream.read(until: .cr)
+                    let trimmed = bytes.trimmingRightSpace()
+                    headers[name] = String(decoding: trimmed, as: UTF8.self)
                 }
+
+                try readLineEnd()
             }
 
             // Body
@@ -122,7 +128,7 @@ extension Request {
             self.rawBody = body
 
             if stream.count >= 2,
-                stream.peek(count: 2)!.elementsEqual(Constants.lineEnd) {
+                try stream.peek(count: 2)!.elementsEqual(Constants.lineEnd) {
                     try stream.consume(count: 2)
             }
         } catch let error as BufferedInputStream<T>.Error
