@@ -28,20 +28,23 @@ extension HeaderName {
 public struct HeaderName: Hashable {
     let bytes: [UInt8]
 
+    public let hashValue: Int
+
+    init(_ bytes: [UInt8]) {
+        self.bytes = bytes
+        self.hashValue = bytes.lowercasedHashValue
+    }
+
     init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
         let bytes = try stream.read(allowedBytes: .token)
         guard bytes.count > 0 else {
             throw HTTPError.invalidHeaderName
         }
-        self.bytes = [UInt8](bytes)
+        self.init([UInt8](bytes))
     }
 
     public init(_ value: String) {
-        bytes = [UInt8](value.utf8)
-    }
-
-    public var hashValue: Int {
-        return bytes.lowercasedHashValue
+        self.init([UInt8](value.utf8))
     }
 }
 
