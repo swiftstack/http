@@ -243,9 +243,11 @@ extension Set where Element == UInt8 {
     }()
 }
 
+let idnAllowed = AllowedBytes(byteSet: .idnAllowed)
+
 extension URL.Host {
     init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
-        let bytes = try stream.read(while: { $0.contained(in: .idnAllowed) })
+        let bytes = try stream.read(allowedBytes: idnAllowed)
         guard bytes.count > 0 else {
             throw HTTPError.invalidHost
         }
@@ -304,6 +306,7 @@ extension URL.Query {
 }
 
 extension UInt8 {
+    @inline(__always)
     func contained(in set: Set<UInt8>) -> Bool {
         return set.contains(self)
     }
