@@ -34,27 +34,6 @@ extension UInt8: ExpressibleByStringLiteral {
     }
 }
 
-// MARK: String initializer from byte sequence (without null terminator)
-
-extension String {
-    init?<T: RandomAccessCollection>(ascii bytes: T)
-        where T.Element == UInt8, T.Index == Int {
-        self.init(validating: bytes, as: .ascii)
-    }
-
-    init?<T: RandomAccessCollection>(
-        validating bytes: T,
-        as characterSet: ASCIICharacterSet
-    ) where T.Element == UInt8, T.Index == Int {
-        for byte in bytes {
-            guard byte != 0 && characterSet.contains(byte) else {
-                return nil
-            }
-        }
-        self = String(decoding: bytes, as: UTF8.self)
-    }
-}
-
 // MARK: Numeric parsers
 
 import Stream

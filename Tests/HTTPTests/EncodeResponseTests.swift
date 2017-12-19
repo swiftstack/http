@@ -6,7 +6,7 @@ class EncodeResponseTests: TestCase {
         static func encode(_ response: Response) -> String? {
             var bytes = [UInt8]()
             response.encode(to: &bytes)
-            return String(ascii: bytes)
+            return String(decoding: bytes, as: UTF8.self)
         }
     }
 
