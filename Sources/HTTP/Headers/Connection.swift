@@ -14,9 +14,8 @@ extension Connection {
     }
 
     init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
-        // FIXME: validate
-        let bytes = try stream.read(until: .cr)
-
+        // FIXME: validate with value-specific rule
+        let bytes = try stream.read(allowedBytes: .token)
         switch bytes.lowercasedHashValue {
         case Bytes.keepAlive.lowercasedHashValue: self = .keepAlive
         case Bytes.close.lowercasedHashValue: self = .close

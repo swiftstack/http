@@ -18,31 +18,16 @@ extension Cookie: Equatable {
 
 extension Array where Element == Cookie {
     init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
-        // FIXME: validate
-        let bytes = try stream.read(until: .cr)
-
         var cookies = [Cookie]()
-        var startIndex = bytes.startIndex
-        var endIndex = startIndex
-
-        while endIndex < bytes.endIndex {
-            endIndex =
-                bytes[startIndex...].index(of: .semicolon) ??
-                bytes.endIndex
-
-            // should be separated by a semi-colon and a space ('; ')
-            if endIndex < bytes.endIndex {
-                guard endIndex + 1 < bytes.endIndex,
-                    bytes[endIndex + 1] == .whitespace else {
-                        throw HTTPError.invalidCookieHeader
-                }
+        while true {
+            guard let cookie = try Cookie(from: stream) else {
+                break
             }
-
-            let cookie = try Cookie(
-                from: bytes[startIndex..<endIndex].trimmingLeftSpace())
-
             cookies.append(cookie)
-            startIndex = endIndex + 1
+            // should be separated by a semi-colon and a space ('; ')
+            guard try stream.consume(sequence: [.semicolon, .whitespace]) else {
+                break
+            }
         }
         self = cookies
     }
@@ -59,21 +44,19 @@ extension Array where Element == Cookie {
 }
 
 extension Cookie {
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
-        guard let equal = bytes.index(of: .equal) else {
+    init?<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        var buffer = try stream.read(allowedBytes: .cookie)
+        guard buffer.count > 0 else {
+            return nil
+        }
+        self.name = String(decoding: buffer, as: UTF8.self)
+
+        guard try stream.consume(.equal) else {
             throw HTTPError.invalidCookieHeader
         }
-        guard
-            let name = String(
-                validating: bytes[..<equal].trimmingRightSpace(), as: .token),
-            let value = String(
-                validating: bytes[(equal+1)...].trimmingLeftSpace(), as: .token)
-            else {
-                throw HTTPError.invalidCookieHeader
-        }
-        self.name = name
-        self.value = value
+
+        buffer = try stream.read(allowedBytes: .cookie)
+        self.value = String(decoding: buffer, as: UTF8.self)
     }
 
     func encode(to buffer: inout [UInt8]) {

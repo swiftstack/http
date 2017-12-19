@@ -258,23 +258,15 @@ extension Array where Element == Request.AcceptLanguage {
     public typealias AcceptLanguage = Request.AcceptLanguage
 
     init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
-        // FIXME: validate
-        let bytes = try stream.read(until: .cr)
-
-        var startIndex = bytes.startIndex
-        var endIndex = startIndex
         var values = [AcceptLanguage]()
-        while endIndex < bytes.endIndex {
-            endIndex =
-                bytes[startIndex...].index(of: .comma) ??
-                bytes.endIndex
-            values.append(
-                try AcceptLanguage(from: bytes[startIndex..<endIndex]))
-            startIndex = endIndex.advanced(by: 1)
-            if startIndex < bytes.endIndex &&
-                bytes[startIndex] == .whitespace {
-                    startIndex += 1
+        while true {
+            let value = try AcceptLanguage(from: stream)
+            values.append(value)
+
+            guard try stream.consume(.comma) else {
+                break
             }
+            try stream.consume(while: { $0 == .whitespace })
         }
         self = values
     }
@@ -294,23 +286,25 @@ extension Request.AcceptLanguage {
         static let qEqual = ASCII("q=")
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
-        if let semicolon = bytes.index(of: .semicolon) {
-            self.language = try Language(from: bytes[..<semicolon])
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        var buffer = try stream.read(allowedBytes: .token)
+        self.language = try Language(from: buffer)
 
-            let index = semicolon.advanced(by: 1)
-            let bytes = bytes[index...]
-            guard bytes.count == 5,
-                bytes.starts(with: Bytes.qEqual),
-                let priority = Double(from: bytes[(index+2)...]) else {
-                    throw HTTPError.invalidAcceptLanguageHeader
-            }
-            self.priority = priority
-        } else {
-            self.language = try Language(from: bytes)
+        guard try stream.consume(.semicolon) else {
             self.priority = 1.0
+            return
         }
+
+        guard try stream.consume(sequence: Bytes.qEqual) else {
+            throw HTTPError.invalidAcceptLanguageHeader
+        }
+
+        // FIXME: implement Double(from stream:)
+        buffer = try stream.read(allowedBytes: .token)
+        guard let priority = Double(from: buffer) else {
+            throw HTTPError.invalidAcceptLanguageHeader
+        }
+        self.priority = priority
     }
 
     func encode(to buffer: inout [UInt8]) {

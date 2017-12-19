@@ -697,11 +697,7 @@ extension Language {
         case Bytes.zu.lowercasedHashValue:    self = .zu
         case Bytes.zuZA.lowercasedHashValue:  self = .zuZA
         case Bytes.any.lowercasedHashValue:   self = .any
-        default:
-            guard let language = String(validating: bytes, as: .token) else {
-                throw HTTPError.invalidLanguageHeader
-            }
-            self = .custom(language)
+        default: self = .custom(String(decoding: bytes, as: UTF8.self))
         }
     }
 

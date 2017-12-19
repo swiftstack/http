@@ -235,19 +235,9 @@ extension URL {
     }
 }
 
-extension Set where Element == UInt8 {
-    static let idnAllowed: Set<UInt8> = {
-        return Set<UInt8>(ASCII(
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-."
-        ))
-    }()
-}
-
-let idnAllowed = AllowedBytes(byteSet: .idnAllowed)
-
 extension URL.Host {
     init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
-        let bytes = try stream.read(allowedBytes: idnAllowed)
+        let bytes = try stream.read(allowedBytes: .domain)
         guard bytes.count > 0 else {
             throw HTTPError.invalidHost
         }
@@ -257,12 +247,10 @@ extension URL.Host {
             self.address = String(decoding: bytes, as: UTF8.self)
         }
 
-        guard let colon = try stream.peek(count: 1),
-            colon.first! == .colon else {
-                self.port = nil
-                return
+        guard try stream.consume(.colon) else {
+            self.port = nil
+            return
         }
-        try stream.consume(count: 1)
         guard let port = try Int(from: stream) else {
             throw HTTPError.invalidPort
         }

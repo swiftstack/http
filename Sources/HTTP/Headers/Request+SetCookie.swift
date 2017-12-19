@@ -59,72 +59,68 @@ extension Response.SetCookie {
     }
 
     init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
-        // FIXME: validate
-        let bytes = try stream.read(until: .cr)
+        guard let cookie = try Cookie(from: stream) else {
+            throw HTTPError.invalidCookieHeader
+        }
+        self.cookie = cookie
 
-        var startIndex = bytes.startIndex
-        var endIndex =
-            bytes[startIndex...].index(of: .semicolon) ??
-            bytes.endIndex
-
-        self.cookie = try Cookie(from: bytes[startIndex..<endIndex])
-        startIndex = endIndex + 1
-        endIndex = startIndex
-
-
-        while endIndex < bytes.endIndex {
-            endIndex =
-                bytes[startIndex...].index(of: .semicolon) ??
-                bytes.endIndex
-
+        while true {
             // should be separated by a semi-colon and a space ('; ')
-            guard bytes[startIndex] == .whitespace else {
+            guard try stream.consume(sequence: [.semicolon, .whitespace]) else {
+                break
+            }
+
+            // attibute name
+            var buffer = try stream.read(allowedBytes: .token)
+            let attributeHashValue = buffer.lowercasedHashValue
+
+            func consumeEquals() throws {
+                // =
+                guard try stream.consume(.equal) else {
+                    throw HTTPError.invalidCookieHeader
+                }
+            }
+            // only in case if the attribute has a value
+            func readValue(allowedBytes: AllowedBytes) throws -> String {
+                try consumeEquals()
+                // value
+                buffer = try stream.read(allowedBytes: allowedBytes)
+                return String(decoding: buffer, as: UTF8.self)
+            }
+
+            // FIXME: validate values using value-specific rules
+            switch attributeHashValue {
+            // attributes with value
+            case Bytes.domain.lowercasedHashValue:
+                self.domain = try readValue(allowedBytes: .cookie)
+
+            case Bytes.path.lowercasedHashValue:
+                self.path = try readValue(allowedBytes: .cookie)
+
+            case Bytes.expires.lowercasedHashValue:
+                let dateString = try readValue(allowedBytes: .cookie)
+                guard let date = Date(from: dateString) else {
+                        throw HTTPError.invalidSetCookieHeader
+                }
+                self.expires = date
+
+            case Bytes.maxAge.lowercasedHashValue:
+                try consumeEquals()
+                guard let maxAge = try? Int(from: stream) else {
+                    throw HTTPError.invalidSetCookieHeader
+                }
+                self.maxAge = maxAge
+
+            // single attributes
+            case Bytes.httpOnly.lowercasedHashValue:
+                self.httpOnly = true
+
+            case Bytes.secure.lowercasedHashValue:
+                self.secure = true
+
+            default:
                 throw HTTPError.invalidSetCookieHeader
             }
-            startIndex += 1
-
-            if let equalIndex = bytes[startIndex...].index(of: .equal) {
-                // attribute name=value
-                let valueStartIndex = equalIndex + 1
-                guard valueStartIndex < endIndex else {
-                    throw HTTPError.invalidSetCookieHeader
-                }
-                let attributeName = bytes[startIndex..<equalIndex]
-                let attributeValue = bytes[valueStartIndex..<endIndex]
-
-                // TODO: validate values using special rules
-                switch attributeName.lowercasedHashValue {
-                case Bytes.domain.lowercasedHashValue:
-                    self.domain = String(validating: attributeValue, as: .text)
-                case Bytes.path.lowercasedHashValue:
-                    self.path = String(validating: attributeValue, as: .text)
-                case Bytes.expires.lowercasedHashValue:
-                    guard let dateString =
-                            String(validating: attributeValue, as: .text),
-                        let date = Date(from: dateString) else {
-                            throw HTTPError.invalidSetCookieHeader
-                    }
-                    self.expires = date
-                case Bytes.maxAge.lowercasedHashValue:
-                    guard let maxAgeString =
-                        String(validating: attributeValue, as: .text),
-                        let maxAge = Int(maxAgeString) else {
-                            throw HTTPError.invalidSetCookieHeader
-                    }
-                    self.maxAge = maxAge
-                default:
-                    throw HTTPError.invalidSetCookieHeader
-                }
-            } else {
-                // single attribute
-                switch bytes[startIndex..<endIndex].lowercasedHashValue {
-                case Bytes.httpOnly.lowercasedHashValue: self.httpOnly = true
-                case Bytes.secure.lowercasedHashValue: self.secure = true
-                default: throw HTTPError.invalidSetCookieHeader
-                }
-            }
-
-            startIndex = endIndex + 1
         }
     }
 

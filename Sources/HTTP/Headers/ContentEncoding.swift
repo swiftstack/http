@@ -19,23 +19,14 @@ extension ContentEncoding: Equatable {
 
 extension Array where Element == ContentEncoding {
     init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
-        // FIXME: validate
-        let bytes = try stream.read(until: .cr)
-
-        var startIndex = bytes.startIndex
-        var endIndex = startIndex
         var values = [ContentEncoding]()
-        while endIndex < bytes.endIndex {
-            endIndex =
-                bytes[startIndex...].index(of: .comma) ??
-                bytes.endIndex
-            let value = try ContentEncoding(from: bytes[startIndex..<endIndex])
-            values.append(value)
-            startIndex = endIndex.advanced(by: 1)
-            if startIndex < bytes.endIndex &&
-                bytes[startIndex] == .whitespace {
-                    startIndex += 1
+        while true {
+            let contentEncoding = try ContentEncoding(from: stream)
+            values.append(contentEncoding)
+            guard try stream.consume(.comma) else {
+                break
             }
+            try stream.consume(while: { $0 == .whitespace })
         }
         self = values
     }
@@ -57,16 +48,12 @@ extension ContentEncoding {
         static let deflate = ASCII("deflate")
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        let bytes = try stream.read(allowedBytes: .token)
         switch bytes.lowercasedHashValue {
         case Bytes.gzip.lowercasedHashValue: self = .gzip
         case Bytes.deflate.lowercasedHashValue: self = .deflate
-        default:
-            guard let encoding = String(validating: bytes, as: .token) else {
-                throw HTTPError.invalidContentEncodingHeader
-            }
-            self = .custom(encoding)
+        default: self = .custom(String(decoding: bytes, as: UTF8.self))
         }
     }
 

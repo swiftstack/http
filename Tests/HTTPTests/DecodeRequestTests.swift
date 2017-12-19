@@ -207,6 +207,26 @@ class DecodeRequestTests: TestCase {
         }
     }
 
+    func testAcceptHeader() {
+        do {
+            let bytes = ASCII(
+                "GET / HTTP/1.1\r\n" +
+                "Accept: text/html,application/xml;q=0.9,*/*;q=0.8\r\n" +
+                "\r\n")
+            let request = try Request(from: bytes)
+            assertNotNil(request.accept)
+            if let accept = request.accept {
+                assertEqual(accept, [
+                    Request.Accept(.text(.html),priority: 1.0),
+                    Request.Accept(.application(.xml), priority: 0.9),
+                    Request.Accept(.any, priority: 0.8)
+                ])
+            }
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
     func testAcceptLanguageHeader() {
         do {
             let bytes = ASCII(
@@ -439,7 +459,7 @@ class DecodeRequestTests: TestCase {
             "Content-Type: text/plain;" +
             "\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual((error as! HTTPError), HTTPError.invalidContentType)
+            assertEqual((error as! HTTPError), .invalidContentTypeHeader)
         }
     }
 
@@ -469,7 +489,7 @@ class DecodeRequestTests: TestCase {
             "Content-Type: multipart/form-data;\r\n" +
             "\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual((error as! HTTPError), HTTPError.invalidContentType)
+            assertEqual((error as! HTTPError), .invalidBoundary)
         }
     }
 
@@ -632,6 +652,26 @@ class DecodeRequestTests: TestCase {
             ])
         } catch {
             fail(String(describing: error))
+        }
+    }
+
+    func testCookiesNoSpace() {
+        let bytes = ASCII(
+            "GET / HTTP/1.1\r\n" +
+            "Cookie: username=tony;lang=aurebesh\r\n" +
+            "\r\n")
+        assertThrowsError(try Request(from: bytes)) { error in
+            assertEqual(error as? HTTPError, .invalidRequest)
+        }
+    }
+
+    func testCookiesTrailingSemicolon() {
+        let bytes = ASCII(
+            "GET / HTTP/1.1\r\n" +
+            "Cookie: username=tony;\r\n" +
+            "\r\n")
+        assertThrowsError(try Request(from: bytes)) { error in
+            assertEqual(error as? HTTPError, .invalidRequest)
         }
     }
 

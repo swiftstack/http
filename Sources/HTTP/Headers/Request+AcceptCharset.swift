@@ -32,22 +32,15 @@ extension Array where Element == Request.AcceptCharset {
     public typealias AcceptCharset = Request.AcceptCharset
 
     init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
-        // FIXME: validate
-        let bytes = try stream.read(until: .cr)
-
-        var startIndex = bytes.startIndex
-        var endIndex = startIndex
         var values = [AcceptCharset]()
-        while endIndex < bytes.endIndex {
-            endIndex =
-                bytes[startIndex...].index(of: .comma) ??
-                bytes.endIndex
-            values.append(try AcceptCharset(from: bytes[startIndex..<endIndex]))
-            startIndex = endIndex.advanced(by: 1)
-            if startIndex < bytes.endIndex &&
-                bytes[startIndex] == .whitespace {
-                    startIndex += 1
+
+        while true {
+            let value = try AcceptCharset(from: stream)
+            values.append(value)
+            guard try stream.consume(.comma) else {
+                break
             }
+            try stream.consume(while: { $0 == .whitespace })
         }
         self = values
     }
@@ -67,23 +60,23 @@ extension Request.AcceptCharset {
         static let qEqual = ASCII("q=")
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
-        if let semicolon = bytes.index(of: .semicolon) {
-            self.charset = try Charset(from: bytes[..<semicolon])
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        self.charset = try Charset(from: stream)
 
-            let index = semicolon.advanced(by: 1)
-            let bytes = bytes[index...]
-            guard bytes.count == 5,
-                bytes.starts(with: Bytes.qEqual),
-                let priority = Double(from: bytes[(index+2)...]) else {
-                    throw HTTPError.invalidAcceptCharsetHeader
-            }
-            self.priority = priority
-        } else {
-            self.charset = try Charset(from: bytes)
+        guard try stream.consume(.semicolon) else {
             self.priority = 1.0
+            return
         }
+
+        guard try stream.consume(sequence: Bytes.qEqual) else {
+            throw HTTPError.invalidAcceptCharsetHeader
+        }
+        // FIXME: implement Double(from stream:)
+        let buffer = try stream.read(allowedBytes: .token)
+        guard let priority = Double(from: buffer) else {
+            throw HTTPError.invalidAcceptCharsetHeader
+        }
+        self.priority = priority
     }
 
     func encode(to buffer: inout [UInt8]) {

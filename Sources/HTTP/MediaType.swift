@@ -1,3 +1,5 @@
+import Stream
+
 public enum MediaType {
     case application(ApplicationSubtype)
     case audio(AudioSubtype)
@@ -34,40 +36,38 @@ extension MediaType {
         static let any = ASCII("*")
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
-        guard let slashIndex = bytes.index(of: .slash) else {
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        var buffer = try stream.read(until: .slash)
+        guard buffer.count > 0 else {
             throw HTTPError.invalidMediaTypeHeader
         }
+        try stream.consume(count: 1)
+        let hashValue = buffer.lowercasedHashValue
 
-        let mediaType = bytes[..<slashIndex]
+        buffer = try stream.read(allowedBytes: .token)
 
-        let subtypeIndex = slashIndex + 1
-        let subtype = bytes[subtypeIndex...]
-
-        switch mediaType.lowercasedHashValue {
+        switch hashValue {
         case Bytes.application.lowercasedHashValue:
-            self = .application(try ApplicationSubtype(from: subtype))
+            self = .application(try ApplicationSubtype(from: buffer))
 
         case Bytes.audio.lowercasedHashValue:
-            self = .audio(try AudioSubtype(from: subtype))
+            self = .audio(try AudioSubtype(from: buffer))
 
         case Bytes.image.lowercasedHashValue:
-            self = .image(try ImageSubtype(from: subtype))
+            self = .image(try ImageSubtype(from: buffer))
 
         case Bytes.multipart.lowercasedHashValue:
-            self = .multipart(try MultipartSubtype(from: subtype))
+            self = .multipart(try MultipartSubtype(from: buffer))
 
         case Bytes.text.lowercasedHashValue:
-            self = .text(try TextSubtype(from: subtype))
+            self = .text(try TextSubtype(from: buffer))
 
         case Bytes.video.lowercasedHashValue:
-            self = .video(try VideoSubtype(from: subtype))
+            self = .video(try VideoSubtype(from: buffer))
 
         case Bytes.any.lowercasedHashValue:
-            guard subtype.count == 1 &&
-                subtype.first == .asterisk else {
-                    throw HTTPError.unsupportedMediaType
+            guard buffer.count == 1 && buffer.first == .asterisk else {
+                throw HTTPError.unsupportedMediaType
             }
             self = .any
 

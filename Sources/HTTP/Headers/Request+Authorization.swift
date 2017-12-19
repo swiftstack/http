@@ -30,43 +30,28 @@ extension Request.Authorization {
     }
 
     init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
-        // FIXME: validate
-        let bytes = try stream.read(until: .cr)
+        var buffer = try stream.read(until: .whitespace)
+        let schemeHashValue = buffer.lowercasedHashValue
 
-        func suffix(from index: Int) throws -> String {
-            let index = bytes.startIndex + index + 1
-            guard index > bytes.startIndex, index < bytes.endIndex,
-                bytes[index-1] == .whitespace else {
-                    throw HTTPError.invalidAuthorizationHeader
-            }
-            guard let type =
-                String(validating: bytes[index...], as: .text) else {
-                    throw HTTPError.invalidAuthorizationHeader
-            }
-            return type
-        }
-
-        guard let schemaEndIndex = bytes.index(of: .whitespace) else {
-            throw HTTPError.invalidAuthorizationHeader
-        }
-        let scheme = bytes[..<schemaEndIndex]
-
-        switch scheme.lowercasedHashValue {
-        case Bytes.basic.lowercasedHashValue:
-            let credentials = try suffix(from: Bytes.basic.count)
-            self = .basic(credentials: credentials)
-        case Bytes.bearer.lowercasedHashValue:
-            let credentials = try suffix(from: Bytes.bearer.count)
-            self = .bearer(credentials: credentials)
-        case Bytes.token.lowercasedHashValue:
-            let token = try suffix(from: Bytes.token.count)
-            self = .token(credentials: token)
-        default:
-            guard let scheme = String(validating: scheme, as: .text) else {
+        func readCredentials() throws -> String {
+            guard try stream.consume(.whitespace) else {
                 throw HTTPError.invalidAuthorizationHeader
             }
-            let credentials = try suffix(from: schemaEndIndex)
-            self = .custom(scheme: scheme, credentials: credentials)
+            // FIXME: validate with value-specific rule
+            buffer = try stream.read(allowedBytes: .text)
+            return String(decoding: buffer, as: UTF8.self)
+        }
+
+        switch schemeHashValue {
+        case Bytes.basic.lowercasedHashValue:
+            self = .basic(credentials: try readCredentials())
+        case Bytes.bearer.lowercasedHashValue:
+            self = .bearer(credentials: try readCredentials())
+        case Bytes.token.lowercasedHashValue:
+            self = .token(credentials: try readCredentials())
+        default:
+            let scheme = String(decoding: buffer, as: UTF8.self)
+            self = .custom(scheme: scheme, credentials:  try readCredentials())
         }
     }
 

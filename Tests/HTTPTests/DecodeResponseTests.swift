@@ -270,24 +270,33 @@ class DecodeResponseTests: TestCase {
                 "Set-Cookie: date=; Expires=Thu, 06 Sep 2018 12:41:14 GMT\r\n" +
                 "\r\n")
             let response = try Response(from: bytes)
-            assertEqual(response.setCookie, [
-                Response.SetCookie(
-                    Cookie(name: "num", value: "0"),
-                    path: "/",
-                    maxAge: 42,
-                    secure: true,
-                    httpOnly: true),
-                Response.SetCookie(
-                    Cookie(name: "key", value: "value"),
-                    secure: true,
-                    httpOnly: true),
-                Response.SetCookie(
-                    Cookie(name: "date", value: ""),
-                    expires: Date(timeIntervalSince1970: 1536237674.0)),
-                Response.SetCookie(
-                    Cookie(name: "date", value: ""),
-                    expires: Date(timeIntervalSince1970: 1536237674.0))
-            ])
+
+            assertEqual(response.setCookie[0],
+                        Response.SetCookie(
+                            Cookie(name: "num", value: "0"),
+                            path: "/",
+                            maxAge: 42,
+                            secure: true,
+                            httpOnly: true))
+
+            assertEqual(response.setCookie[1],
+                        Response.SetCookie(
+                            Cookie(name: "key", value: "value"),
+                            secure: true,
+                            httpOnly: true))
+
+            assertEqual(response.setCookie[2],
+                        Response.SetCookie(
+                            Cookie(name: "date", value: ""),
+                            expires: Date(timeIntervalSince1970: 1536237674.0)))
+
+            assertEqual(response.setCookie[3],
+                        Response.SetCookie(
+                            Cookie(name: "date", value: ""),
+                            expires: Date(timeIntervalSince1970: 1536237674.0)))
+
+
+
         } catch {
             fail(String(describing: error))
         }

@@ -1,3 +1,5 @@
+import Stream
+
 public enum Charset {
     case utf8
     case ascii
@@ -27,18 +29,14 @@ extension Charset {
         static let any = ASCII("*")
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        let bytes = try stream.read(allowedBytes: .token)
         switch bytes.lowercasedHashValue {
         case Bytes.utf8.lowercasedHashValue: self = .utf8
         case Bytes.ascii.lowercasedHashValue: self = .ascii
         case Bytes.isoLatin1.lowercasedHashValue: self = .isoLatin1
         case Bytes.any.lowercasedHashValue: self = .any
-        default:
-            guard let encoding = String(validating: bytes, as: .token) else {
-                throw HTTPError.invalidContentEncodingHeader
-            }
-            self = .custom(encoding)
+        default: self = .custom(String(decoding: bytes, as: UTF8.self))
         }
     }
 

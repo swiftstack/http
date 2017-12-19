@@ -37,39 +37,31 @@ extension ContentType {
     }
 
     init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
-        // FIXME: validate
-        let bytes = try stream.read(until: .cr)
-
-        let semicolonIndex = bytes.index(of: .semicolon)
-
-        self.mediaType = semicolonIndex == nil
-            ? try MediaType(from: bytes)
-            : try MediaType(from: bytes[..<semicolonIndex!])
+        self.mediaType = try MediaType(from: stream)
 
         switch self.mediaType {
         case .multipart:
-            guard let semicolonIndex = semicolonIndex,
-                semicolonIndex < bytes.endIndex else {
-                    throw HTTPError.invalidContentTypeHeader
+            guard try stream.consume(.semicolon) else {
+                throw HTTPError.invalidContentTypeHeader
             }
-            let startIndex = semicolonIndex + 1
+            try stream.consume(while: { $0 == .whitespace })
+
             self.charset = nil
-            self.boundary = try Boundary(
-                from: bytes[startIndex...].trimmingLeftSpace())
+            self.boundary = try Boundary(from: stream)
 
         default:
-            guard let semicolonIndex = semicolonIndex else {
+            guard try stream.consume(.semicolon) else {
                 self.charset = nil
                 self.boundary = nil
                 break
             }
-            let startIndex = semicolonIndex + 1
-            let charset = bytes[startIndex...].trimmingLeftSpace()
-            guard charset.count > Bytes.charset.count else {
+            try stream.consume(while: { $0 == .whitespace })
+
+            // FIXME: validate with value-specific rule
+            guard try stream.consume(sequence: Bytes.charset) else {
                 throw HTTPError.invalidContentTypeHeader
             }
-            let charsetValueIndex = charset.startIndex + Bytes.charset.count
-            self.charset = try Charset(from: charset[charsetValueIndex...])
+            self.charset = try Charset(from: stream)
             self.boundary = nil
         }
     }
@@ -108,12 +100,12 @@ extension Boundary {
         static let boundary = ASCII("boundary=")
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
-        let boundaryStart = bytes.startIndex + Bytes.boundary.count
-        guard boundaryStart < bytes.endIndex else {
-            throw HTTPError.invalidContentTypeHeader
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        guard try stream.consume(sequence: Bytes.boundary) else {
+            throw HTTPError.invalidBoundary
         }
-        self = try Boundary([UInt8](bytes[boundaryStart...]))
+        // FIXME: validate with value-specific rule
+        let buffer = try stream.read(allowedBytes: .text)
+        self = try Boundary([UInt8](buffer))
     }
 }

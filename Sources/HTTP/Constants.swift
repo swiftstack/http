@@ -15,6 +15,14 @@ extension UInt8 {
     static let dot = UInt8(ascii: ".")
 
     static let zero = UInt8(ascii: "0")
+    static let one = UInt8(ascii: "1")
+    static let two = UInt8(ascii: "2")
+    static let three = UInt8(ascii: "3")
+    static let four = UInt8(ascii: "4")
+    static let five = UInt8(ascii: "5")
+    static let six = UInt8(ascii: "6")
+    static let seven = UInt8(ascii: "7")
+    static let eight = UInt8(ascii: "8")
     static let nine = UInt8(ascii: "9")
 }
 
@@ -22,6 +30,28 @@ struct Constants {
     static let lineEnd: [UInt8] = [.cr, .lf]
     static let minimumHeaderLength = ASCII("a:a\r\n").count
     static let minimumChunkLength = ASCII("0\r\n").count
+}
+
+extension Set where Element == UInt8 {
+    static let idnAllowed: Set<UInt8> = {
+        return Set<UInt8>(ASCII(
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-."
+        ))
+    }()
+
+    static let cookieAllowed: Set<UInt8> = {
+        return idnAllowed.union(Set<UInt8>(ASCII(
+            "!#$%&'()*+/:<>?@[]^_`{|}~-, "
+        )))
+    }()
+}
+
+extension AllowedBytes {
+    static let domain = AllowedBytes(byteSet: .idnAllowed)
+    static let cookie = AllowedBytes(byteSet: .cookieAllowed)
+    static let digits = AllowedBytes(byteSet: [
+        .zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine
+    ])
 }
 
 extension AllowedBytes {
@@ -63,6 +93,41 @@ extension AllowedBytes {
         true,  true,  true,  true,  true,  true,  true,  true,
         /* x     y      z      {      |      }      ~     del */
         true,  true,  true,  false, true,  false, true,  false))
+
+    // <any OCTET except CTLs, but including LWS>
+    static let text = AllowedBytes(usASCII: (
+        /* nul   soh   stx    etx    eot    enq    ack    bel */
+        false, false, false, false, false, false, false, false,
+        /* bs    ht     nl    vt     np     cr     so     si  */
+        false, true,  false, false, false, false, false, false,
+        /* dle   dc    dc     dc     dc     nak    syn    etb */
+        false, false, false, false, false, false, false, false,
+        /* can   em    sub    esc    fs     gs     rs     us  */
+        false, false, false, false, false, false, false, false,
+        /* sp    !      "      #      $      %      &      '  */
+        true,  true,  true,  true,  true,  true,  true,  true,
+        /* (     )      *      +      ,      -      .      /  */
+        true,  true,  true,  true,  true,  true,  true,  true,
+        /* 0     1      2      3      4      5      6      7  */
+        true,  true,  true,  true,  true,  true,  true,  true,
+        /* 8     9      :      ;      <      =      >      ?  */
+        true,  true,  true,  true,  true,  true,  true,  true,
+        /* @     A      B      C      D      E      F      G  */
+        true,  true,  true,  true,  true,  true,  true,  true,
+        /* H     I      J      K      L      M      N      O  */
+        true,  true,  true,  true,  true,  true,  true,  true,
+        /* P     Q      R      S      T      U      V      W  */
+        true,  true,  true,  true,  true,  true,  true,  true,
+        /* X     Y      Z      [      \      ]      ^      _  */
+        true,  true,  true,  true,  true,  true,  true,  true,
+        /* `     a      b      c      d      e      f      g  */
+        true,  true,  true,  true,  true,  true,  true,  true,
+        /* h     i      j      k      l      m      n      o  */
+        true,  true,  true,  true,  true,  true,  true,  true,
+        /* p     q      r      s      t      u      v      w  */
+        true,  true,  true,  true,  true,  true,  true,  true,
+        /* x     y      z      {      |      }      ~     del */
+        true,  true,  true,  true,  true,  true,  true,  false))
 }
 
 public struct ASCIICharacterSet: ExpressibleByArrayLiteral {
