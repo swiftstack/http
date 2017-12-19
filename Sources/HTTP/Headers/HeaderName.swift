@@ -29,7 +29,9 @@ public struct HeaderName: Hashable {
     let bytes: [UInt8]
     init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
         // FIXME: validate
-        let bytes = try stream.read(until: .colon)
+        guard let bytes = try? stream.read(until: .colon) else {
+            throw HTTPError.invalidHeaderName
+        }
 
         for byte in bytes {
             guard ASCIICharacterSet.token.contains(byte) else {
