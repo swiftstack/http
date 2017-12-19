@@ -36,7 +36,7 @@ extension Charset {
         case Bytes.any.lowercasedHashValue: self = .any
         default:
             guard let encoding = String(validating: bytes, as: .token) else {
-                throw HTTPError.invalidContentEncoding
+                throw HTTPError.invalidContentEncodingHeader
             }
             self = .custom(encoding)
         }

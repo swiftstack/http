@@ -37,17 +37,17 @@ extension Request.Authorization {
             let index = bytes.startIndex + index + 1
             guard index > bytes.startIndex, index < bytes.endIndex,
                 bytes[index-1] == .whitespace else {
-                    throw HTTPError.invalidHeaderValue
+                    throw HTTPError.invalidAuthorizationHeader
             }
             guard let type =
                 String(validating: bytes[index...], as: .text) else {
-                    throw HTTPError.invalidHeaderValue
+                    throw HTTPError.invalidAuthorizationHeader
             }
             return type
         }
 
         guard let schemaEndIndex = bytes.index(of: .whitespace) else {
-            throw HTTPError.invalidHeaderValue
+            throw HTTPError.invalidAuthorizationHeader
         }
         let scheme = bytes[..<schemaEndIndex]
 
@@ -63,7 +63,7 @@ extension Request.Authorization {
             self = .token(credentials: token)
         default:
             guard let scheme = String(validating: scheme, as: .text) else {
-                throw HTTPError.invalidHeaderValue
+                throw HTTPError.invalidAuthorizationHeader
             }
             let credentials = try suffix(from: schemaEndIndex)
             self = .custom(scheme: scheme, credentials: credentials)

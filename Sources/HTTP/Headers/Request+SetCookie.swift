@@ -79,7 +79,7 @@ extension Response.SetCookie {
 
             // should be separated by a semi-colon and a space ('; ')
             guard bytes[startIndex] == .whitespace else {
-                throw HTTPError.invalidSetCookie
+                throw HTTPError.invalidSetCookieHeader
             }
             startIndex += 1
 
@@ -87,7 +87,7 @@ extension Response.SetCookie {
                 // attribute name=value
                 let valueStartIndex = equalIndex + 1
                 guard valueStartIndex < endIndex else {
-                    throw HTTPError.invalidSetCookie
+                    throw HTTPError.invalidSetCookieHeader
                 }
                 let attributeName = bytes[startIndex..<equalIndex]
                 let attributeValue = bytes[valueStartIndex..<endIndex]
@@ -102,25 +102,25 @@ extension Response.SetCookie {
                     guard let dateString =
                             String(validating: attributeValue, as: .text),
                         let date = Date(from: dateString) else {
-                            throw HTTPError.invalidSetCookie
+                            throw HTTPError.invalidSetCookieHeader
                     }
                     self.expires = date
                 case Bytes.maxAge.lowercasedHashValue:
                     guard let maxAgeString =
                         String(validating: attributeValue, as: .text),
                         let maxAge = Int(maxAgeString) else {
-                            throw HTTPError.invalidSetCookie
+                            throw HTTPError.invalidSetCookieHeader
                     }
                     self.maxAge = maxAge
                 default:
-                    throw HTTPError.invalidSetCookie
+                    throw HTTPError.invalidSetCookieHeader
                 }
             } else {
                 // single attribute
                 switch bytes[startIndex..<endIndex].lowercasedHashValue {
                 case Bytes.httpOnly.lowercasedHashValue: self.httpOnly = true
                 case Bytes.secure.lowercasedHashValue: self.secure = true
-                default: throw HTTPError.invalidSetCookie
+                default: throw HTTPError.invalidSetCookieHeader
                 }
             }
 

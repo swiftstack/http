@@ -34,7 +34,7 @@ extension Array where Element == Cookie {
             if endIndex < bytes.endIndex {
                 guard endIndex + 1 < bytes.endIndex,
                     bytes[endIndex + 1] == .whitespace else {
-                        throw HTTPError.invalidCookie
+                        throw HTTPError.invalidCookieHeader
                 }
             }
 
@@ -62,7 +62,7 @@ extension Cookie {
     init<T: RandomAccessCollection>(from bytes: T) throws
         where T.Element == UInt8, T.Index == Int {
         guard let equal = bytes.index(of: .equal) else {
-            throw HTTPError.invalidCookie
+            throw HTTPError.invalidCookieHeader
         }
         guard
             let name = String(
@@ -70,7 +70,7 @@ extension Cookie {
             let value = String(
                 validating: bytes[(equal+1)...].trimmingLeftSpace(), as: .token)
             else {
-                throw HTTPError.invalidCookie
+                throw HTTPError.invalidCookieHeader
         }
         self.name = name
         self.value = value

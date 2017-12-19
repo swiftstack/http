@@ -6,16 +6,20 @@ public enum HTTPError: Error {
     case invalidStatus
     case invalidVersion
     case invalidHeaderName
-    case invalidHeaderValue
     case invalidHost
     case invalidPort
-    case invalidContentType
-    case invalidContentEncoding
-    case invalidMediaType
+    case invalidAcceptHeader
+    case invalidAcceptLanguageHeader
+    case invalidAcceptCharsetHeader
+    case invalidAuthorizationHeader
+    case invalidContentTypeHeader
+    case invalidContentEncodingHeader
+    case invalidTransferEncodingHeader
+    case invalidMediaTypeHeader
     case invalidBoundary
-    case invalidCookie
-    case invalidSetCookie
-    case invalidLanguage
+    case invalidCookieHeader
+    case invalidSetCookieHeader
+    case invalidLanguageHeader
     case unsupportedMediaType
     case unsupportedContentType
     case unsupportedAcceptCharset

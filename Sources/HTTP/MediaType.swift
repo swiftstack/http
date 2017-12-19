@@ -37,7 +37,7 @@ extension MediaType {
     init<T: RandomAccessCollection>(from bytes: T) throws
         where T.Element == UInt8, T.Index == Int {
         guard let slashIndex = bytes.index(of: .slash) else {
-            throw HTTPError.invalidMediaType
+            throw HTTPError.invalidMediaTypeHeader
         }
 
         let mediaType = bytes[..<slashIndex]

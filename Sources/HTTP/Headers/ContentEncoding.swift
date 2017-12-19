@@ -64,7 +64,7 @@ extension ContentEncoding {
         case Bytes.deflate.lowercasedHashValue: self = .deflate
         default:
             guard let encoding = String(validating: bytes, as: .token) else {
-                throw HTTPError.invalidContentEncoding
+                throw HTTPError.invalidContentEncodingHeader
             }
             self = .custom(encoding)
         }

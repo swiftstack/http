@@ -77,7 +77,7 @@ extension Request.AcceptCharset {
             guard bytes.count == 5,
                 bytes.starts(with: Bytes.qEqual),
                 let priority = Double(from: bytes[(index+2)...]) else {
-                    throw HTTPError.invalidHeaderValue
+                    throw HTTPError.invalidAcceptCharsetHeader
             }
             self.priority = priority
         } else {

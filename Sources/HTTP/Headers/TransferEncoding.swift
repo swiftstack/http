@@ -74,7 +74,7 @@ extension TransferEncoding {
         case Bytes.deflate.lowercasedHashValue: self = .deflate
         case Bytes.gzip.lowercasedHashValue: self = .gzip
         case Bytes.identity.lowercasedHashValue: self = .identity
-        default: throw HTTPError.invalidHeaderValue
+        default: throw HTTPError.invalidTransferEncodingHeader
         }
     }
 

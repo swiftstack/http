@@ -41,7 +41,7 @@ extension Request {
 
                 let colon = try stream.read(count: 1)
                 guard colon[0] == .colon else {
-                    throw HTTPError.invalidRequest
+                    throw HTTPError.invalidHeaderName
                 }
                 try stream.consume(while: { $0 == .whitespace })
 

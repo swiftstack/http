@@ -50,7 +50,7 @@ extension ContentType {
         case .multipart:
             guard let semicolonIndex = semicolonIndex,
                 semicolonIndex < bytes.endIndex else {
-                    throw HTTPError.invalidContentType
+                    throw HTTPError.invalidContentTypeHeader
             }
             let startIndex = semicolonIndex + 1
             self.charset = nil
@@ -66,7 +66,7 @@ extension ContentType {
             let startIndex = semicolonIndex + 1
             let charset = bytes[startIndex...].trimmingLeftSpace()
             guard charset.count > Bytes.charset.count else {
-                throw HTTPError.invalidContentType
+                throw HTTPError.invalidContentTypeHeader
             }
             let charsetValueIndex = charset.startIndex + Bytes.charset.count
             self.charset = try Charset(from: charset[charsetValueIndex...])
@@ -112,7 +112,7 @@ extension Boundary {
         where T.Element == UInt8, T.Index == Int {
         let boundaryStart = bytes.startIndex + Bytes.boundary.count
         guard boundaryStart < bytes.endIndex else {
-            throw HTTPError.invalidContentType
+            throw HTTPError.invalidContentTypeHeader
         }
         self = try Boundary([UInt8](bytes[boundaryStart...]))
     }
