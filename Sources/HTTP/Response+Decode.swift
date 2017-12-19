@@ -105,11 +105,10 @@ extension Response {
 
             if stream.count >= 2,
                 try stream.peek(count: 2)!.elementsEqual(Constants.lineEnd) {
-                try stream.consume(count: 2)
+                    try stream.consume(count: 2)
             }
-        } catch let error as BufferedInputStream<T>.Error
-            where error == .insufficientData {
-                throw HTTPError.unexpectedEnd
+        } catch let error as StreamError where error == .insufficientData {
+            throw HTTPError.unexpectedEnd
         }
     }
 }
