@@ -79,7 +79,7 @@ extension TransferEncoding {
     }
 
     func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
-        var bytes: [UInt8]
+        let bytes: [UInt8]
         switch self {
         case .chunked: bytes = Bytes.chunked
         case .compress: bytes = Bytes.compress

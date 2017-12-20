@@ -121,13 +121,13 @@ public struct RouteMatcher<T> {
 
 extension RouteMatcher {
     public mutating func add(route: String, payload: T) {
-        let bytes = [UInt8](route)
+        let bytes = [UInt8](route.utf8)
         let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
         add(route: buffer, payload: payload)
     }
 
     public func matches(route: String) -> [T] {
-        let bytes = [UInt8](route)
+        let bytes = [UInt8](route.utf8)
         let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
         return matches(route: buffer)
     }

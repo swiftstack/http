@@ -16,8 +16,8 @@ extension Response {
         @inline(__always)
         func writeHeader(
             _ name: HeaderName,
-            encoder: (BufferedOutputStream<T>
-        ) throws -> Void) throws {
+            encoder: (BufferedOutputStream<T>) throws -> Void
+        ) throws {
             try stream.write(name.bytes)
             try stream.write(.colon)
             try stream.write(.whitespace)

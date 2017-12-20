@@ -16,8 +16,7 @@ extension Sequence where Iterator.Element == UInt8 {
 
 typealias ASCII = [UInt8]
 extension Array where Element == UInt8 {
-    @inline(__always)
-    public init(_ value: String) {
+    init(_ value: String) {
         self = [UInt8](value.utf8)
     }
 }

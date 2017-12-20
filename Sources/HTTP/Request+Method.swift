@@ -24,7 +24,7 @@ extension Request.Method {
     }
 
     func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
-        var bytes: [UInt8]
+        let bytes: [UInt8]
         switch self {
         case .get: bytes = RequestMethodBytes.get
         case .head: bytes = RequestMethodBytes.head
