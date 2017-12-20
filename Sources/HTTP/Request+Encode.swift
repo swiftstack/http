@@ -1,7 +1,9 @@
 import Stream
+import Network
 import struct Foundation.CharacterSet
 
 extension Request {
+    @_specialize(exported: true, where T == NetworkStream)
     public func encode<T: OutputStream>(
         to stream: BufferedOutputStream<T>
     ) throws {
