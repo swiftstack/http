@@ -1,3 +1,5 @@
+import Platform
+
 // MARK: Hash
 
 extension Sequence where Iterator.Element == UInt8 {
