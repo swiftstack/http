@@ -60,6 +60,7 @@ public class Client {
     public func disconnect() {
         self.stream = nil
         self.inputStream = nil
+        self.outputStream = nil
     }
 
     public func makeRequest(_ request: Request) throws -> Response {
