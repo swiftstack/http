@@ -11,6 +11,7 @@ class UtilsTests: TestCase {
     func testDouble() {
         assertEqual(try Double(from: streamWith("0.1")), 0.1)
         assertEqual(try Double(from: streamWith("1.0")), 1.0)
+        assertEqual(try Double(from: streamWith("0.7")), 0.7)
         assertEqual(try Double(from: streamWith("3.14")), 3.14)
         assertEqual(try Double(from: streamWith("42")), 42)
         assertEqual(try Double(from: streamWith("42.")), 42)

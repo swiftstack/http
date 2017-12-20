@@ -74,26 +74,21 @@ extension Int {
 
 extension Double {
     init?<T: InputStream>(from stream: BufferedInputStream<T>) throws {
-        guard let integer = try Int(from: stream) else {
-            return nil
-        }
+        var string = [UInt8]()
 
-        self = Double(integer)
+        let bytes = try stream.read(while: { $0 >= .zero && $0 <= .nine })
+        string.append(contentsOf: bytes)
 
-        do {
-            guard try stream.consume(.dot) else {
-                return
-            }
+        if (try? stream.consume(.dot)) ?? false {
+            string.append(.dot)
             let bytes = try stream.read(while: { $0 >= .zero && $0 <= .nine })
-            guard bytes.count > 0 else {
-                return
-            }
-            var factor = 0.1
-            for byte in bytes {
-                self += Double(byte - .zero) * factor
-                factor *= 0.1
-            }
-        } catch {}
+            string.append(contentsOf: bytes)
+        }
+        string.append(0)
+
+        let pointer = UnsafeRawPointer(string)
+            .assumingMemoryBound(to: Int8.self)
+        self = strtod(pointer, nil)
     }
 }
 
