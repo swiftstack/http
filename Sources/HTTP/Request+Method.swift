@@ -13,7 +13,7 @@ extension Request {
 
 extension Request.Method {
     init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
-        let bytes = try stream.read(until: .whitespace)
+        let bytes = try stream.read(allowedBytes: .token)
         for (type, method) in RequestMethodBytes.values {
             if bytes.elementsEqual(method) {
                 self = type

@@ -11,18 +11,22 @@ extension Request {
     public init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
         do {
             self.method = try Request.Method(from: stream)
-            try stream.consume(count: 1)
+            guard try stream.consume(.whitespace) else {
+                throw HTTPError.invalidStartLine
+            }
 
             self.url = try URL(from: stream)
-            try stream.consume(count: 1)
+            guard try stream.consume(.whitespace) else {
+                throw HTTPError.invalidStartLine
+            }
 
             self.version = try Version(from: stream)
 
             @inline(__always)
             func readLineEnd() throws {
-                let lineEnd = try stream.read(count: 2)
-                guard lineEnd.elementsEqual(Constants.lineEnd) else {
-                    throw HTTPError.invalidRequest
+                guard try stream.consume(.cr),
+                    try stream.consume(.lf) else {
+                        throw HTTPError.invalidRequest
                 }
             }
 
@@ -39,8 +43,7 @@ extension Request {
 
                 let name = try HeaderName(from: stream)
 
-                let colon = try stream.read(count: 1)
-                guard colon[0] == .colon else {
+                guard try stream.consume(.colon) else {
                     throw HTTPError.invalidHeaderName
                 }
                 try stream.consume(while: { $0 == .whitespace })
@@ -127,9 +130,10 @@ extension Request {
 
             self.rawBody = body
 
-            if stream.count >= 2,
-                try stream.peek(count: 2)!.elementsEqual(Constants.lineEnd) {
-                    try stream.consume(count: 2)
+            // http request can have trailing \r\n
+            // but we should avoid extra syscall
+            if stream.buffered >= 2 {
+                _ = try? stream.consume(sequence: Constants.lineEnd)
             }
         } catch let error as StreamError where error == .insufficientData {
             throw HTTPError.unexpectedEnd

@@ -1,6 +1,7 @@
 public enum HTTPError: Error {
     case invalidRequest
     case invalidResponse
+    case invalidStartLine
     case invalidURL
     case invalidMethod
     case invalidStatus

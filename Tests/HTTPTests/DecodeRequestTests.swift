@@ -88,14 +88,14 @@ class DecodeRequestTests: TestCase {
     func testInvalidRequest() {
         let bytes = ASCII("GET\r\n\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .unexpectedEnd)
+            assertEqual(error as? HTTPError, .invalidStartLine)
         }
     }
 
     func testInvalidRequest2() {
         let bytes = ASCII("GET \r\n\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .unexpectedEnd)
+            assertEqual(error as? HTTPError, .invalidStartLine)
         }
     }
 
@@ -422,8 +422,7 @@ class DecodeRequestTests: TestCase {
             let bytes = ASCII(
                 "GET / HTTP/1.1\r\n" +
                 "Content-Type: application/x-www-form-urlencoded\r\n" +
-                "\r\n" +
-                "Hello")
+                "\r\n")
             let request = try Request(from: bytes)
             assertNotNil(request.contentType)
             assertEqual(
@@ -440,8 +439,7 @@ class DecodeRequestTests: TestCase {
             let bytes = ASCII(
                 "GET / HTTP/1.1\r\n" +
                 "Content-Type: text/plain; charset=utf-8\r\n" +
-                "\r\n" +
-                "Hello")
+                "\r\n")
             let request = try Request(from: bytes)
             assertNotNil(request.contentType)
             assertEqual(
@@ -456,7 +454,8 @@ class DecodeRequestTests: TestCase {
     func testContentTypeEmptyCharset() {
         let bytes = ASCII(
             "GET / HTTP/1.1\r\n" +
-            "Content-Type: text/plain;" +
+            "Content-Type: text/plain;\r\n" +
+            "Content-Length: 0\r\n" +
             "\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
             assertEqual((error as! HTTPError), .invalidContentTypeHeader)
@@ -487,6 +486,7 @@ class DecodeRequestTests: TestCase {
         let bytes = ASCII(
             "GET / HTTP/1.1\r\n" +
             "Content-Type: multipart/form-data;\r\n" +
+            "Content-Length: 0\r\n" +
             "\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
             assertEqual((error as! HTTPError), .invalidBoundary)

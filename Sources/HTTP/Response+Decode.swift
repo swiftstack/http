@@ -11,16 +11,18 @@ extension Response {
     public init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
         do {
             self.version = try Version(from: stream)
-            try stream.consume(count: 1)
+            guard try stream.consume(.whitespace) else {
+                throw HTTPError.invalidStartLine
+            }
 
             let status = try stream.read(until: .cr)
             self.status = try Status(from: status)
 
             @inline(__always)
             func readLineEnd() throws {
-                let lineEnd = try stream.read(count: 2)
-                guard lineEnd.elementsEqual(Constants.lineEnd) else {
-                    throw HTTPError.invalidRequest
+                guard try stream.consume(.cr),
+                    try stream.consume(.lf) else {
+                        throw HTTPError.invalidRequest
                 }
             }
 
@@ -103,9 +105,10 @@ extension Response {
 
             self.rawBody = body
 
-            if stream.count >= 2,
-                try stream.peek(count: 2)!.elementsEqual(Constants.lineEnd) {
-                    try stream.consume(count: 2)
+            // http request can have trailing \r\n
+            // but we should avoid extra syscall
+            if stream.buffered >= 2 {
+                _ = try? stream.consume(sequence: Constants.lineEnd)
             }
         } catch let error as StreamError where error == .insufficientData {
             throw HTTPError.unexpectedEnd
