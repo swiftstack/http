@@ -50,14 +50,18 @@ public class Server {
 
     func handleClient(_ client: Socket) {
         do {
-            var stream = NetworkStream(socket: client)
+            let stream = NetworkStream(socket: client)
+
             let inputStream = BufferedInputStream(
+                baseStream: stream, capacity: bufferSize)
+            let outputStream = BufferedOutputStream(
                 baseStream: stream, capacity: bufferSize)
 
             while true {
                 let request = try Request(from: inputStream)
                 let response = router.handleRequest(request)
-                try response.encode(to: &stream)
+                try response.encode(to: outputStream)
+                try outputStream.flush()
                 if request.connection == .close {
                     break
                 }

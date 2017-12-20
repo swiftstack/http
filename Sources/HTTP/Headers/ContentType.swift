@@ -66,10 +66,10 @@ extension ContentType {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
-        mediaType.encode(to: &buffer)
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+        try mediaType.encode(to: stream)
         if let charset = charset {
-            charset.encode(to: &buffer)
+            try charset.encode(to: stream)
         }
     }
 }

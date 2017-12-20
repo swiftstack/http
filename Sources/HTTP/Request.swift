@@ -60,8 +60,7 @@ extension Request {
         self.host = host
 
         if method == .post || method == .put, let query = url.query {
-            var bytes = [UInt8]()
-            query.encode(to: &bytes)
+            let bytes = query.encode()
             self.rawBody = bytes
             self.contentLength = bytes.count
             self.contentType = ContentType(mediaType: .application(.urlEncoded))

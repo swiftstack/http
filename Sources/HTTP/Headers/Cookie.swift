@@ -32,12 +32,12 @@ extension Array where Element == Cookie {
         self = cookies
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
         for i in 0..<count {
-            self[i].encode(to: &buffer)
+            try self[i].encode(to: stream)
             if i + 1 < count {
-                buffer.append(.semicolon)
-                buffer.append(.whitespace)
+                try stream.write(.semicolon)
+                try stream.write(.whitespace)
             }
         }
     }
@@ -59,9 +59,9 @@ extension Cookie {
         self.value = String(decoding: buffer, as: UTF8.self)
     }
 
-    func encode(to buffer: inout [UInt8]) {
-        buffer.append(contentsOf: name.utf8)
-        buffer.append(.equal)
-        buffer.append(contentsOf: value.utf8)
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+        try stream.write(name)
+        try stream.write(.equal)
+        try stream.write(value)
     }
 }

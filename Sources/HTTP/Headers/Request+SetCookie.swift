@@ -124,45 +124,45 @@ extension Response.SetCookie {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
-        cookie.encode(to: &buffer)
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+        try cookie.encode(to: stream)
         if let domain = self.domain {
-            buffer.append(.semicolon)
-            buffer.append(.whitespace)
-            buffer.append(contentsOf: Bytes.domain)
-            buffer.append(.equal)
-            buffer.append(contentsOf: domain.utf8)
+            try stream.write(.semicolon)
+            try stream.write(.whitespace)
+            try stream.write(Bytes.domain)
+            try stream.write(.equal)
+            try stream.write(domain)
         }
         if let path = self.path {
-            buffer.append(.semicolon)
-            buffer.append(.whitespace)
-            buffer.append(contentsOf: Bytes.path)
-            buffer.append(.equal)
-            buffer.append(contentsOf: path.utf8)
+            try stream.write(.semicolon)
+            try stream.write(.whitespace)
+            try stream.write(Bytes.path)
+            try stream.write(.equal)
+            try stream.write(path)
         }
         if let expires = self.expires {
-            buffer.append(.semicolon)
-            buffer.append(.whitespace)
-            buffer.append(contentsOf: Bytes.expires)
-            buffer.append(.equal)
-            expires.encode(to: &buffer)
+            try stream.write(.semicolon)
+            try stream.write(.whitespace)
+            try stream.write(Bytes.expires)
+            try stream.write(.equal)
+            try stream.write(expires.rawValue)
         }
         if let maxAge = self.maxAge {
-            buffer.append(.semicolon)
-            buffer.append(.whitespace)
-            buffer.append(contentsOf: Bytes.maxAge)
-            buffer.append(.equal)
-            buffer.append(contentsOf: String(describing: maxAge).utf8)
+            try stream.write(.semicolon)
+            try stream.write(.whitespace)
+            try stream.write(Bytes.maxAge)
+            try stream.write(.equal)
+            try stream.write(String(describing: maxAge))
         }
         if self.secure == true {
-            buffer.append(.semicolon)
-            buffer.append(.whitespace)
-            buffer.append(contentsOf: Bytes.secure)
+            try stream.write(.semicolon)
+            try stream.write(.whitespace)
+            try stream.write(Bytes.secure)
         }
         if self.httpOnly == true {
-            buffer.append(.semicolon)
-            buffer.append(.whitespace)
-            buffer.append(contentsOf: Bytes.httpOnly)
+            try stream.write(.semicolon)
+            try stream.write(.whitespace)
+            try stream.write(Bytes.httpOnly)
         }
     }
 }
@@ -204,7 +204,7 @@ extension Date {
         self = date
     }
 
-    func encode(to buffer: inout [UInt8]) {
-        buffer.append(contentsOf: Date.encodeFormatter.string(from: self).utf8)
+    var rawValue: [UInt8] {
+        return [UInt8](Date.encodeFormatter.string(from: self).utf8)
     }
 }

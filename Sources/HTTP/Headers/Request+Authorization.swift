@@ -55,24 +55,24 @@ extension Request.Authorization {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
         switch self {
         case .basic(let credentials):
-            buffer.append(contentsOf: Bytes.basic)
-            buffer.append(.whitespace)
-            buffer.append(contentsOf: credentials.utf8)
+            try stream.write(Bytes.basic)
+            try stream.write(.whitespace)
+            try stream.write(credentials)
         case .bearer(let credentials):
-            buffer.append(contentsOf: Bytes.bearer)
-            buffer.append(.whitespace)
-            buffer.append(contentsOf: credentials.utf8)
+            try stream.write(Bytes.bearer)
+            try stream.write(.whitespace)
+            try stream.write(credentials)
         case .token(let credentials):
-            buffer.append(contentsOf: Bytes.token)
-            buffer.append(.whitespace)
-            buffer.append(contentsOf: credentials.utf8)
+            try stream.write(Bytes.token)
+            try stream.write(.whitespace)
+            try stream.write(credentials)
         case .custom(let schema, let credentials):
-            buffer.append(contentsOf: schema.utf8)
-            buffer.append(.whitespace)
-            buffer.append(contentsOf: credentials.utf8)
+            try stream.write(schema)
+            try stream.write(.whitespace)
+            try stream.write(credentials)
         }
     }
 }

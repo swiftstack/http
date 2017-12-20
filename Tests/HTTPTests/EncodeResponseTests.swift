@@ -1,13 +1,25 @@
 import Test
+import Stream
 @testable import HTTP
 
 import struct Foundation.Date
 
+extension Response {
+    func encode() throws -> [UInt8] {
+        let stream = OutputByteStream()
+        let buffer = BufferedOutputStream(baseStream: stream)
+        try self.encode(to: buffer)
+        try buffer.flush()
+        return stream.bytes
+    }
+}
+
 class EncodeResponseTests: TestCase {
     class Encoder {
         static func encode(_ response: Response) -> String? {
-            var bytes = [UInt8]()
-            response.encode(to: &bytes)
+            guard let bytes = try? response.encode() else {
+                return nil
+            }
             return String(decoding: bytes, as: UTF8.self)
         }
     }
@@ -187,9 +199,7 @@ class EncodeResponseTests: TestCase {
             ContentType(mediaType: .application(.stream))
         )
         assertEqual(response.contentLength, 3)
-        var result = [UInt8]()
-        response.encode(to: &result)
-        assertEqual(result, expected)
+        assertEqual(try response.encode(), expected)
     }
 
     func testJsonResponse() {

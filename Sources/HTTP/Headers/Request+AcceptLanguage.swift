@@ -271,12 +271,12 @@ extension Array where Element == Request.AcceptLanguage {
         self = values
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
         for i in startIndex..<endIndex {
             if i != startIndex {
-                buffer.append(.comma)
+                try stream.write(.comma)
             }
-            self[i].encode(to: &buffer)
+            try self[i].encode(to: stream)
         }
     }
 }
@@ -307,13 +307,13 @@ extension Request.AcceptLanguage {
         self.priority = priority
     }
 
-    func encode(to buffer: inout [UInt8]) {
-        language.encode(to: &buffer)
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+        try language.encode(to: stream)
 
         if priority < 1.0 {
-            buffer.append(.semicolon)
-            buffer.append(contentsOf: Bytes.qEqual)
-            buffer.append(contentsOf: [UInt8](String(describing: priority)))
+            try stream.write(.semicolon)
+            try stream.write(Bytes.qEqual)
+            try stream.write(String(describing: priority))
         }
     }
 }

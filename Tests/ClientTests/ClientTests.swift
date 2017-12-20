@@ -1,11 +1,22 @@
 import Test
 import HTTP
+import Stream
 import Network
 import Dispatch
 import AsyncDispatch
 @testable import Client
 
 import struct Foundation.Data
+
+extension Response {
+    func encode() throws -> [UInt8] {
+        let stream = OutputByteStream()
+        let buffer = BufferedOutputStream(baseStream: OutputByteStream())
+        try self.encode(to: buffer)
+        try buffer.flush()
+        return stream.bytes
+    }
+}
 
 class ClientTests: TestCase {
     override func setUp() {
@@ -111,17 +122,13 @@ class ClientTests: TestCase {
                 response.contentType = ContentType(mediaType: .text(.plain))
                 response.contentEncoding = [.gzip]
                 response.rawBody = gzipBody
-                var responseBytes = [UInt8]()
-                response.encode(to: &responseBytes)
-                _ = try client.send(bytes: responseBytes)
+                _ = try client.send(bytes: response.encode())
 
                 // Deflate
 
                 response.contentEncoding = [.deflate]
                 response.rawBody = deflateBody
-                responseBytes = [UInt8]()
-                response.encode(to: &responseBytes)
-                _ = try client.send(bytes: responseBytes)
+                _ = try client.send(bytes: response.encode())
 
             } catch {
                 async.loop.terminate()

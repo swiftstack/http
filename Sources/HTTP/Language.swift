@@ -1,3 +1,5 @@
+import Stream
+
 public enum Language {
     case af
     case afZA
@@ -701,238 +703,240 @@ extension Language {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+        let bytes: [UInt8]
         switch self {
-        case .af:    buffer.append(contentsOf: Bytes.af)
-        case .afZA:  buffer.append(contentsOf: Bytes.afZA)
-        case .ar:    buffer.append(contentsOf: Bytes.ar)
-        case .arAE:  buffer.append(contentsOf: Bytes.arAE)
-        case .arBH:  buffer.append(contentsOf: Bytes.arBH)
-        case .arDZ:  buffer.append(contentsOf: Bytes.arDZ)
-        case .arEG:  buffer.append(contentsOf: Bytes.arEG)
-        case .arIQ:  buffer.append(contentsOf: Bytes.arIQ)
-        case .arJO:  buffer.append(contentsOf: Bytes.arJO)
-        case .arKW:  buffer.append(contentsOf: Bytes.arKW)
-        case .arLB:  buffer.append(contentsOf: Bytes.arLB)
-        case .arLY:  buffer.append(contentsOf: Bytes.arLY)
-        case .arMA:  buffer.append(contentsOf: Bytes.arMA)
-        case .arOM:  buffer.append(contentsOf: Bytes.arOM)
-        case .arQA:  buffer.append(contentsOf: Bytes.arQA)
-        case .arSA:  buffer.append(contentsOf: Bytes.arSA)
-        case .arSY:  buffer.append(contentsOf: Bytes.arSY)
-        case .arTN:  buffer.append(contentsOf: Bytes.arTN)
-        case .arYE:  buffer.append(contentsOf: Bytes.arYE)
-        case .az:    buffer.append(contentsOf: Bytes.az)
-        case .azAZ:  buffer.append(contentsOf: Bytes.azAZ)
-        case .be:    buffer.append(contentsOf: Bytes.be)
-        case .beBY:  buffer.append(contentsOf: Bytes.beBY)
-        case .bg:    buffer.append(contentsOf: Bytes.bg)
-        case .bgBG:  buffer.append(contentsOf: Bytes.bgBG)
-        case .bsBA:  buffer.append(contentsOf: Bytes.bsBA)
-        case .ca:    buffer.append(contentsOf: Bytes.ca)
-        case .caES:  buffer.append(contentsOf: Bytes.caES)
-        case .cs:    buffer.append(contentsOf: Bytes.cs)
-        case .csCZ:  buffer.append(contentsOf: Bytes.csCZ)
-        case .cy:    buffer.append(contentsOf: Bytes.cy)
-        case .cyGB:  buffer.append(contentsOf: Bytes.cyGB)
-        case .da:    buffer.append(contentsOf: Bytes.da)
-        case .daDK:  buffer.append(contentsOf: Bytes.daDK)
-        case .de:    buffer.append(contentsOf: Bytes.de)
-        case .deAT:  buffer.append(contentsOf: Bytes.deAT)
-        case .deCH:  buffer.append(contentsOf: Bytes.deCH)
-        case .deDE:  buffer.append(contentsOf: Bytes.deDE)
-        case .deLI:  buffer.append(contentsOf: Bytes.deLI)
-        case .deLU:  buffer.append(contentsOf: Bytes.deLU)
-        case .dv:    buffer.append(contentsOf: Bytes.dv)
-        case .dvMV:  buffer.append(contentsOf: Bytes.dvMV)
-        case .el:    buffer.append(contentsOf: Bytes.el)
-        case .elGR:  buffer.append(contentsOf: Bytes.elGR)
-        case .en:    buffer.append(contentsOf: Bytes.en)
-        case .enAU:  buffer.append(contentsOf: Bytes.enAU)
-        case .enBZ:  buffer.append(contentsOf: Bytes.enBZ)
-        case .enCA:  buffer.append(contentsOf: Bytes.enCA)
-        case .enCB:  buffer.append(contentsOf: Bytes.enCB)
-        case .enGB:  buffer.append(contentsOf: Bytes.enGB)
-        case .enIE:  buffer.append(contentsOf: Bytes.enIE)
-        case .enJM:  buffer.append(contentsOf: Bytes.enJM)
-        case .enNZ:  buffer.append(contentsOf: Bytes.enNZ)
-        case .enPH:  buffer.append(contentsOf: Bytes.enPH)
-        case .enTT:  buffer.append(contentsOf: Bytes.enTT)
-        case .enUS:  buffer.append(contentsOf: Bytes.enUS)
-        case .enZA:  buffer.append(contentsOf: Bytes.enZA)
-        case .enZW:  buffer.append(contentsOf: Bytes.enZW)
-        case .eo:    buffer.append(contentsOf: Bytes.eo)
-        case .es:    buffer.append(contentsOf: Bytes.es)
-        case .esAR:  buffer.append(contentsOf: Bytes.esAR)
-        case .esBO:  buffer.append(contentsOf: Bytes.esBO)
-        case .esCL:  buffer.append(contentsOf: Bytes.esCL)
-        case .esCO:  buffer.append(contentsOf: Bytes.esCO)
-        case .esCR:  buffer.append(contentsOf: Bytes.esCR)
-        case .esDO:  buffer.append(contentsOf: Bytes.esDO)
-        case .esEC:  buffer.append(contentsOf: Bytes.esEC)
-        case .esES:  buffer.append(contentsOf: Bytes.esES)
-        case .esGT:  buffer.append(contentsOf: Bytes.esGT)
-        case .esHN:  buffer.append(contentsOf: Bytes.esHN)
-        case .esMX:  buffer.append(contentsOf: Bytes.esMX)
-        case .esNI:  buffer.append(contentsOf: Bytes.esNI)
-        case .esPA:  buffer.append(contentsOf: Bytes.esPA)
-        case .esPE:  buffer.append(contentsOf: Bytes.esPE)
-        case .esPR:  buffer.append(contentsOf: Bytes.esPR)
-        case .esPY:  buffer.append(contentsOf: Bytes.esPY)
-        case .esSV:  buffer.append(contentsOf: Bytes.esSV)
-        case .esUY:  buffer.append(contentsOf: Bytes.esUY)
-        case .esVE:  buffer.append(contentsOf: Bytes.esVE)
-        case .et:    buffer.append(contentsOf: Bytes.et)
-        case .etEE:  buffer.append(contentsOf: Bytes.etEE)
-        case .eu:    buffer.append(contentsOf: Bytes.eu)
-        case .euES:  buffer.append(contentsOf: Bytes.euES)
-        case .fa:    buffer.append(contentsOf: Bytes.fa)
-        case .faIR:  buffer.append(contentsOf: Bytes.faIR)
-        case .fi:    buffer.append(contentsOf: Bytes.fi)
-        case .fiFI:  buffer.append(contentsOf: Bytes.fiFI)
-        case .fo:    buffer.append(contentsOf: Bytes.fo)
-        case .foFO:  buffer.append(contentsOf: Bytes.foFO)
-        case .fr:    buffer.append(contentsOf: Bytes.fr)
-        case .frBE:  buffer.append(contentsOf: Bytes.frBE)
-        case .frCA:  buffer.append(contentsOf: Bytes.frCA)
-        case .frCH:  buffer.append(contentsOf: Bytes.frCH)
-        case .frFR:  buffer.append(contentsOf: Bytes.frFR)
-        case .frLU:  buffer.append(contentsOf: Bytes.frLU)
-        case .frMC:  buffer.append(contentsOf: Bytes.frMC)
-        case .gl:    buffer.append(contentsOf: Bytes.gl)
-        case .glES:  buffer.append(contentsOf: Bytes.glES)
-        case .gu:    buffer.append(contentsOf: Bytes.gu)
-        case .guIN:  buffer.append(contentsOf: Bytes.guIN)
-        case .he:    buffer.append(contentsOf: Bytes.he)
-        case .heIL:  buffer.append(contentsOf: Bytes.heIL)
-        case .hi:    buffer.append(contentsOf: Bytes.hi)
-        case .hiIN:  buffer.append(contentsOf: Bytes.hiIN)
-        case .hr:    buffer.append(contentsOf: Bytes.hr)
-        case .hrBA:  buffer.append(contentsOf: Bytes.hrBA)
-        case .hrHR:  buffer.append(contentsOf: Bytes.hrHR)
-        case .hu:    buffer.append(contentsOf: Bytes.hu)
-        case .huHU:  buffer.append(contentsOf: Bytes.huHU)
-        case .hy:    buffer.append(contentsOf: Bytes.hy)
-        case .hyAM:  buffer.append(contentsOf: Bytes.hyAM)
-        case .id:    buffer.append(contentsOf: Bytes.id)
-        case .idID:  buffer.append(contentsOf: Bytes.idID)
-        case .`is`:  buffer.append(contentsOf: Bytes.is)
-        case .isIS:  buffer.append(contentsOf: Bytes.isIS)
-        case .it:    buffer.append(contentsOf: Bytes.it)
-        case .itCH:  buffer.append(contentsOf: Bytes.itCH)
-        case .itIT:  buffer.append(contentsOf: Bytes.itIT)
-        case .ja:    buffer.append(contentsOf: Bytes.ja)
-        case .jaJP:  buffer.append(contentsOf: Bytes.jaJP)
-        case .ka:    buffer.append(contentsOf: Bytes.ka)
-        case .kaGE:  buffer.append(contentsOf: Bytes.kaGE)
-        case .kk:    buffer.append(contentsOf: Bytes.kk)
-        case .kkKZ:  buffer.append(contentsOf: Bytes.kkKZ)
-        case .kn:    buffer.append(contentsOf: Bytes.kn)
-        case .knIN:  buffer.append(contentsOf: Bytes.knIN)
-        case .ko:    buffer.append(contentsOf: Bytes.ko)
-        case .koKR:  buffer.append(contentsOf: Bytes.koKR)
-        case .kok:   buffer.append(contentsOf: Bytes.kok)
-        case .kokIN: buffer.append(contentsOf: Bytes.kokIN)
-        case .ky:    buffer.append(contentsOf: Bytes.ky)
-        case .kyKG:  buffer.append(contentsOf: Bytes.kyKG)
-        case .lt:    buffer.append(contentsOf: Bytes.lt)
-        case .ltLT:  buffer.append(contentsOf: Bytes.ltLT)
-        case .lv:    buffer.append(contentsOf: Bytes.lv)
-        case .lvLV:  buffer.append(contentsOf: Bytes.lvLV)
-        case .mi:    buffer.append(contentsOf: Bytes.mi)
-        case .miNZ:  buffer.append(contentsOf: Bytes.miNZ)
-        case .mk:    buffer.append(contentsOf: Bytes.mk)
-        case .mkMK:  buffer.append(contentsOf: Bytes.mkMK)
-        case .mn:    buffer.append(contentsOf: Bytes.mn)
-        case .mnMN:  buffer.append(contentsOf: Bytes.mnMN)
-        case .mr:    buffer.append(contentsOf: Bytes.mr)
-        case .mrIN:  buffer.append(contentsOf: Bytes.mrIN)
-        case .ms:    buffer.append(contentsOf: Bytes.ms)
-        case .msBN:  buffer.append(contentsOf: Bytes.msBN)
-        case .msMY:  buffer.append(contentsOf: Bytes.msMY)
-        case .mt:    buffer.append(contentsOf: Bytes.mt)
-        case .mtMT:  buffer.append(contentsOf: Bytes.mtMT)
-        case .nb:    buffer.append(contentsOf: Bytes.nb)
-        case .nbNO:  buffer.append(contentsOf: Bytes.nbNO)
-        case .nl:    buffer.append(contentsOf: Bytes.nl)
-        case .nlBE:  buffer.append(contentsOf: Bytes.nlBE)
-        case .nlNL:  buffer.append(contentsOf: Bytes.nlNL)
-        case .nnNO:  buffer.append(contentsOf: Bytes.nnNO)
-        case .ns:    buffer.append(contentsOf: Bytes.ns)
-        case .nsZA:  buffer.append(contentsOf: Bytes.nsZA)
-        case .pa:    buffer.append(contentsOf: Bytes.pa)
-        case .paIN:  buffer.append(contentsOf: Bytes.paIN)
-        case .pl:    buffer.append(contentsOf: Bytes.pl)
-        case .plPL:  buffer.append(contentsOf: Bytes.plPL)
-        case .ps:    buffer.append(contentsOf: Bytes.ps)
-        case .psAR:  buffer.append(contentsOf: Bytes.psAR)
-        case .pt:    buffer.append(contentsOf: Bytes.pt)
-        case .ptBR:  buffer.append(contentsOf: Bytes.ptBR)
-        case .ptPT:  buffer.append(contentsOf: Bytes.ptPT)
-        case .qu:    buffer.append(contentsOf: Bytes.qu)
-        case .quBO:  buffer.append(contentsOf: Bytes.quBO)
-        case .quEC:  buffer.append(contentsOf: Bytes.quEC)
-        case .quPE:  buffer.append(contentsOf: Bytes.quPE)
-        case .ro:    buffer.append(contentsOf: Bytes.ro)
-        case .roRO:  buffer.append(contentsOf: Bytes.roRO)
-        case .ru:    buffer.append(contentsOf: Bytes.ru)
-        case .ruRU:  buffer.append(contentsOf: Bytes.ruRU)
-        case .sa:    buffer.append(contentsOf: Bytes.sa)
-        case .saIN:  buffer.append(contentsOf: Bytes.saIN)
-        case .se:    buffer.append(contentsOf: Bytes.se)
-        case .seFI:  buffer.append(contentsOf: Bytes.seFI)
-        case .seNO:  buffer.append(contentsOf: Bytes.seNO)
-        case .seSE:  buffer.append(contentsOf: Bytes.seSE)
-        case .sk:    buffer.append(contentsOf: Bytes.sk)
-        case .skSK:  buffer.append(contentsOf: Bytes.skSK)
-        case .sl:    buffer.append(contentsOf: Bytes.sl)
-        case .slSI:  buffer.append(contentsOf: Bytes.slSI)
-        case .sq:    buffer.append(contentsOf: Bytes.sq)
-        case .sqAL:  buffer.append(contentsOf: Bytes.sqAL)
-        case .srBA:  buffer.append(contentsOf: Bytes.srBA)
-        case .srSP:  buffer.append(contentsOf: Bytes.srSP)
-        case .sv:    buffer.append(contentsOf: Bytes.sv)
-        case .svFI:  buffer.append(contentsOf: Bytes.svFI)
-        case .svSE:  buffer.append(contentsOf: Bytes.svSE)
-        case .sw:    buffer.append(contentsOf: Bytes.sw)
-        case .swKE:  buffer.append(contentsOf: Bytes.swKE)
-        case .syr:   buffer.append(contentsOf: Bytes.syr)
-        case .syrSY: buffer.append(contentsOf: Bytes.syrSY)
-        case .ta:    buffer.append(contentsOf: Bytes.ta)
-        case .taIN:  buffer.append(contentsOf: Bytes.taIN)
-        case .te:    buffer.append(contentsOf: Bytes.te)
-        case .teIN:  buffer.append(contentsOf: Bytes.teIN)
-        case .th:    buffer.append(contentsOf: Bytes.th)
-        case .thTH:  buffer.append(contentsOf: Bytes.thTH)
-        case .tl:    buffer.append(contentsOf: Bytes.tl)
-        case .tlPH:  buffer.append(contentsOf: Bytes.tlPH)
-        case .tn:    buffer.append(contentsOf: Bytes.tn)
-        case .tnZA:  buffer.append(contentsOf: Bytes.tnZA)
-        case .tr:    buffer.append(contentsOf: Bytes.tr)
-        case .trTR:  buffer.append(contentsOf: Bytes.trTR)
-        case .tt:    buffer.append(contentsOf: Bytes.tt)
-        case .ttRU:  buffer.append(contentsOf: Bytes.ttRU)
-        case .ts:    buffer.append(contentsOf: Bytes.ts)
-        case .uk:    buffer.append(contentsOf: Bytes.uk)
-        case .ukUA:  buffer.append(contentsOf: Bytes.ukUA)
-        case .ur:    buffer.append(contentsOf: Bytes.ur)
-        case .urPK:  buffer.append(contentsOf: Bytes.urPK)
-        case .uz:    buffer.append(contentsOf: Bytes.uz)
-        case .uzUZ:  buffer.append(contentsOf: Bytes.uzUZ)
-        case .vi:    buffer.append(contentsOf: Bytes.vi)
-        case .viVN:  buffer.append(contentsOf: Bytes.viVN)
-        case .xh:    buffer.append(contentsOf: Bytes.xh)
-        case .xhZA:  buffer.append(contentsOf: Bytes.xhZA)
-        case .zh:    buffer.append(contentsOf: Bytes.zh)
-        case .zhCN:  buffer.append(contentsOf: Bytes.zhCN)
-        case .zhHK:  buffer.append(contentsOf: Bytes.zhHK)
-        case .zhMO:  buffer.append(contentsOf: Bytes.zhMO)
-        case .zhSG:  buffer.append(contentsOf: Bytes.zhSG)
-        case .zhTW:  buffer.append(contentsOf: Bytes.zhTW)
-        case .zu:    buffer.append(contentsOf: Bytes.zu)
-        case .zuZA:  buffer.append(contentsOf: Bytes.zuZA)
-        case .any:   buffer.append(contentsOf: Bytes.any)
-        case .custom(let value): buffer.append(contentsOf: [UInt8](value))
+        case .af:    bytes = Bytes.af
+        case .afZA:  bytes = Bytes.afZA
+        case .ar:    bytes = Bytes.ar
+        case .arAE:  bytes = Bytes.arAE
+        case .arBH:  bytes = Bytes.arBH
+        case .arDZ:  bytes = Bytes.arDZ
+        case .arEG:  bytes = Bytes.arEG
+        case .arIQ:  bytes = Bytes.arIQ
+        case .arJO:  bytes = Bytes.arJO
+        case .arKW:  bytes = Bytes.arKW
+        case .arLB:  bytes = Bytes.arLB
+        case .arLY:  bytes = Bytes.arLY
+        case .arMA:  bytes = Bytes.arMA
+        case .arOM:  bytes = Bytes.arOM
+        case .arQA:  bytes = Bytes.arQA
+        case .arSA:  bytes = Bytes.arSA
+        case .arSY:  bytes = Bytes.arSY
+        case .arTN:  bytes = Bytes.arTN
+        case .arYE:  bytes = Bytes.arYE
+        case .az:    bytes = Bytes.az
+        case .azAZ:  bytes = Bytes.azAZ
+        case .be:    bytes = Bytes.be
+        case .beBY:  bytes = Bytes.beBY
+        case .bg:    bytes = Bytes.bg
+        case .bgBG:  bytes = Bytes.bgBG
+        case .bsBA:  bytes = Bytes.bsBA
+        case .ca:    bytes = Bytes.ca
+        case .caES:  bytes = Bytes.caES
+        case .cs:    bytes = Bytes.cs
+        case .csCZ:  bytes = Bytes.csCZ
+        case .cy:    bytes = Bytes.cy
+        case .cyGB:  bytes = Bytes.cyGB
+        case .da:    bytes = Bytes.da
+        case .daDK:  bytes = Bytes.daDK
+        case .de:    bytes = Bytes.de
+        case .deAT:  bytes = Bytes.deAT
+        case .deCH:  bytes = Bytes.deCH
+        case .deDE:  bytes = Bytes.deDE
+        case .deLI:  bytes = Bytes.deLI
+        case .deLU:  bytes = Bytes.deLU
+        case .dv:    bytes = Bytes.dv
+        case .dvMV:  bytes = Bytes.dvMV
+        case .el:    bytes = Bytes.el
+        case .elGR:  bytes = Bytes.elGR
+        case .en:    bytes = Bytes.en
+        case .enAU:  bytes = Bytes.enAU
+        case .enBZ:  bytes = Bytes.enBZ
+        case .enCA:  bytes = Bytes.enCA
+        case .enCB:  bytes = Bytes.enCB
+        case .enGB:  bytes = Bytes.enGB
+        case .enIE:  bytes = Bytes.enIE
+        case .enJM:  bytes = Bytes.enJM
+        case .enNZ:  bytes = Bytes.enNZ
+        case .enPH:  bytes = Bytes.enPH
+        case .enTT:  bytes = Bytes.enTT
+        case .enUS:  bytes = Bytes.enUS
+        case .enZA:  bytes = Bytes.enZA
+        case .enZW:  bytes = Bytes.enZW
+        case .eo:    bytes = Bytes.eo
+        case .es:    bytes = Bytes.es
+        case .esAR:  bytes = Bytes.esAR
+        case .esBO:  bytes = Bytes.esBO
+        case .esCL:  bytes = Bytes.esCL
+        case .esCO:  bytes = Bytes.esCO
+        case .esCR:  bytes = Bytes.esCR
+        case .esDO:  bytes = Bytes.esDO
+        case .esEC:  bytes = Bytes.esEC
+        case .esES:  bytes = Bytes.esES
+        case .esGT:  bytes = Bytes.esGT
+        case .esHN:  bytes = Bytes.esHN
+        case .esMX:  bytes = Bytes.esMX
+        case .esNI:  bytes = Bytes.esNI
+        case .esPA:  bytes = Bytes.esPA
+        case .esPE:  bytes = Bytes.esPE
+        case .esPR:  bytes = Bytes.esPR
+        case .esPY:  bytes = Bytes.esPY
+        case .esSV:  bytes = Bytes.esSV
+        case .esUY:  bytes = Bytes.esUY
+        case .esVE:  bytes = Bytes.esVE
+        case .et:    bytes = Bytes.et
+        case .etEE:  bytes = Bytes.etEE
+        case .eu:    bytes = Bytes.eu
+        case .euES:  bytes = Bytes.euES
+        case .fa:    bytes = Bytes.fa
+        case .faIR:  bytes = Bytes.faIR
+        case .fi:    bytes = Bytes.fi
+        case .fiFI:  bytes = Bytes.fiFI
+        case .fo:    bytes = Bytes.fo
+        case .foFO:  bytes = Bytes.foFO
+        case .fr:    bytes = Bytes.fr
+        case .frBE:  bytes = Bytes.frBE
+        case .frCA:  bytes = Bytes.frCA
+        case .frCH:  bytes = Bytes.frCH
+        case .frFR:  bytes = Bytes.frFR
+        case .frLU:  bytes = Bytes.frLU
+        case .frMC:  bytes = Bytes.frMC
+        case .gl:    bytes = Bytes.gl
+        case .glES:  bytes = Bytes.glES
+        case .gu:    bytes = Bytes.gu
+        case .guIN:  bytes = Bytes.guIN
+        case .he:    bytes = Bytes.he
+        case .heIL:  bytes = Bytes.heIL
+        case .hi:    bytes = Bytes.hi
+        case .hiIN:  bytes = Bytes.hiIN
+        case .hr:    bytes = Bytes.hr
+        case .hrBA:  bytes = Bytes.hrBA
+        case .hrHR:  bytes = Bytes.hrHR
+        case .hu:    bytes = Bytes.hu
+        case .huHU:  bytes = Bytes.huHU
+        case .hy:    bytes = Bytes.hy
+        case .hyAM:  bytes = Bytes.hyAM
+        case .id:    bytes = Bytes.id
+        case .idID:  bytes = Bytes.idID
+        case .`is`:  bytes = Bytes.is
+        case .isIS:  bytes = Bytes.isIS
+        case .it:    bytes = Bytes.it
+        case .itCH:  bytes = Bytes.itCH
+        case .itIT:  bytes = Bytes.itIT
+        case .ja:    bytes = Bytes.ja
+        case .jaJP:  bytes = Bytes.jaJP
+        case .ka:    bytes = Bytes.ka
+        case .kaGE:  bytes = Bytes.kaGE
+        case .kk:    bytes = Bytes.kk
+        case .kkKZ:  bytes = Bytes.kkKZ
+        case .kn:    bytes = Bytes.kn
+        case .knIN:  bytes = Bytes.knIN
+        case .ko:    bytes = Bytes.ko
+        case .koKR:  bytes = Bytes.koKR
+        case .kok:   bytes = Bytes.kok
+        case .kokIN: bytes = Bytes.kokIN
+        case .ky:    bytes = Bytes.ky
+        case .kyKG:  bytes = Bytes.kyKG
+        case .lt:    bytes = Bytes.lt
+        case .ltLT:  bytes = Bytes.ltLT
+        case .lv:    bytes = Bytes.lv
+        case .lvLV:  bytes = Bytes.lvLV
+        case .mi:    bytes = Bytes.mi
+        case .miNZ:  bytes = Bytes.miNZ
+        case .mk:    bytes = Bytes.mk
+        case .mkMK:  bytes = Bytes.mkMK
+        case .mn:    bytes = Bytes.mn
+        case .mnMN:  bytes = Bytes.mnMN
+        case .mr:    bytes = Bytes.mr
+        case .mrIN:  bytes = Bytes.mrIN
+        case .ms:    bytes = Bytes.ms
+        case .msBN:  bytes = Bytes.msBN
+        case .msMY:  bytes = Bytes.msMY
+        case .mt:    bytes = Bytes.mt
+        case .mtMT:  bytes = Bytes.mtMT
+        case .nb:    bytes = Bytes.nb
+        case .nbNO:  bytes = Bytes.nbNO
+        case .nl:    bytes = Bytes.nl
+        case .nlBE:  bytes = Bytes.nlBE
+        case .nlNL:  bytes = Bytes.nlNL
+        case .nnNO:  bytes = Bytes.nnNO
+        case .ns:    bytes = Bytes.ns
+        case .nsZA:  bytes = Bytes.nsZA
+        case .pa:    bytes = Bytes.pa
+        case .paIN:  bytes = Bytes.paIN
+        case .pl:    bytes = Bytes.pl
+        case .plPL:  bytes = Bytes.plPL
+        case .ps:    bytes = Bytes.ps
+        case .psAR:  bytes = Bytes.psAR
+        case .pt:    bytes = Bytes.pt
+        case .ptBR:  bytes = Bytes.ptBR
+        case .ptPT:  bytes = Bytes.ptPT
+        case .qu:    bytes = Bytes.qu
+        case .quBO:  bytes = Bytes.quBO
+        case .quEC:  bytes = Bytes.quEC
+        case .quPE:  bytes = Bytes.quPE
+        case .ro:    bytes = Bytes.ro
+        case .roRO:  bytes = Bytes.roRO
+        case .ru:    bytes = Bytes.ru
+        case .ruRU:  bytes = Bytes.ruRU
+        case .sa:    bytes = Bytes.sa
+        case .saIN:  bytes = Bytes.saIN
+        case .se:    bytes = Bytes.se
+        case .seFI:  bytes = Bytes.seFI
+        case .seNO:  bytes = Bytes.seNO
+        case .seSE:  bytes = Bytes.seSE
+        case .sk:    bytes = Bytes.sk
+        case .skSK:  bytes = Bytes.skSK
+        case .sl:    bytes = Bytes.sl
+        case .slSI:  bytes = Bytes.slSI
+        case .sq:    bytes = Bytes.sq
+        case .sqAL:  bytes = Bytes.sqAL
+        case .srBA:  bytes = Bytes.srBA
+        case .srSP:  bytes = Bytes.srSP
+        case .sv:    bytes = Bytes.sv
+        case .svFI:  bytes = Bytes.svFI
+        case .svSE:  bytes = Bytes.svSE
+        case .sw:    bytes = Bytes.sw
+        case .swKE:  bytes = Bytes.swKE
+        case .syr:   bytes = Bytes.syr
+        case .syrSY: bytes = Bytes.syrSY
+        case .ta:    bytes = Bytes.ta
+        case .taIN:  bytes = Bytes.taIN
+        case .te:    bytes = Bytes.te
+        case .teIN:  bytes = Bytes.teIN
+        case .th:    bytes = Bytes.th
+        case .thTH:  bytes = Bytes.thTH
+        case .tl:    bytes = Bytes.tl
+        case .tlPH:  bytes = Bytes.tlPH
+        case .tn:    bytes = Bytes.tn
+        case .tnZA:  bytes = Bytes.tnZA
+        case .tr:    bytes = Bytes.tr
+        case .trTR:  bytes = Bytes.trTR
+        case .tt:    bytes = Bytes.tt
+        case .ttRU:  bytes = Bytes.ttRU
+        case .ts:    bytes = Bytes.ts
+        case .uk:    bytes = Bytes.uk
+        case .ukUA:  bytes = Bytes.ukUA
+        case .ur:    bytes = Bytes.ur
+        case .urPK:  bytes = Bytes.urPK
+        case .uz:    bytes = Bytes.uz
+        case .uzUZ:  bytes = Bytes.uzUZ
+        case .vi:    bytes = Bytes.vi
+        case .viVN:  bytes = Bytes.viVN
+        case .xh:    bytes = Bytes.xh
+        case .xhZA:  bytes = Bytes.xhZA
+        case .zh:    bytes = Bytes.zh
+        case .zhCN:  bytes = Bytes.zhCN
+        case .zhHK:  bytes = Bytes.zhHK
+        case .zhMO:  bytes = Bytes.zhMO
+        case .zhSG:  bytes = Bytes.zhSG
+        case .zhTW:  bytes = Bytes.zhTW
+        case .zu:    bytes = Bytes.zu
+        case .zuZA:  bytes = Bytes.zuZA
+        case .any:   bytes = Bytes.any
+        case .custom(let value): bytes = [UInt8](value)
         }
+        try stream.write(bytes)
     }
 }

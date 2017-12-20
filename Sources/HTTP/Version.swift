@@ -22,10 +22,10 @@ extension Version {
         self = .oneOne
     }
 
-    func encode(to buffer: inout [UInt8]) {
-        buffer.append(contentsOf: Bytes.httpSlash)
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+        try stream.write(Bytes.httpSlash)
         switch self {
-        case .oneOne: buffer.append(contentsOf: Bytes.oneOne)
+        case .oneOne: try stream.write(Bytes.oneOne)
         }
     }
 }

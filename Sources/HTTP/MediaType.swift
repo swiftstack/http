@@ -76,36 +76,36 @@ extension MediaType {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
         switch self {
         case .application(let subtype):
-            buffer.append(contentsOf: Bytes.application)
-            buffer.append(.slash)
-            subtype.encode(to: &buffer)
+            try stream.write(Bytes.application)
+            try stream.write(.slash)
+            try stream.write(subtype.rawValue)
         case .audio(let subtype):
-            buffer.append(contentsOf: Bytes.audio)
-            buffer.append(.slash)
-            subtype.encode(to: &buffer)
+            try stream.write(Bytes.audio)
+            try stream.write(.slash)
+            try stream.write(subtype.rawValue)
         case .image(let subtype):
-            buffer.append(contentsOf: Bytes.image)
-            buffer.append(.slash)
-            subtype.encode(to: &buffer)
+            try stream.write(Bytes.image)
+            try stream.write(.slash)
+            try stream.write(subtype.rawValue)
         case .multipart(let subtype):
-            buffer.append(contentsOf: Bytes.multipart)
-            buffer.append(.slash)
-            subtype.encode(to: &buffer)
+            try stream.write(Bytes.multipart)
+            try stream.write(.slash)
+            try stream.write(subtype.rawValue)
         case .text(let subtype):
-            buffer.append(contentsOf: Bytes.text)
-            buffer.append(.slash)
-            subtype.encode(to: &buffer)
+            try stream.write(Bytes.text)
+            try stream.write(.slash)
+            try stream.write(subtype.rawValue)
         case .video(let subtype):
-            buffer.append(contentsOf: Bytes.video)
-            buffer.append(.slash)
-            subtype.encode(to: &buffer)
+            try stream.write(Bytes.video)
+            try stream.write(.slash)
+            try stream.write(subtype.rawValue)
         case .any:
-            buffer.append(.asterisk)
-            buffer.append(.slash)
-            buffer.append(.asterisk)
+            try stream.write(.asterisk)
+            try stream.write(.slash)
+            try stream.write(.asterisk)
         }
     }
 }
@@ -157,19 +157,19 @@ extension ApplicationSubtype {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    var rawValue: [UInt8] {
         switch self {
-        case .json: buffer.append(contentsOf: Bytes.json)
-        case .javascript: buffer.append(contentsOf: Bytes.javascript)
-        case .urlEncoded: buffer.append(contentsOf: Bytes.urlEncoded)
-        case .stream: buffer.append(contentsOf: Bytes.stream)
-        case .pdf: buffer.append(contentsOf: Bytes.pdf)
-        case .zip: buffer.append(contentsOf: Bytes.zip)
-        case .gzip: buffer.append(contentsOf: Bytes.gzip)
-        case .xgzip: buffer.append(contentsOf: Bytes.xgzip)
-        case .xml: buffer.append(contentsOf: Bytes.xml)
-        case .xhtml: buffer.append(contentsOf: Bytes.xhtml)
-        case .any: buffer.append(contentsOf: Bytes.any)
+        case .json: return Bytes.json
+        case .javascript: return Bytes.javascript
+        case .urlEncoded: return Bytes.urlEncoded
+        case .stream: return Bytes.stream
+        case .pdf: return Bytes.pdf
+        case .zip: return Bytes.zip
+        case .gzip: return Bytes.gzip
+        case .xgzip: return Bytes.xgzip
+        case .xml: return Bytes.xml
+        case .xhtml: return Bytes.xhtml
+        case .any: return Bytes.any
         }
     }
 }
@@ -206,14 +206,14 @@ extension AudioSubtype {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    var rawValue: [UInt8] {
         switch self {
-        case .mp4: buffer.append(contentsOf: Bytes.mp4)
-        case .aac: buffer.append(contentsOf: Bytes.aac)
-        case .mpeg: buffer.append(contentsOf: Bytes.mpeg)
-        case .webm: buffer.append(contentsOf: Bytes.webm)
-        case .vorbis: buffer.append(contentsOf: Bytes.vorbis)
-        case .any: buffer.append(contentsOf: Bytes.any)
+        case .mp4: return Bytes.mp4
+        case .aac: return Bytes.aac
+        case .mpeg: return Bytes.mpeg
+        case .webm: return Bytes.webm
+        case .vorbis: return Bytes.vorbis
+        case .any: return Bytes.any
         }
     }
 }
@@ -254,15 +254,15 @@ extension ImageSubtype {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    var rawValue: [UInt8] {
         switch self {
-        case .gif: buffer.append(contentsOf: Bytes.gif)
-        case .jpeg: buffer.append(contentsOf: Bytes.jpeg)
-        case .png: buffer.append(contentsOf: Bytes.png)
-        case .svg: buffer.append(contentsOf: Bytes.svg)
-        case .tiff: buffer.append(contentsOf: Bytes.tiff)
-        case .webp: buffer.append(contentsOf: Bytes.webp)
-        case .any: buffer.append(contentsOf: Bytes.any)
+        case .gif: return Bytes.gif
+        case .jpeg: return Bytes.jpeg
+        case .png: return Bytes.png
+        case .svg: return Bytes.svg
+        case .tiff: return Bytes.tiff
+        case .webp: return Bytes.webp
+        case .any: return Bytes.any
         }
     }
 }
@@ -287,10 +287,10 @@ extension MultipartSubtype {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    var rawValue: [UInt8] {
         switch self {
-        case .formData: buffer.append(contentsOf: Bytes.formData)
-        case .any: buffer.append(contentsOf: Bytes.any)
+        case .formData: return Bytes.formData
+        case .any: return Bytes.any
         }
     }
 }
@@ -330,15 +330,15 @@ extension TextSubtype {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    var rawValue: [UInt8] {
         switch self {
-        case .css: buffer.append(contentsOf: Bytes.css)
-        case .csv: buffer.append(contentsOf: Bytes.csv)
-        case .html: buffer.append(contentsOf: Bytes.html)
-        case .plain: buffer.append(contentsOf: Bytes.plain)
-        case .php: buffer.append(contentsOf: Bytes.php)
-        case .xml: buffer.append(contentsOf: Bytes.xml)
-        case .any: buffer.append(contentsOf: Bytes.any)
+        case .css: return Bytes.css
+        case .csv: return Bytes.csv
+        case .html: return Bytes.html
+        case .plain: return Bytes.plain
+        case .php: return Bytes.php
+        case .xml: return Bytes.xml
+        case .any: return Bytes.any
         }
     }
 }
@@ -375,14 +375,14 @@ extension VideoSubtype {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    var rawValue: [UInt8] {
         switch self {
-        case .mpeg: buffer.append(contentsOf: Bytes.mpeg)
-        case .mp4: buffer.append(contentsOf: Bytes.mp4)
-        case .ogg: buffer.append(contentsOf: Bytes.ogg)
-        case .quicktime: buffer.append(contentsOf: Bytes.quicktime)
-        case .webm: buffer.append(contentsOf: Bytes.webm)
-        case .any: buffer.append(contentsOf: Bytes.any)
+        case .mpeg: return Bytes.mpeg
+        case .mp4: return Bytes.mp4
+        case .ogg: return Bytes.ogg
+        case .quicktime: return Bytes.quicktime
+        case .webm: return Bytes.webm
+        case .any: return Bytes.any
         }
     }
 }

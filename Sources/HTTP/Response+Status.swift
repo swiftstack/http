@@ -1,3 +1,5 @@
+import Stream
+
 extension Response {
     public enum Status {
         case ok
@@ -33,15 +35,16 @@ extension Response.Status {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+        let bytes: [UInt8]
         switch self {
-        case .ok: buffer.append(contentsOf: Bytes.ok)
-        case .moved: buffer.append(contentsOf: Bytes.moved)
-        case .badRequest: buffer.append(contentsOf: Bytes.badRequest)
-        case .unauthorized: buffer.append(contentsOf: Bytes.unauthorized)
-        case .notFound: buffer.append(contentsOf: Bytes.notFound)
-        case .internalServerError:
-            buffer.append(contentsOf: Bytes.internalServerError)
+        case .ok: bytes = Bytes.ok
+        case .moved: bytes = Bytes.moved
+        case .badRequest: bytes = Bytes.badRequest
+        case .unauthorized: bytes = Bytes.unauthorized
+        case .notFound: bytes = Bytes.notFound
+        case .internalServerError: bytes = Bytes.internalServerError
         }
+        try stream.write(bytes)
     }
 }

@@ -23,15 +23,17 @@ extension Request.Method {
         throw HTTPError.invalidMethod
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+        var bytes: [UInt8]
         switch self {
-        case .get: buffer.append(contentsOf: RequestMethodBytes.get)
-        case .head: buffer.append(contentsOf: RequestMethodBytes.head)
-        case .post: buffer.append(contentsOf: RequestMethodBytes.post)
-        case .put: buffer.append(contentsOf: RequestMethodBytes.put)
-        case .delete: buffer.append(contentsOf: RequestMethodBytes.delete)
-        case .options: buffer.append(contentsOf: RequestMethodBytes.options)
+        case .get: bytes = RequestMethodBytes.get
+        case .head: bytes = RequestMethodBytes.head
+        case .post: bytes = RequestMethodBytes.post
+        case .put: bytes = RequestMethodBytes.put
+        case .delete: bytes = RequestMethodBytes.delete
+        case .options: bytes = RequestMethodBytes.options
         }
+        try stream.write(bytes)
     }
 }
 

@@ -2,141 +2,143 @@ import Stream
 import struct Foundation.CharacterSet
 
 extension Request {
-    public func encode<T: OutputStream>(to stream: inout T) throws {
-        var buffer = [UInt8]()
-        encode(to: &buffer)
-        var written = 0
-        while written < buffer.count {
-            written += try stream.write(buffer)
-        }
-    }
-
-    public func encode(to buffer: inout [UInt8]) {
+    public func encode<T: OutputStream>(
+        to stream: BufferedOutputStream<T>
+    ) throws {
         // Start Line
-        method.encode(to: &buffer)
-        buffer.append(.whitespace)
-        url.path.encode(to: &buffer, allowedCharacters: .urlPathAllowed)
+        try method.encode(to: stream)
+        try stream.write(.whitespace)
+        try url.path.encode(to: stream, allowedCharacters: .urlPathAllowed)
         if method == .get, let query = url.query, query.values.count > 0 {
-            buffer.append(.questionMark)
-            query.encode(to: &buffer)
+            try stream.write(.questionMark)
+            try query.encode(to: stream)
         }
-        buffer.append(.whitespace)
-        version.encode(to: &buffer)
-        buffer.append(contentsOf: Constants.lineEnd)
+        try stream.write(.whitespace)
+        try version.encode(to: stream)
+        try stream.write(Constants.lineEnd)
 
         // Headers
         @inline(__always)
-        func writeHeader(_ name: HeaderName, encoder: (inout [UInt8]) -> Void) {
-            buffer.append(contentsOf: name.bytes)
-            buffer.append(.colon)
-            buffer.append(.whitespace)
-            encoder(&buffer)
-            buffer.append(contentsOf: Constants.lineEnd)
+        func writeHeader(
+            _ name: HeaderName,
+            encoder: (BufferedOutputStream<T>
+        ) throws -> Void) throws {
+            try stream.write(name.bytes)
+            try stream.write(.colon)
+            try stream.write(.whitespace)
+            try encoder(stream)
+            try stream.write(Constants.lineEnd)
         }
 
         @inline(__always)
-        func writeHeader(_ name: HeaderName, value: String) {
-            buffer.append(contentsOf: name.bytes)
-            buffer.append(.colon)
-            buffer.append(.whitespace)
-            buffer.append(contentsOf: value.utf8)
-            buffer.append(contentsOf: Constants.lineEnd)
+        func writeHeader(_ name: HeaderName, value: String) throws {
+            try writeHeader(name) { stream in
+                try stream.write(value)
+            }
         }
 
         if let host = self.host {
-            writeHeader(.host, encoder: host.encode)
+            try writeHeader(.host, encoder: host.encode)
         }
 
         if let contentType = self.contentType {
-            writeHeader(.contentType, encoder: contentType.encode)
+            try writeHeader(.contentType, encoder: contentType.encode)
         }
 
         if let contentLength = self.contentLength {
-            writeHeader(.contentLength, value: String(contentLength))
+            try writeHeader(.contentLength, value: String(contentLength))
         }
 
         if let userAgent = self.userAgent {
-            writeHeader(.userAgent, value: userAgent)
+            try writeHeader(.userAgent, value: userAgent)
         }
 
         if let accept = self.accept {
-            writeHeader(.accept, encoder: accept.encode)
+            try writeHeader(.accept, encoder: accept.encode)
         }
 
         if let acceptLanguage = self.acceptLanguage {
-            writeHeader(.acceptLanguage, encoder: acceptLanguage.encode)
+            try writeHeader(.acceptLanguage, encoder: acceptLanguage.encode)
         }
 
         if let acceptEncoding = self.acceptEncoding {
-            writeHeader(.acceptEncoding, encoder: acceptEncoding.encode)
+            try writeHeader(.acceptEncoding, encoder: acceptEncoding.encode)
         }
 
         if let acceptCharset = self.acceptCharset {
-            writeHeader(.acceptCharset, encoder: acceptCharset.encode)
+            try writeHeader(.acceptCharset, encoder: acceptCharset.encode)
         }
 
         if let authorization = self.authorization {
-            writeHeader(.authorization, encoder: authorization.encode)
+            try writeHeader(.authorization, encoder: authorization.encode)
         }
 
         if let keepAlive = self.keepAlive {
-            writeHeader(.keepAlive, value: String(keepAlive))
+            try writeHeader(.keepAlive, value: String(keepAlive))
         }
 
         if let connection = self.connection {
-            writeHeader(.connection, encoder: connection.encode)
+            try writeHeader(.connection, encoder: connection.encode)
         }
 
         if let transferEncoding = self.transferEncoding {
-            writeHeader(.transferEncoding, encoder: transferEncoding.encode)
+            try writeHeader(.transferEncoding, encoder: transferEncoding.encode)
         }
 
         for (key, value) in headers {
-            writeHeader(key, value: value)
+            try writeHeader(key, value: value)
         }
 
         // Cookies
         for cookie in cookies {
-            writeHeader(.cookie, encoder: cookie.encode)
+            try writeHeader(.cookie, encoder: cookie.encode)
         }
 
         // Separator
-        buffer.append(contentsOf: Constants.lineEnd)
+        try stream.write(Constants.lineEnd)
 
         // Body
         if let rawBody = rawBody {
-            buffer.append(contentsOf: rawBody)
+            try stream.write(rawBody)
         }
     }
 }
 
 extension String {
-    public func encode(
-        to buffer: inout [UInt8],
+    func encode<T: OutputStream>(
+        to stream: BufferedOutputStream<T>,
         allowedCharacters: CharacterSet
-    ) {
+    ) throws {
         let escaped = addingPercentEncoding(
             withAllowedCharacters: allowedCharacters)!
-        buffer.append(contentsOf: escaped.utf8)
+        try stream.write(escaped)
     }
 }
 
 extension URL.Query {
-    public func encode(to buffer: inout [UInt8]) {
+    func encode() -> [UInt8] {
         let queryString = values
             .map({ "\($0.key)=\($0.value)" })
             .joined(separator: "&")
             .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-        buffer.append(contentsOf: queryString.utf8)
+        return [UInt8](queryString.utf8)
+    }
+
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+        let queryString = values
+            .map({ "\($0.key)=\($0.value)" })
+            .joined(separator: "&")
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+        try stream.write(queryString)
     }
 }
 
 extension URL.Host {
-    public func encode(to buffer: inout [UInt8]) {
-        buffer.append(contentsOf: Punycode.encode(domain: address))
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+        try stream.write(Punycode.encode(domain: address))
         if let port = port {
-            buffer.append(.colon)
-            buffer.append(contentsOf: "\(port)".utf8)
+            try stream.write(.colon)
+            try stream.write("\(port)")
         }
     }
 }

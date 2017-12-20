@@ -1,12 +1,15 @@
 import Test
+import Stream
 @testable import HTTP
 
 class EncodeRequestTests: TestCase {
     class Encoder {
         static func encode(_ request: Request) -> String? {
-            var bytes = [UInt8]()
-            request.encode(to: &bytes)
-            return String(decoding: bytes, as: UTF8.self)
+            let stream = OutputByteStream()
+            let buffer = BufferedOutputStream(baseStream: stream)
+            try? request.encode(to: buffer)
+            _ = try? buffer.flush()
+            return String(decoding: stream.bytes, as: UTF8.self)
         }
     }
 

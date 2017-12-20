@@ -24,11 +24,13 @@ extension Connection {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+        let bytes: [UInt8]
         switch self {
-        case .keepAlive: buffer.append(contentsOf: Bytes.keepAlive)
-        case .close: buffer.append(contentsOf: Bytes.close)
-        case .upgrade: buffer.append(contentsOf: Bytes.upgrade)
+        case .keepAlive: bytes = Bytes.keepAlive
+        case .close: bytes = Bytes.close
+        case .upgrade: bytes = Bytes.upgrade
         }
+        try stream.write(bytes)
     }
 }

@@ -47,12 +47,12 @@ extension Array where Element == TransferEncoding {
         self = values
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
         for i in startIndex..<endIndex {
             if i != startIndex {
-                buffer.append(.comma)
+                try stream.write(.comma)
             }
-            self[i].encode(to: &buffer)
+            try self[i].encode(to: stream)
         }
     }
 }
@@ -78,13 +78,15 @@ extension TransferEncoding {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+        var bytes: [UInt8]
         switch self {
-        case .chunked: buffer.append(contentsOf: Bytes.chunked)
-        case .compress: buffer.append(contentsOf: Bytes.compress)
-        case .deflate: buffer.append(contentsOf: Bytes.deflate)
-        case .gzip: buffer.append(contentsOf: Bytes.gzip)
-        case .identity: buffer.append(contentsOf: Bytes.identity)
+        case .chunked: bytes = Bytes.chunked
+        case .compress: bytes = Bytes.compress
+        case .deflate: bytes = Bytes.deflate
+        case .gzip: bytes = Bytes.gzip
+        case .identity: bytes = Bytes.identity
         }
+        try stream.write(bytes)
     }
 }

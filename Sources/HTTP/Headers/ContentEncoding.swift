@@ -31,13 +31,13 @@ extension Array where Element == ContentEncoding {
         self = values
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
         for i in startIndex..<endIndex {
             if i != startIndex {
-                buffer.append(.comma)
-                buffer.append(.whitespace)
+                try stream.write(.comma)
+                try stream.write(.whitespace)
             }
-            self[i].encode(to: &buffer)
+            try self[i].encode(to: stream)
         }
     }
 }
@@ -57,11 +57,13 @@ extension ContentEncoding {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+        let bytes: [UInt8]
         switch self {
-        case .gzip: buffer.append(contentsOf: Bytes.gzip)
-        case .deflate: buffer.append(contentsOf: Bytes.deflate)
-        case .custom(let value): buffer.append(contentsOf: value.utf8)
+        case .gzip: bytes = Bytes.gzip
+        case .deflate: bytes = Bytes.deflate
+        case .custom(let value): bytes = [UInt8](value.utf8)
         }
+        try stream.write(bytes)
     }
 }

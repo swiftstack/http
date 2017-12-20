@@ -40,13 +40,15 @@ extension Charset {
         }
     }
 
-    func encode(to buffer: inout [UInt8]) {
+    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+        let bytes: [UInt8]
         switch self {
-        case .utf8: buffer.append(contentsOf: Bytes.utf8)
-        case .ascii: buffer.append(contentsOf: Bytes.ascii)
-        case .isoLatin1: buffer.append(contentsOf: Bytes.isoLatin1)
-        case .any: buffer.append(contentsOf: Bytes.any)
-        case .custom(let value): buffer.append(contentsOf: [UInt8](value))
+        case .utf8: bytes = Bytes.utf8
+        case .ascii: bytes = Bytes.ascii
+        case .isoLatin1: bytes = Bytes.isoLatin1
+        case .any: bytes = Bytes.any
+        case .custom(let value): bytes = [UInt8](value)
         }
+        try stream.write(bytes)
     }
 }
