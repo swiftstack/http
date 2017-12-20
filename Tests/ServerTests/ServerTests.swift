@@ -25,8 +25,8 @@ class ServerTests: TestCase {
                 try server.start()
             } catch {
                 fail(String(describing: error))
-                async.loop.terminate()
             }
+            async.loop.terminate()
         }
 
         semaphore.wait()
@@ -45,11 +45,10 @@ class ServerTests: TestCase {
 
                 assertEqual(response, expected)
 
-                async.loop.terminate()
             } catch {
                 fail(String(describing: error))
-                async.loop.terminate()
             }
+            async.loop.terminate()
         }
 
         async.loop.run()

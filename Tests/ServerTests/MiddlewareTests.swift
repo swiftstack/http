@@ -42,8 +42,8 @@ class MiddlewareTests: TestCase {
                 try server.start()
             } catch {
                 fail(String(describing: error))
-                async.loop.terminate()
             }
+            async.loop.terminate()
         }
 
         semaphore.wait()
@@ -65,12 +65,10 @@ class MiddlewareTests: TestCase {
                 let response = String(cString: &buffer)
 
                 assertEqual(response, expected)
-
-                async.loop.terminate()
             } catch {
                 fail(String(describing: error))
-                async.loop.terminate()
             }
+            async.loop.terminate()
         }
 
         async.loop.run()
@@ -121,8 +119,8 @@ class MiddlewareTests: TestCase {
                 try server.start()
             } catch {
                 fail(String(describing: error))
-                async.loop.terminate()
             }
+            async.loop.terminate()
         }
 
         semaphore.wait()
@@ -153,12 +151,10 @@ class MiddlewareTests: TestCase {
                 assertEqual(firstMiddleware, "FirstMiddleware: true")
                 assertEqual(secondMiddleware, "SecondMiddleware: true")
                 assertEqual(middleware, "Middleware: first")
-
-                async.loop.terminate()
             } catch {
                 fail(String(describing: error))
-                async.loop.terminate()
             }
+            async.loop.terminate()
         }
 
         async.loop.run()

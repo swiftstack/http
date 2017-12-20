@@ -22,7 +22,7 @@ class ClientTests: TestCase {
     override func setUp() {
         AsyncDispatch().registerGlobal()
     }
-    
+
     func testInitializer() {
         let client = Client(host: "127.0.0.1", port: 80)
         assertEqual(client.host, URL.Host(address: "127.0.0.1", port: 80))
@@ -62,9 +62,9 @@ class ClientTests: TestCase {
                 let request = String(decoding: buffer[..<count], as: UTF8.self)
                 assertEqual(request, expected)
             } catch {
-                async.loop.terminate()
                 fail(String(describing: error))
             }
+            async.loop.terminate()
         }
 
         semaphore.wait()
@@ -80,11 +80,10 @@ class ClientTests: TestCase {
                 assertEqual(response.status, .ok)
                 assertNil(response.body)
 
-                async.loop.terminate()
             } catch {
-                async.loop.terminate()
                 fail(String(describing: error))
             }
+            async.loop.terminate()
         }
 
         async.loop.run()
@@ -131,9 +130,9 @@ class ClientTests: TestCase {
                 _ = try client.send(bytes: response.encode())
 
             } catch {
-                async.loop.terminate()
                 fail(String(describing: error))
             }
+            async.loop.terminate()
         }
 
         semaphore.wait()
@@ -152,12 +151,10 @@ class ClientTests: TestCase {
                 response = try client.makeRequest(request)
                 assertEqual(response.contentEncoding, [.deflate])
                 assertEqual(response.body, "Hello, World!")
-
-                async.loop.terminate()
             } catch {
-                async.loop.terminate()
                 fail(String(describing: error))
             }
+            async.loop.terminate()
         }
 
         async.loop.run()

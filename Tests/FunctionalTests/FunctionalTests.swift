@@ -25,9 +25,9 @@ class FunctionalTests: TestCase {
                 semaphore.signal()
                 try server.start()
             } catch {
-                async.loop.terminate()
                 fail(String(describing: error))
             }
+            async.loop.terminate()
         }
 
         semaphore.wait()
@@ -38,12 +38,10 @@ class FunctionalTests: TestCase {
                 try client.connect()
 
                 try clientCode(client)
-
-                async.loop.terminate()
             } catch {
-                async.loop.terminate()
                 fail(String(describing: error))
             }
+            async.loop.terminate()
         }
 
         async.loop.run()
