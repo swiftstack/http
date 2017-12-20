@@ -1,6 +1,8 @@
 import Test
 @testable import HTTP
 
+import struct Foundation.Date
+
 class EncodeResponseTests: TestCase {
     class Encoder {
         static func encode(_ response: Response) -> String? {
@@ -238,6 +240,103 @@ class EncodeResponseTests: TestCase {
     }
 
     func testSetCookie() {
+        let expected = "HTTP/1.1 200 OK\r\n" +
+            "Content-Length: 0\r\n" +
+            "Set-Cookie: username=tony\r\n" +
+            "\r\n"
+        var response = Response()
+        response.setCookie = [
+            Response.SetCookie(Cookie(name: "username", value: "tony"))
+        ]
+        assertEqual(Encoder.encode(response), expected)
+    }
+
+    func testSetCookieExpires() {
+        let expected = "HTTP/1.1 200 OK\r\n" +
+            "Content-Length: 0\r\n" +
+            "Set-Cookie: username=tony; " +
+                "Expires=Wed, 21 Oct 2015 07:28:00 GMT\r\n" +
+            "\r\n"
+        var response = Response()
+        response.setCookie = [
+            Response.SetCookie(
+                Cookie(name: "username", value: "tony"),
+                expires: Date(timeIntervalSinceReferenceDate: 467105280))
+        ]
+        assertEqual(Encoder.encode(response), expected)
+    }
+
+    func testSetCookieMaxAge() {
+        let expected = "HTTP/1.1 200 OK\r\n" +
+            "Content-Length: 0\r\n" +
+            "Set-Cookie: username=tony; Max-Age=42\r\n" +
+            "\r\n"
+        var response = Response()
+        response.setCookie = [
+            Response.SetCookie(
+                Cookie(name: "username", value: "tony"),
+                maxAge: 42)
+        ]
+        assertEqual(Encoder.encode(response), expected)
+    }
+
+    func testSetCookieHttpOnly() {
+        let expected = "HTTP/1.1 200 OK\r\n" +
+            "Content-Length: 0\r\n" +
+            "Set-Cookie: username=tony; HttpOnly\r\n" +
+            "\r\n"
+        var response = Response()
+        response.setCookie = [
+            Response.SetCookie(
+                Cookie(name: "username", value: "tony"),
+                httpOnly: true)
+        ]
+        assertEqual(Encoder.encode(response), expected)
+    }
+
+    func testSetCookieSecure() {
+        let expected = "HTTP/1.1 200 OK\r\n" +
+            "Content-Length: 0\r\n" +
+            "Set-Cookie: username=tony; Secure\r\n" +
+            "\r\n"
+        var response = Response()
+        response.setCookie = [
+            Response.SetCookie(
+                Cookie(name: "username", value: "tony"),
+                secure: true)
+        ]
+        assertEqual(Encoder.encode(response), expected)
+    }
+
+    func testSetCookieDomain() {
+        let expected = "HTTP/1.1 200 OK\r\n" +
+            "Content-Length: 0\r\n" +
+            "Set-Cookie: username=tony; Domain=somedomain.com\r\n" +
+            "\r\n"
+        var response = Response()
+        response.setCookie = [
+            Response.SetCookie(
+                Cookie(name: "username", value: "tony"),
+                domain: "somedomain.com")
+        ]
+        assertEqual(Encoder.encode(response), expected)
+    }
+
+    func testSetCookiePath() {
+        let expected = "HTTP/1.1 200 OK\r\n" +
+            "Content-Length: 0\r\n" +
+            "Set-Cookie: username=tony; Path=/\r\n" +
+            "\r\n"
+        var response = Response()
+        response.setCookie = [
+            Response.SetCookie(
+                Cookie(name: "username", value: "tony"),
+                path: "/")
+        ]
+        assertEqual(Encoder.encode(response), expected)
+    }
+
+    func testSetCookieManyValues() {
         let expected = "HTTP/1.1 200 OK\r\n" +
             "Content-Length: 0\r\n" +
             "Set-Cookie: user=tony; Secure; HttpOnly\r\n" +

@@ -264,6 +264,131 @@ class DecodeResponseTests: TestCase {
         do {
             let bytes = ASCII(
                 "HTTP/1.1 200 OK\r\n" +
+                "Content-Length: 0\r\n" +
+                "Set-Cookie: username=tony\r\n" +
+                "\r\n")
+            let response = try Response(from: bytes)
+            assertEqual(response.setCookie, [
+                Response.SetCookie(Cookie(name: "username", value: "tony"))
+                ])
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
+    func testSetCookieExpires() {
+        do {
+            let bytes = ASCII(
+                "HTTP/1.1 200 OK\r\n" +
+                "Content-Length: 0\r\n" +
+                "Set-Cookie: username=tony; " +
+                    "Expires=Wed, 21 Oct 2015 07:28:00 GMT\r\n" +
+                "\r\n")
+            let response = try Response(from: bytes)
+            assertEqual(response.setCookie, [
+                Response.SetCookie(
+                    Cookie(name: "username", value: "tony"),
+                    expires: Date(timeIntervalSinceReferenceDate: 467105280))
+                ])
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
+    func testSetCookieMaxAge() {
+        do {
+            let bytes = ASCII(
+                "HTTP/1.1 200 OK\r\n" +
+                "Content-Length: 0\r\n" +
+                "Set-Cookie: username=tony; Max-Age=42\r\n" +
+                "\r\n")
+            let response = try Response(from: bytes)
+            assertEqual(response.setCookie, [
+                Response.SetCookie(
+                    Cookie(name: "username", value: "tony"),
+                    maxAge: 42)
+                ])
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
+    func testSetCookieHttpOnly() {
+        do {
+            let bytes = ASCII(
+                "HTTP/1.1 200 OK\r\n" +
+                "Content-Length: 0\r\n" +
+                "Set-Cookie: username=tony; HttpOnly\r\n" +
+                "\r\n")
+            let response = try Response(from: bytes)
+            assertEqual(response.setCookie, [
+                Response.SetCookie(
+                    Cookie(name: "username", value: "tony"),
+                    httpOnly: true)
+                ])
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
+    func testSetCookieSecure() {
+        do {
+            let bytes = ASCII(
+                "HTTP/1.1 200 OK\r\n" +
+                "Content-Length: 0\r\n" +
+                "Set-Cookie: username=tony; Secure\r\n" +
+                "\r\n")
+            let response = try Response(from: bytes)
+            assertEqual(response.setCookie, [
+                Response.SetCookie(
+                    Cookie(name: "username", value: "tony"),
+                    secure: true)
+                ])
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
+    func testSetCookieDomain() {
+        do {
+            let bytes = ASCII(
+                "HTTP/1.1 200 OK\r\n" +
+                "Content-Length: 0\r\n" +
+                "Set-Cookie: username=tony; Domain=somedomain.com\r\n" +
+                "\r\n")
+            let response = try Response(from: bytes)
+            assertEqual(response.setCookie, [
+                Response.SetCookie(
+                    Cookie(name: "username", value: "tony"),
+                    domain: "somedomain.com")
+                ])
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
+    func testSetCookiePath() {
+        do {
+            let bytes = ASCII(
+                "HTTP/1.1 200 OK\r\n" +
+                "Content-Length: 0\r\n" +
+                "Set-Cookie: username=tony; Path=/\r\n" +
+                "\r\n")
+            let response = try Response(from: bytes)
+            assertEqual(response.setCookie, [
+                Response.SetCookie(
+                    Cookie(name: "username", value: "tony"),
+                    path: "/")
+                ])
+        } catch {
+            fail(String(describing: error))
+        }
+    }
+
+    func testSetCookieManyValues() {
+        do {
+            let bytes = ASCII(
+                "HTTP/1.1 200 OK\r\n" +
                 "Set-Cookie: num=0; Path=/; Max-Age=42; Secure; HttpOnly\r\n" +
                 "Set-Cookie: key=value; Secure; HttpOnly\r\n" +
                 "Set-Cookie: date=; Expires=Thu, 06-Sep-18 12:41:14 GMT\r\n" +
@@ -294,8 +419,6 @@ class DecodeResponseTests: TestCase {
                         Response.SetCookie(
                             Cookie(name: "date", value: ""),
                             expires: Date(timeIntervalSince1970: 1536237674.0)))
-
-
 
         } catch {
             fail(String(describing: error))
