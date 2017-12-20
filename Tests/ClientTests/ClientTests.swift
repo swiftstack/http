@@ -11,7 +11,7 @@ import struct Foundation.Data
 extension Response {
     func encode() throws -> [UInt8] {
         let stream = OutputByteStream()
-        let buffer = BufferedOutputStream(baseStream: OutputByteStream())
+        let buffer = BufferedOutputStream(baseStream: stream)
         try self.encode(to: buffer)
         try buffer.flush()
         return stream.bytes
