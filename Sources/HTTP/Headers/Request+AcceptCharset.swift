@@ -71,9 +71,7 @@ extension Request.AcceptCharset {
         guard try stream.consume(sequence: Bytes.qEqual) else {
             throw HTTPError.invalidAcceptCharsetHeader
         }
-        // FIXME: implement Double(from stream:)
-        let buffer = try stream.read(allowedBytes: .token)
-        guard let priority = Double(from: buffer) else {
+        guard let priority = try Double(from: stream) else {
             throw HTTPError.invalidAcceptCharsetHeader
         }
         self.priority = priority

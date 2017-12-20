@@ -44,12 +44,12 @@ extension Int {
         guard bytes.count > 0 else {
             return nil
         }
-        var port = 0
+        var value = 0
         for byte in bytes {
-            port *= 10
-            port += Int(byte - .zero)
+            value *= 10
+            value += Int(byte - .zero)
         }
-        self = port
+        self = value
     }
 }
 
@@ -73,40 +73,27 @@ extension Int {
 }
 
 extension Double {
-    init?<T: RandomAccessCollection>(from bytes: T)
-        where T.Element == UInt8, T.Index == Int {
-        let dot = 46
-        let zero = 48
-        let nine = 57
-        var integer: Int = 0
-        var fractional: Int = 0
-        var isFractional = false
-        for byte in bytes {
-            guard (byte >= zero && byte <= nine)
-                || (byte == dot && !isFractional) else {
-                    return nil
-            }
-            if byte == dot {
-                isFractional = true
-                continue
-            }
-            switch isFractional {
-            case false:
-                integer *= 10
-                integer += Int(byte) - zero
-            case true:
-                fractional *= 10
-                fractional += Int(byte) - zero
-            }
+    init?<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        guard let integer = try Int(from: stream) else {
+            return nil
         }
-        let del: Int
-        switch fractional % 10 {
-        case 0:
-            del = fractional * 10
-        default:
-            del = (fractional / 10 + 1) * 10
-        }
-        self = Double(integer) + Double(fractional) / Double(del)
+
+        self = Double(integer)
+
+        do {
+            guard try stream.consume(.dot) else {
+                return
+            }
+            let bytes = try stream.read(while: { $0 >= .zero && $0 <= .nine })
+            guard bytes.count > 0 else {
+                return
+            }
+            var factor = 0.1
+            for byte in bytes {
+                self += Double(byte - .zero) * factor
+                factor *= 0.1
+            }
+        } catch {}
     }
 }
 

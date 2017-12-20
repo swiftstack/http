@@ -298,10 +298,7 @@ extension Request.AcceptLanguage {
         guard try stream.consume(sequence: Bytes.qEqual) else {
             throw HTTPError.invalidAcceptLanguageHeader
         }
-
-        // FIXME: implement Double(from stream:)
-        buffer = try stream.read(allowedBytes: .token)
-        guard let priority = Double(from: buffer) else {
+        guard let priority = try Double(from: stream) else {
             throw HTTPError.invalidAcceptLanguageHeader
         }
         self.priority = priority

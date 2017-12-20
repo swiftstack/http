@@ -64,9 +64,7 @@ extension Request.Accept {
             throw HTTPError.invalidAcceptHeader
         }
 
-        // FIXME: implement Double(from stream:)
-        let buffer = try stream.read(allowedBytes: .token)
-        guard let priority = Double(from: buffer) else {
+        guard let priority = try Double(from: stream) else {
             throw HTTPError.invalidAcceptHeader
         }
         self.priority = priority
