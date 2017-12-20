@@ -287,8 +287,7 @@ extension Request.AcceptLanguage {
     }
 
     init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
-        var buffer = try stream.read(allowedBytes: .token)
-        self.language = try Language(from: buffer)
+        self.language = try Language(from: stream)
 
         guard try stream.consume(.semicolon) else {
             self.priority = 1.0

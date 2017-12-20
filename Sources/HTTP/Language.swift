@@ -467,8 +467,8 @@ extension Language {
         static let any   = ASCII("*")
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
+    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+        let bytes = try stream.read(allowedBytes: .token)
         switch bytes.lowercasedHashValue {
         case Bytes.af.lowercasedHashValue:    self = .af
         case Bytes.afZA.lowercasedHashValue:  self = .afZA
