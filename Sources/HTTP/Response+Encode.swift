@@ -2,10 +2,8 @@ import Stream
 import Network
 
 extension Response {
-    @_specialize(exported: true, where T == NetworkStream)
-    public func encode<T: OutputStream>(
-        to stream: BufferedOutputStream<T>
-    ) throws {
+    @_specialize(exported: true, where T == BufferedOutputStream<NetworkStream>)
+    public func encode<T: UnsafeStreamWriter>(to stream: T) throws {
         // Start line
         try version.encode(to: stream)
         try stream.write(.whitespace)
@@ -16,7 +14,7 @@ extension Response {
         @inline(__always)
         func writeHeader(
             _ name: HeaderName,
-            encoder: (BufferedOutputStream<T>) throws -> Void
+            encoder: (T) throws -> Void
         ) throws {
             try stream.write(name.bytes)
             try stream.write(.colon)

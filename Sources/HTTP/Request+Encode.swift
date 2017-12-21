@@ -3,10 +3,8 @@ import Network
 import struct Foundation.CharacterSet
 
 extension Request {
-    @_specialize(exported: true, where T == NetworkStream)
-    public func encode<T: OutputStream>(
-        to stream: BufferedOutputStream<T>
-    ) throws {
+    @_specialize(exported: true, where T == BufferedOutputStream<NetworkStream>)
+    public func encode<T: UnsafeStreamWriter>(to stream: T) throws {
         // Start Line
         try method.encode(to: stream)
         try stream.write(.whitespace)
@@ -23,8 +21,8 @@ extension Request {
         @inline(__always)
         func writeHeader(
             _ name: HeaderName,
-            encoder: (BufferedOutputStream<T>
-        ) throws -> Void) throws {
+            encoder: (T) throws -> Void
+        ) throws {
             try stream.write(name.bytes)
             try stream.write(.colon)
             try stream.write(.whitespace)
@@ -107,8 +105,8 @@ extension Request {
 }
 
 extension String {
-    func encode<T: OutputStream>(
-        to stream: BufferedOutputStream<T>,
+    func encode<T: UnsafeStreamWriter>(
+        to stream: T,
         allowedCharacters: CharacterSet
     ) throws {
         let escaped = addingPercentEncoding(
@@ -126,7 +124,7 @@ extension URL.Query {
         return [UInt8](queryString.utf8)
     }
 
-    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
         let queryString = values
             .map({ "\($0.key)=\($0.value)" })
             .joined(separator: "&")
@@ -136,7 +134,7 @@ extension URL.Query {
 }
 
 extension URL.Host {
-    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
         try stream.write(Punycode.encode(domain: address))
         if let port = port {
             try stream.write(.colon)

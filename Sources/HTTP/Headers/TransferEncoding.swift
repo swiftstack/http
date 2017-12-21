@@ -25,7 +25,7 @@ extension TransferEncoding: Equatable {
 }
 
 extension Array where Element == TransferEncoding {
-    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+    init<T: UnsafeStreamReader>(from stream: T) throws {
         // FIXME: validate
         let bytes = try stream.read(until: .cr)
 
@@ -47,7 +47,7 @@ extension Array where Element == TransferEncoding {
         self = values
     }
 
-    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
         for i in startIndex..<endIndex {
             if i != startIndex {
                 try stream.write(.comma)
@@ -78,7 +78,7 @@ extension TransferEncoding {
         }
     }
 
-    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
         let bytes: [UInt8]
         switch self {
         case .chunked: bytes = Bytes.chunked

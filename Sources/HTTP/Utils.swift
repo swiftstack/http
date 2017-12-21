@@ -40,7 +40,7 @@ extension UInt8: ExpressibleByStringLiteral {
 import Stream
 
 extension Int {
-    init?<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+    init?<T: UnsafeStreamReader>(from stream: T) throws {
         let bytes = try stream.read(while: { $0 >= .zero && $0 <= .nine })
         guard bytes.count > 0 else {
             return nil
@@ -74,7 +74,7 @@ extension Int {
 }
 
 extension Double {
-    init?<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+    init?<T: UnsafeStreamReader>(from stream: T) throws {
         var string = [UInt8]()
 
         let bytes = try stream.read(while: { $0 >= .zero && $0 <= .nine })

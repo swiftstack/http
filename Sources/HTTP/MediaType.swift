@@ -36,7 +36,7 @@ extension MediaType {
         static let any = ASCII("*")
     }
 
-    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+    init<T: UnsafeStreamReader>(from stream: T) throws {
         var buffer = try stream.read(until: .slash)
         guard buffer.count > 0 else {
             throw HTTPError.invalidMediaTypeHeader
@@ -76,7 +76,7 @@ extension MediaType {
         }
     }
 
-    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
         switch self {
         case .application(let subtype):
             try stream.write(Bytes.application)

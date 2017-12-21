@@ -13,7 +13,7 @@ extension Connection {
         static let upgrade = ASCII("Upgrade")
     }
 
-    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+    init<T: UnsafeStreamReader>(from stream: T) throws {
         // FIXME: validate with value-specific rule
         let bytes = try stream.read(allowedBytes: .token)
         switch bytes.lowercasedHashValue {
@@ -24,7 +24,7 @@ extension Connection {
         }
     }
 
-    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
         let bytes: [UInt8]
         switch self {
         case .keepAlive: bytes = Bytes.keepAlive

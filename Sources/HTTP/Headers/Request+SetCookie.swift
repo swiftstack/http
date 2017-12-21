@@ -58,7 +58,7 @@ extension Response.SetCookie {
         static let secure = ASCII("Secure")
     }
 
-    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+    init<T: UnsafeStreamReader>(from stream: T) throws {
         guard let cookie = try Cookie(from: stream) else {
             throw HTTPError.invalidCookieHeader
         }
@@ -124,7 +124,7 @@ extension Response.SetCookie {
         }
     }
 
-    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
         try cookie.encode(to: stream)
         if let domain = self.domain {
             try stream.write(.semicolon)

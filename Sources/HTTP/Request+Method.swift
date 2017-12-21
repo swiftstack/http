@@ -12,7 +12,7 @@ extension Request {
 }
 
 extension Request.Method {
-    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+    init<T: UnsafeStreamReader>(from stream: T) throws {
         let bytes = try stream.read(allowedBytes: .token)
         for (type, method) in RequestMethodBytes.values {
             if bytes.elementsEqual(method) {
@@ -23,7 +23,7 @@ extension Request.Method {
         throw HTTPError.invalidMethod
     }
 
-    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
         let bytes: [UInt8]
         switch self {
         case .get: bytes = RequestMethodBytes.get

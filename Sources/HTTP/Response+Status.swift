@@ -35,7 +35,7 @@ extension Response.Status {
         }
     }
 
-    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
         let bytes: [UInt8]
         switch self {
         case .ok: bytes = Bytes.ok

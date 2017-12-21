@@ -29,7 +29,7 @@ extension Request.Authorization {
         static let token = ASCII("Token")
     }
 
-    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+    init<T: UnsafeStreamReader>(from stream: T) throws {
         var buffer = try stream.read(until: .whitespace)
         let schemeHashValue = buffer.lowercasedHashValue
 
@@ -55,7 +55,7 @@ extension Request.Authorization {
         }
     }
 
-    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
         switch self {
         case .basic(let credentials):
             try stream.write(Bytes.basic)

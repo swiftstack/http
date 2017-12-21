@@ -18,7 +18,7 @@ extension ContentEncoding: Equatable {
 }
 
 extension Array where Element == ContentEncoding {
-    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+    init<T: UnsafeStreamReader>(from stream: T) throws {
         var values = [ContentEncoding]()
         while true {
             let contentEncoding = try ContentEncoding(from: stream)
@@ -31,7 +31,7 @@ extension Array where Element == ContentEncoding {
         self = values
     }
 
-    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
         for i in startIndex..<endIndex {
             if i != startIndex {
                 try stream.write(.comma)
@@ -48,7 +48,7 @@ extension ContentEncoding {
         static let deflate = ASCII("deflate")
     }
 
-    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+    init<T: UnsafeStreamReader>(from stream: T) throws {
         let bytes = try stream.read(allowedBytes: .token)
         switch bytes.lowercasedHashValue {
         case Bytes.gzip.lowercasedHashValue: self = .gzip
@@ -57,7 +57,7 @@ extension ContentEncoding {
         }
     }
 
-    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
         let bytes: [UInt8]
         switch self {
         case .gzip: bytes = Bytes.gzip

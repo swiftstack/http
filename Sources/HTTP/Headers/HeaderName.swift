@@ -35,7 +35,7 @@ public struct HeaderName: Hashable {
         self.hashValue = bytes.lowercasedHashValue
     }
 
-    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+    init<T: UnsafeStreamReader>(from stream: T) throws {
         let bytes = try stream.read(allowedBytes: .token)
         guard bytes.count > 0 else {
             throw HTTPError.invalidHeaderName

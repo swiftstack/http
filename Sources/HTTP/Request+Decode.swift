@@ -7,8 +7,8 @@ extension Request {
         try self.init(from: stream)
     }
 
-    @_specialize(exported: true, where T == NetworkStream)
-    public init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+    @_specialize(exported: true, where T == BufferedInputStream<NetworkStream>)
+    public init<T: UnsafeStreamReader>(from stream: T) throws {
         do {
             self.method = try Request.Method(from: stream)
             guard try stream.consume(.whitespace) else {

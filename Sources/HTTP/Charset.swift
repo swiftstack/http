@@ -29,7 +29,7 @@ extension Charset {
         static let any = ASCII("*")
     }
 
-    init<T: InputStream>(from stream: BufferedInputStream<T>) throws {
+    init<T: UnsafeStreamReader>(from stream: T) throws {
         let bytes = try stream.read(allowedBytes: .token)
         switch bytes.lowercasedHashValue {
         case Bytes.utf8.lowercasedHashValue: self = .utf8
@@ -40,7 +40,7 @@ extension Charset {
         }
     }
 
-    func encode<T: OutputStream>(to stream: BufferedOutputStream<T>) throws {
+    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
         let bytes: [UInt8]
         switch self {
         case .utf8: bytes = Bytes.utf8
