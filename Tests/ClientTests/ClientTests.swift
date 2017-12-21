@@ -43,6 +43,7 @@ class ClientTests: TestCase {
             do {
                 let expected = "GET / HTTP/1.1\r\n" +
                     "Host: 127.0.0.1:5001\r\n" +
+                    "User-Agent: swift-stack/http\r\n" +
                     "Accept-Encoding: gzip, deflate\r\n" +
                     "\r\n"
 
@@ -55,7 +56,7 @@ class ClientTests: TestCase {
                 semaphore.signal()
 
                 let client = try socket.accept()
-                var buffer = [UInt8](repeating: 0, count: 100)
+                var buffer = [UInt8](repeating: 0, count: 1024)
                 let count = try client.receive(to: &buffer)
                 _ = try client.send(bytes: responseBytes)
 
@@ -110,7 +111,7 @@ class ClientTests: TestCase {
 
                 // Client Headers
 
-                var buffer = [UInt8](repeating: 0, count: 100)
+                var buffer = [UInt8](repeating: 0, count: 1024)
                 let count = try client.receive(to: &buffer)
                 let request = try Request(from: [UInt8](buffer[..<count]))
                 assertEqual(request.acceptEncoding ?? [], [.gzip, .deflate])

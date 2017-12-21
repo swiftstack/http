@@ -29,6 +29,7 @@ public class Client {
     }
 
     public var compression: [Compression] = [.gzip, .deflate]
+    public var userAgent: String? = "swift-stack/http"
 
     public init?(url: URL) {
         guard let host = url.host else {
@@ -69,8 +70,7 @@ public class Client {
         }
 
         var request = request
-        request.host = host
-        updateAcceptEncoding(&request)
+        updateHeaders(&request)
 
         var response: Response
         do {
@@ -83,6 +83,14 @@ public class Client {
         }
         try decode(&response)
         return response
+    }
+
+    private func updateHeaders(_ request: inout Request) {
+        request.host = host
+        if request.userAgent == nil, let userAgent = self.userAgent {
+            request.userAgent = userAgent
+        }
+        updateAcceptEncoding(&request)
     }
 
     private func updateAcceptEncoding(_ request: inout Request) {
