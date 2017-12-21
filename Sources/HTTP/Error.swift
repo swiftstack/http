@@ -1,4 +1,4 @@
-public enum HTTPError: Error {
+public enum ParseError: Error {
     case invalidRequest
     case invalidResponse
     case invalidStartLine

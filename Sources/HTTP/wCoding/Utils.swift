@@ -1,5 +1,3 @@
-import Platform
-
 // MARK: Hash
 
 extension Sequence where Iterator.Element == UInt8 {
@@ -37,23 +35,6 @@ extension UInt8: ExpressibleByStringLiteral {
 
 // MARK: Numeric parsers
 
-import Stream
-
-extension Int {
-    init?<T: UnsafeStreamReader>(from stream: T) throws {
-        let bytes = try stream.read(while: { $0 >= .zero && $0 <= .nine })
-        guard bytes.count > 0 else {
-            return nil
-        }
-        var value = 0
-        for byte in bytes {
-            value *= 10
-            value += Int(byte - .zero)
-        }
-        self = value
-    }
-}
-
 extension Int {
     init?<T: RandomAccessCollection>(from bytes: T, radix: Int)
         where T.Element == UInt8, T.Index == Int {
@@ -70,26 +51,6 @@ extension Int {
         // FIXME: validate using hex table or parse manually
         let string = String(decoding: bytes, as: UTF8.self)
         self.init(string, radix: radix)
-    }
-}
-
-extension Double {
-    init?<T: UnsafeStreamReader>(from stream: T) throws {
-        var string = [UInt8]()
-
-        let bytes = try stream.read(while: { $0 >= .zero && $0 <= .nine })
-        string.append(contentsOf: bytes)
-
-        if (try? stream.consume(.dot)) ?? false {
-            string.append(.dot)
-            let bytes = try stream.read(while: { $0 >= .zero && $0 <= .nine })
-            string.append(contentsOf: bytes)
-        }
-        string.append(0)
-
-        let pointer = UnsafeRawPointer(string)
-            .assumingMemoryBound(to: Int8.self)
-        self = strtod(pointer, nil)
     }
 }
 
@@ -110,5 +71,11 @@ extension Collection where Element == UInt8, Index == Int {
             return self.dropLast()
         }
         return self[...]
+    }
+}
+
+extension UnsafeRawBufferPointer {
+    var debugString: String {
+        return String(decoding: self, as: UTF8.self)
     }
 }

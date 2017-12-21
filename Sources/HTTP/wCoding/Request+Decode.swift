@@ -1,7 +1,7 @@
 import Stream
 import Network
 
-extension Response {
+extension Request {
     public init(from bytes: [UInt8]) throws {
         let stream = BufferedInputStream(baseStream: InputByteStream(bytes))
         try self.init(from: stream)
@@ -10,19 +10,23 @@ extension Response {
     @_specialize(exported: true, where T == BufferedInputStream<NetworkStream>)
     public init<T: UnsafeStreamReader>(from stream: T) throws {
         do {
-            self.version = try Version(from: stream)
+            self.method = try Request.Method(from: stream)
             guard try stream.consume(.whitespace) else {
-                throw HTTPError.invalidStartLine
+                throw ParseError.invalidStartLine
             }
 
-            let status = try stream.read(until: .cr)
-            self.status = try Status(from: status)
+            self.url = try URL(from: stream)
+            guard try stream.consume(.whitespace) else {
+                throw ParseError.invalidStartLine
+            }
+
+            self.version = try Version(from: stream)
 
             @inline(__always)
             func readLineEnd() throws {
                 guard try stream.consume(.cr),
                     try stream.consume(.lf) else {
-                        throw HTTPError.invalidRequest
+                        throw ParseError.invalidRequest
                 }
             }
 
@@ -30,7 +34,7 @@ extension Response {
 
             while true {
                 guard let nextLine = try stream.peek(count: 2) else {
-                    throw HTTPError.unexpectedEnd
+                    throw ParseError.unexpectedEnd
                 }
                 if nextLine.elementsEqual(Constants.lineEnd) {
                     try stream.consume(count: 2)
@@ -39,29 +43,50 @@ extension Response {
 
                 let name = try HeaderName(from: stream)
 
-                let colon = try stream.read(count: 1)
-                guard colon[0] == .colon else {
-                    throw HTTPError.invalidRequest
+                guard try stream.consume(.colon) else {
+                    throw ParseError.invalidHeaderName
                 }
                 try stream.consume(while: { $0 == .whitespace })
 
                 switch name {
+                case .host:
+                    guard self.url.host == nil else {
+                        try stream.consume(until: .cr)
+                        continue
+                    }
+                    self.host = try URL.Host(from: stream)
+                case .userAgent:
+                    // FIXME: validate
+                    let bytes = try stream.read(until: .cr)
+                    let trimmed = bytes.trimmingRightSpace()
+                    self.userAgent = String(decoding: trimmed, as: UTF8.self)
+                case .accept:
+                    self.accept = try [Accept](from: stream)
+                case .acceptLanguage:
+                    self.acceptLanguage = try [AcceptLanguage](from: stream)
+                case .acceptEncoding:
+                    self.acceptEncoding = try [ContentEncoding](from: stream)
+                case .acceptCharset:
+                    self.acceptCharset = try [AcceptCharset](from: stream)
+                case .authorization:
+                    self.authorization = try Authorization(from: stream)
+                case .keepAlive:
+                    self.keepAlive = try Int(from: stream)
                 case .connection:
                     self.connection = try Connection(from: stream)
-                case .contentEncoding:
-                    self.contentEncoding = try [ContentEncoding](from: stream)
                 case .contentLength:
                     self.contentLength = try Int(from: stream)
                 case .contentType:
                     self.contentType = try ContentType(from: stream)
                 case .transferEncoding:
                     self.transferEncoding = try [TransferEncoding](from: stream)
-                case .setCookie:
-                    self.setCookie.append(try SetCookie(from: stream))
+                case .cookie:
+                    self.cookies.append(contentsOf: try [Cookie](from: stream))
                 default:
                     // FIXME: validate
                     let bytes = try stream.read(until: .cr)
-                    headers[name] = String(decoding: bytes, as: UTF8.self)
+                    let trimmed = bytes.trimmingRightSpace()
+                    headers[name] = String(decoding: trimmed, as: UTF8.self)
                 }
 
                 try readLineEnd()
@@ -93,7 +118,7 @@ extension Response {
 
                 // TODO: optimize using hex table
                 guard let size = Int(from: sizeBytes, radix: 16) else {
-                    throw HTTPError.invalidRequest
+                    throw ParseError.invalidRequest
                 }
                 guard size > 0 else {
                     break
@@ -111,7 +136,7 @@ extension Response {
                 _ = try? stream.consume(sequence: Constants.lineEnd)
             }
         } catch let error as StreamError where error == .insufficientData {
-            throw HTTPError.unexpectedEnd
+            throw ParseError.unexpectedEnd
         }
     }
 }

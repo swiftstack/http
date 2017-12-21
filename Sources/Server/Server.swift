@@ -66,7 +66,7 @@ public class Server {
                     break
                 }
             }
-        } catch let error as HTTPError where error == .unexpectedEnd {
+        } catch let error as ParseError where error == .unexpectedEnd {
             /* connection closed */
         } catch let error as NetworkStream.Error where error == .closed {
             /* connection closed */

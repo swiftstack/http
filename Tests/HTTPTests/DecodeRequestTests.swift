@@ -88,56 +88,56 @@ class DecodeRequestTests: TestCase {
     func testInvalidRequest() {
         let bytes = ASCII("GET\r\n\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .invalidStartLine)
+            assertEqual(error as? ParseError, .invalidStartLine)
         }
     }
 
     func testInvalidRequest2() {
         let bytes = ASCII("GET \r\n\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .invalidStartLine)
+            assertEqual(error as? ParseError, .invalidStartLine)
         }
     }
 
     func testInvalidMethod() {
         let bytes = ASCII("BAD /test HTTP/1.1\r\n\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .invalidMethod)
+            assertEqual(error as? ParseError, .invalidMethod)
         }
     }
 
     func testInvalidVersion() {
         let bytes = ASCII("GET /test HTTP/0.1\r\n\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .invalidVersion)
+            assertEqual(error as? ParseError, .invalidVersion)
         }
     }
 
     func testInvalidVersion2() {
         let bytes = ASCII("GET /test HTTP/1.1WUT\r\n\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .invalidRequest)
+            assertEqual(error as? ParseError, .invalidRequest)
         }
     }
 
     func testInvalidVersion3() {
         let bytes = ASCII("GET /test HTTP/1.")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .unexpectedEnd)
+            assertEqual(error as? ParseError, .unexpectedEnd)
         }
     }
 
     func testInvalidVersion4() {
         let bytes = ASCII("GET /test HTPP/1.1\r\n\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .invalidVersion)
+            assertEqual(error as? ParseError, .invalidVersion)
         }
     }
 
     func testInvalidEnd() {
         let bytes = ASCII("GET /test HTTP/1.1\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .unexpectedEnd)
+            assertEqual(error as? ParseError, .unexpectedEnd)
         }
     }
 
@@ -379,7 +379,7 @@ class DecodeRequestTests: TestCase {
             "User-Agent; Mozilla/5.0\r\n" +
             "\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .invalidHeaderName)
+            assertEqual(error as? ParseError, .invalidHeaderName)
         }
     }
 
@@ -388,7 +388,7 @@ class DecodeRequestTests: TestCase {
             "GET / HTTP/1.1\r\n" +
             "User-Agent: Mozilla/5.0\n\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .unexpectedEnd)
+            assertEqual(error as? ParseError, .unexpectedEnd)
         }
     }
 
@@ -398,7 +398,7 @@ class DecodeRequestTests: TestCase {
             "See-🙈-Evil: No\r\n" +
             "\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .invalidHeaderName)
+            assertEqual(error as? ParseError, .invalidHeaderName)
         }
     }
 
@@ -413,7 +413,7 @@ class DecodeRequestTests: TestCase {
             "GET / HTTP/1.1\r\n" +
             "Header: Value\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .unexpectedEnd)
+            assertEqual(error as? ParseError, .unexpectedEnd)
         }
     }
 
@@ -458,7 +458,7 @@ class DecodeRequestTests: TestCase {
             "Content-Length: 0\r\n" +
             "\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual((error as! HTTPError), .invalidContentTypeHeader)
+            assertEqual((error as! ParseError), .invalidContentTypeHeader)
         }
     }
 
@@ -489,7 +489,7 @@ class DecodeRequestTests: TestCase {
             "Content-Length: 0\r\n" +
             "\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual((error as! HTTPError), .invalidBoundary)
+            assertEqual((error as! ParseError), .invalidBoundary)
         }
     }
 
@@ -595,7 +595,7 @@ class DecodeRequestTests: TestCase {
             "5\rHello\r\n" +
             "0\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .invalidRequest)
+            assertEqual(error as? ParseError, .invalidRequest)
         }
     }
 
@@ -607,7 +607,7 @@ class DecodeRequestTests: TestCase {
             "5 Hello\r\n" +
             "0\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .invalidRequest)
+            assertEqual(error as? ParseError, .invalidRequest)
         }
     }
 
@@ -618,7 +618,7 @@ class DecodeRequestTests: TestCase {
             "\r\n" +
             "5\r\nHello")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .unexpectedEnd)
+            assertEqual(error as? ParseError, .unexpectedEnd)
         }
     }
 
@@ -661,7 +661,7 @@ class DecodeRequestTests: TestCase {
             "Cookie: username=tony;lang=aurebesh\r\n" +
             "\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .invalidRequest)
+            assertEqual(error as? ParseError, .invalidRequest)
         }
     }
 
@@ -671,7 +671,7 @@ class DecodeRequestTests: TestCase {
             "Cookie: username=tony;\r\n" +
             "\r\n")
         assertThrowsError(try Request(from: bytes)) { error in
-            assertEqual(error as? HTTPError, .invalidRequest)
+            assertEqual(error as? ParseError, .invalidRequest)
         }
     }
 

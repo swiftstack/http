@@ -1,5 +1,3 @@
-import Stream
-
 extension Request {
     public struct AcceptCharset {
         public let charset: Charset
@@ -24,66 +22,6 @@ extension Request.AcceptCharset: Equatable {
         case (.any, .any): return true
         case let (.custom(lhs), .custom(rhs)): return lhs == rhs
         default: return false
-        }
-    }
-}
-
-extension Array where Element == Request.AcceptCharset {
-    public typealias AcceptCharset = Request.AcceptCharset
-
-    init<T: UnsafeStreamReader>(from stream: T) throws {
-        var values = [AcceptCharset]()
-
-        while true {
-            let value = try AcceptCharset(from: stream)
-            values.append(value)
-            guard try stream.consume(.comma) else {
-                break
-            }
-            try stream.consume(while: { $0 == .whitespace })
-        }
-        self = values
-    }
-
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
-        for i in startIndex..<endIndex {
-            if i != startIndex {
-                try stream.write(.comma)
-            }
-            try self[i].encode(to: stream)
-        }
-    }
-}
-
-extension Request.AcceptCharset {
-    private struct Bytes {
-        static let qEqual = ASCII("q=")
-    }
-
-    init<T: UnsafeStreamReader>(from stream: T) throws {
-        self.charset = try Charset(from: stream)
-
-        guard try stream.consume(.semicolon) else {
-            self.priority = 1.0
-            return
-        }
-
-        guard try stream.consume(sequence: Bytes.qEqual) else {
-            throw HTTPError.invalidAcceptCharsetHeader
-        }
-        guard let priority = try Double(from: stream) else {
-            throw HTTPError.invalidAcceptCharsetHeader
-        }
-        self.priority = priority
-    }
-
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
-        try charset.encode(to: stream)
-
-        if priority < 1.0 {
-            try stream.write(.semicolon)
-            try stream.write(Bytes.qEqual)
-            try stream.write([UInt8](String(describing: priority)))
         }
     }
 }

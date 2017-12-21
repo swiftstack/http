@@ -84,7 +84,7 @@ extension Response {
             response.rawBody = try URLFormEncoded.encode(encodable: object)
 
         default:
-            throw HTTPError.unsupportedContentType
+            throw ParseError.unsupportedContentType
         }
 
         self = response
