@@ -11,8 +11,10 @@ extension Request {
 }
 
 extension Request.AcceptCharset: Equatable {
-    public typealias AcceptCharset = Request.AcceptCharset
-    public static func ==(lhs: AcceptCharset, rhs: AcceptCharset) -> Bool {
+    public static func ==(
+        lhs: Request.AcceptCharset,
+        rhs: Request.AcceptCharset
+    ) -> Bool {
         guard lhs.priority == rhs.priority else {
             return false
         }

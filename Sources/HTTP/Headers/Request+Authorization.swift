@@ -8,8 +8,10 @@ extension Request {
 }
 
 extension Request.Authorization: Equatable {
-    public typealias Authorization = Request.Authorization
-    public static func ==(lhs: Authorization, rhs: Authorization) -> Bool {
+    public static func ==(
+        lhs: Request.Authorization,
+        rhs: Request.Authorization
+    ) -> Bool {
         switch (lhs, rhs) {
         case let (.basic(lhs), .basic(rhs)) where lhs == rhs: return true
         case let (.bearer(lhs), .bearer(rhs)) where lhs == rhs: return true

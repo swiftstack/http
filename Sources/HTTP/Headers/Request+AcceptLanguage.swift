@@ -11,8 +11,10 @@ extension Request {
 }
 
 extension Request.AcceptLanguage: Equatable {
-    public typealias AcceptLanguage = Request.AcceptLanguage
-    public static func ==(lhs: AcceptLanguage, rhs: AcceptLanguage) -> Bool {
+    public static func ==(
+        lhs: Request.AcceptLanguage,
+        rhs: Request.AcceptLanguage
+    ) -> Bool {
         guard lhs.priority == rhs.priority else {
             return false
         }

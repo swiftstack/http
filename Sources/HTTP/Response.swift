@@ -9,10 +9,9 @@ public struct Response {
     public var contentType: ContentType? = nil
     public var contentLength: Int? = nil
     public var transferEncoding: [TransferEncoding]? = nil
+    public var setCookie: [SetCookie] = []
 
     public var headers: [HeaderName : String] = [:]
-
-    public var setCookie: [SetCookie] = []
 
     public var rawBody: [UInt8]? = nil {
         didSet {
