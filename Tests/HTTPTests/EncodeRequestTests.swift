@@ -6,9 +6,7 @@ class EncodeRequestTests: TestCase {
     class Encoder {
         static func encode(_ request: Request) -> String? {
             let stream = OutputByteStream()
-            let buffer = BufferedOutputStream(baseStream: stream)
-            try? request.encode(to: buffer)
-            _ = try? buffer.flush()
+            try? request.encode(to: stream)
             return String(decoding: stream.bytes, as: UTF8.self)
         }
     }

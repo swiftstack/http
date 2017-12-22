@@ -11,9 +11,7 @@ import struct Foundation.Data
 extension Response {
     func encode() throws -> [UInt8] {
         let stream = OutputByteStream()
-        let buffer = BufferedOutputStream(baseStream: stream)
-        try self.encode(to: buffer)
-        try buffer.flush()
+        try self.encode(to: stream)
         return stream.bytes
     }
 }
@@ -113,7 +111,8 @@ class ClientTests: TestCase {
 
                 var buffer = [UInt8](repeating: 0, count: 1024)
                 let count = try client.receive(to: &buffer)
-                let request = try Request(from: [UInt8](buffer[..<count]))
+                let received = [UInt8](buffer[..<count])
+                let request = try Request(from: InputByteStream(received))
                 assertEqual(request.acceptEncoding ?? [], [.gzip, .deflate])
 
                 // GZip

@@ -1,15 +1,17 @@
 import Test
+import Stream
 @testable import HTTP
 
 class NginxTests: TestCase {
     func testCurlGet() {
         do {
-            let bytes = ASCII("GET /test HTTP/1.1\r\n" +
+            let stream = InputByteStream(
+                "GET /test HTTP/1.1\r\n" +
                 "User-Agent: curl/7.18.0 (i486-pc-linux-gnu) libcurl/7.18.0 OpenSSL/0.9.8g zlib/1.2.3.3 libidn/1.1\r\n" +
                 "Host: 0.0.0.0:5000\r\n" +
                 "Accept: */*\r\n" +
                 "\r\n")
-            let request = try Request(from: bytes)
+            let request = try Request(from: stream)
             assertNotNil(request.url)
             assertEqual(request.url.path, "/test")
             assertEqual(request.url, "/test")
@@ -23,7 +25,8 @@ class NginxTests: TestCase {
 
     func testFirefoxGet() {
         do {
-            let bytes = ASCII("GET /favicon.ico HTTP/1.1\r\n" +
+            let stream = InputByteStream(
+                "GET /favicon.ico HTTP/1.1\r\n" +
                 "Host: 0.0.0.0:5000\r\n" +
                 "User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008061015 Firefox/3.0\r\n" +
                 "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n" +
@@ -33,7 +36,7 @@ class NginxTests: TestCase {
                 "Keep-Alive: 300\r\n" +
                 "Connection: keep-alive\r\n" +
                 "\r\n")
-            let request = try Request(from: bytes)
+            let request = try Request(from: stream)
             assertNotNil(request.url)
             assertEqual(request.url, "/favicon.ico")
             assertEqual(request.url.path, "/favicon.ico")
@@ -66,13 +69,14 @@ class NginxTests: TestCase {
 
     func testChankedAllYourBase() {
         do {
-            let bytes = ASCII("POST /post_chunked_all_your_base HTTP/1.1\r\n" +
+            let stream = InputByteStream(
+                "POST /post_chunked_all_your_base HTTP/1.1\r\n" +
                 "Transfer-Encoding: chunked\r\n" +
                 "\r\n" +
                 "1e\r\nall your base are belong to us\r\n" +
                 "0\r\n" +
                 "\r\n")
-            let request = try Request(from: bytes)
+            let request = try Request(from: stream)
             assertEqual(request.transferEncoding ?? [], [.chunked])
             assertEqual(request.body, "all your base are belong to us")
         } catch {

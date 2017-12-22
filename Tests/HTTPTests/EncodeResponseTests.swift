@@ -7,9 +7,7 @@ import struct Foundation.Date
 extension Response {
     func encode() throws -> [UInt8] {
         let stream = OutputByteStream()
-        let buffer = BufferedOutputStream(baseStream: stream)
-        try self.encode(to: buffer)
-        try buffer.flush()
+        try self.encode(to: stream)
         return stream.bytes
     }
 }
