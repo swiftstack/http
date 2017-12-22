@@ -2,11 +2,6 @@ import Stream
 import Network
 
 extension Response {
-    public init(from bytes: [UInt8]) throws {
-        let stream = BufferedInputStream(baseStream: InputByteStream(bytes))
-        try self.init(from: stream)
-    }
-
     @_specialize(exported: true, where T == BufferedInputStream<NetworkStream>)
     public init<T: UnsafeStreamReader>(from stream: T) throws {
         do {
