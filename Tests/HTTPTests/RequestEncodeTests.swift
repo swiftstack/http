@@ -201,35 +201,6 @@ class EncodeRequestTests: TestCase {
         assertEqual(Encoder.encode(request), expected)
     }
 
-    func testJsonInitializer() {
-        let expected = "POST / HTTP/1.1\r\n" +
-            "Content-Type: application/json\r\n" +
-            "Content-Length: 27\r\n" +
-            "\r\n" +
-            "{\"message\":\"Hello, World!\"}"
-        let values = ["message": "Hello, World!"]
-        let request = try! Request(method: .post, url: "/", body: values)
-        assertEqual(Encoder.encode(request), expected)
-    }
-
-    func testUrlEncodedInitializer() {
-        let expected = "POST / HTTP/1.1\r\n" +
-            "Content-Type: application/x-www-form-urlencoded\r\n" +
-            "Content-Length: 23\r\n" +
-            "\r\n" +
-            "message=Hello,%20World!"
-
-        struct Query: Encodable {
-            let message = "Hello, World!"
-        }
-        let request = try! Request(
-            method: .post,
-            url: "/",
-            body: Query(),
-            contentType: .urlEncoded)
-        assertEqual(Encoder.encode(request), expected)
-    }
-
     func testCookie() {
         let expected = "GET / HTTP/1.1\r\n" +
             "Cookie: username=tony\r\n" +
