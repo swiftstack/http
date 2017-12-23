@@ -5,6 +5,16 @@ public struct ContentType {
 }
 
 extension ContentType {
+    public static let html = ContentType(mediaType: .text(.html))
+    public static let text = ContentType(mediaType: .text(.plain))
+    public static let json = ContentType(mediaType: .application(.json))
+    public static let xml = ContentType(mediaType: .application(.xml))
+    public static let urlFormEncoded = ContentType(
+        mediaType: .application(.urlFormEncoded))
+    public static let stream = ContentType(mediaType: .application(.stream))
+}
+
+extension ContentType {
     public init?(mediaType: MediaType, charset: Charset? = nil) {
         if case .multipart = mediaType {
             return nil

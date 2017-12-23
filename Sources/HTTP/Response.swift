@@ -45,19 +45,19 @@ extension Response {
     }
 
     public init(string: String) {
-        contentType = ContentType(mediaType: .text(.plain))
+        contentType = .text
         rawBody = [UInt8](string.utf8)
         contentLength = rawBody!.count
     }
 
     public init(html: String) {
-        contentType = ContentType(mediaType: .text(.html))
+        contentType = .html
         rawBody = [UInt8](html.utf8)
         contentLength = rawBody!.count
     }
 
     public init(bytes: [UInt8]) {
-        contentType = ContentType(mediaType: .application(.stream))
+        contentType = .stream
         rawBody = bytes
         contentLength = bytes.count
     }
@@ -72,14 +72,11 @@ extension Response {
 
         switch type {
         case .json:
-            response.contentType = ContentType(
-                mediaType: .application(.json))
-            let encoder = JSONEncoder()
-            response.rawBody = try encoder.encode(object)
+            response.contentType = .json
+            response.rawBody = try JSONEncoder().encode(object)
 
-        case .urlEncoded:
-            response.contentType = ContentType(
-                mediaType: .application(.urlEncoded))
+        case .urlFormEncoded:
+            response.contentType = .urlFormEncoded
             response.rawBody = try URLFormEncoded.encode(encodable: object)
 
         default:

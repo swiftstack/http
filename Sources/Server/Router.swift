@@ -187,7 +187,7 @@ public struct Router {
             case .application(.json):
                 return try JSONDecoder().decode(type, from: body)
 
-            case .application(.urlEncoded):
+            case .application(.urlFormEncoded):
                 let values = try URL.Query(from: body).values
                 return try KeyValueDecoder().decode(type, from: values)
 

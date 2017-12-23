@@ -49,10 +49,7 @@ class ResponseEncodeBodyTests: TestCase {
         }
         assertEqual(body, "<html></html>")
         assertEqual(rawBody, ASCII("<html></html>"))
-        assertEqual(
-            response.contentType,
-            ContentType(mediaType: .text(.html))
-        )
+        assertEqual(response.contentType, .html)
         assertEqual(response.contentLength, 13)
         assertEqual(Encoder.encode(response), expected)
     }
@@ -69,10 +66,7 @@ class ResponseEncodeBodyTests: TestCase {
             return
         }
         assertEqual(rawBody, data)
-        assertEqual(
-            response.contentType,
-            ContentType(mediaType: .application(.stream))
-        )
+        assertEqual(response.contentType, .stream)
         assertEqual(response.contentLength, 3)
         assertEqual(ASCII(Encoder.encode(response) ?? ""), expected)
     }
@@ -92,15 +86,12 @@ class ResponseEncodeBodyTests: TestCase {
         }
         assertEqual(body, "{\"message\":\"Hello, World!\"}")
         assertEqual(rawBody, ASCII("{\"message\":\"Hello, World!\"}"))
-        assertEqual(
-            response.contentType,
-            ContentType(mediaType: .application(.json))
-        )
+        assertEqual(response.contentType, .json)
         assertEqual(response.contentLength, 27)
         assertEqual(Encoder.encode(response), expected)
     }
 
-    func testUrlEncodedResponse() {
+    func testUrlFormEncodedResponse() {
         let expected = "HTTP/1.1 200 OK\r\n" +
             "Content-Type: application/x-www-form-urlencoded\r\n" +
             "Content-Length: 23\r\n" +
@@ -108,7 +99,7 @@ class ResponseEncodeBodyTests: TestCase {
             "message=Hello,%20World!"
         guard let response = try? Response(
             body: ["message" : "Hello, World!"],
-            contentType: .urlEncoded),
+            contentType: .urlFormEncoded),
             let rawBody = response.rawBody,
             let body = response.body else {
                 fail("body shouldn't be nil")
@@ -116,10 +107,7 @@ class ResponseEncodeBodyTests: TestCase {
         }
         assertEqual(body, "message=Hello,%20World!")
         assertEqual(rawBody, ASCII("message=Hello,%20World!"))
-        assertEqual(
-            response.contentType,
-            ContentType(mediaType: .application(.urlEncoded))
-        )
+        assertEqual(response.contentType, .urlFormEncoded)
         assertEqual(response.contentLength, 23)
         assertEqual(Encoder.encode(response), expected)
     }

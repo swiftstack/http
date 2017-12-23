@@ -11,7 +11,7 @@ public enum MediaType {
 public enum ApplicationSubtype {
     case json
     case javascript
-    case urlEncoded
+    case urlFormEncoded
     case stream
     case pdf
     case zip

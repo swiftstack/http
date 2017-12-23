@@ -105,7 +105,7 @@ extension ApplicationSubtype {
         switch bytes.lowercasedHashValue {
         case Bytes.json.lowercasedHashValue: self = .json
         case Bytes.javascript.lowercasedHashValue: self = .javascript
-        case Bytes.urlEncoded.lowercasedHashValue: self = .urlEncoded
+        case Bytes.urlFormEncoded.lowercasedHashValue: self = .urlFormEncoded
         case Bytes.stream.lowercasedHashValue: self = .stream
         case Bytes.pdf.lowercasedHashValue: self = .pdf
         case Bytes.zip.lowercasedHashValue: self = .zip
@@ -122,7 +122,7 @@ extension ApplicationSubtype {
         switch self {
         case .json: return Bytes.json
         case .javascript: return Bytes.javascript
-        case .urlEncoded: return Bytes.urlEncoded
+        case .urlFormEncoded: return Bytes.urlFormEncoded
         case .stream: return Bytes.stream
         case .pdf: return Bytes.pdf
         case .zip: return Bytes.zip

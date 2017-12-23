@@ -57,7 +57,7 @@ extension Request {
             let bytes = query.encode()
             self.rawBody = bytes
             self.contentLength = bytes.count
-            self.contentType = ContentType(mediaType: .application(.urlEncoded))
+            self.contentType = .urlFormEncoded
         }
     }
 }
@@ -73,13 +73,11 @@ extension Request {
 
         switch type {
         case .json:
-            request.contentType = ContentType(
-                mediaType: .application(.json))
+            request.contentType = .json
             request.rawBody = try JSON.encode(body)
 
-        case .urlEncoded:
-            request.contentType = ContentType(
-                mediaType: .application(.urlEncoded))
+        case .urlFormEncoded:
+            request.contentType = .urlFormEncoded
             request.rawBody = try URLFormEncoded.encode(body)
 
         default:

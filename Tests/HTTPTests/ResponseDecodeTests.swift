@@ -99,8 +99,7 @@ class ResponseDecodeTests: TestCase {
                 "Content-Length: 0\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            let expected = ContentType(mediaType: .text(.plain))
-            assertEqual(response.contentType, expected)
+            assertEqual(response.contentType, .text)
         } catch {
             fail(String(describing: error))
         }

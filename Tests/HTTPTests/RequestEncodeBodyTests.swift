@@ -22,7 +22,7 @@ class RequestEncodeBodyTests: TestCase {
         assertEqual(Encoder.encode(request), expected)
     }
 
-    func testUrlEncodedInitializer() {
+    func testUrlFormEncodedInitializer() {
         let expected = "POST / HTTP/1.1\r\n" +
             "Content-Type: application/x-www-form-urlencoded\r\n" +
             "Content-Length: 23\r\n" +
@@ -35,7 +35,7 @@ class RequestEncodeBodyTests: TestCase {
             method: .post,
             url: "/",
             body: Query(),
-            contentType: .urlEncoded)
+            contentType: .urlFormEncoded)
         assertEqual(Encoder.encode(request), expected)
     }
 }
