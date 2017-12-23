@@ -4,8 +4,8 @@ import KeyValueCodable
 
 public typealias RequestHandler = (Request) throws -> Response
 
-struct Router {
-    enum Error: Swift.Error {
+public struct Router {
+    public enum Error: Swift.Error {
         case invalidModel
         case invalidUrlMask
         case invalidRequest
@@ -13,17 +13,21 @@ struct Router {
         case invalidContentType
     }
 
-    struct MethodSet: OptionSet {
-        let rawValue: UInt8
+    public struct MethodSet: OptionSet {
+        public let rawValue: UInt8
 
-        static let get = MethodSet(rawValue: 1 << 0)
-        static let head = MethodSet(rawValue: 1 << 1)
-        static let post = MethodSet(rawValue: 1 << 2)
-        static let put = MethodSet(rawValue: 1 << 3)
-        static let delete = MethodSet(rawValue: 1 << 4)
-        static let options = MethodSet(rawValue: 1 << 5)
+        public init(rawValue: UInt8) {
+            self.rawValue = rawValue
+        }
 
-        static let all: MethodSet = [
+        public static let get = MethodSet(rawValue: 1 << 0)
+        public static let head = MethodSet(rawValue: 1 << 1)
+        public static let post = MethodSet(rawValue: 1 << 2)
+        public static let put = MethodSet(rawValue: 1 << 3)
+        public static let delete = MethodSet(rawValue: 1 << 4)
+        public static let options = MethodSet(rawValue: 1 << 5)
+
+        public static let all: MethodSet = [
             .get, .head, .post, .put, .delete, .options
         ]
         
@@ -64,13 +68,13 @@ struct Router {
 
     // MARK: Transform convenient router result into Response
 
-    static func parseAnyResponse(_ object: Any) throws -> Response {
+    @_versioned
+    @inline(__always)
+    static func makeRespone<T: Encodable>(for object: T) throws -> Response {
         switch object {
-        case let response as Response: return response
         case let string as String: return Response(string: string)
         case is Void: return Response(status: .ok)
-        case let encodable as Encodable: return try Response(body: encodable)
-        default: throw Error.invalidResponse
+        default: return try Response(body: object)
         }
     }
 
@@ -85,6 +89,7 @@ struct Router {
         return handler
     }
 
+    @_versioned
     mutating func registerRoute(
         methods: MethodSet,
         url: String,
@@ -98,15 +103,16 @@ struct Router {
 
     // MARK: Simple routes
 
-    // void
+    // void -> response
+    @_inlineable
     public mutating func route(
         methods: MethodSet,
         url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping () throws -> Any
+        handler: @escaping () throws -> Response
     ) {
         let handler: RequestHandler = { _ in
-            try Router.parseAnyResponse(try handler())
+            return try handler()
         }
         registerRoute(
             methods: methods,
@@ -116,28 +122,55 @@ struct Router {
         )
     }
 
-    // request
+    // void -> encodable
+    @_inlineable
+    public mutating func route<Result: Encodable>(
+        methods: MethodSet,
+        url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping () throws -> Result
+    ) {
+        route(methods: methods, url: url) {
+            let result = try handler()
+            return try Router.makeRespone(for: result)
+        }
+    }
+
+    // request -> response
+    @_inlineable
     public mutating func route(
         methods: MethodSet,
         url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Request) throws -> Any
+        handler: @escaping (Request) throws -> Response
     ) {
-        let handler: RequestHandler = { request in
-            return try Router.parseAnyResponse(try handler(request))
-        }
         registerRoute(
             methods: methods,
             url: url,
             middleware: middleware,
             handler: handler
         )
+    }
+
+    // request -> encodable
+    @_inlineable
+    public mutating func route<Result: Encodable>(
+        methods: MethodSet,
+        url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping (Request) throws -> Result
+    ) {
+        route(methods: methods, url: url) { request in
+            let result = try handler(request)
+            return try Router.makeRespone(for: result)
+        }
     }
 
     // MARK: Decoder
 
+    @_versioned
     @inline(__always)
-    private static func decodeModel<T: Decodable>(
+    static func decodeModel<T: Decodable>(
         _ type: T.Type,
         from request: Request
     ) throws -> T {
@@ -167,11 +200,13 @@ struct Router {
         }
     }
 
+    // model -> response
+    @_inlineable
     public mutating func route<Model: Decodable>(
         methods: MethodSet,
         url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Model) throws -> Any
+        handler: @escaping (Model) throws -> Response
     ) {
         let keyValueDecoder = KeyValueDecoder()
         let urlMatcher = URLParamMatcher(url)
@@ -182,12 +217,12 @@ struct Router {
             requestHandler = { request in
                 let values = urlMatcher.match(from: request.url.path)
                 let match = try keyValueDecoder.decode(Model.self, from: values)
-                return try Router.parseAnyResponse(try handler(match))
+                return try handler(match)
             }
         } else {
             requestHandler = { request in
                 let model = try Router.decodeModel(Model.self, from: request)
-                return try Router.parseAnyResponse(try handler(model))
+                return try handler(model)
             }
         }
 
@@ -199,11 +234,27 @@ struct Router {
         )
     }
 
+    // model -> encodable
+    @_inlineable
+    public mutating func route<Model: Decodable, Result: Encodable>(
+        methods: MethodSet,
+        url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping (Model) throws -> Result
+    ) {
+        route(methods: methods, url: url) { (model: Model) throws -> Response in
+            let result = try handler(model)
+            return try Router.makeRespone(for: result)
+        }
+    }
+
+    // rquest, model -> response
+    @_inlineable
     public mutating func route<Model: Decodable>(
         methods: MethodSet,
         url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, Model) throws -> Any
+        handler: @escaping (Request, Model) throws -> Response
     ) {
         let keyValueDecoder = KeyValueDecoder()
         let urlMatcher = URLParamMatcher(url)
@@ -214,12 +265,12 @@ struct Router {
             requestHandler = { request in
                 let values = urlMatcher.match(from: request.url.path)
                 let match = try keyValueDecoder.decode(Model.self, from: values)
-                return try Router.parseAnyResponse(try handler(request, match))
+                return try handler(request, match)
             }
         } else {
             requestHandler = { request in
                 let model = try Router.decodeModel(Model.self, from: request)
-                return try Router.parseAnyResponse(try handler(request, model))
+                return try handler(request, model)
             }
         }
 
@@ -231,11 +282,28 @@ struct Router {
         )
     }
 
+    // rquest, model -> encodable
+    @_inlineable
+    public mutating func route<Model: Decodable, Result: Encodable>(
+        methods: MethodSet,
+        url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping (Request, Model) throws -> Result
+    ) {
+        route(methods: methods, url: url)
+        { (request: Request, model: Model) throws -> Response in
+            let result = try handler(request, model)
+            return try Router.makeRespone(for: result)
+        }
+    }
+
+    // url match, model -> result
+    @_inlineable
     public mutating func route<URLMatch: Decodable, Model: Decodable>(
         methods: MethodSet,
         url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (URLMatch, Model) throws -> Any
+        handler: @escaping (URLMatch, Model) throws -> Response
     ) {
         let keyValueDecoder = KeyValueDecoder()
         let urlMatcher = URLParamMatcher(url)
@@ -248,8 +316,7 @@ struct Router {
             let values = urlMatcher.match(from: request.url.path)
             let match = try keyValueDecoder.decode(URLMatch.self, from: values)
             let model = try Router.decodeModel(Model.self, from: request)
-            return try Router.parseAnyResponse(
-                try handler(match, model))
+            return try handler(match, model)
         }
         registerRoute(
             methods: methods,
@@ -259,11 +326,30 @@ struct Router {
         )
     }
 
+    // url match, model -> encodable
+    @_inlineable
+    public mutating func route<
+        URLMatch: Decodable, Model: Decodable, Result: Encodable
+    >(
+        methods: MethodSet,
+        url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping (URLMatch, Model) throws -> Result
+    ) {
+        route(methods: methods, url: url)
+        { (match: URLMatch, model: Model) throws -> Response in
+            let result = try handler(match, model)
+            return try Router.makeRespone(for: result)
+        }
+    }
+
+    // request, url match, model -> request
+    @_inlineable
     public mutating func route<URLMatch: Decodable, Model: Decodable>(
         methods: MethodSet,
         url: String,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, URLMatch, Model) throws -> Any
+        handler: @escaping (Request, URLMatch, Model) throws -> Response
     ) {
         let keyValueDecoder = KeyValueDecoder()
         let urlMatcher = URLParamMatcher(url)
@@ -276,8 +362,7 @@ struct Router {
             let values = urlMatcher.match(from: request.url.path)
             let match = try keyValueDecoder.decode(URLMatch.self, from: values)
             let model = try Router.decodeModel(Model.self, from: request)
-            return try Router.parseAnyResponse(
-                try handler(request, match, model))
+            return try handler(request, match, model)
         }
         registerRoute(
             methods: methods,
@@ -285,5 +370,23 @@ struct Router {
             middleware: middleware,
             handler: handler
         )
+    }
+
+    // request, url match, model -> encodable
+    @_inlineable
+    public mutating func route<
+        URLMatch: Decodable, Model: Decodable, Result: Encodable
+    >(
+        methods: MethodSet,
+        url: String,
+        middleware: [Middleware.Type] = [],
+        handler: @escaping (Request, URLMatch, Model) throws -> Result
+    ) {
+        route(methods: methods, url: url)
+        { (request: Request, match: URLMatch, model: Model) throws -> Response
+            in
+            let result = try handler(request, match, model)
+            return try Router.makeRespone(for: result)
+        }
     }
 }

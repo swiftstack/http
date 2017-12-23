@@ -1,6 +1,7 @@
 import Foundation
 
 public struct URLParamMatcher {
+    @_versioned
     let params: [(name: String, index: Int)]
 
     public init(_ url: String) {
