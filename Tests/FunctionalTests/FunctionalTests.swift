@@ -222,7 +222,7 @@ class FunctionalTests: TestCase {
                     assertEqual(model.message, "Hello, Server!")
                     return try Response(
                         body: ["message": "Hello, Client!"],
-                        contentType: .urlFormEncoded)
+                        contentType: .formURLEncoded)
                 }
             },
             clientCode: { client in
@@ -232,7 +232,7 @@ class FunctionalTests: TestCase {
                 let response = try client.post(
                     path: "/",
                     object: Query(),
-                    contentType: .urlFormEncoded)
+                    contentType: .formURLEncoded)
                 assertEqual(response.status, .ok)
                 assertEqual(response.body, "message=Hello,%20Client!")
             }

@@ -75,9 +75,9 @@ extension Response {
             response.contentType = .json
             response.rawBody = try JSONEncoder().encode(object)
 
-        case .urlFormEncoded:
-            response.contentType = .urlFormEncoded
-            response.rawBody = try URLFormEncoded.encode(encodable: object)
+        case .formURLEncoded:
+            response.contentType = .formURLEncoded
+            response.rawBody = try FormURLEncoded.encode(encodable: object)
 
         default:
             throw ParseError.unsupportedContentType

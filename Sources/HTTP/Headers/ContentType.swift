@@ -9,8 +9,8 @@ extension ContentType {
     public static let text = ContentType(mediaType: .text(.plain))
     public static let json = ContentType(mediaType: .application(.json))
     public static let xml = ContentType(mediaType: .application(.xml))
-    public static let urlFormEncoded = ContentType(
-        mediaType: .application(.urlFormEncoded))
+    public static let formURLEncoded = ContentType(
+        mediaType: .application(.formURLEncoded))
     public static let stream = ContentType(mediaType: .application(.stream))
 }
 

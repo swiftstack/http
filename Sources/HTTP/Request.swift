@@ -57,7 +57,7 @@ extension Request {
             let bytes = query.encode()
             self.rawBody = bytes
             self.contentLength = bytes.count
-            self.contentType = .urlFormEncoded
+            self.contentType = .formURLEncoded
         }
     }
 }
@@ -76,9 +76,9 @@ extension Request {
             request.contentType = .json
             request.rawBody = try JSON.encode(body)
 
-        case .urlFormEncoded:
-            request.contentType = .urlFormEncoded
-            request.rawBody = try URLFormEncoded.encode(body)
+        case .formURLEncoded:
+            request.contentType = .formURLEncoded
+            request.rawBody = try FormURLEncoded.encode(body)
 
         default:
             throw ParseError.unsupportedContentType

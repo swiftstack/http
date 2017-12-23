@@ -89,7 +89,7 @@ extension ApplicationSubtype {
     private struct Bytes {
         static let json = ASCII("json")
         static let javascript = ASCII("javascript")
-        static let urlEncoded = ASCII("x-www-form-urlencoded")
+        static let formURLEncoded = ASCII("x-www-form-urlencoded")
         static let stream = ASCII("stream")
         static let pdf = ASCII("pdf")
         static let zip = ASCII("zip")
@@ -105,7 +105,7 @@ extension ApplicationSubtype {
         switch bytes.lowercasedHashValue {
         case Bytes.json.lowercasedHashValue: self = .json
         case Bytes.javascript.lowercasedHashValue: self = .javascript
-        case Bytes.urlFormEncoded.lowercasedHashValue: self = .urlFormEncoded
+        case Bytes.formURLEncoded.lowercasedHashValue: self = .formURLEncoded
         case Bytes.stream.lowercasedHashValue: self = .stream
         case Bytes.pdf.lowercasedHashValue: self = .pdf
         case Bytes.zip.lowercasedHashValue: self = .zip
@@ -122,7 +122,7 @@ extension ApplicationSubtype {
         switch self {
         case .json: return Bytes.json
         case .javascript: return Bytes.javascript
-        case .urlFormEncoded: return Bytes.urlFormEncoded
+        case .formURLEncoded: return Bytes.formURLEncoded
         case .stream: return Bytes.stream
         case .pdf: return Bytes.pdf
         case .zip: return Bytes.zip

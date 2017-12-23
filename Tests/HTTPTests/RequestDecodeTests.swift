@@ -392,7 +392,7 @@ class RequestDecodeTests: TestCase {
             let request = try Request(from: stream)
             assertEqual(
                 request.contentType,
-                ContentType(mediaType: .application(.urlFormEncoded))
+                ContentType(mediaType: .application(.formURLEncoded))
             )
         } catch {
             fail(String(describing: error))

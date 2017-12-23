@@ -1,6 +1,6 @@
 import KeyValueCodable
 
-struct URLFormEncoded {
+struct FormURLEncoded {
     static func encode<T: Encodable>(
         _ object: T
     ) throws -> [UInt8] {
