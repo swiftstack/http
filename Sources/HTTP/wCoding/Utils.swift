@@ -19,20 +19,6 @@ extension Array where Element == UInt8 {
     }
 }
 
-extension UInt8: ExpressibleByStringLiteral {
-    public init(stringLiteral value: String) {
-        self.init(ascii: value.unicodeScalars.first!)
-    }
-
-    public init(extendedGraphemeClusterLiteral value: String) {
-        self.init(ascii: value.unicodeScalars.first!)
-    }
-
-    public init(unicodeScalarLiteral value: String) {
-        self.init(ascii: value.unicodeScalars.first!)
-    }
-}
-
 // MARK: Numeric parsers
 
 extension Int {

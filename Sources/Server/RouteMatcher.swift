@@ -1,7 +1,3 @@
-let asterisk: UInt8 = "*"
-let colon: UInt8 = ":"
-let separator: UInt8 = "/"
-
 enum RouterError: Error {
     case invalidRoute
 }
@@ -18,7 +14,7 @@ public struct RouteMatcher<T> {
     public init() {}
 
     public mutating func add(route bytes: UnsafeRawBufferPointer, payload: T) {
-        guard bytes.count > 0, bytes[0] == separator else {
+        guard bytes.count > 0, bytes[0] == .slash else {
             return
         }
 
@@ -33,14 +29,15 @@ public struct RouteMatcher<T> {
 
     public func matches(route bytes: UnsafeRawBufferPointer) -> [T] {
         let startIndex = bytes.startIndex
-        guard bytes[startIndex] == separator else {
+        guard bytes[startIndex] == .slash else {
             return []
         }
 
         let route = bytes.dropFirst()
         guard route.count > 0 else {
             if root.wildcard != nil {
-                return root.payload + root.wildcard![Int(asterisk)].payload
+                return root.payload +
+                    root.wildcard![.asterisk].payload
             }
             return root.payload
         }
@@ -51,41 +48,41 @@ public struct RouteMatcher<T> {
     }
 
     func addNode(to node: inout Node, characters: UnsafeRawBufferPointer.SubSequence, payload: T) {
-        let character = Int(characters[characters.startIndex])
-        if character == Int(asterisk) || character == Int(colon) {
+        let character = characters[characters.startIndex]
+        if character == .asterisk || character == .colon {
             if node.wildcard == nil {
                 node.wildcard = [Node](repeating: Node(), count: Int(UInt8.max))
             }
 
             var index = characters.startIndex
-            while index < characters.endIndex && characters[index] != separator {
+            while index < characters.endIndex && characters[index] != .slash {
                 characters.formIndex(after: &index)
             }
 
             guard index < characters.endIndex else {
-                node.wildcard![Int(asterisk)].payload.append(payload)
+                node.wildcard![.asterisk].payload.append(payload)
                 return
             }
 
             guard characters.index(after: index) < characters.endIndex else {
-                node.wildcard![Int(separator)].payload.append(payload)
+                node.wildcard![.slash].payload.append(payload)
                 return
             }
 
             let next = characters.index(after: index)
-            addNode(to: &node.wildcard![Int(separator)], characters: characters[next...], payload: payload)
+            addNode(to: &node.wildcard![.slash], characters: characters[next...], payload: payload)
         } else {
             if node.rlist == nil {
                 node.rlist = [Node](repeating: Node(), count: Int(UInt8.max))
             }
 
             guard characters.index(after: characters.startIndex) < characters.endIndex else {
-                node.rlist![character].payload.append(payload)
+                node.rlist![Int(character)].payload.append(payload)
                 return
             }
 
             let next = characters.index(after: characters.startIndex)
-            addNode(to: &node.rlist![character], characters: characters[next...], payload: payload)
+            addNode(to: &node.rlist![Int(character)], characters: characters[next...], payload: payload)
         }
     }
 
@@ -105,13 +102,13 @@ public struct RouteMatcher<T> {
 
         if let wildcard = node.wildcard {
             var index = characters.startIndex
-            while characters.index(after: index) < characters.endIndex && characters[index] != separator {
+            while characters.index(after: index) < characters.endIndex && characters[index] != .slash {
                 characters.formIndex(after: &index)
             }
 
-            let childNode = characters[index] == separator ?
-                wildcard[Int(separator)] :
-                wildcard[Int(asterisk)]
+            let childNode = characters[index] == .slash ?
+                wildcard[.slash] :
+                wildcard[.asterisk]
 
             let next = characters.index(after: index)
             findNode(in: childNode, characters: characters[next...], result: &result)
@@ -135,4 +132,16 @@ extension RouteMatcher {
     public mutating func first(route: String) -> T? {
         return matches(route: route).first
     }
+}
+
+extension UInt8 {
+    static let asterisk = UInt8(ascii: "*")
+    static let colon = UInt8(ascii: ":")
+    static let slash = UInt8(ascii: "/")
+}
+
+extension Int {
+    static let asterisk = Int(UInt8.asterisk)
+    static let colon = Int(UInt8.colon)
+    static let slash = Int(UInt8.slash)
 }
