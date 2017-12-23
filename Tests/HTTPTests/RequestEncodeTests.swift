@@ -2,7 +2,7 @@ import Test
 import Stream
 @testable import HTTP
 
-class EncodeRequestTests: TestCase {
+class RequestEncodeTests: TestCase {
     class Encoder {
         static func encode(_ request: Request) -> String? {
             let stream = OutputByteStream()

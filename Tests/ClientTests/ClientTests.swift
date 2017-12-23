@@ -113,7 +113,7 @@ class ClientTests: TestCase {
                 let count = try client.receive(to: &buffer)
                 let received = [UInt8](buffer[..<count])
                 let request = try Request(from: InputByteStream(received))
-                assertEqual(request.acceptEncoding ?? [], [.gzip, .deflate])
+                assertEqual(request.acceptEncoding, [.gzip, .deflate])
 
                 // GZip
 

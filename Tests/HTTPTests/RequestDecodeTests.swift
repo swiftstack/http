@@ -2,7 +2,7 @@ import Test
 import Stream
 @testable import HTTP
 
-class DecodeRequestTests: TestCase {
+class RequestDecodeTests: TestCase {
 
     // MARK: Start line
 
@@ -150,11 +150,9 @@ class DecodeRequestTests: TestCase {
                 "GET / HTTP/1.1\r\n" +
                 "Host: 0.0.0.0:5000\r\n" +
                 "\r\n")
+            let expected = URL.Host(address: "0.0.0.0", port: 5000)
             let request = try Request(from: stream)
-            assertNotNil(request.host)
-            if let host = request.host {
-                assertEqual(host, URL.Host(address: "0.0.0.0", port: 5000))
-            }
+            assertEqual(request.host, expected)
         } catch {
             fail(String(describing: error))
         }
@@ -166,11 +164,9 @@ class DecodeRequestTests: TestCase {
                 "GET / HTTP/1.1\r\n" +
                 "Host: domain.com:5000\r\n" +
                 "\r\n")
+            let expected = URL.Host(address: "domain.com", port: 5000)
             let request = try Request(from: stream)
-            assertNotNil(request.host)
-            if let host = request.host {
-                assertEqual(host, URL.Host(address: "domain.com", port: 5000))
-            }
+            assertEqual(request.host, expected)
         } catch {
             fail(String(describing: error))
         }
@@ -182,11 +178,9 @@ class DecodeRequestTests: TestCase {
                 "GET / HTTP/1.1\r\n" +
                 "Host: xn--d1acufc.xn--p1ai:5000\r\n" +
                 "\r\n")
+            let expected = URL.Host(address: "домен.рф", port: 5000)
             let request = try Request(from: stream)
-            assertNotNil(request.host)
-            if let host = request.host {
-                assertEqual(host, URL.Host(address: "домен.рф", port: 5000))
-            }
+            assertEqual(request.host, expected)
         } catch {
             fail(String(describing: error))
         }
@@ -199,10 +193,7 @@ class DecodeRequestTests: TestCase {
                 "User-Agent: Mozilla/5.0\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request.userAgent)
-            if let userAgent = request.userAgent {
-                assertEqual(userAgent, "Mozilla/5.0")
-            }
+            assertEqual(request.userAgent, "Mozilla/5.0")
         } catch {
             fail(String(describing: error))
         }
@@ -215,14 +206,11 @@ class DecodeRequestTests: TestCase {
                 "Accept: text/html,application/xml;q=0.9,*/*;q=0.8\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request.accept)
-            if let accept = request.accept {
-                assertEqual(accept, [
-                    Request.Accept(.text(.html),priority: 1.0),
-                    Request.Accept(.application(.xml), priority: 0.9),
-                    Request.Accept(.any, priority: 0.8)
-                ])
-            }
+            assertEqual(request.accept, [
+                Request.Accept(.text(.html),priority: 1.0),
+                Request.Accept(.application(.xml), priority: 0.9),
+                Request.Accept(.any, priority: 0.8)
+            ])
         } catch {
             fail(String(describing: error))
         }
@@ -235,13 +223,10 @@ class DecodeRequestTests: TestCase {
                 "Accept-Language: en-US,en;q=0.5\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request.acceptLanguage)
-            if let acceptLanguage = request.acceptLanguage {
-                assertEqual(acceptLanguage, [
-                    Request.AcceptLanguage(.enUS, priority: 1.0),
-                    Request.AcceptLanguage(.en, priority: 0.5)
-                ])
-            }
+            assertEqual(request.acceptLanguage, [
+                Request.AcceptLanguage(.enUS, priority: 1.0),
+                Request.AcceptLanguage(.en, priority: 0.5)
+            ])
         } catch {
             fail(String(describing: error))
         }
@@ -254,10 +239,7 @@ class DecodeRequestTests: TestCase {
                 "Accept-Encoding: gzip, deflate\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request.acceptEncoding)
-            if let acceptEncoding = request.acceptEncoding {
-                assertEqual(acceptEncoding, [.gzip, .deflate])
-            }
+            assertEqual(request.acceptEncoding, [.gzip, .deflate])
         } catch {
             fail(String(describing: error))
         }
@@ -276,10 +258,7 @@ class DecodeRequestTests: TestCase {
                 Request.AcceptCharset(.utf8, priority: 0.7),
                 Request.AcceptCharset(.any, priority: 0.7)
             ]
-            assertNotNil(request.acceptCharset)
-            if let acceptCharset = request.acceptCharset {
-                assertEqual(acceptCharset, expectedAcceptCharset)
-            }
+            assertEqual(request.acceptCharset, expectedAcceptCharset)
         } catch {
             fail(String(describing: error))
         }
@@ -296,10 +275,7 @@ class DecodeRequestTests: TestCase {
                 Request.AcceptCharset(.isoLatin1),
                 Request.AcceptCharset(.utf8)
             ]
-            assertNotNil(request.acceptCharset)
-            if let acceptCharset = request.acceptCharset {
-                assertEqual(acceptCharset, expectedAcceptCharset)
-            }
+            assertEqual(request.acceptCharset, expectedAcceptCharset)
         } catch {
             fail(String(describing: error))
         }
@@ -314,10 +290,7 @@ class DecodeRequestTests: TestCase {
             let request = try Request(from: stream)
             let expected: Request.Authorization = .basic(
                 credentials: "QWxhZGRpbjpvcGVuIHNlc2FtZQ==")
-            assertNotNil(request.authorization)
-            if let authorization = request.authorization {
-                assertEqual(authorization, expected)
-            }
+            assertEqual(request.authorization, expected)
         } catch {
             fail(String(describing: error))
         }
@@ -344,12 +317,8 @@ class DecodeRequestTests: TestCase {
                 "User-Agent: Mozilla/5.0\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request.host)
-            assertNotNil(request.userAgent)
-            if let userAgent = request.userAgent, let host = request.host {
-                assertEqual(host, URL.Host(address: "0.0.0.0", port: 5000))
-                assertEqual(userAgent, "Mozilla/5.0")
-            }
+            assertEqual(request.host, URL.Host(address: "0.0.0.0", port: 5000))
+            assertEqual(request.userAgent, "Mozilla/5.0")
         } catch {
             fail(String(describing: error))
         }
@@ -363,12 +332,8 @@ class DecodeRequestTests: TestCase {
                 "User-Agent: Mozilla/5.0 \r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request.host)
-            assertNotNil(request.userAgent)
-            if let userAgent = request.userAgent, let host = request.host {
-                assertEqual(host, URL.Host(address: "0.0.0.0", port: 5000))
-                assertEqual(userAgent, "Mozilla/5.0")
-            }
+            assertEqual(request.host, URL.Host(address: "0.0.0.0", port: 5000))
+            assertEqual(request.userAgent, "Mozilla/5.0")
         } catch {
             fail(String(describing: error))
         }
@@ -425,7 +390,6 @@ class DecodeRequestTests: TestCase {
                 "Content-Type: application/x-www-form-urlencoded\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request.contentType)
             assertEqual(
                 request.contentType,
                 ContentType(mediaType: .application(.urlEncoded))
@@ -442,7 +406,6 @@ class DecodeRequestTests: TestCase {
                 "Content-Type: text/plain; charset=utf-8\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request.contentType)
             assertEqual(
                 request.contentType,
                 ContentType(mediaType: .text(.plain), charset: .utf8)
@@ -470,7 +433,6 @@ class DecodeRequestTests: TestCase {
                 "Content-Type: multipart/form-data; boundary=---\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request.contentType)
             assertEqual(
                 request.contentType,
                 ContentType(
@@ -542,7 +504,7 @@ class DecodeRequestTests: TestCase {
                 "\r\n" +
                 "0\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.transferEncoding ?? [], [.chunked])
+            assertEqual(request.transferEncoding, [.chunked])
         } catch {
             fail(String(describing: error))
         }

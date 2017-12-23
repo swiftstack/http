@@ -43,19 +43,19 @@ class NginxTests: TestCase {
             assertEqual(request.version, .oneOne)
             assertEqual(request.host, URL.Host(address: "0.0.0.0", port: 5000))
             assertEqual(request.userAgent, "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008061015 Firefox/3.0")
-            assertEqual(request.accept ?? [], [
+            assertEqual(request.accept, [
                 Request.Accept(.text(.html), priority: 1.0),
                 Request.Accept(.application(.xhtml), priority: 1.0),
                 Request.Accept(.application(.xml), priority: 0.9),
                 Request.Accept(.any, priority: 0.8)]
             )
-            assertEqual(request.acceptLanguage ?? [], [
+            assertEqual(request.acceptLanguage, [
                 Request.AcceptLanguage(.enUS, priority: 1.0),
                 Request.AcceptLanguage(.en, priority: 0.5)]
             )
             assertNotNil(request.acceptEncoding)
-            assertEqual(request.acceptEncoding ?? [], [.gzip, .deflate])
-            assertEqual(request.acceptCharset ?? [], [
+            assertEqual(request.acceptEncoding, [.gzip, .deflate])
+            assertEqual(request.acceptCharset, [
                 Request.AcceptCharset(.isoLatin1),
                 Request.AcceptCharset(.utf8, priority: 0.7),
                 Request.AcceptCharset(.any, priority: 0.7)]
@@ -77,7 +77,7 @@ class NginxTests: TestCase {
                 "0\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.transferEncoding ?? [], [.chunked])
+            assertEqual(request.transferEncoding, [.chunked])
             assertEqual(request.body, "all your base are belong to us")
         } catch {
             fail(String(describing: error))

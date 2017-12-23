@@ -2,7 +2,7 @@ import Test
 import Stream
 @testable import HTTP
 
-class EncodeRequestBodyTests: TestCase {
+class RequestEncodeBodyTests: TestCase {
     class Encoder {
         static func encode(_ request: Request) -> String? {
             let stream = OutputByteStream()
@@ -28,7 +28,6 @@ class EncodeRequestBodyTests: TestCase {
             "Content-Length: 23\r\n" +
             "\r\n" +
             "message=Hello,%20World!"
-
         struct Query: Encodable {
             let message = "Hello, World!"
         }
