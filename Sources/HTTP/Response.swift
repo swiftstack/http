@@ -1,6 +1,6 @@
 import JSON
 
-public struct Response {
+public class Response {
     public var status: Status = .ok
     public var version: Version = .oneOne
 
@@ -13,76 +13,69 @@ public struct Response {
 
     public var headers: [HeaderName : String] = [:]
 
-    public var rawBody: [UInt8]? = nil {
-        didSet {
-            contentLength = rawBody?.count
-        }
-    }
+    public var body: Body = .none
 
     public init() {
         self.contentLength = 0
     }
 }
 
-extension Response {
-    public var body: String? {
-        guard let rawBody = rawBody else {
-            return nil
-        }
-        return String(bytes: rawBody, encoding: .utf8)
-    }
-}
+extension Response: BodyInpuStream {}
 
 extension Response {
-    public init(status: Status) {
+    public convenience init(status: Status) {
+        self.init()
         self.status = status
-        self.contentLength = 0
     }
 
-    public init(version: Version) {
+    public convenience init(version: Version) {
+        self.init()
         self.version = version
-        self.contentLength = 0
     }
 
-    public init(string: String) {
-        contentType = .text
-        rawBody = [UInt8](string.utf8)
-        contentLength = rawBody!.count
+    public convenience init(string: String) {
+        self.init()
+        self.contentType = .text
+        self.bytes = [UInt8](string.utf8)
+        self.contentLength = bytes!.count
     }
 
-    public init(html: String) {
-        contentType = .html
-        rawBody = [UInt8](html.utf8)
-        contentLength = rawBody!.count
+    public convenience init(html: String) {
+        self.init()
+        self.contentType = .html
+        self.bytes = [UInt8](html.utf8)
+        self.contentLength = bytes!.count
     }
 
-    public init(bytes: [UInt8]) {
-        contentType = .stream
-        rawBody = bytes
-        contentLength = bytes.count
+    public convenience init(bytes: [UInt8]) {
+        self.init()
+        self.contentType = .stream
+        self.bytes = bytes
+        self.contentLength = bytes.count
     }
 }
 
 extension Response {
-    public init(
+    public convenience init(
         body object: Encodable,
         contentType type: ApplicationSubtype = .json
     ) throws {
-        var response = Response()
-
+        self.init()
         switch type {
         case .json:
-            response.contentType = .json
-            response.rawBody = try JSONEncoder().encode(object)
+            let bytes = try JSONEncoder().encode(object)
+            self.bytes = bytes
+            self.contentLength = bytes.count
+            self.contentType = .json
 
         case .formURLEncoded:
-            response.contentType = .formURLEncoded
-            response.rawBody = try FormURLEncoded.encode(encodable: object)
+            let bytes = try FormURLEncoded.encode(encodable: object)
+            self.bytes = bytes
+            self.contentLength = bytes.count
+            self.contentType = .formURLEncoded
 
         default:
             throw ParseError.unsupportedContentType
         }
-
-        self = response
     }
 }

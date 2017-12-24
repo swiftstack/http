@@ -59,7 +59,8 @@ class FunctionalTests: TestCase {
                 let request = Request(method: .get, url: "/")
                 let response = try client.makeRequest(request)
                 assertEqual(response.status, .ok)
-                assertNil(response.body)
+                assertNil(response.string)
+                assertEqual(response.body, .none)
             }
         )
     }
@@ -75,7 +76,8 @@ class FunctionalTests: TestCase {
             clientCode: { client in
                 let response = try client.get(path: "/")
                 assertEqual(response.status, .ok)
-                assertNil(response.body)
+                assertNil(response.string)
+                assertEqual(response.body, .none)
             }
         )
     }
@@ -91,7 +93,8 @@ class FunctionalTests: TestCase {
             clientCode: { client in
                 let response = try client.head(path: "/")
                 assertEqual(response.status, .ok)
-                assertNil(response.body)
+                assertNil(response.string)
+                assertEqual(response.body, .none)
             }
         )
     }
@@ -107,7 +110,8 @@ class FunctionalTests: TestCase {
             clientCode: { client in
                 let response = try client.post(path: "/")
                 assertEqual(response.status, .ok)
-                assertNil(response.body)
+                assertNil(response.string)
+                assertEqual(response.body, .none)
             }
         )
     }
@@ -123,7 +127,8 @@ class FunctionalTests: TestCase {
             clientCode: { client in
                 let response = try client.put(path: "/")
                 assertEqual(response.status, .ok)
-                assertNil(response.body)
+                assertNil(response.string)
+                assertEqual(response.body, .none)
             }
         )
     }
@@ -139,7 +144,8 @@ class FunctionalTests: TestCase {
             clientCode: { client in
                 let response = try client.delete(path: "/")
                 assertEqual(response.status, .ok)
-                assertNil(response.body)
+                assertNil(response.string)
+                assertEqual(response.body, .none)
             }
         )
     }
@@ -155,7 +161,8 @@ class FunctionalTests: TestCase {
             clientCode: { client in
                 let response = try client.options(path: "/")
                 assertEqual(response.status, .ok)
-                assertNil(response.body)
+                assertNil(response.string)
+                assertEqual(response.body, .none)
             }
         )
     }
@@ -206,7 +213,7 @@ class FunctionalTests: TestCase {
                 let message = ["message": "Hello, Server!"]
                 let response = try client.post(path: "/", object: message)
                 assertEqual(response.status, .ok)
-                assertEqual(response.body, "{\"message\":\"Hello, Client!\"}")
+                assertEqual(response.string, "{\"message\":\"Hello, Client!\"}")
             }
         )
     }
@@ -234,7 +241,7 @@ class FunctionalTests: TestCase {
                     object: Query(),
                     contentType: .formURLEncoded)
                 assertEqual(response.status, .ok)
-                assertEqual(response.body, "message=Hello,%20Client!")
+                assertEqual(response.string, "message=Hello,%20Client!")
             }
         )
     }

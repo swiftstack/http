@@ -65,10 +65,11 @@ extension Response {
         }
 
         // Body
-        if let rawBody = rawBody {
-            guard try stream.write(rawBody) == rawBody.count else {
-                throw StreamError.notEnoughSpace
-            }
+        switch body {
+        case .bytes(let bytes): try stream.write(bytes)
+        // TODO:
+        // case .output(let writer): try writer(stream)
+        default: break
         }
     }
 }

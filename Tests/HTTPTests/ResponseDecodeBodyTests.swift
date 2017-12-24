@@ -18,12 +18,8 @@ class ResponseDecodeBodyTests: TestCase {
                 response.contentType,
                 ContentType(mediaType: .text(.plain)))
             assertEqual(response.contentLength, 5)
-            guard let rawBody = response.rawBody else {
-                fail("body is nil")
-                return
-            }
-            assertEqual(rawBody, ASCII("Hello"))
-            assertEqual(response.body, "Hello")
+            assertEqual(response.bytes, ASCII("Hello"))
+            assertEqual(response.string, "Hello")
         } catch {
             fail(String(describing: error))
         }
@@ -43,12 +39,8 @@ class ResponseDecodeBodyTests: TestCase {
                 ContentType(mediaType: .text(.html))
             )
             assertEqual(response.contentLength, 13)
-            guard let rawBody = response.rawBody else {
-                fail("body is nil")
-                return
-            }
-            assertEqual(rawBody, ASCII("<html></html>"))
-            assertEqual(response.body, "<html></html>")
+            assertEqual(response.bytes, ASCII("<html></html>"))
+            assertEqual(response.string, "<html></html>")
         } catch {
             fail(String(describing: error))
         }
@@ -68,11 +60,7 @@ class ResponseDecodeBodyTests: TestCase {
                 ContentType(mediaType: .application(.stream))
             )
             assertEqual(response.contentLength, 3)
-            guard let rawBody = response.rawBody else {
-                fail("body is nil")
-                return
-            }
-            assertEqual(rawBody, [1,2,3] as [UInt8])
+            assertEqual(response.bytes, [1,2,3])
         } catch {
             fail(String(describing: error))
         }
@@ -92,12 +80,8 @@ class ResponseDecodeBodyTests: TestCase {
                 ContentType(mediaType: .application(.json))
             )
             assertEqual(response.contentLength, 28)
-            guard let rawBody = response.rawBody else {
-                fail("body is nil")
-                return
-            }
-            assertEqual(rawBody, ASCII("{'message': 'Hello, World!'}"))
-            assertEqual(response.body, "{'message': 'Hello, World!'}")
+            assertEqual(response.bytes, ASCII("{'message': 'Hello, World!'}"))
+            assertEqual(response.string, "{'message': 'Hello, World!'}")
         } catch {
             fail(String(describing: error))
         }
@@ -111,8 +95,8 @@ class ResponseDecodeBodyTests: TestCase {
                 "\r\n")
             let response = try Response(from: stream)
             assertEqual(response.contentLength, 0)
-            assertNil(response.rawBody)
-            assertNil(response.body)
+            assertNil(response.bytes)
+            assertEqual(response.body, .none)
         } catch {
             fail(String(describing: error))
         }

@@ -110,15 +110,15 @@ public class Client {
     }
 
     private func decode(_ response: inout Response) throws {
-        guard let rawBody = response.rawBody,
+        guard let bytes = response.bytes,
             let contentEncoding = response.contentEncoding else {
                 return
         }
-        let stream = InputByteStream(rawBody)
+        let stream = InputByteStream(bytes)
         if contentEncoding.contains(.gzip) {
-            response.rawBody = try GZip.decode(from: stream)
+            response.bytes = try GZip.decode(from: stream)
         } else if contentEncoding.contains(.deflate) {
-            response.rawBody = try Inflate.decode(from: stream)
+            response.bytes = try Inflate.decode(from: stream)
         }
     }
 }

@@ -29,7 +29,7 @@ public final class Request {
 
     public var expect: Expect? = nil
 
-    internal var body: Body = .none
+    public var body: Body = .none
 
     public init(method: Method = .get, url: URL = URL(path: "/")) {
         self.method = method
@@ -54,99 +54,9 @@ extension Request {
 
 // MARK: Body Streams
 
-extension Request {
-    var inputStream: UnsafeStreamReader? {
-        get {
-            guard case .input(let reader) = body else {
-                return nil
-            }
-            return reader
-        }
-        set {
-            switch newValue {
-            case .none: self.body = .none
-            case .some(let reader): self.body = .input(reader)
-            }
-        }
-    }
-
-    var outputStream: ((UnsafeStreamWriter) throws -> Void)? {
-        get {
-            guard case .output(let writer) = body else {
-                return nil
-            }
-            return writer
-        }
-        set {
-            switch newValue {
-            case .none: self.body = .none
-            case .some(let writer): self.body = .output(writer)
-            }
-        }
-    }
-}
+extension Request: BodyInpuStream { }
 
 // MARK: Convenience
-
-extension Request {
-    public var string: String? {
-        get {
-            guard let bytes = bytes else {
-                return nil
-            }
-            return String(bytes: bytes, encoding: .utf8)
-        }
-    }
-
-    public var bytes: [UInt8]? {
-        get {
-            switch body {
-            case .bytes(let bytes): return bytes
-            case .input(_):
-                guard let bytes = try? readBytes() else {
-                    return nil
-                }
-                return bytes
-            default: return nil
-            }
-        }
-        set {
-            switch newValue {
-            case .none:
-                self.body = .none
-            case .some(let bytes):
-                self.body = .bytes(bytes)
-                self.contentLength = bytes.count
-            }
-        }
-    }
-
-    func readBytes() throws -> [UInt8] {
-        guard let reader = inputStream else {
-            throw ParseError.invalidRequest
-        }
-        do {
-            let bytes: [UInt8]
-            if let contentLength = contentLength {
-                let buffer = try reader.read(count: contentLength)
-                bytes = [UInt8](buffer)
-            } else if self.transferEncoding?.contains(.chunked) == true  {
-                let stream = ChunkedInputStream(baseStream: reader)
-                let buffer = try stream.read(
-                    while: {_ in true},
-                    allowingExhaustion: true)
-                bytes = [UInt8](buffer)
-            } else {
-                throw ParseError.invalidRequest
-            }
-            // cache
-            body = .bytes(bytes)
-            return bytes
-        } catch let error as StreamError where error == .insufficientData {
-            throw ParseError.unexpectedEnd
-        }
-    }
-}
 
 extension Request {
     public convenience init<T: Encodable>(
