@@ -1,4 +1,4 @@
-public enum MediaType {
+public enum MediaType: Equatable {
     case application(ApplicationSubtype)
     case audio(AudioSubtype)
     case image(ImageSubtype)
@@ -63,19 +63,4 @@ public enum VideoSubtype {
     case quicktime
     case webm
     case any
-}
-
-extension MediaType: Equatable {
-    public static func ==(lhs: MediaType, rhs: MediaType) -> Bool {
-        switch (lhs, rhs) {
-        case let (.application(lhs), .application(rhs)): return lhs == rhs
-        case let (.audio(lhs), .audio(rhs)): return lhs == rhs
-        case let (.image(lhs), .image(rhs)): return lhs == rhs
-        case let (.multipart(lhs), .multipart(rhs)): return lhs == rhs
-        case let (.text(lhs), .text(rhs)): return lhs == rhs
-        case let (.video(lhs), .video(rhs)): return lhs == rhs
-        case (.any, .any): return true
-        default: return false
-        }
-    }
 }

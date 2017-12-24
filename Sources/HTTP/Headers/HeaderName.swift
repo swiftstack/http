@@ -32,8 +32,13 @@ public struct HeaderName: Hashable {
         self.bytes = bytes
         self.hashValue = bytes.lowercasedHashValue
     }
+
     public init(_ value: String) {
         self.init([UInt8](value.utf8))
+    }
+
+    public static func ==(lhs: HeaderName, rhs: HeaderName) -> Bool {
+        return lhs.hashValue == rhs.hashValue
     }
 }
 
@@ -53,8 +58,4 @@ extension HeaderName: ExpressibleByStringLiteral {
     public init(unicodeScalarLiteral value: String) {
         self.init(value)
     }
-}
-
-public func == (lhs: HeaderName, rhs: HeaderName) -> Bool {
-    return lhs.hashValue == rhs.hashValue
 }

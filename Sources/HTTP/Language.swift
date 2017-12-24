@@ -1,4 +1,4 @@
-public enum Language {
+public enum Language: Equatable {
     case af
     case afZA
     case ar

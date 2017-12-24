@@ -3,7 +3,7 @@ import struct Foundation.TimeZone
 import class Foundation.DateFormatter
 
 extension Response {
-    public struct SetCookie {
+    public struct SetCookie: Equatable {
         public var cookie: Cookie
         public var domain: String? = nil
         public var path: String? = nil
@@ -29,19 +29,6 @@ extension Response {
             self.secure = secure
             self.httpOnly = httpOnly
         }
-    }
-}
-
-extension Response.SetCookie: Equatable {
-    public typealias SetCookie = Response.SetCookie
-    public static func ==(lhs: SetCookie, rhs: SetCookie) -> Bool {
-        return lhs.cookie == rhs.cookie &&
-            lhs.domain == rhs.domain &&
-            lhs.path == rhs.path &&
-            lhs.expires == rhs.expires &&
-            lhs.maxAge == rhs.maxAge &&
-            lhs.secure == rhs.secure &&
-            lhs.httpOnly == rhs.httpOnly
     }
 }
 

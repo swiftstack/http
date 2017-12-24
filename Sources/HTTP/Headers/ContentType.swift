@@ -1,17 +1,7 @@
-public struct ContentType {
+public struct ContentType: Equatable {
     public var mediaType: MediaType
     public var charset: Charset?
     public var boundary: Boundary?
-}
-
-extension ContentType {
-    public static let html = ContentType(mediaType: .text(.html))
-    public static let text = ContentType(mediaType: .text(.plain))
-    public static let json = ContentType(mediaType: .application(.json))
-    public static let xml = ContentType(mediaType: .application(.xml))
-    public static let formURLEncoded = ContentType(
-        mediaType: .application(.formURLEncoded))
-    public static let stream = ContentType(mediaType: .application(.stream))
 }
 
 extension ContentType {
@@ -31,15 +21,7 @@ extension ContentType {
     }
 }
 
-extension ContentType: Equatable {
-    public static func == (lhs: ContentType, rhs: ContentType) -> Bool {
-        return lhs.mediaType == rhs.mediaType
-            && lhs.charset == rhs.charset
-            && lhs.boundary == rhs.boundary
-    }
-}
-
-public struct Boundary {
+public struct Boundary: Equatable {
     public let bytes: [UInt8]
 
     public init(_ bytes: [UInt8]) throws {
@@ -54,8 +36,14 @@ public struct Boundary {
     }
 }
 
-extension Boundary: Equatable {
-    public static func == (lhs: Boundary, rhs: Boundary) -> Bool {
-        return lhs.bytes == rhs.bytes
-    }
+// MARK: Convenience
+
+extension ContentType {
+    public static let html = ContentType(mediaType: .text(.html))
+    public static let text = ContentType(mediaType: .text(.plain))
+    public static let json = ContentType(mediaType: .application(.json))
+    public static let xml = ContentType(mediaType: .application(.xml))
+    public static let formURLEncoded = ContentType(
+        mediaType: .application(.formURLEncoded))
+    public static let stream = ContentType(mediaType: .application(.stream))
 }

@@ -1,24 +1,11 @@
 import Stream
 
-public enum Charset {
+public enum Charset: Equatable {
     case utf8
     case ascii
     case isoLatin1
     case any
     case custom(String)
-}
-
-extension Charset: Equatable {
-    public static func ==(lhs: Charset, rhs: Charset) -> Bool {
-        switch (lhs, rhs) {
-        case (.utf8, .utf8): return true
-        case (.ascii, .ascii): return true
-        case (.isoLatin1, .isoLatin1): return true
-        case (.any, .any): return true
-        case let (.custom(lhs), .custom(rhs)): return lhs == rhs
-        default: return false
-        }
-    }
 }
 
 extension Charset {
