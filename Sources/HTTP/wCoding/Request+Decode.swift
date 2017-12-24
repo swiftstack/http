@@ -116,6 +116,7 @@ extension Request {
                     throw ParseError.invalidRequest
                 }
                 guard size > 0 else {
+                    try readLineEnd()
                     break
                 }
 

@@ -25,7 +25,7 @@ class RequestDecodeBodyTests: TestCase {
                 "Transfer-Encoding: chunked\r\n" +
                 "\r\n" +
                 "5\r\nHello\r\n" +
-                "0\r\n")
+                "0\r\n\r\n")
             let request = try Request(from: stream)
             assertEqual(request.body, "Hello")
         } catch {
@@ -39,7 +39,7 @@ class RequestDecodeBodyTests: TestCase {
             "Transfer-Encoding: chunked\r\n" +
             "\r\n" +
             "5\rHello\r\n" +
-            "0\r\n")
+            "0\r\n\r\n")
         assertThrowsError(try Request(from: stream)) { error in
             assertEqual(error as? ParseError, .invalidRequest)
         }
@@ -51,9 +51,21 @@ class RequestDecodeBodyTests: TestCase {
             "Transfer-Encoding: chunked\r\n" +
             "\r\n" +
             "5 Hello\r\n" +
-            "0\r\n")
+            "0\r\n\r\n")
         assertThrowsError(try Request(from: stream)) { error in
             assertEqual(error as? ParseError, .invalidRequest)
+        }
+    }
+
+    func testChunkedMissingLineEnd() {
+        let stream = InputByteStream(
+            "GET / HTTP/1.1\r\n" +
+            "Transfer-Encoding: chunked\r\n" +
+            "\r\n" +
+            "5\r\nHello\r\n" +
+            "0\r\n")
+        assertThrowsError(try Request(from: stream)) { error in
+            assertEqual(error as? ParseError, .unexpectedEnd)
         }
     }
 

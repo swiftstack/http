@@ -502,7 +502,7 @@ class RequestDecodeTests: TestCase {
                 "GET / HTTP/1.1\r\n" +
                 "Transfer-Encoding: chunked\r\n" +
                 "\r\n" +
-                "0\r\n")
+                "0\r\n\r\n")
             let request = try Request(from: stream)
             assertEqual(request.transferEncoding, [.chunked])
         } catch {
