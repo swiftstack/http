@@ -78,6 +78,8 @@ extension Request {
                     self.transferEncoding = try [TransferEncoding](from: stream)
                 case .cookie:
                     self.cookies.append(contentsOf: try [Cookie](from: stream))
+                case .expect:
+                    self.expect = try Expect(from: stream)
                 default:
                     // FIXME: validate
                     let bytes = try stream.read(until: .cr)

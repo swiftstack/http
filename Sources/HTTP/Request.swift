@@ -27,6 +27,8 @@ public final class Request {
 
     public var cookies: [Cookie] = []
 
+    public var expect: Expect? = nil
+
     internal var body: Body = .none
 
     public init(method: Method = .get, url: URL = URL(path: "/")) {

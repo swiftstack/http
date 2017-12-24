@@ -58,6 +58,11 @@ public class Server {
 
             while true {
                 let request = try Request(from: inputStream)
+                if request.expect == .continue {
+                    let `continue` = Response(status: .continue)
+                    try `continue`.encode(to: outputStream)
+                    try outputStream.flush()
+                }
                 let response = router.handleRequest(request)
                 try response.encode(to: outputStream)
                 try outputStream.flush()
