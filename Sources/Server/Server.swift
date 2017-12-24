@@ -32,19 +32,17 @@ public class Server {
         try? socket.close()
     }
 
-    public func start() throws {
+    public func start() throws -> Never {
         try socket.listen()
         log(event: .info, message: "\(self) started")
-        async.task {
-            while true {
-                do {
-                    let client = try self.socket.accept()
-                    async.task { [unowned self] in
-                        self.handleClient(client)
-                    }
-                } catch {
-                    self.handleError(error)
+        while true {
+            do {
+                let client = try self.socket.accept()
+                async.task { [unowned self] in
+                    self.handleClient(client)
                 }
+            } catch {
+                self.handleError(error)
             }
         }
     }
