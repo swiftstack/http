@@ -97,8 +97,11 @@ extension Request {
         try stream.write(Constants.lineEnd)
 
         // Body
-        if let rawBody = rawBody {
-            try stream.write(rawBody)
+        switch body {
+        case .bytes(let bytes): try stream.write(bytes)
+        // TODO:
+        // case .output(let writer): try writer(stream)
+        default: break
         }
     }
 }

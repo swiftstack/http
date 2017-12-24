@@ -179,9 +179,11 @@ public struct Router {
             let values = request.url.query?.values ?? [:]
             return try KeyValueDecoder().decode(type, from: values)
 
-        case _ where request.rawBody != nil && request.contentType != nil:
-            let body = request.rawBody!
-            let contentType = request.contentType!
+        default:
+            guard let body = request.bytes,
+                let contentType = request.contentType else {
+                    throw Error.invalidRequest
+            }
 
             switch contentType.mediaType {
             case .application(.json):
@@ -194,9 +196,6 @@ public struct Router {
             default:
                 throw Error.invalidContentType
             }
-
-        default:
-            throw Error.invalidRequest
         }
     }
 

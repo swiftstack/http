@@ -3,7 +3,8 @@ import Network
 
 extension Request {
     @_specialize(exported: true, where T == BufferedInputStream<NetworkStream>)
-    public init<T: UnsafeStreamReader>(from stream: T) throws {
+    public convenience init<T: UnsafeStreamReader>(from stream: T) throws {
+        self.init()
         do {
             self.method = try Request.Method(from: stream)
             guard try stream.consume(.whitespace) else {
@@ -89,48 +90,8 @@ extension Request {
 
             // Body
 
-            // 1. content-lenght
-            if let length = self.contentLength {
-                guard length > 0 else {
-                    self.rawBody = nil
-                    return
-                }
-                self.rawBody = [UInt8](try stream.read(count: length))
-                return
-            }
+            self.body = .input(stream)
 
-            // 2. chunked
-            guard let transferEncoding = self.transferEncoding,
-                transferEncoding.contains(.chunked) else {
-                    return
-            }
-
-            var body = [UInt8]()
-
-            while true {
-                let sizeBytes = try stream.read(until: .cr)
-                try readLineEnd()
-
-                // TODO: optimize using hex table
-                guard let size = Int(from: sizeBytes, radix: 16) else {
-                    throw ParseError.invalidRequest
-                }
-                guard size > 0 else {
-                    try readLineEnd()
-                    break
-                }
-
-                body.append(contentsOf: try stream.read(count: size))
-                try readLineEnd()
-            }
-
-            self.rawBody = body
-
-            // http request can have trailing \r\n
-            // but we should avoid extra syscall
-            if stream.buffered >= 2 {
-                _ = try? stream.consume(sequence: Constants.lineEnd)
-            }
         } catch let error as StreamError where error == .insufficientData {
             throw ParseError.unexpectedEnd
         }
