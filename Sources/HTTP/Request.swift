@@ -51,7 +51,7 @@ extension Request {
         self.method = method
         self.url = url
         self.version = .oneOne
-        self.host = host
+        self.host = url.host
 
         if method == .post || method == .put, let query = url.query {
             let bytes = query.encode()
