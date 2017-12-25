@@ -7,52 +7,51 @@ import Stream
 @_exported import HTTP
 
 public class Server {
-    let socket: Socket
-    let host: URL.Host
+    public var bufferSize: Int
 
-    public var bufferSize = 4096
+    let networkServer: Network.Server?
 
     @_versioned
     var router = Router()
 
-    public init(host: String, port: Int) throws {
-        let socket = try Socket()
-        try socket.bind(to: host, port: port)
-        self.socket = socket
-        self.host = URL.Host(address: host, port: port)
+    init(bufferSize: Int = 4096) {
+        self.networkServer = nil
+        self.bufferSize = bufferSize
     }
 
-    convenience
-    public init(host: String, reusePort: Int) throws {
-        try self.init(host: host, port: reusePort)
-        try socket.options.set(.reusePort, true)
+    public init(host: String, port: Int, bufferSize: Int = 4096) throws {
+        self.bufferSize = bufferSize
+        self.networkServer = try Network.Server(host: host, port: port)
+        self.networkServer!.onClient = onClient
     }
 
-    deinit {
-        try? socket.close()
+    public init(host: String, reusePort: Int, bufferSize: Int = 4096) throws {
+        self.bufferSize = bufferSize
+        self.networkServer = try Network.Server(host: host, reusePort: reusePort)
+        self.networkServer!.onClient = onClient
+    }
+
+    public var address: String {
+        guard let networkServer = networkServer else {
+            return "unknowns"
+        }
+        return "http://\(networkServer.address)"
     }
 
     public func start() throws {
-        try socket.listen()
-        log(event: .info, message: "\(self) started")
-        while true {
-            do {
-                let client = try self.socket.accept()
-                async.task { [unowned self] in
-                    self.handleClient(socket: client)
-                }
-            } catch {
-                self.handleError(error)
-            }
+        guard let networkServer = networkServer else {
+            fatalError("networkServer is nil")
         }
+        Log.info("server at \(address) started")
+        try networkServer.start()
     }
 
-    func handleClient(socket: Socket) {
+    func onClient(socket: Socket) {
         let stream = NetworkStream(socket: socket)
-        handleClient(stream: stream)
+        process(stream: stream)
     }
 
-    func handleClient<T: Stream>(stream: T) {
+    func process<T: Stream>(stream: T) {
         do {
             let inputStream = BufferedInputStream(
                 baseStream: stream, capacity: bufferSize)
@@ -75,18 +74,12 @@ public class Server {
             }
         } catch let error as ParseError where error == .unexpectedEnd {
             /* connection closed */
+        } catch let error as SocketError where error.number == ECONNRESET {
+            /* connection closed */
         } catch let error as NetworkStream.Error where error == .closed {
             /* connection closed */
         } catch {
-            handleError(error)
-        }
-    }
-
-    func handleError (_ error: Error) {
-        if let error = error as? SocketError, error.number == ECONNRESET {
-            /* connection reset by peer */
-            /* do nothing, it's fine. */
-        } else {
+            /* log other errors */
             log(event: .error, message: String(describing: error))
         }
     }
