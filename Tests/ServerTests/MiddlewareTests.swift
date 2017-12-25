@@ -1,6 +1,5 @@
 import Test
 import Stream
-import Foundation
 
 @testable import HTTP
 
@@ -99,16 +98,16 @@ class MiddlewareTests: TestCase {
 
         let response = String(decoding: outputStream.bytes, as: UTF8.self)
 
-        let lines = response.components(separatedBy: "\r\n")
+        let lines = response.split(separator: "\r\n")
 
         let firstMiddleware = lines.first(where: {
-            return $0.hasPrefix("FirstMiddleware")
+            return $0.starts(with: "FirstMiddleware")
         })
         let secondMiddleware = lines.first(where: {
-            return $0.hasPrefix("SecondMiddleware")
+            return $0.starts(with: "SecondMiddleware")
         })
         let middleware = lines.first(where: {
-            return $0.hasPrefix("Middleware")
+            return $0.starts(with: "Middleware")
         })
 
         assertEqual(firstMiddleware, "FirstMiddleware: true")
