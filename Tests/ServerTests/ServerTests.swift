@@ -1,15 +1,9 @@
 import Test
 import Stream
-import Dispatch
-import AsyncDispatch
 
 @testable import HTTP
 
 class ServerTests: TestCase {
-    override func setUp() {
-        AsyncDispatch().registerGlobal()
-    }
-
     func testServer() {
         let server = Server()
 
