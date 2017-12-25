@@ -32,7 +32,7 @@ public class Server {
         try? socket.close()
     }
 
-    public func start() throws -> Never {
+    public func start() throws {
         try socket.listen()
         log(event: .info, message: "\(self) started")
         while true {
