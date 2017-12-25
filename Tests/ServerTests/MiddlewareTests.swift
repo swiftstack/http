@@ -4,7 +4,7 @@ import Dispatch
 import Foundation
 import AsyncDispatch
 
-@testable import Server
+@testable import HTTP
 
 class MiddlewareTests: TestCase {
     override func setUp() {
@@ -29,7 +29,7 @@ class MiddlewareTests: TestCase {
 
         async.task {
             do {
-                let server = try Server(host: "127.0.0.1", port: 4201)
+                let server = try HTTP.Server(host: "127.0.0.1", port: 4201)
 
                 server.route(
                     get: "/middleware",
@@ -105,8 +105,7 @@ class MiddlewareTests: TestCase {
 
         async.task {
             do {
-                let server =
-                    try Server(host: "127.0.0.1", port: 4202)
+                let server = try HTTP.Server(host: "127.0.0.1", port: 4202)
 
                 server.route(
                     get: "/middleware",

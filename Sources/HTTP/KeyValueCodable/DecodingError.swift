@@ -15,15 +15,3 @@ extension DecodingError.Context {
         return .description("incompatible with \(value) for \(key)")
     }
 }
-
-extension DecodingError.Context: ExpressibleByStringLiteral {
-    public init(stringLiteral value: String) {
-        self.init(codingPath: [], debugDescription: value)
-    }
-}
-
-extension DecodingError.Context: ExpressibleByNilLiteral {
-    public init(nilLiteral: ()) {
-        self.init(codingPath: [], debugDescription: "")
-    }
-}

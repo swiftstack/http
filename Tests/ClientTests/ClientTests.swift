@@ -1,10 +1,10 @@
 import Test
-import HTTP
 import Stream
 import Network
 import Dispatch
 import AsyncDispatch
-@testable import Client
+
+@testable import HTTP
 
 import struct Foundation.Data
 
@@ -22,12 +22,12 @@ class ClientTests: TestCase {
     }
 
     func testInitializer() {
-        let client = Client(host: "127.0.0.1", port: 80)
+        let client = HTTP.Client(host: "127.0.0.1", port: 80)
         assertEqual(client.host, URL.Host(address: "127.0.0.1", port: 80))
     }
 
     func testURLInitializer() {
-        guard let client = Client(url: "http://127.0.0.1") else {
+        guard let client = HTTP.Client(url: "http://127.0.0.1") else {
             fail()
             return
         }

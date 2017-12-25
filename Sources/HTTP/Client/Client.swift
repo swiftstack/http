@@ -8,8 +8,6 @@ import Compression
 // linker issue on macOS
 import struct Foundation.Date
 
-@_exported import HTTP
-
 public class Client {
     let host: URL.Host
     var stream: NetworkStream?

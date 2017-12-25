@@ -134,12 +134,6 @@ extension RouteMatcher {
     }
 }
 
-extension UInt8 {
-    static let asterisk = UInt8(ascii: "*")
-    static let colon = UInt8(ascii: ":")
-    static let slash = UInt8(ascii: "/")
-}
-
 extension Int {
     static let asterisk = Int(UInt8.asterisk)
     static let colon = Int(UInt8.colon)

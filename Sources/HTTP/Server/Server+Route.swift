@@ -1,4 +1,3 @@
-import HTTP
 import JSON
 
 // Convenience constructors
