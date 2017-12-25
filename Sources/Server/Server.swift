@@ -39,7 +39,7 @@ public class Server {
             do {
                 let client = try self.socket.accept()
                 async.task { [unowned self] in
-                    self.handleClient(client)
+                    self.handleClient(socket: client)
                 }
             } catch {
                 self.handleError(error)
@@ -47,10 +47,13 @@ public class Server {
         }
     }
 
-    func handleClient(_ client: Socket) {
-        do {
-            let stream = NetworkStream(socket: client)
+    func handleClient(socket: Socket) {
+        let stream = NetworkStream(socket: socket)
+        handleClient(stream: stream)
+    }
 
+    func handleClient<T: Stream>(stream: T) {
+        do {
             let inputStream = BufferedInputStream(
                 baseStream: stream, capacity: bufferSize)
             let outputStream = BufferedOutputStream(
