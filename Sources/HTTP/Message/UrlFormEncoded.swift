@@ -1,5 +1,3 @@
-import KeyValueCodable
-
 struct FormURLEncoded {
     static func encode<T: Encodable>(
         _ object: T

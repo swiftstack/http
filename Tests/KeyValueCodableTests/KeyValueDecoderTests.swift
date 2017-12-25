@@ -1,5 +1,5 @@
 import Test
-@testable import KeyValueCodable
+@testable import HTTP
 
 class KeyValueDecoderTests: TestCase {
     func testKeyedDecoder() {

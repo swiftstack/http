@@ -5,8 +5,6 @@ let package = Package(
     name: "HTTP",
     products: [
         .library(name: "HTTP", targets: ["HTTP"]),
-        .library(name: "Server", targets: ["Server"]),
-        .library(name: "Client", targets: ["Client"])
     ],
     dependencies: [
         .package(
@@ -33,30 +31,22 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "KeyValueCodable"),
-        .target(
             name: "HTTP",
-            dependencies: ["Stream", "JSON", "KeyValueCodable", "Network"]),
-        .target(
-            name: "Server",
-            dependencies: ["Log", "Async", "Network", "HTTP"]),
-        .target(
-            name: "Client",
-            dependencies: ["Log", "Async", "Network", "HTTP", "Compression"]),
+            dependencies: ["Log", "Network", "Stream", "JSON", "Compression"]),
         .testTarget(
-            name: "HTTPTests",
+            name: "MessageTests",
             dependencies: ["HTTP", "Test"]),
         .testTarget(
             name: "ServerTests",
-            dependencies: ["Server", "Test", "AsyncDispatch"]),
+            dependencies: ["HTTP", "Test", "AsyncDispatch"]),
         .testTarget(
             name: "ClientTests",
-            dependencies: ["Client", "Test", "AsyncDispatch"]),
+            dependencies: ["HTTP", "Test", "AsyncDispatch"]),
         .testTarget(
             name: "FunctionalTests",
-            dependencies: ["Server", "Client", "Test", "AsyncDispatch"]),
+            dependencies: ["HTTP", "Test", "AsyncDispatch"]),
         .testTarget(
             name: "KeyValueCodableTests",
-            dependencies: ["KeyValueCodable", "Test"])
+            dependencies: ["HTTP", "Test"]),
     ]
 )

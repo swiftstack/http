@@ -3,7 +3,7 @@ import Stream
 import Dispatch
 import AsyncDispatch
 
-@testable import Server
+@testable import HTTP
 
 class ServerTests: TestCase {
     override func setUp() {
