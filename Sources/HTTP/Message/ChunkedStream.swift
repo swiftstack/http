@@ -1,6 +1,6 @@
 import Stream
 
-class ChunkedOutputStream: UnsafeStreamWriter {
+class ChunkedStreamWriter: UnsafeStreamWriter {
     let baseStream: UnsafeStreamWriter
 
     var buffered: Int {
@@ -11,19 +11,16 @@ class ChunkedOutputStream: UnsafeStreamWriter {
         self.baseStream = baseStream
     }
 
-    func write(_ bytes: UnsafeRawPointer, byteCount: Int) throws -> Int {
+    func write(_ bytes: UnsafeRawPointer, byteCount: Int) throws {
         try baseStream.write(String(byteCount, radix: 16))
         try baseStream.write(Constants.lineEnd)
-        var written = 0
-        while written < byteCount {
-            let count = try baseStream.write(bytes, byteCount: byteCount)
-            guard count > 0 else {
-                throw StreamError.insufficientData
-            }
-            written += count
-        }
+        try baseStream.write(bytes, byteCount: byteCount)
         try baseStream.write(Constants.lineEnd)
-        return byteCount
+    }
+
+    func write(_ byte: UInt8) throws {
+        var copy = byte
+        try write(&copy, byteCount: 1)
     }
 
     func close() throws {
@@ -31,7 +28,7 @@ class ChunkedOutputStream: UnsafeStreamWriter {
     }
 }
 
-class ChunkedInputStreamReader: InputStream {
+class ChunkedInputStream: InputStream {
     let baseStream: UnsafeStreamReader
 
     init(baseStream: UnsafeStreamReader) {
@@ -127,11 +124,11 @@ class ChunkedInputStreamReader: InputStream {
     }
 }
 
-class ChunkedInputStream: UnsafeStreamReader {
-    let baseStream: BufferedInputStream<ChunkedInputStreamReader>
+class ChunkedStreamReader: UnsafeStreamReader {
+    let baseStream: BufferedInputStream<ChunkedInputStream>
 
     init(baseStream: UnsafeStreamReader) {
-        let reader = ChunkedInputStreamReader(baseStream: baseStream)
+        let reader = ChunkedInputStream(baseStream: baseStream)
         self.baseStream = BufferedInputStream(baseStream: reader)
     }
 

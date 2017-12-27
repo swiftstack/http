@@ -15,8 +15,6 @@ extension Body: Equatable {
         default: return false
         }
     }
-
-
 }
 
 public protocol BodyInpuStream: class {
@@ -105,11 +103,8 @@ extension BodyInpuStream {
                 }
                 bytes = [UInt8](buffer)
             } else if self.transferEncoding?.contains(.chunked) == true  {
-                let stream = ChunkedInputStream(baseStream: reader)
-                let buffer = try stream.read(
-                    while: {_ in true},
-                    allowingExhaustion: true)
-                bytes = [UInt8](buffer)
+                let reader = ChunkedStreamReader(baseStream: reader)
+                bytes = try reader.readBytes()
             } else {
                 throw ParseError.invalidRequest
             }
@@ -119,5 +114,12 @@ extension BodyInpuStream {
         } catch let error as StreamError where error == .insufficientData {
             throw ParseError.unexpectedEnd
         }
+    }
+}
+
+fileprivate extension ChunkedStreamReader {
+    func readBytes() throws -> [UInt8] {
+        let buffer = try read(while: {_ in true}, allowingExhaustion: true)
+        return [UInt8](buffer)
     }
 }
