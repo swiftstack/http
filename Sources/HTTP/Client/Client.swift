@@ -9,15 +9,16 @@ import Compression
 import struct Foundation.Date
 
 public class Client {
-    let host: URL.Host
-    var stream: NetworkStream?
-    var inputStream: BufferedInputStream<NetworkStream>?
-    var outputStream: BufferedOutputStream<NetworkStream>?
-
     public var bufferSize = 4096
+    var networkClient: Network.Client
+    var stream: BufferedStream<NetworkStream>?
 
     public var isConnected: Bool {
-        return stream != nil
+        return networkClient.isConnected
+    }
+
+    var host: URL.Host {
+        return URL.Host(address: networkClient.host, port: networkClient.port)
     }
 
     public enum Compression {
@@ -29,65 +30,73 @@ public class Client {
     public var compression: [Compression] = [.gzip, .deflate]
     public var userAgent: String? = "swift-stack/http"
 
-    public init?(url: URL) {
+    public init(host: String, port: Int? = nil) {
+        let port = port ?? 80
+        self.networkClient = Network.Client(host: host, port: port)
+    }
+
+    public convenience init?(url: URL) {
         guard let host = url.host else {
             return nil
         }
-        self.host = host
-    }
-
-    public init(host: String, port: Int) {
-        self.host = URL.Host(address: host, port: port)
+        self.init(host: host.address, port: host.port)
     }
 
     public func connect() throws {
-        if isConnected {
-            disconnect()
+        guard !isConnected else {
+            return
         }
-
-        let port = host.port ?? 80
-        let socket = try Socket()
-        try socket.connect(to: host.address, port: port)
-
-        self.stream = NetworkStream(socket: socket)
-        self.inputStream = BufferedInputStream(
-            baseStream: stream!, capacity: bufferSize)
-        self.outputStream = BufferedOutputStream(
-            baseStream: stream!, capacity: bufferSize)
+        let socket = try networkClient.connect()
+        let baseStream = NetworkStream(socket: socket)
+        self.stream = BufferedStream(
+            baseStream: baseStream,
+            capacity: bufferSize)
     }
 
-    public func disconnect() {
+    public func disconnect() throws {
         self.stream = nil
-        self.inputStream = nil
-        self.outputStream = nil
+        try networkClient.disconnect()
     }
 
     public func makeRequest(_ request: Request) throws -> Response {
         if !isConnected {
             try connect()
         }
-
-        var request = request
-        updateHeaders(&request)
-
-        var response: Response
         do {
-            try request.encode(to: outputStream!)
-            try outputStream!.flush()
-            response = try Response(from: inputStream!)
+            return try makeRequest(
+                request,
+                stream!.inputStream,
+                stream!.outputStream)
         } catch {
-            disconnect()
+            try? disconnect()
             throw error
         }
+    }
+
+    func makeRequest<I: InputStream, O: OutputStream>(
+        _ request: Request,
+        _ inputStream: BufferedInputStream<I>,
+        _ outputStream: BufferedOutputStream<O>
+    ) throws -> Response {
+        var request = request
+        updateHeaders(&request)
+        try request.encode(to: outputStream)
+        try outputStream.flush()
+
+        var response = try Response(from: inputStream)
         try decode(&response)
         return response
     }
 
     private func updateHeaders(_ request: inout Request) {
-        request.host = host
-        if request.userAgent == nil, let userAgent = self.userAgent {
-            request.userAgent = userAgent
+        request.host = URL.Host(
+            address: networkClient.host,
+            port: networkClient.port)
+
+        if request.userAgent == nil && self.userAgent != nil {
+            request.userAgent = self.userAgent
         }
+
         updateAcceptEncoding(&request)
     }
 

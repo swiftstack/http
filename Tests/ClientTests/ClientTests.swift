@@ -16,6 +16,18 @@ extension Response {
     }
 }
 
+extension OutputByteStream {
+    var string: String {
+        return String(decoding: bytes, as: UTF8.self)
+    }
+}
+
+extension InputByteStream {
+    convenience init(_ string: String) {
+        self.init(ASCII(string))
+    }
+}
+
 class ClientTests: TestCase {
     override func setUp() {
         AsyncDispatch().registerGlobal()
@@ -31,132 +43,101 @@ class ClientTests: TestCase {
             fail()
             return
         }
-        assertEqual(client.host, URL.Host(address: "127.0.0.1", port: nil))
+        assertEqual(client.host, URL.Host(address: "127.0.0.1", port: 80))
     }
 
     func testRequest() {
-        let semaphore = DispatchSemaphore(value: 0)
+        do {
+            let requestString = "GET / HTTP/1.1\r\n" +
+                "Host: 127.0.0.1:8080\r\n" +
+                "User-Agent: swift-stack/http\r\n" +
+                "Accept-Encoding: gzip, deflate\r\n" +
+                "\r\n"
 
-        async.task {
-            do {
-                let expected = "GET / HTTP/1.1\r\n" +
-                    "Host: 127.0.0.1:5001\r\n" +
-                    "User-Agent: swift-stack/http\r\n" +
-                    "Accept-Encoding: gzip, deflate\r\n" +
-                    "\r\n"
+            let inputStream = InputByteStream("HTTP/1.1 200 OK\r\n\r\n")
+            let input = BufferedInputStream(baseStream: inputStream)
 
-                let responseBytes = [UInt8]("HTTP/1.1 200 OK\r\n\r\n".utf8)
+            let outputStream = OutputByteStream()
+            let output = BufferedOutputStream(baseStream: outputStream)
 
-                let socket = try Socket()
-                    .bind(to: "127.0.0.1", port: 5001)
-                    .listen()
+            let client = HTTP.Client(host: "127.0.0.1", port: 8080)
+            let request = Request()
 
-                semaphore.signal()
-
-                let client = try socket.accept()
-                var buffer = [UInt8](repeating: 0, count: 1024)
-                let count = try client.receive(to: &buffer)
-                _ = try client.send(bytes: responseBytes)
-
-                let request = String(decoding: buffer[..<count], as: UTF8.self)
-                assertEqual(request, expected)
-            } catch {
-                fail(String(describing: error))
-            }
-            async.loop.terminate()
+            let response = try client.makeRequest(request, input, output)
+            assertEqual(outputStream.string, requestString)
+            assertEqual(response.status, .ok)
+        } catch {
+            fail(String(describing: error))
         }
-
-        semaphore.wait()
-
-        async.task {
-            do {
-                let request = Request()
-
-                let client = Client(host: "127.0.0.1", port: 5001)
-                try client.connect()
-                let response = try client.makeRequest(request)
-
-                assertEqual(response.status, .ok)
-                assertNil(response.string)
-
-            } catch {
-                fail(String(describing: error))
-            }
-            async.loop.terminate()
-        }
-
-        async.loop.run()
     }
 
-    func testGZipDeflate() {
-        let gzipBase64 = "H4sIAAAAAAAAE/NIzcnJ11EIzy/KSVEEANDDSuwNAAAA"
-        let deflateBase64 = "80jNycnXUQjPL8pJUQQA"
+    func testDeflate() {
+        do {
+            let requestString = "GET / HTTP/1.1\r\n" +
+                "Host: 127.0.0.1:8080\r\n" +
+                "User-Agent: swift-stack/http\r\n" +
+                "Accept-Encoding: gzip, deflate\r\n" +
+                "\r\n"
 
-        let gzipBody = [UInt8](Data(base64Encoded: gzipBase64)!)
-        let deflateBody = [UInt8](Data(base64Encoded: deflateBase64)!)
+            let deflateBase64 = "80jNycnXUQjPL8pJUQQA"
+            let deflateBody = [UInt8](Data(base64Encoded: deflateBase64)!)
+            let responseBytes = ASCII(
+                "HTTP/1.1 200 OK\r\n" +
+                "Content-Length: \(deflateBody.count)\r\n" +
+                "Content-Encoding: Deflate\r\n" +
+                "\r\n") + deflateBody
 
-        let semaphore = DispatchSemaphore(value: 0)
+            let inputStream = InputByteStream(responseBytes)
+            let input = BufferedInputStream(baseStream: inputStream)
 
-        async.task {
-            do {
-                let socket = try Socket()
-                    .bind(to: "127.0.0.1", port: 5002)
-                    .listen()
+            let outputStream = OutputByteStream()
+            let output = BufferedOutputStream(baseStream: outputStream)
 
-                semaphore.signal()
+            let client = HTTP.Client(host: "127.0.0.1", port: 8080)
+            let request = Request()
 
-                let client = try socket.accept()
-
-                // Client Headers
-
-                var buffer = [UInt8](repeating: 0, count: 1024)
-                let count = try client.receive(to: &buffer)
-                let received = [UInt8](buffer[..<count])
-                let request = try Request(from: InputByteStream(received))
-                assertEqual(request.acceptEncoding, [.gzip, .deflate])
-
-                // GZip
-
-                let response = Response(status: .ok)
-                response.contentType = ContentType(mediaType: .text(.plain))
-                response.contentEncoding = [.gzip]
-                response.bytes = gzipBody
-                _ = try client.send(bytes: response.encode())
-
-                // Deflate
-
-                response.contentEncoding = [.deflate]
-                response.bytes = deflateBody
-                _ = try client.send(bytes: response.encode())
-
-            } catch {
-                fail(String(describing: error))
-            }
-            async.loop.terminate()
+            let response = try client.makeRequest(request, input, output)
+            assertEqual(outputStream.string, requestString)
+            assertEqual(response.status, .ok)
+            assertEqual(response.contentEncoding, [.deflate])
+            assertEqual(response.string, "Hello, World!")
+        } catch {
+            fail(String(describing: error))
         }
+    }
 
-        semaphore.wait()
+    func testGZip() {
+        do {
+            let requestString = "GET / HTTP/1.1\r\n" +
+                "Host: 127.0.0.1:8080\r\n" +
+                "User-Agent: swift-stack/http\r\n" +
+                "Accept-Encoding: gzip, deflate\r\n" +
+                "\r\n"
 
-        async.task {
-            do {
-                let request = Request()
+            let gzipBase64 = "H4sIAAAAAAAAE/NIzcnJ11EIzy/KSVEEANDDSuwNAAAA"
+            let gzipBody = [UInt8](Data(base64Encoded: gzipBase64)!)
+            let responseBytes = ASCII(
+                "HTTP/1.1 200 OK\r\n" +
+                "Content-Length: \(gzipBody.count)\r\n" +
+                "Content-Encoding: gzip\r\n" +
+                "\r\n") + gzipBody
 
-                let client = Client(host: "127.0.0.1", port: 5002)
-                try client.connect()
+            let inputStream = InputByteStream(responseBytes)
+            let input = BufferedInputStream(baseStream: inputStream)
 
-                var response = try client.makeRequest(request)
-                assertEqual(response.contentEncoding, [.gzip])
-                assertEqual(response.string, "Hello, World!")
+            let outputStream = OutputByteStream()
+            let output = BufferedOutputStream(baseStream: outputStream)
 
-                response = try client.makeRequest(request)
-                assertEqual(response.contentEncoding, [.deflate])
-                assertEqual(response.string, "Hello, World!")
-            } catch {
-                fail(String(describing: error))
-            }
-            async.loop.terminate()
+            let client = HTTP.Client(host: "127.0.0.1", port: 8080)
+            let request = Request()
+
+            let response = try client.makeRequest(request, input, output)
+            assertEqual(outputStream.string, requestString)
+            assertEqual(response.status, .ok)
+            assertEqual(response.contentEncoding, [.gzip])
+            assertEqual(response.string, "Hello, World!")
+        } catch {
+            fail(String(describing: error))
         }
-
-        async.loop.run()
     }
 }

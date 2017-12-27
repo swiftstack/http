@@ -22,8 +22,6 @@ extension UnsafeStreamWriter {
 
     @inline(__always)
     func write(_ bytes: [UInt8]) throws {
-        guard try write(bytes, byteCount: bytes.count) == bytes.count else {
-            throw StreamError.notEnoughSpace
-        }
+        try write(bytes, byteCount: bytes.count)
     }
 }
