@@ -24,6 +24,9 @@ extension UInt8 {
     static let seven = UInt8(ascii: "7")
     static let eight = UInt8(ascii: "8")
     static let nine = UInt8(ascii: "9")
+
+    static let a = UInt8(ascii: "a")
+    static let f = UInt8(ascii: "f")
 }
 
 struct Constants {

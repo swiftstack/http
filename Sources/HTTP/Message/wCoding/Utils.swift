@@ -24,13 +24,9 @@ extension Array where Element == UInt8 {
 extension Int {
     init?<T: RandomAccessCollection>(from bytes: T, radix: Int)
         where T.Element == UInt8, T.Index == Int {
-        let zero = 48
-        let nine = 57
-        let a = 97
-        let f = 102
         for byte in bytes {
-            guard (byte >= zero && byte <= nine)
-            || (byte | 0x20) >= a && (byte | 0x20) <= f else {
+            guard (byte >= .zero && byte <= .nine)
+            || (byte | 0x20) >= .a && (byte | 0x20) <= .f else {
                 return nil
             }
         }
