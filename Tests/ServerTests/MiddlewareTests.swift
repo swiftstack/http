@@ -18,7 +18,10 @@ class MiddlewareTests: TestCase {
             }
         }
 
-        let server = HTTP.Server()
+        guard let server = try? Server(host: "127.0.0.1", port: 4200) else {
+            fail()
+            return
+        }
 
         server.route(
             get: "/middleware",
@@ -76,7 +79,10 @@ class MiddlewareTests: TestCase {
             }
         }
 
-        let server = HTTP.Server()
+        guard let server = try? Server(host: "127.0.0.1", port: 4201) else {
+            fail()
+            return
+        }
 
         server.route(
             get: "/middleware",

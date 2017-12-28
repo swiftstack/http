@@ -5,7 +5,10 @@ import Stream
 
 class ServerTests: TestCase {
     func testServer() {
-        let server = Server()
+        guard let server = try? Server(host: "127.0.0.1", port: 4001) else {
+            fail()
+            return
+        }
 
         server.route(get: "/test") {
             return Response(status: .ok)
@@ -27,7 +30,10 @@ class ServerTests: TestCase {
     }
 
     func testExpect() {
-        let server = Server()
+        guard let server = try? Server(host: "127.0.0.1", port: 4002) else {
+            fail()
+            return
+        }
 
         struct User: Decodable {
             let name: String
