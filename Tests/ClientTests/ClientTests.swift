@@ -1,20 +1,10 @@
 import Test
 import Stream
 import Network
-import Dispatch
-import AsyncDispatch
 
 @testable import HTTP
 
 import struct Foundation.Data
-
-extension Response {
-    func encode() throws -> [UInt8] {
-        let stream = OutputByteStream()
-        try self.encode(to: stream)
-        return stream.bytes
-    }
-}
 
 extension OutputByteStream {
     var string: String {
@@ -29,10 +19,6 @@ extension InputByteStream {
 }
 
 class ClientTests: TestCase {
-    override func setUp() {
-        AsyncDispatch().registerGlobal()
-    }
-
     func testInitializer() {
         let client = HTTP.Client(host: "127.0.0.1", port: 80)
         assertEqual(client.host, URL.Host(address: "127.0.0.1", port: 80))
