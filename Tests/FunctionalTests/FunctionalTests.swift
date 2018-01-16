@@ -10,16 +10,16 @@ class FunctionalTests: TestCase {
 
     func setup(
         port: Int,
-        serverCode: @escaping (Server) throws -> Void,
+        serverCode: @escaping (inout Server) throws -> Void,
         clientCode: @escaping (Client) throws -> Void
     ) {
         let semaphore = DispatchSemaphore(value: 0)
 
         async.task {
             do {
-                let server = try Server(host: "127.0.0.1", port: port)
+                var server = try Server(host: "127.0.0.1", port: port)
 
-                try serverCode(server)
+                try serverCode(&server)
 
                 semaphore.signal()
                 try server.start()

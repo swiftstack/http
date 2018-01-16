@@ -5,7 +5,7 @@ import Stream
 
 class ServerTests: TestCase {
     func testServer() {
-        guard let server = try? Server(host: "127.0.0.1", port: 4001) else {
+        guard var server = try? Server(host: "127.0.0.1", port: 4001) else {
             fail()
             return
         }
@@ -30,7 +30,7 @@ class ServerTests: TestCase {
     }
 
     func testExpect() {
-        guard let server = try? Server(host: "127.0.0.1", port: 4002) else {
+        guard var server = try? Server(host: "127.0.0.1", port: 4002) else {
             fail()
             return
         }
