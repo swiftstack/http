@@ -4,8 +4,8 @@
 
 protocol RouterProtocol {
     mutating func registerRoute(
+        path: String,
         methods: Router.MethodSet,
-        url: String,
         middleware: [Middleware.Type],
         handler: @escaping RequestHandler
     )
@@ -17,8 +17,8 @@ extension RouterProtocol {
     // MARK: void -> response
     @_inlineable
     public mutating func route(
+        path: String,
         methods: Router.MethodSet,
-        url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping () throws -> Response
     ) {
@@ -26,8 +26,8 @@ extension RouterProtocol {
             return try handler()
         }
         registerRoute(
+            path: path,
             methods: methods,
-            url: url,
             middleware: middleware,
             handler: handler
         )
@@ -36,14 +36,14 @@ extension RouterProtocol {
     // MARK: request -> response
     @_inlineable
     public mutating func route(
+        path: String,
         methods: Router.MethodSet,
-        url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping (Request) throws -> Response
     ) {
         registerRoute(
+            path: path,
             methods: methods,
-            url: url,
             middleware: middleware,
             handler: handler
         )
@@ -54,12 +54,12 @@ extension RouterProtocol {
     // MARK: void -> encodable
     @_inlineable
     public mutating func route<Result: Encodable>(
+        path: String,
         methods: Router.MethodSet,
-        url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping () throws -> Result
     ) {
-        route(methods: methods, url: url) {
+        route(path: path, methods: methods) {
             let result = try handler()
             return try Coder.makeRespone(for: result)
         }
@@ -68,12 +68,12 @@ extension RouterProtocol {
     // MARK: request -> encodable
     @_inlineable
     public mutating func route<Result: Encodable>(
+        path: String,
         methods: Router.MethodSet,
-        url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping (Request) throws -> Result
     ) {
-        route(methods: methods, url: url) { request in
+        route(path: path, methods: methods) { request in
             let result = try handler(request)
             return try Coder.makeRespone(for: result)
         }
@@ -86,13 +86,13 @@ extension RouterProtocol {
     // MARK: model -> response
     @_inlineable
     public mutating func route<Model: Decodable>(
+        path: String,
         methods: Router.MethodSet,
-        url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping (Model) throws -> Response
     ) {
         let keyValueDecoder = KeyValueDecoder()
-        let urlMatcher = URLParamMatcher(url)
+        let urlMatcher = URLParamMatcher(path)
 
         let requestHandler: RequestHandler
 
@@ -110,8 +110,8 @@ extension RouterProtocol {
         }
 
         registerRoute(
+            path: path,
             methods: methods,
-            url: url,
             middleware: middleware,
             handler: requestHandler
         )
@@ -120,12 +120,12 @@ extension RouterProtocol {
     // MARK: model -> encodable
     @_inlineable
     public mutating func route<Model: Decodable, Result: Encodable>(
+        path: String,
         methods: Router.MethodSet,
-        url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping (Model) throws -> Result
     ) {
-        route(methods: methods, url: url) { (model: Model) throws -> Response in
+        route(path: path, methods: methods) { (model: Model) throws -> Response in
             let result = try handler(model)
             return try Coder.makeRespone(for: result)
         }
@@ -134,13 +134,13 @@ extension RouterProtocol {
     // MARK: rquest, model -> response
     @_inlineable
     public mutating func route<Model: Decodable>(
+        path: String,
         methods: Router.MethodSet,
-        url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping (Request, Model) throws -> Response
     ) {
         let keyValueDecoder = KeyValueDecoder()
-        let urlMatcher = URLParamMatcher(url)
+        let urlMatcher = URLParamMatcher(path)
 
         let requestHandler: RequestHandler
 
@@ -158,8 +158,8 @@ extension RouterProtocol {
         }
 
         registerRoute(
+            path: path,
             methods: methods,
-            url: url,
             middleware: middleware,
             handler: requestHandler
         )
@@ -168,12 +168,12 @@ extension RouterProtocol {
     // MARK: rquest, model -> encodable
     @_inlineable
     public mutating func route<Model: Decodable, Result: Encodable>(
+        path: String,
         methods: Router.MethodSet,
-        url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping (Request, Model) throws -> Result
     ) {
-        route(methods: methods, url: url)
+        route(path: path, methods: methods)
         { (request: Request, model: Model) throws -> Response in
             let result = try handler(request, model)
             return try Coder.makeRespone(for: result)
@@ -183,13 +183,13 @@ extension RouterProtocol {
     // MARK: url match, model -> result
     @_inlineable
     public mutating func route<URLMatch: Decodable, Model: Decodable>(
+        path: String,
         methods: Router.MethodSet,
-        url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping (URLMatch, Model) throws -> Response
     ) {
         let keyValueDecoder = KeyValueDecoder()
-        let urlMatcher = URLParamMatcher(url)
+        let urlMatcher = URLParamMatcher(path)
 
         guard urlMatcher.params.count > 0 else {
             fatalError("invalid url mask, more than 0 arguments were expected")
@@ -202,8 +202,8 @@ extension RouterProtocol {
             return try handler(match, model)
         }
         registerRoute(
+            path: path,
             methods: methods,
-            url: url,
             middleware: middleware,
             handler: requestHandler
         )
@@ -214,12 +214,12 @@ extension RouterProtocol {
     public mutating func route<
         URLMatch: Decodable, Model: Decodable, Result: Encodable
     >(
+        path: String,
         methods: Router.MethodSet,
-        url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping (URLMatch, Model) throws -> Result
     ) {
-        route(methods: methods, url: url)
+        route(path: path, methods: methods)
         { (match: URLMatch, model: Model) throws -> Response in
             let result = try handler(match, model)
             return try Coder.makeRespone(for: result)
@@ -229,13 +229,13 @@ extension RouterProtocol {
     // MARK: request, url match, model -> request
     @_inlineable
     public mutating func route<URLMatch: Decodable, Model: Decodable>(
+        path: String,
         methods: Router.MethodSet,
-        url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping (Request, URLMatch, Model) throws -> Response
     ) {
         let keyValueDecoder = KeyValueDecoder()
-        let urlMatcher = URLParamMatcher(url)
+        let urlMatcher = URLParamMatcher(path)
 
         guard urlMatcher.params.count > 0 else {
             fatalError("invalid url mask, more than 0 arguments was expected")
@@ -248,8 +248,8 @@ extension RouterProtocol {
             return try handler(request, match, model)
         }
         registerRoute(
+            path: path,
             methods: methods,
-            url: url,
             middleware: middleware,
             handler: handler
         )
@@ -261,12 +261,12 @@ extension RouterProtocol {
     <
         URLMatch: Decodable, Model: Decodable, Result: Encodable
     >(
+        path: String,
         methods: Router.MethodSet,
-        url: String,
         middleware: [Middleware.Type] = [],
         handler: @escaping (Request, URLMatch, Model) throws -> Result
     ) {
-        route(methods: methods, url: url)
+        route(path: path, methods: methods)
         { (request: Request, match: URLMatch, model: Model) throws -> Response
             in
             let result = try handler(request, match, model)

@@ -1,7 +1,7 @@
 public class Application: RouterProtocol {
     public struct Route {
+        public let path: String
         public let methods: Router.MethodSet
-        public let url: String
         public let middleware: [Middleware.Type]
         public let handler: RequestHandler
     }
@@ -17,14 +17,14 @@ public class Application: RouterProtocol {
     }
 
     public func registerRoute(
+        path: String,
         methods: Router.MethodSet,
-        url: String,
         middleware: [Middleware.Type],
         handler: @escaping RequestHandler
     ) {
         routes.append(Route(
+            path: self.basePath + path,
             methods: methods,
-            url: self.basePath + url,
             middleware: self.middleware + middleware,
             handler: handler
         ))
@@ -35,8 +35,8 @@ extension RouterProtocol {
     public mutating func addApplication(_ application: Application) {
         for route in application.routes {
             self.route(
+                path: route.path,
                 methods: route.methods,
-                url: route.url,
                 middleware: route.middleware,
                 handler: route.handler)
         }

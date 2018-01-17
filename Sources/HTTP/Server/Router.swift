@@ -68,13 +68,13 @@ public struct Router: RouterProtocol {
     }
 
     mutating func registerRoute(
+        path: String,
         methods: MethodSet,
-        url: String,
         middleware: [Middleware.Type],
         handler: @escaping RequestHandler
     ) {
         let handler = chainMiddlewares(middleware, with: handler)
         let route = Route(methods: methods, handler: handler)
-        routeMatcher.add(route: url, payload: route)
+        routeMatcher.add(route: path, payload: route)
     }
 }
