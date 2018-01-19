@@ -1,167 +1,115 @@
 import Test
-import HTTP
-import Dispatch
-import AsyncDispatch
+@testable import HTTP
 
-extension String: Error {}
+extension String: Swift.Error {}
 
 func makeMistake() throws {
     throw "expected failure"
 }
 
 class ThrowableRouteTests: TestCase {
-    override func setUp() {
-        AsyncDispatch().registerGlobal()
-    }
+    class Server: RouterProtocol {
+        let bufferSize: Int = 4096
 
-    func setup(
-        port: Int,
-        serverCode: @escaping (inout Server) throws -> Void,
-        clientCode: @escaping (Client) throws -> Void
-    ) {
-        let semaphore = DispatchSemaphore(value: 0)
+        @_versioned
+        var router = Router()
 
-        async.task {
-            do {
-                var server = try Server(host: "127.0.0.1", port: port)
-
-                try serverCode(&server)
-
-                semaphore.signal()
-                try server.start()
-            } catch {
-                fail(String(describing: error))
-            }
-            async.loop.terminate()
+        public func registerRoute(
+            path: String,
+            methods: Router.MethodSet,
+            middleware: [Middleware.Type],
+            handler: @escaping RequestHandler
+        ) {
+            router.registerRoute(
+                path: path,
+                methods: methods,
+                middleware: middleware,
+                handler: handler)
         }
 
-        semaphore.wait()
-
-        async.task {
-            do {
-                let client = Client(host: "127.0.0.1", port: Int(port))
-                try client.connect()
-
-                try clientCode(client)
-            } catch {
-                fail(String(describing: error))
-            }
-            async.loop.terminate()
+        public func findHandler(
+            path: String,
+            methods: Router.MethodSet
+        ) -> RequestHandler? {
+            return router.findHandler(path: path, methods: methods)
         }
-
-        async.loop.run()
-    }
-
-    func testRequest() {
-        setup(
-            port: 4100,
-            serverCode: { server in
-                server.route(get: "/") {
-                    try makeMistake()
-                    return Response(status: .ok)
-                }
-            },
-            clientCode: { client in
-                let request = Request(url: "/", method: .get)
-                let response = try client.makeRequest(request)
-                assertEqual(response.status, .internalServerError)
-            }
-        )
     }
 
     func testGet() {
-        setup(
-            port: 4101,
-            serverCode: { server in
-                server.route(get: "/") {
-                    try makeMistake()
-                    return Response(status: .ok)
-                }
-            },
-            clientCode: { client in
-                let response = try client.get(path: "/")
-                assertEqual(response.status, .internalServerError)
-            }
-        )
+        let server = Server()
+
+        server.route(get: "/") {
+            try makeMistake()
+            return Response(status: .ok)
+        }
+
+        let request = Request(url: "/", method: .get)
+        let response = server.handleRequest(request)
+        assertEqual(response?.status, .internalServerError)
     }
 
     func testHead() {
-        setup(
-            port: 4102,
-            serverCode: { server in
-                server.route(head: "/") {
-                    try makeMistake()
-                    return Response(status: .ok)
-                }
-            },
-            clientCode: { client in
-                let response = try client.head(path: "/")
-                assertEqual(response.status, .internalServerError)
-            }
-        )
+        let server = Server()
+
+        server.route(head: "/") {
+            try makeMistake()
+            return Response(status: .ok)
+        }
+
+        let request = Request(url: "/", method: .head)
+        let response = server.handleRequest(request)
+        assertEqual(response?.status, .internalServerError)
     }
 
     func testPost() {
-        setup(
-            port: 4103,
-            serverCode: { server in
-                server.route(post: "/") {
-                    try makeMistake()
-                    return Response(status: .ok)
-                }
-            },
-            clientCode: { client in
-                let response = try client.post(path: "/")
-                assertEqual(response.status, .internalServerError)
-            }
-        )
+        let server = Server()
+
+        server.route(post: "/") {
+            try makeMistake()
+            return Response(status: .ok)
+        }
+
+        let request = Request(url: "/", method: .post)
+        let response = server.handleRequest(request)
+        assertEqual(response?.status, .internalServerError)
     }
 
     func testPut() {
-        setup(
-            port: 4104,
-            serverCode: { server in
-                server.route(put: "/") {
-                    try makeMistake()
-                    return Response(status: .ok)
-                }
-            },
-            clientCode: { client in
-                let response = try client.put(path: "/")
-                assertEqual(response.status, .internalServerError)
-            }
-        )
+        let server = Server()
+
+        server.route(put: "/") {
+            try makeMistake()
+            return Response(status: .ok)
+        }
+
+        let request = Request(url: "/", method: .put)
+        let response = server.handleRequest(request)
+        assertEqual(response?.status, .internalServerError)
     }
 
     func testDelete() {
-        setup(
-            port: 4105,
-            serverCode: { server in
-                server.route(delete: "/") {
-                    try makeMistake()
-                    return Response(status: .ok)
-                }
-            },
-            clientCode: { client in
-                let response = try client.delete(path: "/")
-                assertEqual(response.status, .internalServerError)
-            }
-        )
+        let server = Server()
+
+        server.route(delete: "/") {
+            try makeMistake()
+            return Response(status: .ok)
+        }
+
+        let request = Request(url: "/", method: .delete)
+        let response = server.handleRequest(request)
+        assertEqual(response?.status, .internalServerError)
     }
 
     func testOptions() {
-        setup(
-            port: 4106,
-            serverCode: { server in
-                server.route(options: "/") {
-                    try makeMistake()
-                    return Response(status: .ok)
-                }
-            },
-            clientCode: { client in
-                let response = try client.options(path: "/")
-                assertEqual(response.status, .internalServerError)
-            }
-        )
+        let server = Server()
+
+        server.route(options: "/") {
+            try makeMistake()
+            return Response(status: .ok)
+        }
+
+        let request = Request(url: "/", method: .options)
+        let response = server.handleRequest(request)
+        assertEqual(response?.status, .internalServerError)
     }
 }

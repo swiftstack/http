@@ -2,9 +2,8 @@ import Log
 import Async
 import Network
 import Platform
-import Stream
 
-public class Server {
+public class Server: StreamingServer {
     public var bufferSize: Int
 
     let networkServer: Network.Server
@@ -34,31 +33,8 @@ public class Server {
     }
 
     func onClient(socket: Socket) {
-        let stream = NetworkStream(socket: socket)
-        process(stream: stream)
-    }
-
-    func process<T: Stream>(stream: T) {
         do {
-            let inputStream = BufferedInputStream(
-                baseStream: stream, capacity: bufferSize)
-            let outputStream = BufferedOutputStream(
-                baseStream: stream, capacity: bufferSize)
-
-            while true {
-                let request = try Request(from: inputStream)
-                if request.expect == .continue {
-                    let `continue` = Response(status: .continue)
-                    try `continue`.encode(to: outputStream)
-                    try outputStream.flush()
-                }
-                let response = makeResponse(for: request)
-                try response.encode(to: outputStream)
-                try outputStream.flush()
-                if request.connection == .close {
-                    break
-                }
-            }
+            try process(stream: NetworkStream(socket: socket))
         } catch let error as ParseError where error == .unexpectedEnd {
             /* connection closed */
         } catch let error as SocketError where error.number == ECONNRESET {
@@ -68,18 +44,6 @@ public class Server {
         } catch {
             /* log other errors */
             log(event: .error, message: String(describing: error))
-        }
-    }
-
-    func makeResponse(for request: Request) -> Response {
-        do {
-            return try handleRequest(request)
-        } catch let error as RouterError where error == .notFound {
-            log(event: .warning, message: "not found: \(request)")
-            return Response(status: .notFound)
-        } catch {
-            log(event: .error, message: String(describing: error))
-            return Response(status: .internalServerError)
         }
     }
 }

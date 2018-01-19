@@ -1,4 +1,8 @@
-public enum ParseError: Error {
+enum Error: Swift.Error {
+    case notFound
+}
+
+public enum ParseError: Swift.Error {
     case invalidRequest
     case invalidResponse
     case invalidStartLine

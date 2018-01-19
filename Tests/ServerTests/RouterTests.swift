@@ -27,7 +27,7 @@ class RouterTests: TestCase {
 
         for method in requestMethods {
             let request = Request(url: "/", method: method)
-            let response = try? router.handleRequest(request)
+            let response = router.handleRequest(request)
             assertEqual(response?.status, .ok)
         }
     }
@@ -66,7 +66,7 @@ class RouterTests: TestCase {
         }
 
         let request = Request(url: "/", method: .get)
-        let response = try? router.handleRequest(request)
+        let response = router.handleRequest(request)
         assertEqual(response?.status, .ok)
     }
 
@@ -80,7 +80,7 @@ class RouterTests: TestCase {
         }
 
         let request = Request(url: "/", method: .post)
-        let response = try? router.handleRequest(request)
+        let response = router.handleRequest(request)
         assertEqual(response?.status, .ok)
     }
 
@@ -99,7 +99,7 @@ class RouterTests: TestCase {
         }
 
         let request = Request(url: "/news/2", method: .get)
-        let response = try? router.handleRequest(request)
+        let response = router.handleRequest(request)
         assertEqual(response?.status, .ok)
     }
 
@@ -118,7 +118,7 @@ class RouterTests: TestCase {
         }
 
         let request = Request(url: "/news/2", method: .post)
-        let response = try? router.handleRequest(request)
+        let response = router.handleRequest(request)
         assertEqual(response?.status, .ok)
     }
 
@@ -138,7 +138,7 @@ class RouterTests: TestCase {
         }
 
         let request = Request(url: "/?name=news&number=2", method: .get)
-        let response = try? router.handleRequest(request)
+        let response = router.handleRequest(request)
         assertEqual(response?.status, .ok)
     }
 
@@ -163,7 +163,7 @@ class RouterTests: TestCase {
                 url: "/",
                 method: .post,
                 body: model)
-            let response = try? router.handleRequest(request)
+            let response = router.handleRequest(request)
             assertEqual(response?.status, .ok)
 
             let formURLEncodedRequest = try Request(
@@ -171,7 +171,7 @@ class RouterTests: TestCase {
                 method: .post,
                 body: model,
                 contentType: .formURLEncoded)
-            let formURLEncodedResponse = try? router.handleRequest(formURLEncodedRequest)
+            let formURLEncodedResponse = router.handleRequest(formURLEncodedRequest)
             assertEqual(formURLEncodedResponse?.status, .ok)
         } catch {
             fail(String(describing: error))
@@ -200,7 +200,7 @@ class RouterTests: TestCase {
         }
 
         let request = Request(url: "/news/2?id=1&token=abcdef", method: .get)
-        let response = try? router.handleRequest(request)
+        let response = router.handleRequest(request)
         assertEqual(response?.status, .ok)
     }
 
@@ -231,7 +231,7 @@ class RouterTests: TestCase {
                 url: "/news/2",
                 method: .post,
                 body: model)
-            let response = try? router.handleRequest(request)
+            let response = router.handleRequest(request)
             assertEqual(response?.status, .ok)
 
             let formURLEncodedRequest = try Request(
@@ -239,7 +239,7 @@ class RouterTests: TestCase {
                 method: .post,
                 body: model,
                 contentType: .formURLEncoded)
-            let formResponse = try? router.handleRequest(formURLEncodedRequest)
+            let formResponse = router.handleRequest(formURLEncodedRequest)
             assertEqual(formResponse?.status, .ok)
         } catch {
             fail(String(describing: error))
@@ -264,7 +264,7 @@ class RouterTests: TestCase {
         }
 
         let request = Request(url: "/news/2", method: .get)
-        let response = try? router.handleRequest(request)
+        let response = router.handleRequest(request)
         assertEqual(response?.status, .ok)
     }
 
@@ -286,7 +286,7 @@ class RouterTests: TestCase {
         }
 
         let request = Request(url: "/news/2", method: .post)
-        let response = try? router.handleRequest(request)
+        let response = router.handleRequest(request)
         assertEqual(response?.status, .ok)
     }
 
@@ -309,7 +309,7 @@ class RouterTests: TestCase {
         }
 
         let request = Request(url: "/?name=news&number=2", method: .get)
-        let response = try? router.handleRequest(request)
+        let response = router.handleRequest(request)
         assertEqual(response?.status, .ok)
     }
 
@@ -336,7 +336,7 @@ class RouterTests: TestCase {
                 url: "/",
                 method: .post,
                 body: model)
-            let response = try? router.handleRequest(request)
+            let response = router.handleRequest(request)
             assertEqual(response?.status, .ok)
 
             let formURLEncodedRequest = try Request(
@@ -344,7 +344,7 @@ class RouterTests: TestCase {
                 method: .post,
                 body: model,
                 contentType: .formURLEncoded)
-            let formResponse = try? router.handleRequest(formURLEncodedRequest)
+            let formResponse = router.handleRequest(formURLEncodedRequest)
             assertEqual(formResponse?.status, .ok)
         } catch {
             fail(String(describing: error))
@@ -377,7 +377,7 @@ class RouterTests: TestCase {
         }
 
         let request = Request(url: "/news/2?id=1&token=abcdef", method: .get)
-        let response = try? router.handleRequest(request)
+        let response = router.handleRequest(request)
         assertEqual(response?.status, .ok)
     }
 
@@ -411,7 +411,7 @@ class RouterTests: TestCase {
                 url: "/news/2",
                 method: .post,
                 body: model)
-            let response = try? router.handleRequest(request)
+            let response = router.handleRequest(request)
             assertEqual(response?.status, .ok)
 
             let formURLEncodedRequest = try Request(
@@ -419,7 +419,7 @@ class RouterTests: TestCase {
                 method: .post,
                 body: model,
                 contentType: .formURLEncoded)
-            let formResponse = try? router.handleRequest(formURLEncodedRequest)
+            let formResponse = router.handleRequest(formURLEncodedRequest)
             assertEqual(formResponse?.status, .ok)
         } catch {
             fail(String(describing: error))
@@ -436,7 +436,7 @@ class RouterTests: TestCase {
         }
 
         let request = Request(url: "/новости", method: .get)
-        let response = try? router.handleRequest(request)
+        let response = router.handleRequest(request)
         assertEqual(response?.status, .ok)
     }
 }

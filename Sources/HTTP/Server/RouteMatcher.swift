@@ -1,4 +1,4 @@
-enum RouterError: Error {
+enum RouterError: Swift.Error {
     case invalidRoute
     case notFound
 }
