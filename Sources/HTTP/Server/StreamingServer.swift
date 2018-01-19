@@ -55,7 +55,7 @@ extension RouterProtocol {
     func handleError(_ error: Swift.Error, for request: Request) -> Response? {
         switch error {
         case let error as Error where error == .notFound:
-            log(event: .warning, message: "not found: \(request)")
+            log(event: .warning, message: "not found: \(request.url.path)")
             return Response(status: .notFound)
         default:
             log(event: .error, message: String(describing: error))
