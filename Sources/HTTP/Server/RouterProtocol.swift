@@ -9,6 +9,39 @@ protocol RouterProtocol {
         middleware: [Middleware.Type],
         handler: @escaping RequestHandler
     )
+
+    func findHandler(
+        path: String,
+        methods: Router.MethodSet
+    ) -> RequestHandler?
+}
+
+extension RouterProtocol {
+    func handleRequest(_ request: Request) throws -> Response {
+        let path = request.url.path
+        let methods = Router.MethodSet(request.method)
+
+        guard let handler = findHandler(
+            path: path,
+            methods: methods)
+        else {
+            throw RouterError.notFound
+        }
+        return try handler(request)
+    }
+}
+
+extension Router.MethodSet {
+    init(_ method: Request.Method) {
+        switch method {
+        case .get: self = .get
+        case .head: self = .head
+        case .post: self = .post
+        case .put: self = .put
+        case .delete: self = .delete
+        case .options: self = .options
+        }
+    }
 }
 
 // MARK: Simple routes

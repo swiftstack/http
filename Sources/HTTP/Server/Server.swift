@@ -74,37 +74,12 @@ public class Server {
     func makeResponse(for request: Request) -> Response {
         do {
             return try handleRequest(request)
+        } catch let error as RouterError where error == .notFound {
+            log(event: .warning, message: "not found: \(request)")
+            return Response(status: .notFound)
         } catch {
             log(event: .error, message: String(describing: error))
             return Response(status: .internalServerError)
-        }
-    }
-
-    func handleRequest(_ request: Request) throws -> Response {
-        let path = request.url.path
-        let methods = Router.MethodSet(request.method)
-
-        guard let handler = router.findHandler(
-            path: path,
-            methods: methods)
-        else {
-            log(event: .warning, message: "handler not found for: \(request)")
-            return Response(status: .notFound)
-        }
-
-        return try handler(request)
-    }
-}
-
-extension Router.MethodSet {
-    init(_ method: Request.Method) {
-        switch method {
-        case .get: self = .get
-        case .head: self = .head
-        case .post: self = .post
-        case .put: self = .put
-        case .delete: self = .delete
-        case .options: self = .options
         }
     }
 }
