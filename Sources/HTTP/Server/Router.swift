@@ -20,17 +20,6 @@ public struct Router: RouterProtocol {
         public static let all: MethodSet = [
             .get, .head, .post, .put, .delete, .options
         ]
-        
-        fileprivate func contains(method: Request.Method) -> Bool {
-            switch method {
-            case .get: return contains(.get)
-            case .head: return contains(.head)
-            case .post: return contains(.post)
-            case .put: return contains(.put)
-            case .delete: return contains(.delete)
-            case .options: return contains(.options)
-            }
-        }
     }
 
     struct Route {
@@ -40,20 +29,17 @@ public struct Router: RouterProtocol {
 
     private var routeMatcher = RouteMatcher<Route>()
 
-    func handleRequest(_ request: Request) -> Response {
-        let routes = routeMatcher.matches(route: request.url.path)
+    public func findHandler(
+        path: String,
+        methods: MethodSet
+    ) -> RequestHandler? {
+        let routes = routeMatcher.matches(route: path)
         guard let route = routes.first(where: { route in
-            route.methods.contains(method: request.method)
+            route.methods.contains(methods)
         }) else {
-            return Response(status: .notFound)
+            return nil
         }
-
-        do {
-            return try route.handler(request)
-        } catch {
-            Log.debug(String(describing: error))
-            return Response(status: .internalServerError)
-        }
+        return route.handler
     }
 
     func chainMiddlewares(

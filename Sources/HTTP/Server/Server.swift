@@ -52,7 +52,7 @@ public class Server {
                     try `continue`.encode(to: outputStream)
                     try outputStream.flush()
                 }
-                let response = router.handleRequest(request)
+                let response = handleRequest(request)
                 try response.encode(to: outputStream)
                 try outputStream.flush()
                 if request.connection == .close {
@@ -68,6 +68,38 @@ public class Server {
         } catch {
             /* log other errors */
             log(event: .error, message: String(describing: error))
+        }
+    }
+
+    func handleRequest(_ request: Request) -> Response {
+        let path = request.url.path
+        let methods = Router.MethodSet(request.method)
+
+        guard let handler = router.findHandler(
+            path: path,
+            methods: methods)
+        else {
+            return Response(status: .notFound)
+        }
+
+        do {
+            return try handler(request)
+        } catch {
+            log(event: .warning, message: String(describing: error))
+            return Response(status: .internalServerError)
+        }
+    }
+}
+
+extension Router.MethodSet {
+    init(_ method: Request.Method) {
+        switch method {
+        case .get: self = .get
+        case .head: self = .head
+        case .post: self = .post
+        case .put: self = .put
+        case .delete: self = .delete
+        case .options: self = .options
         }
     }
 }
