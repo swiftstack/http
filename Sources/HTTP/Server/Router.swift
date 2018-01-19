@@ -29,6 +29,17 @@ public struct Router: RouterProtocol {
 
     private var routeMatcher = RouteMatcher<Route>()
 
+    public mutating func registerRoute(
+        path: String,
+        methods: MethodSet,
+        middleware: [Middleware.Type],
+        handler: @escaping RequestHandler
+    ) {
+        let handler = chainMiddlewares(middleware, with: handler)
+        let route = Route(methods: methods, handler: handler)
+        routeMatcher.add(route: path, payload: route)
+    }
+
     public func findHandler(
         path: String,
         methods: MethodSet
@@ -51,16 +62,5 @@ public struct Router: RouterProtocol {
             handler = factory.createMiddleware(for: handler)
         }
         return handler
-    }
-
-    mutating func registerRoute(
-        path: String,
-        methods: MethodSet,
-        middleware: [Middleware.Type],
-        handler: @escaping RequestHandler
-    ) {
-        let handler = chainMiddlewares(middleware, with: handler)
-        let route = Route(methods: methods, handler: handler)
-        routeMatcher.add(route: path, payload: route)
     }
 }
