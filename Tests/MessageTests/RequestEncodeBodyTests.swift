@@ -18,7 +18,7 @@ class RequestEncodeBodyTests: TestCase {
             "\r\n" +
             "{\"message\":\"Hello, World!\"}"
         let values = ["message": "Hello, World!"]
-        let request = try! Request(method: .post, url: "/", body: values)
+        let request = try! Request(url: "/", method: .post, body: values)
         assertEqual(Encoder.encode(request), expected)
     }
 
@@ -32,8 +32,8 @@ class RequestEncodeBodyTests: TestCase {
             let message = "Hello, World!"
         }
         let request = try! Request(
-            method: .post,
             url: "/",
+            method: .post,
             body: Query(),
             contentType: .formURLEncoded)
         assertEqual(Encoder.encode(request), expected)

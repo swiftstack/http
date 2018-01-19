@@ -55,7 +55,7 @@ class FunctionalTests: TestCase {
                 }
             },
             clientCode: { client in
-                let request = Request(method: .get, url: "/")
+                let request = Request(url: "/", method: .get)
                 let response = try client.makeRequest(request)
                 assertEqual(response.status, .ok)
                 assertNil(response.string)

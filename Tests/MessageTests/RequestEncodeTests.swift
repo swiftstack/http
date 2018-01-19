@@ -13,26 +13,26 @@ class RequestEncodeTests: TestCase {
 
     func testRequest() {
         let expected = "GET /test HTTP/1.1\r\n\r\n"
-        let request = Request(method: .get, url: "/test")
+        let request = Request(url: "/test", method: .get)
         assertEqual(Encoder.encode(request), expected)
     }
 
     func testUrl() {
         let expected = "GET /test HTTP/1.1\r\n\r\n"
         let request = Request(
-            method: .get,
-            url: URL(path: "/test", fragment: "fragment"))
+            url: URL(path: "/test", fragment: "fragment"),
+            method: .get)
         assertEqual(Encoder.encode(request), expected)
     }
 
     func testUrlQueryGet() {
         let expected = "GET /test?key=value HTTP/1.1\r\n\r\n"
         let request = Request(
-            method: .get,
             url: URL(
                 path: "/test",
                 query: ["key" : "value"],
-                fragment: "fragment"))
+                fragment: "fragment"),
+            method: .get)
         assertEqual(Encoder.encode(request), expected)
     }
 
@@ -43,11 +43,11 @@ class RequestEncodeTests: TestCase {
             "\r\n" +
             "key=value"
         let request = Request(
-            method: .post,
             url: URL(
                 path: "/test",
                 query: ["key" : "value"],
-                fragment: "fragment"))
+                fragment: "fragment"),
+            method: .post)
         assertEqual(Encoder.encode(request), expected)
     }
 

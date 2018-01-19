@@ -3,7 +3,7 @@ import Test
 
 class RequestTests: TestCase {
     func testRequest() {
-        let request = Request(method: .get, url: "/")
+        let request = Request(url: "/", method: .get)
         assertEqual(request.method, .get)
         assertEqual(request.url.path, "/")
     }
