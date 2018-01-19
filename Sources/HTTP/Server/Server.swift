@@ -52,7 +52,7 @@ public class Server {
                     try `continue`.encode(to: outputStream)
                     try outputStream.flush()
                 }
-                let response = handleRequest(request)
+                let response = makeResponse(for: request)
                 try response.encode(to: outputStream)
                 try outputStream.flush()
                 if request.connection == .close {
@@ -71,7 +71,16 @@ public class Server {
         }
     }
 
-    func handleRequest(_ request: Request) -> Response {
+    func makeResponse(for request: Request) -> Response {
+        do {
+            return try handleRequest(request)
+        } catch {
+            log(event: .error, message: String(describing: error))
+            return Response(status: .internalServerError)
+        }
+    }
+
+    func handleRequest(_ request: Request) throws -> Response {
         let path = request.url.path
         let methods = Router.MethodSet(request.method)
 
@@ -79,15 +88,11 @@ public class Server {
             path: path,
             methods: methods)
         else {
+            log(event: .warning, message: "handler not found for: \(request)")
             return Response(status: .notFound)
         }
 
-        do {
-            return try handler(request)
-        } catch {
-            log(event: .warning, message: String(describing: error))
-            return Response(status: .internalServerError)
-        }
+        return try handler(request)
     }
 }
 
