@@ -17,6 +17,19 @@ protocol RouterProtocol {
 }
 
 extension RouterProtocol {
+    func chainMiddleware(
+        _ middleware: [Middleware.Type],
+        with handler: @escaping RequestHandler
+    ) -> RequestHandler {
+        var handler: RequestHandler = handler
+        for factory in middleware.reversed() {
+            handler = factory.createMiddleware(for: handler)
+        }
+        return handler
+    }
+}
+
+extension RouterProtocol {
     func handleRequest(_ request: Request) throws -> Response {
         let path = request.url.path
         let methods = Router.MethodSet(request.method)

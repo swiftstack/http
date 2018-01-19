@@ -35,7 +35,7 @@ public struct Router: RouterProtocol {
         middleware: [Middleware.Type],
         handler: @escaping RequestHandler
     ) {
-        let handler = chainMiddlewares(middleware, with: handler)
+        let handler = chainMiddleware(middleware, with: handler)
         let route = Route(methods: methods, handler: handler)
         routeMatcher.add(route: path, payload: route)
     }
@@ -51,16 +51,5 @@ public struct Router: RouterProtocol {
             return nil
         }
         return route.handler
-    }
-
-    func chainMiddlewares(
-        _ middleware: [Middleware.Type],
-        with handler: @escaping RequestHandler
-    ) -> RequestHandler {
-        var handler: RequestHandler = handler
-        for factory in middleware.reversed() {
-            handler = factory.createMiddleware(for: handler)
-        }
-        return handler
     }
 }

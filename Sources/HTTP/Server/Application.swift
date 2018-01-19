@@ -2,7 +2,6 @@ public class Application: RouterProtocol {
     public struct Route {
         public let path: String
         public let methods: Router.MethodSet
-        public let middleware: [Middleware.Type]
         public let handler: RequestHandler
     }
 
@@ -22,10 +21,11 @@ public class Application: RouterProtocol {
         middleware: [Middleware.Type],
         handler: @escaping RequestHandler
     ) {
+        let middleware = self.middleware + middleware
+        let handler = chainMiddleware(middleware, with: handler)
         routes.append(Route(
             path: self.basePath + path,
             methods: methods,
-            middleware: self.middleware + middleware,
             handler: handler
         ))
     }
@@ -49,7 +49,7 @@ extension RouterProtocol {
             self.route(
                 path: route.path,
                 methods: route.methods,
-                middleware: route.middleware,
+                middleware: [],
                 handler: route.handler)
         }
     }
