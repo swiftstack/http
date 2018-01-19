@@ -16,7 +16,7 @@ extension Router {
 
 class RouterTests: TestCase {
     func testMethodsVoid() {
-        var router = Router()
+        let router = Router()
 
         let methodsCollection: [Router.MethodSet] = [
             [.get],
@@ -45,7 +45,7 @@ class RouterTests: TestCase {
     }
 
     func testAllVoid() {
-        var router = Router()
+        let router = Router()
 
         router.route(path: "/", methods: [.all]) {
             return Response(status: .ok)
@@ -69,7 +69,7 @@ class RouterTests: TestCase {
     }
 
     func testGetRequest() {
-        var router = Router()
+        let router = Router()
 
         router.route(path: "/", methods: [.get]) { (request: Request) in
             assertEqual(request.url, "/")
@@ -83,7 +83,7 @@ class RouterTests: TestCase {
     }
 
     func testPostRequest() {
-        var router = Router()
+        let router = Router()
 
         router.route(path: "/", methods: [.post]) { (request: Request) in
             assertEqual(request.url, "/")
@@ -97,7 +97,7 @@ class RouterTests: TestCase {
     }
 
     func testGetURLMatch() {
-        var router = Router()
+        let router = Router()
 
         struct Page: Decodable {
             let name: String
@@ -116,7 +116,7 @@ class RouterTests: TestCase {
     }
 
     func testPostURLMatch() {
-        var router = Router()
+        let router = Router()
 
         struct Page: Decodable {
             let name: String
@@ -135,7 +135,7 @@ class RouterTests: TestCase {
     }
 
     func testGetModel() {
-        var router = Router()
+        let router = Router()
 
         struct Page: Decodable {
             let name: String
@@ -155,7 +155,7 @@ class RouterTests: TestCase {
     }
 
     func testPostModel() {
-        var router = Router()
+        let router = Router()
 
         struct Page: Codable {
             let name: String
@@ -191,7 +191,7 @@ class RouterTests: TestCase {
     }
 
     func testGetURLMatchModel() {
-        var router = Router()
+        let router = Router()
 
         struct Page: Decodable {
             let name: String
@@ -217,7 +217,7 @@ class RouterTests: TestCase {
     }
 
     func testPostURLMatchModel() {
-        var router = Router()
+        let router = Router()
 
         struct Page: Decodable {
             let name: String
@@ -259,7 +259,7 @@ class RouterTests: TestCase {
     }
 
     func testGetRequestURLMatch() {
-        var router = Router()
+        let router = Router()
 
         struct Page: Decodable {
             let name: String
@@ -281,7 +281,7 @@ class RouterTests: TestCase {
     }
 
     func testPostRequestURLMatch() {
-        var router = Router()
+        let router = Router()
 
         struct Page: Decodable {
             let name: String
@@ -303,7 +303,7 @@ class RouterTests: TestCase {
     }
 
     func testGetRequestModel() {
-        var router = Router()
+        let router = Router()
 
         struct Page: Decodable {
             let name: String
@@ -326,7 +326,7 @@ class RouterTests: TestCase {
     }
 
     func testPostRequestModel() {
-        var router = Router()
+        let router = Router()
 
         struct Page: Codable {
             let name: String
@@ -364,7 +364,7 @@ class RouterTests: TestCase {
     }
 
     func testGetRequestURLMatchModel() {
-        var router = Router()
+        let router = Router()
 
         struct Page: Decodable {
             let name: String
@@ -394,7 +394,7 @@ class RouterTests: TestCase {
     }
 
     func testPostRequestURLMatchModel() {
-        var router = Router()
+        let router = Router()
 
         struct Page: Decodable {
             let name: String
@@ -439,7 +439,7 @@ class RouterTests: TestCase {
     }
 
     func testUnicodeRoute() {
-        var router = Router()
+        let router = Router()
 
         router.route(path: "/новости", methods: [.get]) { (request: Request) in
             assertEqual(request.url, "/новости")

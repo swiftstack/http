@@ -1,5 +1,5 @@
 extension Server: RouterProtocol {
-    func registerRoute(
+    public func registerRoute(
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type],
@@ -12,7 +12,7 @@ extension Server: RouterProtocol {
             handler: handler)
     }
 
-    func findHandler(
+    public func findHandler(
         path: String,
         methods: Router.MethodSet
     ) -> RequestHandler? {

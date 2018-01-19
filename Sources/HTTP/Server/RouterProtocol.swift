@@ -2,8 +2,8 @@
 // but while Server registers it directly in the Router
 // Application needs to store them until it get passed to the Server
 
-protocol RouterProtocol {
-    mutating func registerRoute(
+public protocol RouterProtocol: class {
+    func registerRoute(
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type],
@@ -62,7 +62,7 @@ extension Router.MethodSet {
 extension RouterProtocol {
     // MARK: void -> response
     @_inlineable
-    public mutating func route(
+    public func route(
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
@@ -81,7 +81,7 @@ extension RouterProtocol {
 
     // MARK: request -> response
     @_inlineable
-    public mutating func route(
+    public func route(
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
@@ -99,7 +99,7 @@ extension RouterProtocol {
 extension RouterProtocol {
     // MARK: void -> encodable
     @_inlineable
-    public mutating func route<Result: Encodable>(
+    public func route<Result: Encodable>(
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
@@ -113,7 +113,7 @@ extension RouterProtocol {
 
     // MARK: request -> encodable
     @_inlineable
-    public mutating func route<Result: Encodable>(
+    public func route<Result: Encodable>(
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
@@ -131,7 +131,7 @@ extension RouterProtocol {
 extension RouterProtocol {
     // MARK: model -> response
     @_inlineable
-    public mutating func route<Model: Decodable>(
+    public func route<Model: Decodable>(
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
@@ -165,7 +165,7 @@ extension RouterProtocol {
 
     // MARK: model -> encodable
     @_inlineable
-    public mutating func route<Model: Decodable, Result: Encodable>(
+    public func route<Model: Decodable, Result: Encodable>(
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
@@ -179,7 +179,7 @@ extension RouterProtocol {
 
     // MARK: rquest, model -> response
     @_inlineable
-    public mutating func route<Model: Decodable>(
+    public func route<Model: Decodable>(
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
@@ -213,7 +213,7 @@ extension RouterProtocol {
 
     // MARK: rquest, model -> encodable
     @_inlineable
-    public mutating func route<Model: Decodable, Result: Encodable>(
+    public func route<Model: Decodable, Result: Encodable>(
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
@@ -228,7 +228,7 @@ extension RouterProtocol {
 
     // MARK: url match, model -> result
     @_inlineable
-    public mutating func route<URLMatch: Decodable, Model: Decodable>(
+    public func route<URLMatch: Decodable, Model: Decodable>(
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
@@ -257,7 +257,7 @@ extension RouterProtocol {
 
     // MARK: url match, model -> encodable
     @_inlineable
-    public mutating func route<
+    public func route<
         URLMatch: Decodable, Model: Decodable, Result: Encodable
     >(
         path: String,
@@ -274,7 +274,7 @@ extension RouterProtocol {
 
     // MARK: request, url match, model -> request
     @_inlineable
-    public mutating func route<URLMatch: Decodable, Model: Decodable>(
+    public func route<URLMatch: Decodable, Model: Decodable>(
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
@@ -303,7 +303,7 @@ extension RouterProtocol {
 
     // MARK: request, url match, model -> encodable
     @_inlineable
-    public mutating func route
+    public func route
     <
         URLMatch: Decodable, Model: Decodable, Result: Encodable
     >(
