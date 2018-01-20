@@ -23,8 +23,10 @@ public class Services {
     }
 
     // singleton
-    public func register<T, P>(singleton instance: T, as proto: P.Type) throws {
-        guard instance is P else {
+    public func register<T, P>(singleton type: T.Type, as proto: P.Type) throws
+        where T: Service
+    {
+        guard let instance = T() as? P else {
             throw Error.typeMismatch(type: T.self, proto: P.self)
         }
         values[id(proto)] = .singleton(instance)
