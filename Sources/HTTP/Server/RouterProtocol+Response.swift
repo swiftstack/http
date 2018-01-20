@@ -1,4 +1,4 @@
-// Convenience constructors
+// Convenience routes
 
 extension RouterProtocol {
     // GET
