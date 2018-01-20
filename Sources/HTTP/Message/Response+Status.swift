@@ -6,6 +6,7 @@ extension Response {
         case badRequest
         case unauthorized
         case notFound
+        case conflict
         case internalServerError
     }
 }
