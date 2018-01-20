@@ -6,10 +6,10 @@ extension ControllerRouter {
 
     public func route<Result: Encodable>(
         get path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> () throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> () throws -> Result
     ) {
-        application.route(get: path, middleware: middleware)
+        application.route(get: path, through: middleware)
         { () -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -19,10 +19,10 @@ extension ControllerRouter {
 
     public func route<Result: Encodable>(
         get path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request) throws -> Result
     ) {
-        application.route(get: path, middleware: middleware)
+        application.route(get: path, through: middleware)
         { (request: Request) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -32,10 +32,10 @@ extension ControllerRouter {
 
     public func route<Model: Decodable, Result: Encodable>(
         get path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Model) throws -> Result
     ) {
-        application.route(get: path, middleware: middleware)
+        application.route(get: path, through: middleware)
         { (model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -45,10 +45,10 @@ extension ControllerRouter {
 
     public func route<Model: Decodable, Result: Encodable>(
         get path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request, Model) throws -> Result
     ) {
-        application.route(get: path, middleware: middleware)
+        application.route(get: path, through: middleware)
         { (request: Request, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -58,10 +58,10 @@ extension ControllerRouter {
 
     public func route<URLMatch: Decodable, Model: Decodable, Result: Encodable>(
         get path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (URLMatch, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (URLMatch, Model) throws -> Result
     ) {
-        application.route(get: path, middleware: middleware)
+        application.route(get: path, through: middleware)
         { (match: URLMatch, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -71,10 +71,10 @@ extension ControllerRouter {
 
     public func route<URLMatch: Decodable, Model: Decodable, Result: Encodable>(
         get path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request, URLMatch, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request, URLMatch, Model) throws -> Result
     ) {
-        application.route(get: path, middleware: middleware)
+        application.route(get: path, through: middleware)
         { (request: Request, match: URLMatch, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -86,10 +86,10 @@ extension ControllerRouter {
 
     public func route<Result: Encodable>(
         head path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> () throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> () throws -> Result
     ) {
-        application.route(head: path, middleware: middleware)
+        application.route(head: path, through: middleware)
         { () -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -99,10 +99,10 @@ extension ControllerRouter {
 
     public func route<Result: Encodable>(
         head path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request) throws -> Result
     ) {
-        application.route(head: path, middleware: middleware)
+        application.route(head: path, through: middleware)
         { (request: Request) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -112,10 +112,10 @@ extension ControllerRouter {
 
     public func route<Model: Decodable, Result: Encodable>(
         head path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Model) throws -> Result
     ) {
-        application.route(head: path, middleware: middleware)
+        application.route(head: path, through: middleware)
         { (model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -125,10 +125,10 @@ extension ControllerRouter {
 
     public func route<Model: Decodable, Result: Encodable>(
         head path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request, Model) throws -> Result
     ) {
-        application.route(head: path, middleware: middleware)
+        application.route(head: path, through: middleware)
         { (request: Request, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -138,10 +138,10 @@ extension ControllerRouter {
 
     public func route<URLMatch: Decodable, Model: Decodable, Result: Encodable>(
         head path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (URLMatch, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (URLMatch, Model) throws -> Result
     ) {
-        application.route(head: path, middleware: middleware)
+        application.route(head: path, through: middleware)
         { (match: URLMatch, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -151,10 +151,10 @@ extension ControllerRouter {
 
     public func route<URLMatch: Decodable, Model: Decodable, Result: Encodable>(
         head path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request, URLMatch, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request, URLMatch, Model) throws -> Result
     ) {
-        application.route(head: path, middleware: middleware)
+        application.route(head: path, through: middleware)
         { (request: Request, match: URLMatch, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -166,10 +166,10 @@ extension ControllerRouter {
 
     public func route<Result: Encodable>(
         post path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> () throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> () throws -> Result
     ) {
-        application.route(post: path, middleware: middleware)
+        application.route(post: path, through: middleware)
         { () -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -179,10 +179,10 @@ extension ControllerRouter {
 
     public func route<Result: Encodable>(
         post path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request) throws -> Result
     ) {
-        application.route(post: path, middleware: middleware)
+        application.route(post: path, through: middleware)
         { (request: Request) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -192,10 +192,10 @@ extension ControllerRouter {
 
     public func route<Model: Decodable, Result: Encodable>(
         post path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Model) throws -> Result
     ) {
-        application.route(post: path, middleware: middleware)
+        application.route(post: path, through: middleware)
         { (model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -205,10 +205,10 @@ extension ControllerRouter {
 
     public func route<Model: Decodable, Result: Encodable>(
         post path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request, Model) throws -> Result
     ) {
-        application.route(post: path, middleware: middleware)
+        application.route(post: path, through: middleware)
         { (request: Request, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -218,10 +218,10 @@ extension ControllerRouter {
 
     public func route<URLMatch: Decodable, Model: Decodable, Result: Encodable>(
         post path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (URLMatch, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (URLMatch, Model) throws -> Result
     ) {
-        application.route(post: path, middleware: middleware)
+        application.route(post: path, through: middleware)
         { (match: URLMatch, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -231,10 +231,10 @@ extension ControllerRouter {
 
     public func route<URLMatch: Decodable, Model: Decodable, Result: Encodable>(
         post path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request, URLMatch, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request, URLMatch, Model) throws -> Result
     ) {
-        application.route(post: path, middleware: middleware)
+        application.route(post: path, through: middleware)
         { (request: Request, match: URLMatch, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -246,10 +246,10 @@ extension ControllerRouter {
 
     public func route<Result: Encodable>(
         put path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> () throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> () throws -> Result
     ) {
-        application.route(put: path, middleware: middleware)
+        application.route(put: path, through: middleware)
         { () -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -259,10 +259,10 @@ extension ControllerRouter {
 
     public func route<Result: Encodable>(
         put path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request) throws -> Result
     ) {
-        application.route(put: path, middleware: middleware)
+        application.route(put: path, through: middleware)
         { (request: Request) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -272,10 +272,10 @@ extension ControllerRouter {
 
     public func route<Model: Decodable, Result: Encodable>(
         put path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Model) throws -> Result
     ) {
-        application.route(put: path, middleware: middleware)
+        application.route(put: path, through: middleware)
         { (model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -285,10 +285,10 @@ extension ControllerRouter {
 
     public func route<Model: Decodable, Result: Encodable>(
         put path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request, Model) throws -> Result
     ) {
-        application.route(put: path, middleware: middleware)
+        application.route(put: path, through: middleware)
         { (request: Request, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -298,10 +298,10 @@ extension ControllerRouter {
 
     public func route<URLMatch: Decodable, Model: Decodable, Result: Encodable>(
         put path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (URLMatch, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (URLMatch, Model) throws -> Result
     ) {
-        application.route(put: path, middleware: middleware)
+        application.route(put: path, through: middleware)
         { (match: URLMatch, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -311,10 +311,10 @@ extension ControllerRouter {
 
     public func route<URLMatch: Decodable, Model: Decodable, Result: Encodable>(
         put path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request, URLMatch, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request, URLMatch, Model) throws -> Result
     ) {
-        application.route(put: path, middleware: middleware)
+        application.route(put: path, through: middleware)
         { (request: Request, match: URLMatch, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -326,10 +326,10 @@ extension ControllerRouter {
 
     public func route<Result: Encodable>(
         delete path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> () throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> () throws -> Result
     ) {
-        application.route(delete: path, middleware: middleware)
+        application.route(delete: path, through: middleware)
         { () -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -339,10 +339,10 @@ extension ControllerRouter {
 
     public func route<Result: Encodable>(
         delete path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request) throws -> Result
     ) {
-        application.route(delete: path, middleware: middleware)
+        application.route(delete: path, through: middleware)
         { (request: Request) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -352,10 +352,10 @@ extension ControllerRouter {
 
     public func route<Model: Decodable, Result: Encodable>(
         delete path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Model) throws -> Result
     ) {
-        application.route(delete: path, middleware: middleware)
+        application.route(delete: path, through: middleware)
         { (model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -365,10 +365,10 @@ extension ControllerRouter {
 
     public func route<Model: Decodable, Result: Encodable>(
         delete path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request, Model) throws -> Result
     ) {
-        application.route(delete: path, middleware: middleware)
+        application.route(delete: path, through: middleware)
         { (request: Request, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -378,10 +378,10 @@ extension ControllerRouter {
 
     public func route<URLMatch: Decodable, Model: Decodable, Result: Encodable>(
         delete path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (URLMatch, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (URLMatch, Model) throws -> Result
     ) {
-        application.route(delete: path, middleware: middleware)
+        application.route(delete: path, through: middleware)
         { (match: URLMatch, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -391,10 +391,10 @@ extension ControllerRouter {
 
     public func route<URLMatch: Decodable, Model: Decodable, Result: Encodable>(
         delete path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request, URLMatch, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request, URLMatch, Model) throws -> Result
     ) {
-        application.route(delete: path, middleware: middleware)
+        application.route(delete: path, through: middleware)
         { (request: Request, match: URLMatch, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -406,10 +406,10 @@ extension ControllerRouter {
 
     public func route<Result: Encodable>(
         options path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> () throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> () throws -> Result
     ) {
-        application.route(options: path, middleware: middleware)
+        application.route(options: path, through: middleware)
         { () -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -419,10 +419,10 @@ extension ControllerRouter {
 
     public func route<Result: Encodable>(
         options path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request) throws -> Result
     ) {
-        application.route(options: path, middleware: middleware)
+        application.route(options: path, through: middleware)
         { (request: Request) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -432,10 +432,10 @@ extension ControllerRouter {
 
     public func route<Model: Decodable, Result: Encodable>(
         options path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Model) throws -> Result
     ) {
-        application.route(options: path, middleware: middleware)
+        application.route(options: path, through: middleware)
         { (model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -445,10 +445,10 @@ extension ControllerRouter {
 
     public func route<Model: Decodable, Result: Encodable>(
         options path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request, Model) throws -> Result
     ) {
-        application.route(options: path, middleware: middleware)
+        application.route(options: path, through: middleware)
         { (request: Request, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -458,10 +458,10 @@ extension ControllerRouter {
 
     public func route<URLMatch: Decodable, Model: Decodable, Result: Encodable>(
         options path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (URLMatch, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (URLMatch, Model) throws -> Result
     ) {
-        application.route(options: path, middleware: middleware)
+        application.route(options: path, through: middleware)
         { (match: URLMatch, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -471,10 +471,10 @@ extension ControllerRouter {
 
     public func route<URLMatch: Decodable, Model: Decodable, Result: Encodable>(
         options path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request, URLMatch, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request, URLMatch, Model) throws -> Result
     ) {
-        application.route(options: path, middleware: middleware)
+        application.route(options: path, through: middleware)
         { (request: Request, match: URLMatch, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -486,10 +486,10 @@ extension ControllerRouter {
 
     public func route<Result: Encodable>(
         all path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> () throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> () throws -> Result
     ) {
-        application.route(all: path, middleware: middleware)
+        application.route(all: path, through: middleware)
         { () -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -499,10 +499,10 @@ extension ControllerRouter {
 
     public func route<Result: Encodable>(
         all path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request) throws -> Result
     ) {
-        application.route(all: path, middleware: middleware)
+        application.route(all: path, through: middleware)
         { (request: Request) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -512,10 +512,10 @@ extension ControllerRouter {
 
     public func route<Model: Decodable, Result: Encodable>(
         all path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Model) throws -> Result
     ) {
-        application.route(all: path, middleware: middleware)
+        application.route(all: path, through: middleware)
         { (model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -525,10 +525,10 @@ extension ControllerRouter {
 
     public func route<Model: Decodable, Result: Encodable>(
         all path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request, Model) throws -> Result
     ) {
-        application.route(all: path, middleware: middleware)
+        application.route(all: path, through: middleware)
         { (request: Request, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -538,10 +538,10 @@ extension ControllerRouter {
 
     public func route<URLMatch: Decodable, Model: Decodable, Result: Encodable>(
         all path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (URLMatch, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (URLMatch, Model) throws -> Result
     ) {
-        application.route(all: path, middleware: middleware)
+        application.route(all: path, through: middleware)
         { (match: URLMatch, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)
@@ -551,10 +551,10 @@ extension ControllerRouter {
 
     public func route<URLMatch: Decodable, Model: Decodable, Result: Encodable>(
         all path: String,
-        middleware: [Middleware.Type] = [],
-        handler: @escaping (T) -> (Request, URLMatch, Model) throws -> Result
+        through middleware: [Middleware.Type] = [],
+        to handler: @escaping (T) -> (Request, URLMatch, Model) throws -> Result
     ) {
-        application.route(all: path, middleware: middleware)
+        application.route(all: path, through: middleware)
         { (request: Request, match: URLMatch, model: Model) -> Result in
             let controller = try self.constructor()
             let handler = handler(controller)

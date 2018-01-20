@@ -37,7 +37,7 @@ class ControllerTests: TestCase {
     func testControllerInjectable() {
         final class TestController: Controller, Inject {
             static func setup(router: ControllerRouter<TestController>) throws {
-                router.route(get: "/", handler: fetch)
+                router.route(get: "/", to: fetch)
             }
 
             func fetch() -> String {
@@ -61,7 +61,7 @@ class ControllerTests: TestCase {
     func testControllerInjectService() {
         final class TestController: Controller, InjectService {
             static func setup(router: ControllerRouter<TestController>) throws {
-                router.route(get: "/", handler: fetch)
+                router.route(get: "/", to: fetch)
             }
 
             let serviceOne: ServiceOne
@@ -96,7 +96,7 @@ class ControllerTests: TestCase {
     func testControllerInject2Services() {
         final class TestController: Controller, Inject2Services {
             static func setup(router: ControllerRouter<TestController>) throws {
-                router.route(get: "/", handler: fetch)
+                router.route(get: "/", to: fetch)
             }
 
             let serviceOne: ServiceOne
@@ -139,7 +139,7 @@ class ControllerTests: TestCase {
     func testControllerInject3Services() {
         final class TestController: Controller, Inject3Services {
             static func setup(router: ControllerRouter<TestController>) throws {
-                router.route(get: "/", handler: fetch)
+                router.route(get: "/", to: fetch)
             }
 
             let serviceOne: ServiceOne
@@ -192,7 +192,7 @@ class ControllerTests: TestCase {
     func testControllerInject4Services() {
         final class TestController: Controller, Inject4Services {
             static func setup(router: ControllerRouter<TestController>) throws {
-                router.route(get: "/", handler: fetch)
+                router.route(get: "/", to: fetch)
             }
 
             let serviceOne: ServiceOne
@@ -252,7 +252,7 @@ class ControllerTests: TestCase {
     func testControllerInject5Services() {
         final class TestController: Controller, Inject5Services {
             static func setup(router: ControllerRouter<TestController>) throws {
-                router.route(get: "/", handler: fetch)
+                router.route(get: "/", to: fetch)
             }
 
             let serviceOne: ServiceOne
@@ -319,7 +319,7 @@ class ControllerTests: TestCase {
     func testControllerInject6Services() {
         final class TestController: Controller, Inject6Services {
             static func setup(router: ControllerRouter<TestController>) throws {
-                router.route(get: "/", handler: fetch)
+                router.route(get: "/", to: fetch)
             }
 
             let serviceOne: ServiceOne
