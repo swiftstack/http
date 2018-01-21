@@ -19,40 +19,34 @@ public extension Controller {
 extension RouterProtocol {
     func addController<C: Controller>(
         _ controller: C.Type,
-        constructor: @escaping () throws -> C
+        constructor: @escaping (Context) throws -> C
     ) throws {
         let router = ControllerRouter<C>(
             basePath: C.basePath,
             middleware: C.middleware,
+            services: Services.shared,
             controllerConstructor: constructor
         )
         try C.setup(router: router)
         self.addApplication(router.application)
     }
-
-    func check<T, C: Controller>(
-        type: T.Type,
-        for controller: C.Type
-    ) throws {
-        do {
-            _ = try Services.shared.resolve(T.self)
-        } catch let error as Services.Error {
-            debugPrint(controller)
-            throw error
-        }
-    }
 }
 
 public class ControllerRouter<T: Controller> {
+    let services: Services
     let application: Application
-    var constructor: () throws -> T
+    var constructor: (Context) throws -> T
 
     public init(
         basePath: String,
         middleware: [Middleware.Type],
-        controllerConstructor: @escaping () throws -> T
+        services: Services,
+        controllerConstructor: @escaping (Context) throws -> T
     ) {
-        application = Application(basePath: basePath, middleware: middleware)
-        constructor = controllerConstructor
+        self.services = services
+        self.constructor = controllerConstructor
+        self.application = Application(
+            basePath: basePath,
+            middleware: middleware)
     }
 }

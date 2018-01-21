@@ -61,21 +61,6 @@ extension Response {
         contentType type: ApplicationSubtype = .json
     ) throws {
         self.init()
-        switch type {
-        case .json:
-            let bytes = try JSONEncoder().encode(object)
-            self.bytes = bytes
-            self.contentLength = bytes.count
-            self.contentType = .json
-
-        case .formURLEncoded:
-            let bytes = try FormURLEncoded.encode(encodable: object)
-            self.bytes = bytes
-            self.contentLength = bytes.count
-            self.contentType = .formURLEncoded
-
-        default:
-            throw ParseError.unsupportedContentType
-        }
+        try Coder.encode(object: object, to: self, contentType: type)
     }
 }

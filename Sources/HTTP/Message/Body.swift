@@ -64,6 +64,12 @@ extension BodyInpuStream {
             }
             return String(bytes: bytes, encoding: .utf8)
         }
+        set {
+            switch newValue {
+            case .none: self.bytes = nil
+            case .some(let string): self.bytes = [UInt8](string.utf8)
+            }
+        }
     }
 
     public var bytes: [UInt8]? {

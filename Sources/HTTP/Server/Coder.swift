@@ -13,11 +13,57 @@ struct Coder {
 
     @_versioned
     @inline(__always)
-    static func makeRespone<T: Encodable>(for object: T) throws -> Response {
+    static func makeRespone<T: Encodable>(
+        for request: Request,
+        encoding object: T
+    ) throws -> Response {
+        let response = Response(status: .ok)
+        try Coder.updateRespone(response, for: request, encoding: object)
+        return response
+    }
+
+    @_versioned
+    @inline(__always)
+    static func updateRespone<T: Encodable>(
+        _ response: Response,
+        for request: Request,
+        encoding object: T
+    ) throws {
+        // TODO: respect Request.Accept
+
         switch object {
-        case let string as String: return Response(string: string)
-        case is Void: return Response(status: .ok)
-        default: return try Response(body: object)
+        case let string as String:
+            response.contentType = .text
+            response.string = string
+        case is Void:
+            // response.status = .noContent
+            response.body = .none
+        default:
+            try Coder.encode(object: object, to: response, contentType: .json)
+        }
+    }
+
+    @_versioned
+    static func encode(
+        object: Encodable,
+        to response: Response,
+        contentType type: ApplicationSubtype
+    ) throws {
+        switch type {
+        case .json:
+            let bytes = try JSONEncoder().encode(object)
+            response.bytes = bytes
+            response.contentLength = bytes.count
+            response.contentType = .json
+
+        case .formURLEncoded:
+            let bytes = try FormURLEncoded.encode(encodable: object)
+            response.bytes = bytes
+            response.contentLength = bytes.count
+            response.contentType = .formURLEncoded
+
+        default:
+            throw ParseError.unsupportedContentType
         }
     }
 
