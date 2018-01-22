@@ -29,8 +29,8 @@ class ApplicationTests: TestCase {
 
     func testApplicationMiddleware() {
         struct FirstMiddleware: Middleware {
-            public static func createMiddleware(
-                for handler: @escaping RequestHandler
+            public static func chain(
+                with handler: @escaping RequestHandler
             ) -> RequestHandler {
                 return { request in
                     let response = try handler(request)
@@ -42,8 +42,8 @@ class ApplicationTests: TestCase {
         }
 
         struct SecondMiddleware: Middleware {
-            public static func createMiddleware(
-                for handler: @escaping RequestHandler
+            public static func chain(
+                with handler: @escaping RequestHandler
             ) -> RequestHandler {
                 return { request in
                     let response = try handler(request)

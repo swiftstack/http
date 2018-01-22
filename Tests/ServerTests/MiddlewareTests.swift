@@ -6,8 +6,8 @@ import Stream
 class MiddlewareTests: TestCase {
     func testMiddleware() {
         struct TestMiddleware: Middleware {
-            public static func createMiddleware(
-                for handler: @escaping RequestHandler
+            public static func chain(
+                with handler: @escaping RequestHandler
             ) -> RequestHandler {
                 return { request in
                     let response = try handler(request)
@@ -35,8 +35,8 @@ class MiddlewareTests: TestCase {
 
     func testMiddlewareOrder() {
         struct FirstMiddleware: Middleware {
-            public static func createMiddleware(
-                for handler: @escaping RequestHandler
+            public static func chain(
+                with handler: @escaping RequestHandler
             ) -> RequestHandler {
                 return { request in
                     let response = try handler(request)
@@ -48,8 +48,8 @@ class MiddlewareTests: TestCase {
         }
 
         struct SecondMiddleware: Middleware {
-            public static func createMiddleware(
-                for handler: @escaping RequestHandler
+            public static func chain(
+                with handler: @escaping RequestHandler
             ) -> RequestHandler {
                 return { request in
                     let response = try handler(request)
