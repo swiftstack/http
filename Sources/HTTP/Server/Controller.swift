@@ -2,8 +2,14 @@ import JSON
 
 public protocol Controller {
     static var basePath: String { get }
-    static var middleware: [Middleware.Type] { get }
+    static var middleware: [ControllerMiddleware.Type] { get }
     static func setup(router: ControllerRouter<Self>) throws
+}
+
+public protocol ControllerMiddleware {
+    static func chain(
+        with middleware: @escaping (Context) throws -> Void
+    ) -> (Context) throws -> Void
 }
 
 public extension Controller {
@@ -11,7 +17,7 @@ public extension Controller {
         return ""
     }
 
-    static var middleware: [Middleware.Type] {
+    static var middleware: [ControllerMiddleware.Type] {
         return []
     }
 }
@@ -29,24 +35,5 @@ extension RouterProtocol {
         )
         try C.setup(router: router)
         self.addApplication(router.application)
-    }
-}
-
-public class ControllerRouter<T: Controller> {
-    let services: Services
-    let application: Application
-    var constructor: (Context) throws -> T
-
-    public init(
-        basePath: String,
-        middleware: [Middleware.Type],
-        services: Services,
-        controllerConstructor: @escaping (Context) throws -> T
-    ) {
-        self.services = services
-        self.constructor = controllerConstructor
-        self.application = Application(
-            basePath: basePath,
-            middleware: middleware)
     }
 }
