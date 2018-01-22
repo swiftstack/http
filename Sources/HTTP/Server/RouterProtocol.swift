@@ -77,7 +77,7 @@ extension RouterProtocol {
         middleware: [Middleware.Type] = [],
         handler: @escaping () throws -> Result
     ) {
-        route(path: path, methods: methods) { request in
+        route(path: path, methods: methods, middleware: middleware) { request in
             let result = try handler()
             return try Coder.makeRespone(for: request, encoding: result)
         }
@@ -91,7 +91,7 @@ extension RouterProtocol {
         middleware: [Middleware.Type] = [],
         handler: @escaping (Request) throws -> Result
     ) {
-        route(path: path, methods: methods) { request in
+        route(path: path, methods: methods, middleware: middleware) { request in
             let result = try handler(request)
             return try Coder.makeRespone(for: request, encoding: result)
         }
@@ -143,7 +143,7 @@ extension RouterProtocol {
         middleware: [Middleware.Type] = [],
         handler: @escaping (Model) throws -> Result
     ) {
-        route(path: path, methods: methods)
+        route(path: path, methods: methods, middleware: middleware)
         { (request: Request, model: Model) throws -> Response in
             let result = try handler(model)
             return try Coder.makeRespone(for: request, encoding: result)
@@ -192,7 +192,7 @@ extension RouterProtocol {
         middleware: [Middleware.Type] = [],
         handler: @escaping (Request, Model) throws -> Result
     ) {
-        route(path: path, methods: methods)
+        route(path: path, methods: methods, middleware: middleware)
         { (request: Request, model: Model) throws -> Response in
             let result = try handler(request, model)
             return try Coder.makeRespone(for: request, encoding: result)
@@ -238,7 +238,7 @@ extension RouterProtocol {
         middleware: [Middleware.Type] = [],
         handler: @escaping (URLMatch, Model) throws -> Result
     ) {
-        route(path: path, methods: methods)
+        route(path: path, methods: methods, middleware: middleware)
         { (request: Request, match: URLMatch, model: Model) throws -> Response
             in
             let result = try handler(match, model)
@@ -286,7 +286,7 @@ extension RouterProtocol {
         middleware: [Middleware.Type] = [],
         handler: @escaping (Request, URLMatch, Model) throws -> Result
     ) {
-        route(path: path, methods: methods)
+        route(path: path, methods: methods, middleware: middleware)
         { (request: Request, match: URLMatch, model: Model) throws -> Response
             in
             let result = try handler(request, match, model)
