@@ -27,12 +27,19 @@ public class Router: RouterProtocol {
 
     private var routeMatcher = RouteMatcher<Route>()
 
+    public var middleware: [Middleware.Type]
+
+    init(middleware: [Middleware.Type] = []) {
+        self.middleware = middleware
+    }
+
     public func registerRoute(
         path: String,
         methods: MethodSet,
         middleware: [Middleware.Type],
         handler: @escaping RequestHandler
     ) {
+        let middleware = self.middleware + middleware
         let handler = chainMiddleware(middleware, with: handler)
         let route = Route(methods: methods, handler: handler)
         routeMatcher.add(route: path, payload: route)

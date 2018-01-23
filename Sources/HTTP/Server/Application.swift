@@ -6,7 +6,7 @@ public class Application: RouterProtocol {
     }
 
     public let basePath: String
-    public let middleware: [Middleware.Type]
+    public var middleware: [Middleware.Type]
 
     public private(set) var routes = [Route]()
 
