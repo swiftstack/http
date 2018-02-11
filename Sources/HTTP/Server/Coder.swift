@@ -35,6 +35,8 @@ struct Coder {
         case let string as String:
             response.contentType = .text
             response.string = string
+        case let value as Optional<Any> where value == nil:
+            fallthrough
         case is Void:
             // response.status = .noContent
             response.body = .none
