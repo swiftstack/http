@@ -2,17 +2,20 @@ public class ControllerRouter<T: Controller> {
     let services: Services
     @_versioned let application: Application
     @_versioned let middleware: [ControllerMiddleware.Type]
+    @_versioned let authorization: Authorization
     var constructor: (Context) throws -> T
 
     public init(
         basePath: String,
         middleware: [ControllerMiddleware.Type],
+        authorization: Authorization,
         services: Services,
         controllerConstructor constructor: @escaping (Context) throws -> T
     ) {
         self.services = services
         self.application = Application(basePath: basePath)
         self.middleware = middleware
+        self.authorization = authorization
         self.constructor = constructor
     }
 
@@ -142,13 +145,17 @@ public class ControllerRouter<T: Controller> {
     @_versioned
     func makeHandler(
         through middleware: [ControllerMiddleware.Type],
-        to handler: @escaping (Context) throws -> Void
+        to handler: @escaping (Context) throws -> Void,
+        authorize authorization: Authorization
     ) -> RequestHandler {
         let middleware = self.middleware + middleware
         let chain = chainMiddleware(middleware, with: handler)
 
         return { (request: Request) throws -> Response in
-            let context = Context(request: request, services: self.services)
+            let context = Context(
+                request: request,
+                authorization: authorization,
+                services: self.services)
             try chain(context)
             return context.response
         }
@@ -160,11 +167,15 @@ public class ControllerRouter<T: Controller> {
     public func route<Result: Encodable>(
         path: String,
         methods: Router.MethodSet,
+        authorization: Authorization?,
         middleware: [ControllerMiddleware.Type] = [],
         handler: @escaping (T) -> () throws -> Result
     ) {
         let handlerMiddleware = makeMiddleware(for: path, wrapping: handler)
-        let handler = makeHandler(through: middleware, to: handlerMiddleware)
+        let handler = makeHandler(
+            through: middleware,
+            to: handlerMiddleware,
+            authorize: authorization ?? self.authorization)
         application.route(path: path, methods: methods, handler: handler)
     }
 
@@ -172,11 +183,15 @@ public class ControllerRouter<T: Controller> {
     public func route<Model: Decodable, Result: Encodable>(
         path: String,
         methods: Router.MethodSet,
+        authorization: Authorization?,
         middleware: [ControllerMiddleware.Type] = [],
         handler: @escaping (T) -> (Model) throws -> Result
     ) {
         let handlerMiddleware = makeMiddleware(for: path, wrapping: handler)
-        let handler = makeHandler(through: middleware, to: handlerMiddleware)
+        let handler = makeHandler(
+            through: middleware,
+            to: handlerMiddleware,
+            authorize: authorization ?? self.authorization)
         application.route(path: path, methods: methods, handler: handler)
     }
 
@@ -184,11 +199,15 @@ public class ControllerRouter<T: Controller> {
     public func route<URLMatch: Decodable, Model: Decodable, Result: Encodable>(
         path: String,
         methods: Router.MethodSet,
+        authorization: Authorization?,
         middleware: [ControllerMiddleware.Type] = [],
         handler: @escaping (T) -> (URLMatch, Model) throws -> Result
     ) {
         let handlerMiddleware = makeMiddleware(for: path, wrapping: handler)
-        let handler = makeHandler(through: middleware, to: handlerMiddleware)
+        let handler = makeHandler(
+            through: middleware,
+            to: handlerMiddleware,
+            authorize: authorization ?? self.authorization)
         application.route(path: path, methods: methods, handler: handler)
     }
 }

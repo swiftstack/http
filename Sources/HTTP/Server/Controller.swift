@@ -3,13 +3,8 @@ import JSON
 public protocol Controller {
     static var basePath: String { get }
     static var middleware: [ControllerMiddleware.Type] { get }
+    static var authorization: Authorization { get }
     static func setup(router: ControllerRouter<Self>) throws
-}
-
-public protocol ControllerMiddleware {
-    static func chain(
-        with middleware: @escaping (Context) throws -> Void
-    ) -> (Context) throws -> Void
 }
 
 public extension Controller {
@@ -19,6 +14,10 @@ public extension Controller {
 
     static var middleware: [ControllerMiddleware.Type] {
         return []
+    }
+
+    static var authorization: Authorization {
+        return .allowAnonymous
     }
 }
 
@@ -30,6 +29,7 @@ extension RouterProtocol {
         let router = ControllerRouter<C>(
             basePath: C.basePath,
             middleware: C.middleware,
+            authorization: C.authorization,
             services: Services.shared,
             controllerConstructor: constructor
         )

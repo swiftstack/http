@@ -1,24 +1,27 @@
 public final class Context {
-    public var request: Request
+    public let request: Request
     public var response: Response
-    public var services: Services
+
+    public let authorization: Authorization
+    public let services: Services
+
+    public var user: UserProtocol? = nil
 
     init(
         request: Request,
-        response: Response = Response(status: .ok),
+        authorization: Authorization,
         services: Services
     ) {
         self.request = request
-        self.response = response
+        self.authorization = authorization
         self.services = services
+
+        self.response = Response(status: .ok)
     }
 }
 
 extension Context: Service {
     public convenience init() {
-        let request = Request(url: "/", method: .get)
-        let response = Response(status: .ok)
-        let services = Services.shared
-        self.init(request: request, response: response, services: services)
+        fatalError("Context shouldn't be created by DI")
     }
 }
