@@ -5,10 +5,12 @@ public struct AuthorizationMiddleware: ControllerMiddleware {
         return { context in
             let auth = try context.services.resolve(AuthorizationProtocol.self)
             try auth.authenticate(context: context)
-            guard context.authorization.authorize(user: context.user) else {
-                return auth.authorizationFailed(context: context)
+            let result = context.authorization.authorize(user: context.user)
+            switch result {
+            case .ok: try middleware(context)
+            case .unauthorized: auth.loginRequired(context: context)
+            case .unauthenticated: auth.accessDenied(context: context)
             }
-            try middleware(context)
         }
     }
 }

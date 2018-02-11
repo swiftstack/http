@@ -13,7 +13,11 @@ public final class CookieAuthorization: AuthorizationProtocol, InjectService {
         context.user = try repository.get(id: userId)
     }
 
-    func authorizationFailed(context: Context) {
+    func loginRequired(context: Context) {
+        context.response = Response(status: .unauthorized)
+    }
+
+    func accessDenied(context: Context) {
         context.response = Response(status: .unauthorized)
     }
 }

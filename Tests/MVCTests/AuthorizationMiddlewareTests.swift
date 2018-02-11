@@ -14,7 +14,11 @@ class AuthorizationMiddlewareTests: TestCase {
                 context.user = User(name: "user", claims: [])
             }
 
-            func authorizationFailed(context: Context) {
+            func loginRequired(context: Context) {
+                context.response = Response(status: .unauthorized)
+            }
+
+            func accessDenied(context: Context) {
                 context.response = Response(status: .unauthorized)
             }
         }
