@@ -488,4 +488,32 @@ class ControllerTests: TestCase {
             fail(String(describing: error))
         }
     }
+
+    func testPartialUrl() {
+        final class TestController: Controller, Inject {
+            static func setup(router: ControllerRouter<TestController>) throws {
+                router.route(get: "/:name/id/:number", to: handler)
+            }
+
+            struct Page: Decodable {
+                let name: String
+                let number: Int
+            }
+
+            func handler(page: Page) -> String {
+                return "\(page.name) - \(page.number)"
+            }
+        }
+
+        do {
+            let application = Application(basePath: "/api/v1")
+            try application.addController(TestController.self)
+
+            let request = Request(url: "/api/v1/news/id/2", method: .get)
+            let response = application.handleRequest(request)
+            assertEqual(response?.status, .ok)
+        } catch {
+            fail(String(describing: error))
+        }
+    }
 }

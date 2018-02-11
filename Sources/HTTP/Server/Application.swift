@@ -34,12 +34,10 @@ public class Application: RouterProtocol {
         path: String,
         methods: Router.MethodSet
     ) -> RequestHandler? {
-        guard let route = routes.first(where: { route in
-            return route.path == path && route.methods.contains(methods)
-        }) else {
-            return nil
-        }
-        return route.handler
+        // NOTE: just for the tests
+        let router = Router()
+        router.addApplication(self)
+        return router.findHandler(path: path, methods: methods)
     }
 }
 
