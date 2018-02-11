@@ -38,7 +38,7 @@ struct Coder {
         case let value as Optional<Any> where value == nil:
             fallthrough
         case is Void:
-            // response.status = .noContent
+            response.status = .noContent
             response.body = .none
         default:
             try Coder.encode(object: object, to: response, contentType: .json)

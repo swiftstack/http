@@ -49,6 +49,7 @@ class CookiesMiddlewareTests: TestCase {
 
             let secondRequest = Request(url: "/second", method: .get)
             var secondResponse = application.handleRequest(secondRequest)
+            assertEqual(secondResponse?.status, .noContent)
             assertNil(secondResponse?.string)
 
             secondRequest.cookies.append(setCookie.cookie)
