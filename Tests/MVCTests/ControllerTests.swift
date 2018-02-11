@@ -2,7 +2,7 @@ import Test
 
 @testable import HTTP
 
-protocol StringResult: Service {
+protocol StringResult: Inject {
     var string: String { get }
 }
 
