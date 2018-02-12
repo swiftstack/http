@@ -7,7 +7,7 @@ public class CookieMiddleware: ControllerMiddleware {
         with middleware: @escaping (Context) throws -> Void
     ) -> (Context) throws -> Void {
         return { context in
-            let storage = try context.services.resolve(CookieStorage.self)
+            let storage = try context.services.resolve(CookiesStorage.self)
 
             if let token = context.request.cookies[cookiesName],
                 let cookies = try storage.get(hash: token) {

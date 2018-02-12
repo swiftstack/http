@@ -1,10 +1,10 @@
-protocol CookieStorage: Inject {
+protocol CookiesStorage: Inject {
     func get(hash: String) throws -> Cookies?
     func upsert(cookies: Cookies) throws
     func delete(hash: String) throws
 }
 
-public final class InMemoryCookieStorage: CookieStorage {
+public final class InMemoryCookiesStorage: CookiesStorage {
     var cookies: [String : Cookies]
 
     public init() {

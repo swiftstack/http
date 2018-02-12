@@ -6,7 +6,7 @@ class CookiesMiddlewareTests: TestCase {
     func testMiddleware() {
         final class TestController: Controller, InjectService {
             static var middleware: [ControllerMiddleware.Type] {
-                return [CookieMiddleware.self]
+                return [CookiesMiddleware.self]
             }
 
             static func setup(router: ControllerRouter<TestController>) throws {
@@ -32,8 +32,8 @@ class CookiesMiddlewareTests: TestCase {
 
         do {
             try Services.shared.register(
-                singleton: InMemoryCookieStorage.self,
-                as: CookieStorage.self)
+                singleton: InMemoryCookiesStorage.self,
+                as: CookiesStorage.self)
 
             let application = Application()
             try application.addController(TestController.self)
