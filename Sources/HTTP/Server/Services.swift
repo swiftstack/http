@@ -22,7 +22,7 @@ public class Services {
     public func register<T, P>(singleton type: T.Type, as proto: P.Type) throws
         where T: Inject
     {
-        guard let instance = T() as? P else {
+        guard let instance = try T() as? P else {
             throw Error.typeMismatch(type: T.self, proto: P.self)
         }
         values[id(proto)] = .singleton(instance)
@@ -32,7 +32,7 @@ public class Services {
         where T: InjectService
     {
         let one = try resolve(T.One.self)
-        guard let instance = T(one) as? P else {
+        guard let instance = try T(one) as? P else {
             throw Error.typeMismatch(type: T.self, proto: P.self)
         }
         values[id(proto)] = .singleton(instance)
@@ -43,7 +43,7 @@ public class Services {
     {
         let one = try resolve(T.One.self)
         let two = try resolve(T.Two.self)
-        guard let instance = T(one, two) as? P else {
+        guard let instance = try T(one, two) as? P else {
             throw Error.typeMismatch(type: T.self, proto: P.self)
         }
         values[id(proto)] = .singleton(instance)
@@ -55,7 +55,7 @@ public class Services {
         let one = try resolve(T.One.self)
         let two = try resolve(T.Two.self)
         let three = try resolve(T.Three.self)
-        guard let instance = T(one, two, three) as? P else {
+        guard let instance = try T(one, two, three) as? P else {
             throw Error.typeMismatch(type: T.self, proto: P.self)
         }
         values[id(proto)] = .singleton(instance)
@@ -68,7 +68,7 @@ public class Services {
         let two = try resolve(T.Two.self)
         let three = try resolve(T.Three.self)
         let four = try resolve(T.Four.self)
-        guard let instance = T(one, two, three, four) as? P else {
+        guard let instance = try T(one, two, three, four) as? P else {
             throw Error.typeMismatch(type: T.self, proto: P.self)
         }
         values[id(proto)] = .singleton(instance)
@@ -82,7 +82,7 @@ public class Services {
         let three = try resolve(T.Three.self)
         let four = try resolve(T.Four.self)
         let five = try resolve(T.Five.self)
-        guard let instance = T(one, two, three, four, five) as? P else {
+        guard let instance = try T(one, two, three, four, five) as? P else {
             throw Error.typeMismatch(type: T.self, proto: P.self)
         }
         values[id(proto)] = .singleton(instance)
@@ -97,7 +97,8 @@ public class Services {
         let four = try resolve(T.Four.self)
         let five = try resolve(T.Five.self)
         let six = try resolve(T.Six.self)
-        guard let instance = T(one, two, three, four, five, six) as? P else {
+        guard let instance = try T(one, two, three, four, five, six) as? P else
+        {
             throw Error.typeMismatch(type: T.self, proto: P.self)
         }
         values[id(proto)] = .singleton(instance)
@@ -107,22 +108,22 @@ public class Services {
     public func register<T, P>(transient type: T.Type, as proto: P.Type) throws
         where T: Inject
     {
-        guard T() is P else {
+        guard try T() is P else {
             throw Error.typeMismatch(type: T.self, proto: P.self)
         }
-        values[id(proto)] = .transient { _ in return T() }
+        values[id(proto)] = .transient { _ in return try T() }
     }
 
     public func register<T, P>(transient type: T.Type, as proto: P.Type) throws
         where T: InjectService
     {
         let one = try resolve(T.One.self)
-        guard T(one) is P else {
+        guard try T(one) is P else {
             throw Error.typeMismatch(type: T.self, proto: P.self)
         }
         values[id(proto)] = .transient { services in
             let one = try services.resolve(T.One.self)
-            return T(one)
+            return try T(one)
         }
     }
 
@@ -131,12 +132,12 @@ public class Services {
     {
         let one = try resolve(T.One.self)
         let two = try resolve(T.Two.self)
-        guard T(one, two) is P else {
+        guard try T(one, two) is P else {
             throw Error.typeMismatch(type: T.self, proto: P.self)
         }
         values[id(proto)] = .transient { services in
             let one = try services.resolve(T.One.self)
-            return T(one, two)
+            return try T(one, two)
         }
     }
 
@@ -146,14 +147,14 @@ public class Services {
         let one = try resolve(T.One.self)
         let two = try resolve(T.Two.self)
         let three = try resolve(T.Three.self)
-        guard T(one, two, three) is P else {
+        guard try T(one, two, three) is P else {
             throw Error.typeMismatch(type: T.self, proto: P.self)
         }
         values[id(proto)] = .transient { services in
             let one = try services.resolve(T.One.self)
             let two = try services.resolve(T.Two.self)
             let three = try services.resolve(T.Three.self)
-            return T(one, two, three)
+            return try T(one, two, three)
         }
     }
 
@@ -164,7 +165,7 @@ public class Services {
         let two = try resolve(T.Two.self)
         let three = try resolve(T.Three.self)
         let four = try resolve(T.Four.self)
-        guard T(one, two, three, four) is P else {
+        guard try T(one, two, three, four) is P else {
             throw Error.typeMismatch(type: T.self, proto: P.self)
         }
         values[id(proto)] = .transient { services in
@@ -172,7 +173,7 @@ public class Services {
             let two = try services.resolve(T.Two.self)
             let three = try services.resolve(T.Three.self)
             let four = try services.resolve(T.Four.self)
-            return T(one, two, three, four)
+            return try T(one, two, three, four)
         }
     }
 
@@ -184,7 +185,7 @@ public class Services {
         let three = try resolve(T.Three.self)
         let four = try resolve(T.Four.self)
         let five = try resolve(T.Five.self)
-        guard T(one, two, three, four, five) is P else {
+        guard try T(one, two, three, four, five) is P else {
             throw Error.typeMismatch(type: T.self, proto: P.self)
         }
         values[id(proto)] = .transient { services in
@@ -193,7 +194,7 @@ public class Services {
             let three = try services.resolve(T.Three.self)
             let four = try services.resolve(T.Four.self)
             let five = try services.resolve(T.Five.self)
-            return T(one, two, three, four, five)
+            return try T(one, two, three, four, five)
         }
     }
 
@@ -206,7 +207,7 @@ public class Services {
         let four = try resolve(T.Four.self)
         let five = try resolve(T.Five.self)
         let six = try resolve(T.Six.self)
-        guard T(one, two, three, four, five, six) is P else {
+        guard try T(one, two, three, four, five, six) is P else {
             throw Error.typeMismatch(type: T.self, proto: P.self)
         }
         values[id(proto)] = .transient { services in
@@ -216,7 +217,7 @@ public class Services {
             let four = try services.resolve(T.Four.self)
             let five = try services.resolve(T.Five.self)
             let six = try services.resolve(T.Six.self)
-            return T(one, two, three, four, five, six)
+            return try T(one, two, three, four, five, six)
         }
     }
 
