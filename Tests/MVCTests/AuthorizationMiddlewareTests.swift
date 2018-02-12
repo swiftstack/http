@@ -11,15 +11,24 @@ class AuthorizationMiddlewareTests: TestCase {
 
         struct TestAuthorization: AuthorizationProtocol, Inject {
             func authenticate(context: Context) throws {
-                context.user = User(name: "user", claims: [])
+                switch context.request.url.query {
+                case .some(let query) where query["token"] == "a":
+                    context.user = User(name: "admin", claims: ["admin"])
+                case .some(let query) where query["token"] == "u":
+                    context.user = User(name: "user", claims: [])
+                default:
+                    context.user = nil
+                }
             }
 
             func loginRequired(context: Context) {
                 context.response = Response(status: .unauthorized)
+                context.response.string = "login required"
             }
 
             func accessDenied(context: Context) {
                 context.response = Response(status: .unauthorized)
+                context.response.string = "access denied"
             }
         }
 
@@ -29,8 +38,8 @@ class AuthorizationMiddlewareTests: TestCase {
             }
 
             static func setup(router: ControllerRouter<TestController>) throws {
-                router.route(get: "/user", authorizing: .user("user"), to: user)
-                router.route(get: "/admin", authorizing: .user("admin"), to: admin)
+                router.route(get: "/user", authorizing: .user, to: user)
+                router.route(get: "/admin", authorizing: .claim("admin"), to: admin)
             }
 
             let context: Context
@@ -56,7 +65,7 @@ class AuthorizationMiddlewareTests: TestCase {
             let application = Application()
             try application.addController(TestController.self)
 
-            let userRequest = Request(url: "/user", method: .get)
+            let userRequest = Request(url: "/user?token=u", method: .get)
             let userResponse = application.handleRequest(userRequest)
             assertEqual(userResponse?.status, .ok)
             assertEqual(userResponse?.string, "user")
@@ -64,7 +73,17 @@ class AuthorizationMiddlewareTests: TestCase {
             let adminRequest = Request(url: "/admin", method: .get)
             let adminResponse = application.handleRequest(adminRequest)
             assertEqual(adminResponse?.status, .unauthorized)
-            assertEqual(adminResponse?.string, nil)
+            assertEqual(adminResponse?.string, "login required")
+
+            let adminRequest2 = Request(url: "/admin?token=u", method: .get)
+            let adminResponse2 = application.handleRequest(adminRequest2)
+            assertEqual(adminResponse2?.status, .unauthorized)
+            assertEqual(adminResponse2?.string, "access denied")
+
+            let adminRequest3 = Request(url: "/admin?token=a", method: .get)
+            let adminResponse3 = application.handleRequest(adminRequest3)
+            assertEqual(adminResponse3?.status, .ok)
+            assertEqual(adminResponse3?.string, "admin")
         } catch {
             fail(String(describing: error))
         }

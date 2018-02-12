@@ -17,7 +17,7 @@ public extension Controller {
     }
 
     static var authorization: Authorization {
-        return .allowAnonymous
+        return .any
     }
 }
 

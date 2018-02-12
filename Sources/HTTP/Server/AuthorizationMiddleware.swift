@@ -8,8 +8,8 @@ public struct AuthorizationMiddleware: ControllerMiddleware {
             let result = context.authorization.authorize(user: context.user)
             switch result {
             case .ok: try middleware(context)
-            case .unauthorized: auth.loginRequired(context: context)
-            case .unauthenticated: auth.accessDenied(context: context)
+            case .unauthorized: auth.accessDenied(context: context)
+            case .unauthenticated: auth.loginRequired(context: context)
             }
         }
     }
