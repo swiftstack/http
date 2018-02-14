@@ -18,7 +18,18 @@ public class Services {
         return unsafeBitCast(type, to: Int.self)
     }
 
-    // singleton
+    // MARK: Singleton
+
+    public func register<T, P>(
+        singleton proto: P.Type,
+        _ constructor: () throws -> T
+    ) throws {
+        guard let instance = try constructor() as? P else {
+            throw Error.typeMismatch(type: T.self, proto: P.self)
+        }
+        values[id(proto)] = .singleton(instance)
+    }
+
     public func register<T, P>(singleton type: T.Type, as proto: P.Type) throws
         where T: Inject
     {
@@ -104,7 +115,18 @@ public class Services {
         values[id(proto)] = .singleton(instance)
     }
 
-    // transient
+    // MARK: Transient
+
+    public func register<T, P>(
+        transient proto: P.Type,
+        _ constructor: @escaping () throws -> T
+    ) throws {
+        guard try constructor() is P else {
+            throw Error.typeMismatch(type: T.self, proto: P.self)
+        }
+        values[id(proto)] = .transient { _ in return try constructor() }
+    }
+
     public func register<T, P>(transient type: T.Type, as proto: P.Type) throws
         where T: Inject
     {
