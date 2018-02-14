@@ -29,12 +29,12 @@ public struct ErrorHandlerMiddleware: Middleware {
                 case let error as Error:
                     switch error {
                     case .notFound:
-                        log(
-                            event: .warning,
-                            message: "not found: \(request.url.path)")
+                        Log.warning("not found: \(request.url.path)")
                         return Response(status: .notFound)
                     case .conflict:
                         return Response(status: .conflict)
+                    case .internalServerError:
+                        return Response(status: .internalServerError)
                     }
                 default:
                     throw error

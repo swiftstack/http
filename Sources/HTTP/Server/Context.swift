@@ -6,7 +6,7 @@ public final class Context {
     public let services: Services
 
     public var cookies: Cookies
-    public var user: UserProtocol? = nil
+    public var user: User? = nil
 
     init(
         request: Request,

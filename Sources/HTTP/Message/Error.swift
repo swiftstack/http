@@ -1,6 +1,7 @@
 public enum Error: Swift.Error {
     case notFound
     case conflict
+    case internalServerError
 }
 
 public enum ParseError: Swift.Error {

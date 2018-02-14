@@ -26,13 +26,18 @@ let package = Package(
             url: "https://github.com/swift-stack/compression.git",
             .branch("master")),
         .package(
+            url: "https://github.com/swift-stack/crypto.git",
+            .branch("master")),
+        .package(
             url: "https://github.com/swift-stack/test.git",
             .branch("master"))
     ],
     targets: [
         .target(
             name: "HTTP",
-            dependencies: ["Log", "Network", "Stream", "JSON", "Compression"]),
+            dependencies: [
+                "Log", "Network", "Stream", "JSON", "Compression", "Crypto"
+            ]),
         .testTarget(
             name: "MessageTests",
             dependencies: ["HTTP", "Test"]),

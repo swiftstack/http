@@ -4,18 +4,21 @@ import Test
 
 class AuthorizationMiddlewareTests: TestCase {
     func testMiddleware() {
-        struct User: UserProtocol {
-            let name: String
-            let claims: [String]
-        }
-
         struct TestAuthorization: AuthorizationProtocol, Inject {
             func authenticate(context: Context) throws {
                 switch context.request.url.query {
                 case .some(let query) where query["token"] == "a":
-                    context.user = User(name: "admin", claims: ["admin"])
+                    context.user = User(
+                        name: "admin",
+                        email: "",
+                        password: "",
+                        claims: ["admin"])
                 case .some(let query) where query["token"] == "u":
-                    context.user = User(name: "user", claims: [])
+                    context.user = User(
+                        name: "user",
+                        email: "",
+                        password: "",
+                        claims: ["user"])
                 default:
                     context.user = nil
                 }
