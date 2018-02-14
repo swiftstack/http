@@ -5,24 +5,23 @@ public protocol CookiesStorage: Inject {
 }
 
 public final class InMemoryCookiesStorage: CookiesStorage {
-    var cookies: [String : [String : String]]
+    static var cookies: [String : [String : String]] = [:]
 
     public init() {
-        self.cookies = [:]
     }
 
     public func get(hash: String) throws -> Cookies? {
-        guard let values = self.cookies[hash] else {
+        guard let values = InMemoryCookiesStorage.cookies[hash] else {
             return nil
         }
         return Cookies(hash: hash, values: values)
     }
 
     public func upsert(cookies: Cookies) throws {
-        self.cookies[cookies.hash] = cookies.values
+        InMemoryCookiesStorage.cookies[cookies.hash] = cookies.values
     }
 
     public func delete(hash: String) throws {
-        cookies[hash] = nil
+        InMemoryCookiesStorage.cookies[hash] = nil
     }
 }
