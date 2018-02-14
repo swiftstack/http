@@ -1,25 +1,28 @@
-protocol CookiesStorage: Inject {
+public protocol CookiesStorage: Inject {
     func get(hash: String) throws -> Cookies?
     func upsert(cookies: Cookies) throws
     func delete(hash: String) throws
 }
 
 public final class InMemoryCookiesStorage: CookiesStorage {
-    var cookies: [String : Cookies]
+    var cookies: [String : [String : String]]
 
     public init() {
         self.cookies = [:]
     }
 
-    func get(hash: String) throws -> Cookies? {
-        return self.cookies[hash]
+    public func get(hash: String) throws -> Cookies? {
+        guard let values = self.cookies[hash] else {
+            return nil
+        }
+        return Cookies(hash: hash, values: values)
     }
 
-    func upsert(cookies: Cookies) throws {
-        self.cookies[cookies.hash] = cookies
+    public func upsert(cookies: Cookies) throws {
+        self.cookies[cookies.hash] = cookies.values
     }
 
-    func delete(hash: String) throws {
+    public func delete(hash: String) throws {
         cookies[hash] = nil
     }
 }

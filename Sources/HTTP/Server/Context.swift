@@ -32,7 +32,7 @@ import struct Foundation.UUID
 
 public class Cookies {
     let hash: String
-    private var values: [String : String]
+    private(set) var values: [String : String]
 
     var hasChanges = false
 

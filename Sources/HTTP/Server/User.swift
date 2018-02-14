@@ -49,7 +49,12 @@ public struct User: UserProtocol {
         }
     }
 
-    init(name: String, email: String, password: String, claims: [String] = []) {
+    public init(
+        name: String,
+        email: String,
+        password: String,
+        claims: [String] = []
+    ) {
         self.id = nil
         self.name = name
         self.email = email
