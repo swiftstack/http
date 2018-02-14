@@ -15,13 +15,14 @@ class ThrowableRouteTests: TestCase {
         @_versioned
         var router = Router(middleware: [ErrorHandlerMiddleware.self])
 
-        public var middleware: [Middleware.Type] {
-            get {
-                return router.middleware
-            }
-            set {
-                router.middleware = newValue
-            }
+        var middleware: [Middleware.Type] {
+            get { return router.middleware }
+            set { router.middleware = newValue }
+        }
+
+        var controllerMiddleware: [ControllerMiddleware.Type] {
+            get { return router.controllerMiddleware }
+            set { router.controllerMiddleware = newValue }
         }
 
         public func registerRoute(

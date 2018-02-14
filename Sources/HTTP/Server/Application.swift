@@ -7,12 +7,18 @@ public class Application: RouterProtocol {
 
     public let basePath: String
     public var middleware: [Middleware.Type]
+    public var controllerMiddleware: [ControllerMiddleware.Type]
 
     public private(set) var routes = [Route]()
 
-    public init(basePath: String = "", middleware: [Middleware.Type] = []) {
+    public init(
+        basePath: String = "",
+        middleware: [Middleware.Type] = [],
+        controllerMiddleware: [ControllerMiddleware.Type] = []
+    ) {
         self.basePath = basePath
         self.middleware = middleware
+        self.controllerMiddleware = controllerMiddleware
     }
 
     public func registerRoute(

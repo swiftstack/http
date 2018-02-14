@@ -28,7 +28,7 @@ extension RouterProtocol {
     ) throws {
         let router = ControllerRouter<C>(
             basePath: C.basePath,
-            middleware: C.middleware,
+            middleware: controllerMiddleware + C.middleware,
             authorization: C.authorization,
             services: Services.shared,
             controllerConstructor: constructor
