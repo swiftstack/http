@@ -44,7 +44,9 @@ struct Coder {
             // TODO: respect Request.Accept
             switch object {
             case let string as String:
-                response.contentType = .text
+                if response.contentType == nil {
+                    response.contentType = .text
+                }
                 response.string = string
             default:
                 try Coder.encode(
