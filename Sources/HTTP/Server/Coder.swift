@@ -18,30 +18,40 @@ struct Coder {
         encoding object: T
     ) throws -> Response {
         let response = Response(status: .ok)
-        try Coder.updateRespone(response, for: request, encoding: object)
+        try Coder.updateRespone(response, for: request, with: .object(object))
         return response
     }
 
     @_versioned
     @inline(__always)
-    static func updateRespone<T: Encodable>(
+    static func updateRespone(
         _ response: Response,
         for request: Request,
-        encoding object: T
+        with result: ApiResult
     ) throws {
-        // TODO: respect Request.Accept
-
-        switch object {
-        case let string as String:
+        switch result {
+        case .string(let string):
             response.contentType = .text
             response.string = string
-        case let value as Optional<Any> where value == nil:
-            fallthrough
-        case is Void:
-            response.status = .noContent
-            response.body = .none
-        default:
+        case .redirect(let to):
+            response.status = .found
+            response.headers["Location"] = to
+        case .status(let status):
+            response.status = status
+        case .json(let object):
             try Coder.encode(object: object, to: response, contentType: .json)
+        case .object(let object):
+            // TODO: respect Request.Accept
+            switch object {
+            case let string as String:
+                response.contentType = .text
+                response.string = string
+            default:
+                try Coder.encode(
+                    object: object,
+                    to: response,
+                    contentType: .json)
+            }
         }
     }
 

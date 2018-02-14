@@ -1,6 +1,6 @@
 import struct Foundation.Date
 
-public class CookieMiddleware: ControllerMiddleware {
+public class CookiesMiddleware: ControllerMiddleware {
     public static var cookiesName: String = "swift-stack-cookies"
 
     public static func chain(
