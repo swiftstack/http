@@ -1,4 +1,9 @@
-public final class UserManager: InjectService {
+public protocol UserManager {
+    func register(_ credentials: User.NewCredentials) throws -> User
+    func login(_ credentials: User.Credentials) throws -> User
+}
+
+public final class DefaultUserManager: UserManager, InjectService {
     enum Error: Swift.Error {
         case alreadyRegistered
         case invalidCredentials
@@ -11,13 +16,7 @@ public final class UserManager: InjectService {
         self.repository = repository
     }
 
-    struct NewCredentials: Codable {
-        let name: String
-        let email: String
-        let password: String
-    }
-
-    func register(_ credentials: NewCredentials) throws -> User {
+    public func register(_ credentials: User.NewCredentials) throws -> User {
         guard try repository.find(email: credentials.email) == nil else {
             throw Error.alreadyRegistered
         }
@@ -26,12 +25,7 @@ public final class UserManager: InjectService {
         return user
     }
 
-    struct Credentials: Decodable {
-        let email: String
-        let password: String
-    }
-
-    func login(_ credentials: Credentials) throws -> User {
+    public func login(_ credentials: User.Credentials) throws -> User {
         guard let user = try repository.find(email: credentials.email) else {
             throw Error.notFound
         }
@@ -43,7 +37,20 @@ public final class UserManager: InjectService {
 }
 
 extension User {
-    init(credentials: UserManager.NewCredentials) {
+    public struct NewCredentials: Codable {
+        let name: String
+        let email: String
+        let password: String
+    }
+
+    public struct Credentials: Decodable {
+        let email: String
+        let password: String
+    }
+}
+
+extension User {
+    init(credentials: NewCredentials) {
         self.init(
             name: credentials.name,
             email: credentials.email,

@@ -30,9 +30,9 @@ class UserManagerTests: TestCase {
 
     func testRegister() {
         do {
-            let users = UserManager(InMemoryUserRepository())
+            let users = DefaultUserManager(InMemoryUserRepository())
 
-            let user = try users.register(UserManager.NewCredentials(
+            let user = try users.register(User.NewCredentials(
                 name: "user", email: "new@user.com", password: "123"))
 
             assertEqual(user.name, "user")
@@ -40,10 +40,10 @@ class UserManagerTests: TestCase {
             assertTrue(user.password == "123")
             assertTrue(user.password.hash != "123")
 
-            assertThrowsError(try users.register(UserManager.NewCredentials(
+            assertThrowsError(try users.register(User.NewCredentials(
                 name: "user", email: "new@user.com", password: "123")))
             { error in
-                assertEqual(error as? UserManager.Error, .alreadyRegistered)
+                assertEqual(error as? DefaultUserManager.Error, .alreadyRegistered)
             }
         } catch {
             fail(String(describing: error))
@@ -52,12 +52,12 @@ class UserManagerTests: TestCase {
 
     func testLogin() {
         do {
-            let users = UserManager(InMemoryUserRepository())
+            let users = DefaultUserManager(InMemoryUserRepository())
 
-            _ = try users.register(UserManager.NewCredentials(
+            _ = try users.register(User.NewCredentials(
                 name: "user", email: "new@user.com", password: "123"))
 
-            let user = try users.login(UserManager.Credentials(
+            let user = try users.login(User.Credentials(
                 email: "new@user.com", password: "123"))
 
             assertEqual(user.name, "user")
@@ -65,16 +65,16 @@ class UserManagerTests: TestCase {
             assertTrue(user.password == "123")
             assertTrue(user.password.hash != "123")
 
-            assertThrowsError(try users.login(UserManager.Credentials(
+            assertThrowsError(try users.login(User.Credentials(
                 email: "unknown@user.com", password: "123")))
             { error in
-                assertEqual(error as? UserManager.Error, .notFound)
+                assertEqual(error as? DefaultUserManager.Error, .notFound)
             }
 
-            assertThrowsError(try users.login(UserManager.Credentials(
+            assertThrowsError(try users.login(User.Credentials(
                 email: "new@user.com", password: "000")))
             { error in
-                assertEqual(error as? UserManager.Error, .invalidCredentials)
+                assertEqual(error as? DefaultUserManager.Error, .invalidCredentials)
             }
 
         } catch {
