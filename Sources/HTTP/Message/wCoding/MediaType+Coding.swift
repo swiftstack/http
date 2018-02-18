@@ -174,8 +174,10 @@ extension ImageSubtype {
     private struct Bytes {
         static let gif = ASCII("gif")
         static let jpeg = ASCII("jpeg")
+        static let apng = ASCII("apng")
         static let png = ASCII("png")
         static let svg = ASCII("svg")
+        static let svgXML = ASCII("svg+xml")
         static let tiff = ASCII("tiff")
         static let webp = ASCII("webp")
         static let any = ASCII("*")
@@ -186,8 +188,10 @@ extension ImageSubtype {
         switch bytes.lowercasedHashValue {
         case Bytes.gif.lowercasedHashValue: self = .gif
         case Bytes.jpeg.lowercasedHashValue: self = .jpeg
+        case Bytes.apng.lowercasedHashValue: self = .apng
         case Bytes.png.lowercasedHashValue: self = .png
         case Bytes.svg.lowercasedHashValue: self = .svg
+        case Bytes.svgXML.lowercasedHashValue: self = .svgXML
         case Bytes.tiff.lowercasedHashValue: self = .tiff
         case Bytes.webp.lowercasedHashValue: self = .webp
         case Bytes.any.lowercasedHashValue: self = .any
@@ -200,7 +204,9 @@ extension ImageSubtype {
         case .gif: return Bytes.gif
         case .jpeg: return Bytes.jpeg
         case .png: return Bytes.png
+        case .apng: return Bytes.apng
         case .svg: return Bytes.svg
+        case .svgXML: return Bytes.svgXML
         case .tiff: return Bytes.tiff
         case .webp: return Bytes.webp
         case .any: return Bytes.any

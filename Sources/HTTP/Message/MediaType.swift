@@ -35,7 +35,9 @@ public enum ImageSubtype {
     case gif
     case jpeg
     case png
+    case apng
     case svg
+    case svgXML
     case tiff
     case webp
     case any
