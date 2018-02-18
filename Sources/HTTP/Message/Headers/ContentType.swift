@@ -39,13 +39,36 @@ public struct Boundary: Equatable {
 // MARK: Convenience
 
 extension ContentType {
-    public static let html = ContentType(mediaType: .text(.html))
-    public static let text = ContentType(mediaType: .text(.plain))
-    public static let json = ContentType(mediaType: .application(.json))
-    public static let xml = ContentType(mediaType: .application(.xml))
+    public static let html = ContentType(
+        mediaType: .text(.html))!
+
+    public static let css = ContentType(
+        mediaType: .text(.css))!
+
+    public static let text = ContentType(
+        mediaType: .text(.plain))!
+
+    public static let jpeg = ContentType(
+        mediaType: .image(.jpeg))!
+
+    public static let png = ContentType(
+        mediaType: .image(.png))!
+
+    public static let gif = ContentType(
+        mediaType: .image(.gif))!
+
+    public static let json = ContentType(
+        mediaType: .application(.json))!
+
+    public static let xml = ContentType(
+        mediaType: .application(.xml))!
+
     public static let javascript = ContentType(
-        mediaType: .application(.javascript))
+        mediaType: .application(.javascript))!
+
     public static let formURLEncoded = ContentType(
-        mediaType: .application(.formURLEncoded))
-    public static let stream = ContentType(mediaType: .application(.stream))
+        mediaType: .application(.formURLEncoded))!
+
+    public static let stream = ContentType(
+        mediaType: .application(.stream))!
 }
