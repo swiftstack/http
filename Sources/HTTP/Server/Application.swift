@@ -3,6 +3,16 @@ public class Application: RouterProtocol {
         public let path: String
         public let methods: Router.MethodSet
         public let handler: RequestHandler
+
+        public init(
+            path: String,
+            methods: Router.MethodSet,
+            handler: @escaping RequestHandler)
+        {
+            self.path = path
+            self.methods = methods
+            self.handler = handler
+        }
     }
 
     public let basePath: String
