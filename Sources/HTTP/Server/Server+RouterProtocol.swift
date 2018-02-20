@@ -8,15 +8,6 @@ extension Server: RouterProtocol {
         }
     }
 
-    public var controllerMiddleware: [ControllerMiddleware.Type] {
-        get {
-            return router.controllerMiddleware
-        }
-        set {
-            router.controllerMiddleware = newValue
-        }
-    }
-
     public func registerRoute(
         path: String,
         methods: Router.MethodSet,

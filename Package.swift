@@ -26,9 +26,6 @@ let package = Package(
             url: "https://github.com/swift-stack/compression.git",
             .branch("master")),
         .package(
-            url: "https://github.com/swift-stack/crypto.git",
-            .branch("master")),
-        .package(
             url: "https://github.com/swift-stack/test.git",
             .branch("master"))
     ],
@@ -36,13 +33,10 @@ let package = Package(
         .target(
             name: "HTTP",
             dependencies: [
-                "Log", "Network", "Stream", "JSON", "Compression", "Crypto"
+                "Log", "Network", "Stream", "JSON", "Compression"
             ]),
         .testTarget(
             name: "MessageTests",
-            dependencies: ["HTTP", "Test"]),
-        .testTarget(
-            name: "MVCTests",
             dependencies: ["HTTP", "Test"]),
         .testTarget(
             name: "ServerTests",
