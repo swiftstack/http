@@ -4,22 +4,26 @@ import Dispatch
 import AsyncDispatch
 
 class FunctionalTests: TestCase {
+    static var once: Void = {
+        async.use(Dispatch.self)
+    }()
+
     override func setUp() {
-        AsyncDispatch().registerGlobal()
+        _ = FunctionalTests.once
     }
 
     func setup(
         port: Int,
-        serverCode: @escaping (inout Server) throws -> Void,
+        serverCode: @escaping (Server) throws -> Void,
         clientCode: @escaping (Client) throws -> Void
     ) {
         let semaphore = DispatchSemaphore(value: 0)
 
         async.task {
             do {
-                var server = try Server(host: "127.0.0.1", port: port)
+                let server = try Server(host: "127.0.0.1", port: port)
 
-                try serverCode(&server)
+                try serverCode(server)
 
                 semaphore.signal()
                 try server.start()
