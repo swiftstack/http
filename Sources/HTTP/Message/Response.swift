@@ -9,7 +9,7 @@ public class Response {
     public var contentType: ContentType? = nil
     public var contentLength: Int? = nil
     public var transferEncoding: [TransferEncoding]? = nil
-    public var setCookie: [SetCookie] = []
+    public var cookies: [Cookie] = []
 
     public var headers: [HeaderName : String] = [:]
 

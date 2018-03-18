@@ -133,8 +133,8 @@ class ResponseEncodeTests: TestCase {
             "Set-Cookie: username=tony\r\n" +
             "\r\n"
         let response = Response()
-        response.setCookie = [
-            Response.SetCookie(Cookie(name: "username", value: "tony"))
+        response.cookies = [
+            Cookie(name: "username", value: "tony")
         ]
         assertEqual(Encoder.encode(response), expected)
     }
@@ -146,9 +146,10 @@ class ResponseEncodeTests: TestCase {
                 "Expires=Wed, 21 Oct 2015 07:28:00 GMT\r\n" +
             "\r\n"
         let response = Response()
-        response.setCookie = [
-            Response.SetCookie(
-                Cookie(name: "username", value: "tony"),
+        response.cookies = [
+            Cookie(
+                name: "username",
+                value: "tony",
                 expires: Date(timeIntervalSinceReferenceDate: 467105280))
         ]
         assertEqual(Encoder.encode(response), expected)
@@ -160,10 +161,8 @@ class ResponseEncodeTests: TestCase {
             "Set-Cookie: username=tony; Max-Age=42\r\n" +
             "\r\n"
         let response = Response()
-        response.setCookie = [
-            Response.SetCookie(
-                Cookie(name: "username", value: "tony"),
-                maxAge: 42)
+        response.cookies = [
+            Cookie(name: "username", value: "tony", maxAge: 42)
         ]
         assertEqual(Encoder.encode(response), expected)
     }
@@ -174,10 +173,8 @@ class ResponseEncodeTests: TestCase {
             "Set-Cookie: username=tony; HttpOnly\r\n" +
             "\r\n"
         let response = Response()
-        response.setCookie = [
-            Response.SetCookie(
-                Cookie(name: "username", value: "tony"),
-                httpOnly: true)
+        response.cookies = [
+            Cookie(name: "username", value: "tony", httpOnly: true)
         ]
         assertEqual(Encoder.encode(response), expected)
     }
@@ -188,10 +185,8 @@ class ResponseEncodeTests: TestCase {
             "Set-Cookie: username=tony; Secure\r\n" +
             "\r\n"
         let response = Response()
-        response.setCookie = [
-            Response.SetCookie(
-                Cookie(name: "username", value: "tony"),
-                secure: true)
+        response.cookies = [
+            Cookie(name: "username", value: "tony", secure: true)
         ]
         assertEqual(Encoder.encode(response), expected)
     }
@@ -202,10 +197,8 @@ class ResponseEncodeTests: TestCase {
             "Set-Cookie: username=tony; Domain=somedomain.com\r\n" +
             "\r\n"
         let response = Response()
-        response.setCookie = [
-            Response.SetCookie(
-                Cookie(name: "username", value: "tony"),
-                domain: "somedomain.com")
+        response.cookies = [
+            Cookie(name: "username", value: "tony", domain: "somedomain.com")
         ]
         assertEqual(Encoder.encode(response), expected)
     }
@@ -216,10 +209,8 @@ class ResponseEncodeTests: TestCase {
             "Set-Cookie: username=tony; Path=/\r\n" +
             "\r\n"
         let response = Response()
-        response.setCookie = [
-            Response.SetCookie(
-                Cookie(name: "username", value: "tony"),
-                path: "/")
+        response.cookies = [
+            Cookie(name: "username", value: "tony", path: "/")
         ]
         assertEqual(Encoder.encode(response), expected)
     }
@@ -231,15 +222,9 @@ class ResponseEncodeTests: TestCase {
             "Set-Cookie: token=1234; Max-Age=42; Secure\r\n" +
             "\r\n"
         let response = Response()
-        response.setCookie = [
-            Response.SetCookie(
-                Cookie(name: "user", value: "tony"),
-                secure: true,
-                httpOnly: true),
-            Response.SetCookie(
-                Cookie(name: "token", value: "1234"),
-                maxAge: 42,
-                secure: true)
+        response.cookies = [
+            Cookie(name: "user", value: "tony", secure: true, httpOnly: true),
+            Cookie(name: "token", value: "1234", maxAge: 42, secure: true)
         ]
         assertEqual(Encoder.encode(response), expected)
     }

@@ -50,7 +50,7 @@ extension Response {
             try writeHeader(.transferEncoding, encoder: transferEncoding.encode)
         }
 
-        for cookie in self.setCookie {
+        for cookie in self.cookies {
             try writeHeader(.setCookie, encoder: cookie.encode)
         }
 

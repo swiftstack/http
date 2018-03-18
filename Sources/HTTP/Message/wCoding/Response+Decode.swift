@@ -52,7 +52,7 @@ extension Response {
                 case .transferEncoding:
                     self.transferEncoding = try [TransferEncoding](from: stream)
                 case .setCookie:
-                    self.setCookie.append(try SetCookie(from: stream))
+                    self.cookies.append(try Cookie(responseCookieFrom: stream))
                 default:
                     // FIXME: validate
                     let bytes = try stream.read(until: .cr)
