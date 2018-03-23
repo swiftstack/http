@@ -59,7 +59,7 @@ extension RouterProtocol {
 }
 
 extension RouterProtocol {
-    func process(request: Request) throws -> Response {
+    public func process(request: Request) throws -> Response {
         let path = request.url.path
         let methods = Router.MethodSet(request.method)
         guard let handler = findHandler(path: path, methods: methods) else {
