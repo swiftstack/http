@@ -43,41 +43,9 @@ extension StreamingServer {
     }
 }
 
-extension RouterProtocol {
+extension Server {
+    @inline(__always)
     func handleRequest(_ request: Request) -> Response? {
-        do {
-            return try process(request: request)
-        } catch {
-            return handleError(error, for: request)
-        }
-    }
-
-    func handleError(_ error: Swift.Error, for request: Request) -> Response? {
-        log(event: .error, message: String(describing: error))
-        return Response(status: .internalServerError)
-    }
-}
-
-extension RouterProtocol {
-    public func process(request: Request) throws -> Response {
-        let path = request.url.path
-        let methods = Router.MethodSet(request.method)
-        guard let handler = findHandler(path: path, methods: methods) else {
-            throw Error.notFound
-        }
-        return try handler(request)
-    }
-}
-
-extension Router.MethodSet {
-    init(_ method: Request.Method) {
-        switch method {
-        case .get: self = .get
-        case .head: self = .head
-        case .post: self = .post
-        case .put: self = .put
-        case .delete: self = .delete
-        case .options: self = .options
-        }
+        return router.handleRequest(request)
     }
 }

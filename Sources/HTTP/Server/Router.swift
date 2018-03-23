@@ -32,6 +32,17 @@ public class Router: RouterProtocol {
         self.middleware = middleware
     }
 
+    func chainMiddleware(
+        _ middleware: [Middleware.Type],
+        with handler: @escaping RequestHandler
+    ) -> RequestHandler {
+        var handler = handler
+        for next in middleware.reversed() {
+            handler = next.chain(with: handler)
+        }
+        return handler
+    }
+
     public func registerRoute(
         path: String,
         methods: MethodSet,
@@ -55,5 +66,44 @@ public class Router: RouterProtocol {
             return nil
         }
         return route.handler
+    }
+}
+
+import Log
+
+extension Router {
+    public func process(_ request: Request) throws -> Response {
+        let path = request.url.path
+        let methods = Router.MethodSet(request.method)
+        guard let handler = findHandler(path: path, methods: methods) else {
+            throw HTTP.Error.notFound
+        }
+        return try handler(request)
+    }
+
+    func handleRequest(_ request: Request) -> Response? {
+        do {
+            return try process(request)
+        } catch {
+            return handleError(error, for: request)
+        }
+    }
+
+    func handleError(_ error: Swift.Error, for request: Request) -> Response? {
+        Log.error(String(describing: error))
+        return Response(status: .internalServerError)
+    }
+}
+
+extension Router.MethodSet {
+    init(_ method: Request.Method) {
+        switch method {
+        case .get: self = .get
+        case .head: self = .head
+        case .post: self = .post
+        case .put: self = .put
+        case .delete: self = .delete
+        case .options: self = .options
+        }
     }
 }

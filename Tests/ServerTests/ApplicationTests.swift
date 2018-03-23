@@ -11,7 +11,7 @@ class ApplicationTests: TestCase {
         }
 
         let request = Request(url: "/test", method: .get)
-        let response = application.handleRequest(request)
+        let response = try? application.process(request)
         assertEqual(response?.string, "test ok")
     }
 
@@ -22,7 +22,7 @@ class ApplicationTests: TestCase {
             return Response(string: "test ok")
         }
         let request = Request(url: "/v1/test", method: .get)
-        let response = application.handleRequest(request)
+        let response = try? application.process(request)
         assertEqual(response?.string, "test ok")
     }
 
@@ -66,13 +66,13 @@ class ApplicationTests: TestCase {
             return Response(string: "first-second ok")
         }
         let firstRequest = Request(url: "/first", method: .get)
-        let firstResponse = application.handleRequest(firstRequest)
+        let firstResponse = try? application.process(firstRequest)
         assertEqual(firstResponse?.string, "first ok")
         assertEqual(firstResponse?.headers["Middleware"], "first")
         assertEqual(firstResponse?.headers["FirstMiddleware"], "true")
 
         let secondRequest = Request(url: "/first-second", method: .get)
-        let secondResponse = application.handleRequest(secondRequest)
+        let secondResponse = try? application.process(secondRequest)
         assertEqual(secondResponse?.string, "first-second ok")
         assertEqual(secondResponse?.headers["Middleware"], "first")
         assertEqual(secondResponse?.headers["FirstMiddleware"], "true")

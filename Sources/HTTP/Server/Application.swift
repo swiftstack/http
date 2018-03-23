@@ -2,15 +2,18 @@ public class Application: RouterProtocol {
     public struct Route {
         public let path: String
         public let methods: Router.MethodSet
+        public let middleware: [Middleware.Type]
         public let handler: RequestHandler
 
         public init(
             path: String,
             methods: Router.MethodSet,
+            middleware: [Middleware.Type],
             handler: @escaping RequestHandler)
         {
             self.path = path
             self.methods = methods
+            self.middleware = middleware
             self.handler = handler
         }
     }
@@ -34,23 +37,18 @@ public class Application: RouterProtocol {
         middleware: [Middleware.Type],
         handler: @escaping RequestHandler
     ) {
-        let middleware = self.middleware + middleware
-        let handler = chainMiddleware(middleware, with: handler)
         routes.append(Route(
             path: self.basePath + path,
             methods: methods,
-            handler: handler
-        ))
+            middleware: middleware,
+            handler: handler))
     }
 
-    public func findHandler(
-        path: String,
-        methods: Router.MethodSet
-    ) -> RequestHandler? {
-        // NOTE: just for the tests
+    // @testable
+    func process(_ request: Request) throws -> Response {
         let router = Router()
         router.addApplication(self)
-        return router.findHandler(path: path, methods: methods)
+        return try router.process(request)
     }
 }
 
@@ -60,7 +58,7 @@ extension RouterProtocol {
             self.registerRoute(
                 path: route.path,
                 methods: route.methods,
-                middleware: [],
+                middleware: application.middleware + route.middleware,
                 handler: route.handler)
         }
     }
