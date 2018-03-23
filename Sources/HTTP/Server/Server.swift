@@ -8,8 +8,7 @@ public class Server: StreamingServer {
 
     let networkServer: Network.Server
 
-    @_versioned
-    var router = Router(middleware: [ErrorHandlerMiddleware.self])
+    public let router = Router(middleware: [ErrorHandlerMiddleware.self])
 
     public init(host: String, port: Int, bufferSize: Int = 4096) throws {
         self.bufferSize = bufferSize
