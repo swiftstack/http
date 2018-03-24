@@ -128,8 +128,9 @@ class ChunkedStreamReader: UnsafeStreamReader {
     let baseStream: BufferedInputStream<ChunkedInputStream>
 
     init(baseStream: UnsafeStreamReader) {
-        let reader = ChunkedInputStream(baseStream: baseStream)
-        self.baseStream = BufferedInputStream(baseStream: reader)
+        self.baseStream = BufferedInputStream(
+            baseStream: ChunkedInputStream(baseStream: baseStream),
+            capacity: 4096)
     }
 
     func close() throws {

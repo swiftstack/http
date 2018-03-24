@@ -88,4 +88,32 @@ class ChunkedStreamTests: TestCase {
             fail(String(describing: error))
         }
     }
+
+
+    // TODO: make it work with 256 byte buffer
+    func testSmallerBufferSize() {
+        do {
+            let chars300 =
+            "Simple 30 byte string number 0" +
+            "Simple 30 byte string number 1" +
+            "Simple 30 byte string number 2" +
+            "Simple 30 byte string number 3" +
+            "Simple 30 byte string number 4" +
+            "Simple 30 byte string number 5" +
+            "Simple 30 byte string number 6" +
+            "Simple 30 byte string number 7" +
+            "Simple 30 byte string number 8" +
+            "Simple 30 byte string number 9"
+
+            // default buffer size is 256 bytes
+            let chunked = "12C\r\n\(chars300)\r\n0\r\n\r\n"
+            let byteStream = InputByteStream(ASCII(chunked))
+            let chunkedStream = ChunkedStreamReader(baseStream: byteStream)
+            let string = try chunkedStream.readString()
+
+            assertEqual(string, chars300)
+        } catch {
+            fail(String(describing: error))
+        }
+    }
 }
