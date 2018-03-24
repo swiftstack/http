@@ -5,6 +5,7 @@ extension Response {
     @_specialize(exported: true, where T == BufferedInputStream<NetworkStream>)
     public convenience init<T: UnsafeStreamReader>(from stream: T) throws {
         self.init()
+        self.contentLength = nil
         do {
             self.version = try Version(from: stream)
             guard try stream.consume(.whitespace) else {

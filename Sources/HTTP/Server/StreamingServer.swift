@@ -33,6 +33,9 @@ extension StreamingServer {
                 try outputStream.flush()
             }
             if let response = handleRequest(request) {
+                if response.body == .none {
+                    response.contentLength = 0
+                }
                 try response.encode(to: outputStream)
                 try outputStream.flush()
             }

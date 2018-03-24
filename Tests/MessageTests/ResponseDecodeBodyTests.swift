@@ -101,4 +101,21 @@ class ResponseDecodeBodyTests: TestCase {
             fail(String(describing: error))
         }
     }
+
+    func testChunked() {
+        do {
+            let stream = InputByteStream(
+                "HTTP/1.1 200 OK\r\n" +
+                "Transfer-Encoding: chunked\r\n" +
+                "\r\n" +
+                "d\r\n" +
+                "Hello, World!\r\n" +
+                "0\r\n" +
+                "\r\n")
+             let response = try Response(from: stream)
+            assertEqual(response.string, "Hello, World!")
+        } catch {
+            fail(String(describing: error))
+        }
+    }
 }
