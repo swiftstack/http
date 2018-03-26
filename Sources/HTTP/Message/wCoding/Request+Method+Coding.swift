@@ -1,21 +1,21 @@
 import Stream
 
 extension Request.Method {
-    init<T: UnsafeStreamReader>(from stream: T) throws {
-        let bytes = try stream.read(allowedBytes: .token)
-        guard bytes.count > 0 else {
-            throw ParseError.unexpectedEnd
-        }
-        for (type, method) in RequestMethodBytes.values {
-            if bytes.elementsEqual(method) {
-                self = type
-                return
+    init<T: StreamReader>(from stream: T) throws {
+        self = try stream.read(allowedBytes: .token) { bytes in
+            guard bytes.count > 0 else {
+                throw ParseError.unexpectedEnd
             }
+            for (type, method) in RequestMethodBytes.values {
+                if bytes.elementsEqual(method) {
+                    return type
+                }
+            }
+            throw ParseError.invalidMethod
         }
-        throw ParseError.invalidMethod
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         let bytes: [UInt8]
         switch self {
         case .get: bytes = RequestMethodBytes.get

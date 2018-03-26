@@ -5,16 +5,17 @@ extension Expect {
         static let `continue` = ASCII("100-continue")
     }
 
-    init<T: UnsafeStreamReader>(from stream: T) throws {
+    init<T: StreamReader>(from stream: T) throws {
         // FIXME: validate with value-specific rule
-        let bytes = try stream.read(allowedBytes: .token)
-        switch bytes.lowercasedHashValue {
-        case Bytes.`continue`.lowercasedHashValue: self = .`continue`
-        default: throw ParseError.unsupportedExpect
+        self = try stream.read(allowedBytes: .token) { bytes in
+            switch bytes.lowercasedHashValue {
+            case Bytes.`continue`.lowercasedHashValue: return .`continue`
+            default: throw ParseError.unsupportedExpect
+            }
         }
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         let bytes: [UInt8]
         switch self {
         case .`continue`: bytes = Bytes.`continue`

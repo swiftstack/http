@@ -8,16 +8,14 @@ extension OutputByteStream {
     }
 }
 
-extension UnsafeStreamReader {
+extension StreamReader {
     func readString() throws -> String {
-        let buffer = try readUntilEnd()
-        return String(decoding: buffer, as: UTF8.self)
+        let bytes = try readUntilEnd()
+        return String(decoding: bytes, as: UTF8.self)
     }
 
-    func readUntilEnd() throws -> UnsafeRawBufferPointer {
-        return try read(
-            while: { _ in true },
-            allowingExhaustion: true)
+    func readUntilEnd() throws -> [UInt8] {
+        return try read(while: { _ in true }, allowingExhaustion: true)
     }
 }
 

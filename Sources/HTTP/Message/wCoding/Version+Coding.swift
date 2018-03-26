@@ -6,19 +6,22 @@ extension Version {
         static let oneOne = ASCII("1.1")
     }
 
-    init<T: UnsafeStreamReader>(from stream: T) throws {
-        let prefix = try stream.read(count: Bytes.httpSlash.count)
-        guard prefix.elementsEqual(Bytes.httpSlash) else {
-            throw ParseError.invalidVersion
+    init<T: StreamReader>(from stream: T) throws {
+        try stream.read(count: Bytes.httpSlash.count) { bytes in
+            guard bytes.elementsEqual(Bytes.httpSlash) else {
+                throw ParseError.invalidVersion
+            }
         }
-        let varsionBytes = try stream.read(count: Bytes.oneOne.count)
-        guard varsionBytes.elementsEqual(Bytes.oneOne) else {
-            throw ParseError.invalidVersion
+
+        self = try stream.read(count: Bytes.oneOne.count) { bytes in
+            guard bytes.elementsEqual(Bytes.oneOne) else {
+                throw ParseError.invalidVersion
+            }
+            return .oneOne
         }
-        self = .oneOne
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         try stream.write(Bytes.httpSlash)
         switch self {
         case .oneOne: try stream.write(Bytes.oneOne)

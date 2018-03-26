@@ -1,29 +1,29 @@
 import Stream
 
 extension Array where Element == TransferEncoding {
-    init<T: UnsafeStreamReader>(from stream: T) throws {
+    init<T: StreamReader>(from stream: T) throws {
         // FIXME: validate
-        let bytes = try stream.read(until: .cr)
-
-        var startIndex = bytes.startIndex
-        var endIndex = startIndex
-        var values = [TransferEncoding]()
-        while endIndex < bytes.endIndex {
-            endIndex =
-                bytes[startIndex...].index(of: .comma) ??
-                bytes.endIndex
-            let value = try TransferEncoding(from: bytes[startIndex..<endIndex])
-            values.append(value)
-            startIndex = endIndex.advanced(by: 1)
-            if startIndex < bytes.endIndex &&
-                bytes[startIndex] == .whitespace {
+        self = try stream.read(until: .cr) { bytes in
+            var startIndex = bytes.startIndex
+            var endIndex = startIndex
+            var values = [TransferEncoding]()
+            while endIndex < bytes.endIndex {
+                endIndex =
+                    bytes[startIndex...].index(of: .comma) ??
+                    bytes.endIndex
+                let value = try TransferEncoding(from: bytes[startIndex..<endIndex])
+                values.append(value)
+                startIndex = endIndex.advanced(by: 1)
+                if startIndex < bytes.endIndex &&
+                    bytes[startIndex] == .whitespace {
                     startIndex += 1
+                }
             }
+            return values
         }
-        self = values
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         for i in startIndex..<endIndex {
             if i != startIndex {
                 try stream.write(.comma)
@@ -54,7 +54,7 @@ extension TransferEncoding {
         }
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         let bytes: [UInt8]
         switch self {
         case .chunked: bytes = Bytes.chunked

@@ -3,7 +3,7 @@ import Stream
 extension Array where Element == Request.Accept {
     public typealias Accept = Request.Accept
 
-    init<T: UnsafeStreamReader>(from stream: T) throws {
+    init<T: StreamReader>(from stream: T) throws {
         var values = [Accept]()
 
         while true {
@@ -17,7 +17,7 @@ extension Array where Element == Request.Accept {
         self = values
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         for i in startIndex..<endIndex {
             if i != startIndex {
                 try stream.write(.comma)
@@ -32,7 +32,7 @@ extension Request.Accept {
         static let qEqual = ASCII("q=")
     }
 
-    init<T: UnsafeStreamReader>(from stream: T) throws {
+    init<T: StreamReader>(from stream: T) throws {
         self.mediaType = try MediaType(from: stream)
 
         guard try stream.consume(.semicolon) else {
@@ -50,7 +50,7 @@ extension Request.Accept {
         self.priority = priority
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         try mediaType.encode(to: stream)
 
         if priority < 1.0 {

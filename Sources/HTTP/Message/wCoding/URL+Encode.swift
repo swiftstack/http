@@ -2,7 +2,7 @@ import Stream
 import struct Foundation.CharacterSet
 
 extension String {
-    func encode<T: UnsafeStreamWriter>(
+    func encode<T: StreamWriter>(
         to stream: T,
         allowedCharacters: CharacterSet
     ) throws {
@@ -21,7 +21,7 @@ extension URL.Query {
         return [UInt8](queryString.utf8)
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         let queryString = values
             .map({ "\($0.key)=\($0.value)" })
             .joined(separator: "&")
@@ -31,7 +31,7 @@ extension URL.Query {
 }
 
 extension URL.Host {
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         try stream.write(Punycode.encode(domain: address))
         if let port = port {
             try stream.write(.colon)

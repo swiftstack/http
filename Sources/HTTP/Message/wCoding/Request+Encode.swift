@@ -3,7 +3,7 @@ import Network
 
 extension Request {
     @_specialize(exported: true, where T == BufferedOutputStream<NetworkStream>)
-    public func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    public func encode<T: StreamWriter>(to stream: T) throws {
         // Start Line
         try method.encode(to: stream)
         try stream.write(.whitespace)

@@ -45,7 +45,7 @@ public struct HeaderName: Hashable {
 
 extension HeaderName: CustomStringConvertible {
     public var description: String {
-        return String(bytes: bytes, encoding: .utf8)!
+        return String(decoding: bytes, as: UTF8.self)
     }
 }
 

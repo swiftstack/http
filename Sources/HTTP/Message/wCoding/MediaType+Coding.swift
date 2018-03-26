@@ -11,37 +11,36 @@ extension MediaType {
         static let any = ASCII("*")
     }
 
-    init<T: UnsafeStreamReader>(from stream: T) throws {
-        var buffer = try stream.read(until: .slash)
-        guard buffer.count > 0 else {
-            throw ParseError.invalidMediaTypeHeader
+    init<T: StreamReader>(from stream: T) throws {
+        let hashValue = try stream.read(until: .slash) { bytes -> Int in
+            guard bytes.count > 0 else {
+                throw ParseError.invalidMediaTypeHeader
+            }
+            try stream.consume(count: 1)
+            return bytes.lowercasedHashValue
         }
-        try stream.consume(count: 1)
-        let hashValue = buffer.lowercasedHashValue
-
-        buffer = try stream.read(allowedBytes: .token)
 
         switch hashValue {
         case Bytes.application.lowercasedHashValue:
-            self = .application(try ApplicationSubtype(from: buffer))
+            self = .application(try ApplicationSubtype(from: stream))
 
         case Bytes.audio.lowercasedHashValue:
-            self = .audio(try AudioSubtype(from: buffer))
+            self = .audio(try AudioSubtype(from: stream))
 
         case Bytes.image.lowercasedHashValue:
-            self = .image(try ImageSubtype(from: buffer))
+            self = .image(try ImageSubtype(from: stream))
 
         case Bytes.multipart.lowercasedHashValue:
-            self = .multipart(try MultipartSubtype(from: buffer))
+            self = .multipart(try MultipartSubtype(from: stream))
 
         case Bytes.text.lowercasedHashValue:
-            self = .text(try TextSubtype(from: buffer))
+            self = .text(try TextSubtype(from: stream))
 
         case Bytes.video.lowercasedHashValue:
-            self = .video(try VideoSubtype(from: buffer))
+            self = .video(try VideoSubtype(from: stream))
 
         case Bytes.any.lowercasedHashValue:
-            guard buffer.count == 1 && buffer.first == .asterisk else {
+            guard try stream.consume(.asterisk) else {
                 throw ParseError.unsupportedMediaType
             }
             self = .any
@@ -51,7 +50,7 @@ extension MediaType {
         }
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         switch self {
         case .application(let subtype):
             try stream.write(Bytes.application)
@@ -100,21 +99,22 @@ extension ApplicationSubtype {
         static let any = ASCII("*")
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
-        switch bytes.lowercasedHashValue {
-        case Bytes.json.lowercasedHashValue: self = .json
-        case Bytes.javascript.lowercasedHashValue: self = .javascript
-        case Bytes.formURLEncoded.lowercasedHashValue: self = .formURLEncoded
-        case Bytes.stream.lowercasedHashValue: self = .stream
-        case Bytes.pdf.lowercasedHashValue: self = .pdf
-        case Bytes.zip.lowercasedHashValue: self = .zip
-        case Bytes.gzip.lowercasedHashValue: self = .gzip
-        case Bytes.xgzip.lowercasedHashValue: self = .xgzip
-        case Bytes.xml.lowercasedHashValue: self = .xml
-        case Bytes.xhtml.lowercasedHashValue: self = .xhtml
-        case Bytes.any.lowercasedHashValue:  self = .any
-        default: throw ParseError.unsupportedMediaType
+    init<T: StreamReader>(from stream: T) throws {
+        self = try stream.read(allowedBytes: .token) { bytes in
+            switch bytes.lowercasedHashValue {
+            case Bytes.json.lowercasedHashValue: return .json
+            case Bytes.javascript.lowercasedHashValue: return .javascript
+            case Bytes.formURLEncoded.lowercasedHashValue: return .formURLEncoded
+            case Bytes.stream.lowercasedHashValue: return .stream
+            case Bytes.pdf.lowercasedHashValue: return .pdf
+            case Bytes.zip.lowercasedHashValue: return .zip
+            case Bytes.gzip.lowercasedHashValue: return .gzip
+            case Bytes.xgzip.lowercasedHashValue: return .xgzip
+            case Bytes.xml.lowercasedHashValue: return .xml
+            case Bytes.xhtml.lowercasedHashValue: return .xhtml
+            case Bytes.any.lowercasedHashValue:  return .any
+            default: throw ParseError.unsupportedMediaType
+            }
         }
     }
 
@@ -145,16 +145,17 @@ extension AudioSubtype {
         static let any = ASCII("*")
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
-        switch bytes.lowercasedHashValue {
-        case Bytes.mp4.lowercasedHashValue: self = .mp4
-        case Bytes.aac.lowercasedHashValue: self = .aac
-        case Bytes.mpeg.lowercasedHashValue: self = .mpeg
-        case Bytes.webm.lowercasedHashValue: self = .webm
-        case Bytes.vorbis.lowercasedHashValue: self = .vorbis
-        case Bytes.any.lowercasedHashValue: self = .any
-        default: throw ParseError.unsupportedMediaType
+    init<T: StreamReader>(from stream: T) throws {
+        self = try stream.read(allowedBytes: .token) { bytes in
+            switch bytes.lowercasedHashValue {
+            case Bytes.mp4.lowercasedHashValue: return .mp4
+            case Bytes.aac.lowercasedHashValue: return .aac
+            case Bytes.mpeg.lowercasedHashValue: return .mpeg
+            case Bytes.webm.lowercasedHashValue: return .webm
+            case Bytes.vorbis.lowercasedHashValue: return .vorbis
+            case Bytes.any.lowercasedHashValue: return .any
+            default: throw ParseError.unsupportedMediaType
+            }
         }
     }
 
@@ -183,19 +184,20 @@ extension ImageSubtype {
         static let any = ASCII("*")
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
-        switch bytes.lowercasedHashValue {
-        case Bytes.gif.lowercasedHashValue: self = .gif
-        case Bytes.jpeg.lowercasedHashValue: self = .jpeg
-        case Bytes.apng.lowercasedHashValue: self = .apng
-        case Bytes.png.lowercasedHashValue: self = .png
-        case Bytes.svg.lowercasedHashValue: self = .svg
-        case Bytes.svgXML.lowercasedHashValue: self = .svgXML
-        case Bytes.tiff.lowercasedHashValue: self = .tiff
-        case Bytes.webp.lowercasedHashValue: self = .webp
-        case Bytes.any.lowercasedHashValue: self = .any
-        default: throw ParseError.unsupportedMediaType
+    init<T: StreamReader>(from stream: T) throws {
+        self = try stream.read(allowedBytes: .token) { bytes in
+            switch bytes.lowercasedHashValue {
+            case Bytes.gif.lowercasedHashValue: return .gif
+            case Bytes.jpeg.lowercasedHashValue: return .jpeg
+            case Bytes.apng.lowercasedHashValue: return .apng
+            case Bytes.png.lowercasedHashValue: return .png
+            case Bytes.svg.lowercasedHashValue: return .svg
+            case Bytes.svgXML.lowercasedHashValue: return .svgXML
+            case Bytes.tiff.lowercasedHashValue: return .tiff
+            case Bytes.webp.lowercasedHashValue: return .webp
+            case Bytes.any.lowercasedHashValue: return .any
+            default: throw ParseError.unsupportedMediaType
+            }
         }
     }
 
@@ -220,12 +222,13 @@ extension MultipartSubtype {
         static let any = ASCII("*")
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
-        switch bytes.lowercasedHashValue {
-        case Bytes.formData.lowercasedHashValue: self = .formData
-        case Bytes.any.lowercasedHashValue: self = .any
-        default: throw ParseError.unsupportedMediaType
+    init<T: StreamReader>(from stream: T) throws {
+        self = try stream.read(allowedBytes: .token) { bytes in
+            switch bytes.lowercasedHashValue {
+            case Bytes.formData.lowercasedHashValue: return .formData
+            case Bytes.any.lowercasedHashValue: return .any
+            default: throw ParseError.unsupportedMediaType
+            }
         }
     }
 
@@ -248,17 +251,18 @@ extension TextSubtype {
         static let any = ASCII("*")
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
-        switch bytes.lowercasedHashValue {
-        case Bytes.css.lowercasedHashValue: self = .css
-        case Bytes.csv.lowercasedHashValue: self = .csv
-        case Bytes.html.lowercasedHashValue: self = .html
-        case Bytes.plain.lowercasedHashValue: self = .plain
-        case Bytes.php.lowercasedHashValue: self = .php
-        case Bytes.xml.lowercasedHashValue: self = .xml
-        case Bytes.any.lowercasedHashValue: self = .any
-        default: throw ParseError.unsupportedMediaType
+    init<T: StreamReader>(from stream: T) throws {
+        self = try stream.read(allowedBytes: .token) { bytes in
+            switch bytes.lowercasedHashValue {
+            case Bytes.css.lowercasedHashValue: return .css
+            case Bytes.csv.lowercasedHashValue: return .csv
+            case Bytes.html.lowercasedHashValue: return .html
+            case Bytes.plain.lowercasedHashValue: return .plain
+            case Bytes.php.lowercasedHashValue: return .php
+            case Bytes.xml.lowercasedHashValue: return .xml
+            case Bytes.any.lowercasedHashValue: return .any
+            default: throw ParseError.unsupportedMediaType
+            }
         }
     }
 
@@ -285,16 +289,17 @@ extension VideoSubtype {
         static let any = ASCII("*")
     }
 
-    init<T: RandomAccessCollection>(from bytes: T) throws
-        where T.Element == UInt8, T.Index == Int {
-        switch bytes.lowercasedHashValue {
-        case Bytes.mpeg.lowercasedHashValue: self = .mpeg
-        case Bytes.mp4.lowercasedHashValue: self = .mp4
-        case Bytes.ogg.lowercasedHashValue: self = .ogg
-        case Bytes.quicktime.lowercasedHashValue: self = .quicktime
-        case Bytes.webm.lowercasedHashValue: self = .webm
-        case Bytes.any.lowercasedHashValue: self = .any
-        default: throw ParseError.unsupportedMediaType
+    init<T: StreamReader>(from stream: T) throws {
+        self = try stream.read(allowedBytes: .token) { bytes in
+            switch bytes.lowercasedHashValue {
+            case Bytes.mpeg.lowercasedHashValue: return .mpeg
+            case Bytes.mp4.lowercasedHashValue: return .mp4
+            case Bytes.ogg.lowercasedHashValue: return .ogg
+            case Bytes.quicktime.lowercasedHashValue: return .quicktime
+            case Bytes.webm.lowercasedHashValue: return .webm
+            case Bytes.any.lowercasedHashValue: return .any
+            default: throw ParseError.unsupportedMediaType
+            }
         }
     }
 

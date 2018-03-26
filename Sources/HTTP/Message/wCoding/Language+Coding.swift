@@ -236,245 +236,246 @@ extension Language {
 }
 
 extension Language {
-    init<T: UnsafeStreamReader>(from stream: T) throws {
-        let bytes = try stream.read(allowedBytes: .token)
-        switch bytes.lowercasedHashValue {
-        case Bytes.af.lowercasedHashValue:    self = .af
-        case Bytes.afZA.lowercasedHashValue:  self = .afZA
-        case Bytes.ar.lowercasedHashValue:    self = .ar
-        case Bytes.arAE.lowercasedHashValue:  self = .arAE
-        case Bytes.arBH.lowercasedHashValue:  self = .arBH
-        case Bytes.arDZ.lowercasedHashValue:  self = .arDZ
-        case Bytes.arEG.lowercasedHashValue:  self = .arEG
-        case Bytes.arIQ.lowercasedHashValue:  self = .arIQ
-        case Bytes.arJO.lowercasedHashValue:  self = .arJO
-        case Bytes.arKW.lowercasedHashValue:  self = .arKW
-        case Bytes.arLB.lowercasedHashValue:  self = .arLB
-        case Bytes.arLY.lowercasedHashValue:  self = .arLY
-        case Bytes.arMA.lowercasedHashValue:  self = .arMA
-        case Bytes.arOM.lowercasedHashValue:  self = .arOM
-        case Bytes.arQA.lowercasedHashValue:  self = .arQA
-        case Bytes.arSA.lowercasedHashValue:  self = .arSA
-        case Bytes.arSY.lowercasedHashValue:  self = .arSY
-        case Bytes.arTN.lowercasedHashValue:  self = .arTN
-        case Bytes.arYE.lowercasedHashValue:  self = .arYE
-        case Bytes.az.lowercasedHashValue:    self = .az
-        case Bytes.azAZ.lowercasedHashValue:  self = .azAZ
-        case Bytes.be.lowercasedHashValue:    self = .be
-        case Bytes.beBY.lowercasedHashValue:  self = .beBY
-        case Bytes.bg.lowercasedHashValue:    self = .bg
-        case Bytes.bgBG.lowercasedHashValue:  self = .bgBG
-        case Bytes.bsBA.lowercasedHashValue:  self = .bsBA
-        case Bytes.ca.lowercasedHashValue:    self = .ca
-        case Bytes.caES.lowercasedHashValue:  self = .caES
-        case Bytes.cs.lowercasedHashValue:    self = .cs
-        case Bytes.csCZ.lowercasedHashValue:  self = .csCZ
-        case Bytes.cy.lowercasedHashValue:    self = .cy
-        case Bytes.cyGB.lowercasedHashValue:  self = .cyGB
-        case Bytes.da.lowercasedHashValue:    self = .da
-        case Bytes.daDK.lowercasedHashValue:  self = .daDK
-        case Bytes.de.lowercasedHashValue:    self = .de
-        case Bytes.deAT.lowercasedHashValue:  self = .deAT
-        case Bytes.deCH.lowercasedHashValue:  self = .deCH
-        case Bytes.deDE.lowercasedHashValue:  self = .deDE
-        case Bytes.deLI.lowercasedHashValue:  self = .deLI
-        case Bytes.deLU.lowercasedHashValue:  self = .deLU
-        case Bytes.dv.lowercasedHashValue:    self = .dv
-        case Bytes.dvMV.lowercasedHashValue:  self = .dvMV
-        case Bytes.el.lowercasedHashValue:    self = .el
-        case Bytes.elGR.lowercasedHashValue:  self = .elGR
-        case Bytes.en.lowercasedHashValue:    self = .en
-        case Bytes.enAU.lowercasedHashValue:  self = .enAU
-        case Bytes.enBZ.lowercasedHashValue:  self = .enBZ
-        case Bytes.enCA.lowercasedHashValue:  self = .enCA
-        case Bytes.enCB.lowercasedHashValue:  self = .enCB
-        case Bytes.enGB.lowercasedHashValue:  self = .enGB
-        case Bytes.enIE.lowercasedHashValue:  self = .enIE
-        case Bytes.enJM.lowercasedHashValue:  self = .enJM
-        case Bytes.enNZ.lowercasedHashValue:  self = .enNZ
-        case Bytes.enPH.lowercasedHashValue:  self = .enPH
-        case Bytes.enTT.lowercasedHashValue:  self = .enTT
-        case Bytes.enUS.lowercasedHashValue:  self = .enUS
-        case Bytes.enZA.lowercasedHashValue:  self = .enZA
-        case Bytes.enZW.lowercasedHashValue:  self = .enZW
-        case Bytes.eo.lowercasedHashValue:    self = .eo
-        case Bytes.es.lowercasedHashValue:    self = .es
-        case Bytes.esAR.lowercasedHashValue:  self = .esAR
-        case Bytes.esBO.lowercasedHashValue:  self = .esBO
-        case Bytes.esCL.lowercasedHashValue:  self = .esCL
-        case Bytes.esCO.lowercasedHashValue:  self = .esCO
-        case Bytes.esCR.lowercasedHashValue:  self = .esCR
-        case Bytes.esDO.lowercasedHashValue:  self = .esDO
-        case Bytes.esEC.lowercasedHashValue:  self = .esEC
-        case Bytes.esES.lowercasedHashValue:  self = .esES
-        case Bytes.esGT.lowercasedHashValue:  self = .esGT
-        case Bytes.esHN.lowercasedHashValue:  self = .esHN
-        case Bytes.esMX.lowercasedHashValue:  self = .esMX
-        case Bytes.esNI.lowercasedHashValue:  self = .esNI
-        case Bytes.esPA.lowercasedHashValue:  self = .esPA
-        case Bytes.esPE.lowercasedHashValue:  self = .esPE
-        case Bytes.esPR.lowercasedHashValue:  self = .esPR
-        case Bytes.esPY.lowercasedHashValue:  self = .esPY
-        case Bytes.esSV.lowercasedHashValue:  self = .esSV
-        case Bytes.esUY.lowercasedHashValue:  self = .esUY
-        case Bytes.esVE.lowercasedHashValue:  self = .esVE
-        case Bytes.et.lowercasedHashValue:    self = .et
-        case Bytes.etEE.lowercasedHashValue:  self = .etEE
-        case Bytes.eu.lowercasedHashValue:    self = .eu
-        case Bytes.euES.lowercasedHashValue:  self = .euES
-        case Bytes.fa.lowercasedHashValue:    self = .fa
-        case Bytes.faIR.lowercasedHashValue:  self = .faIR
-        case Bytes.fi.lowercasedHashValue:    self = .fi
-        case Bytes.fiFI.lowercasedHashValue:  self = .fiFI
-        case Bytes.fo.lowercasedHashValue:    self = .fo
-        case Bytes.foFO.lowercasedHashValue:  self = .foFO
-        case Bytes.fr.lowercasedHashValue:    self = .fr
-        case Bytes.frBE.lowercasedHashValue:  self = .frBE
-        case Bytes.frCA.lowercasedHashValue:  self = .frCA
-        case Bytes.frCH.lowercasedHashValue:  self = .frCH
-        case Bytes.frFR.lowercasedHashValue:  self = .frFR
-        case Bytes.frLU.lowercasedHashValue:  self = .frLU
-        case Bytes.frMC.lowercasedHashValue:  self = .frMC
-        case Bytes.gl.lowercasedHashValue:    self = .gl
-        case Bytes.glES.lowercasedHashValue:  self = .glES
-        case Bytes.gu.lowercasedHashValue:    self = .gu
-        case Bytes.guIN.lowercasedHashValue:  self = .guIN
-        case Bytes.he.lowercasedHashValue:    self = .he
-        case Bytes.heIL.lowercasedHashValue:  self = .heIL
-        case Bytes.hi.lowercasedHashValue:    self = .hi
-        case Bytes.hiIN.lowercasedHashValue:  self = .hiIN
-        case Bytes.hr.lowercasedHashValue:    self = .hr
-        case Bytes.hrBA.lowercasedHashValue:  self = .hrBA
-        case Bytes.hrHR.lowercasedHashValue:  self = .hrHR
-        case Bytes.hu.lowercasedHashValue:    self = .hu
-        case Bytes.huHU.lowercasedHashValue:  self = .huHU
-        case Bytes.hy.lowercasedHashValue:    self = .hy
-        case Bytes.hyAM.lowercasedHashValue:  self = .hyAM
-        case Bytes.id.lowercasedHashValue:    self = .id
-        case Bytes.idID.lowercasedHashValue:  self = .idID
-        case Bytes.is.lowercasedHashValue:    self = .is
-        case Bytes.isIS.lowercasedHashValue:  self = .isIS
-        case Bytes.it.lowercasedHashValue:    self = .it
-        case Bytes.itCH.lowercasedHashValue:  self = .itCH
-        case Bytes.itIT.lowercasedHashValue:  self = .itIT
-        case Bytes.ja.lowercasedHashValue:    self = .ja
-        case Bytes.jaJP.lowercasedHashValue:  self = .jaJP
-        case Bytes.ka.lowercasedHashValue:    self = .ka
-        case Bytes.kaGE.lowercasedHashValue:  self = .kaGE
-        case Bytes.kk.lowercasedHashValue:    self = .kk
-        case Bytes.kkKZ.lowercasedHashValue:  self = .kkKZ
-        case Bytes.kn.lowercasedHashValue:    self = .kn
-        case Bytes.knIN.lowercasedHashValue:  self = .knIN
-        case Bytes.ko.lowercasedHashValue:    self = .ko
-        case Bytes.koKR.lowercasedHashValue:  self = .koKR
-        case Bytes.kok.lowercasedHashValue:   self = .kok
-        case Bytes.kokIN.lowercasedHashValue: self = .kokIN
-        case Bytes.ky.lowercasedHashValue:    self = .ky
-        case Bytes.kyKG.lowercasedHashValue:  self = .kyKG
-        case Bytes.lt.lowercasedHashValue:    self = .lt
-        case Bytes.ltLT.lowercasedHashValue:  self = .ltLT
-        case Bytes.lv.lowercasedHashValue:    self = .lv
-        case Bytes.lvLV.lowercasedHashValue:  self = .lvLV
-        case Bytes.mi.lowercasedHashValue:    self = .mi
-        case Bytes.miNZ.lowercasedHashValue:  self = .miNZ
-        case Bytes.mk.lowercasedHashValue:    self = .mk
-        case Bytes.mkMK.lowercasedHashValue:  self = .mkMK
-        case Bytes.mn.lowercasedHashValue:    self = .mn
-        case Bytes.mnMN.lowercasedHashValue:  self = .mnMN
-        case Bytes.mr.lowercasedHashValue:    self = .mr
-        case Bytes.mrIN.lowercasedHashValue:  self = .mrIN
-        case Bytes.ms.lowercasedHashValue:    self = .ms
-        case Bytes.msBN.lowercasedHashValue:  self = .msBN
-        case Bytes.msMY.lowercasedHashValue:  self = .msMY
-        case Bytes.mt.lowercasedHashValue:    self = .mt
-        case Bytes.mtMT.lowercasedHashValue:  self = .mtMT
-        case Bytes.nb.lowercasedHashValue:    self = .nb
-        case Bytes.nbNO.lowercasedHashValue:  self = .nbNO
-        case Bytes.nl.lowercasedHashValue:    self = .nl
-        case Bytes.nlBE.lowercasedHashValue:  self = .nlBE
-        case Bytes.nlNL.lowercasedHashValue:  self = .nlNL
-        case Bytes.nnNO.lowercasedHashValue:  self = .nnNO
-        case Bytes.ns.lowercasedHashValue:    self = .ns
-        case Bytes.nsZA.lowercasedHashValue:  self = .nsZA
-        case Bytes.pa.lowercasedHashValue:    self = .pa
-        case Bytes.paIN.lowercasedHashValue:  self = .paIN
-        case Bytes.pl.lowercasedHashValue:    self = .pl
-        case Bytes.plPL.lowercasedHashValue:  self = .plPL
-        case Bytes.ps.lowercasedHashValue:    self = .ps
-        case Bytes.psAR.lowercasedHashValue:  self = .psAR
-        case Bytes.pt.lowercasedHashValue:    self = .pt
-        case Bytes.ptBR.lowercasedHashValue:  self = .ptBR
-        case Bytes.ptPT.lowercasedHashValue:  self = .ptPT
-        case Bytes.qu.lowercasedHashValue:    self = .qu
-        case Bytes.quBO.lowercasedHashValue:  self = .quBO
-        case Bytes.quEC.lowercasedHashValue:  self = .quEC
-        case Bytes.quPE.lowercasedHashValue:  self = .quPE
-        case Bytes.ro.lowercasedHashValue:    self = .ro
-        case Bytes.roRO.lowercasedHashValue:  self = .roRO
-        case Bytes.ru.lowercasedHashValue:    self = .ru
-        case Bytes.ruRU.lowercasedHashValue:  self = .ruRU
-        case Bytes.sa.lowercasedHashValue:    self = .sa
-        case Bytes.saIN.lowercasedHashValue:  self = .saIN
-        case Bytes.se.lowercasedHashValue:    self = .se
-        case Bytes.seFI.lowercasedHashValue:  self = .seFI
-        case Bytes.seNO.lowercasedHashValue:  self = .seNO
-        case Bytes.seSE.lowercasedHashValue:  self = .seSE
-        case Bytes.sk.lowercasedHashValue:    self = .sk
-        case Bytes.skSK.lowercasedHashValue:  self = .skSK
-        case Bytes.sl.lowercasedHashValue:    self = .sl
-        case Bytes.slSI.lowercasedHashValue:  self = .slSI
-        case Bytes.sq.lowercasedHashValue:    self = .sq
-        case Bytes.sqAL.lowercasedHashValue:  self = .sqAL
-        case Bytes.srBA.lowercasedHashValue:  self = .srBA
-        case Bytes.srSP.lowercasedHashValue:  self = .srSP
-        case Bytes.sv.lowercasedHashValue:    self = .sv
-        case Bytes.svFI.lowercasedHashValue:  self = .svFI
-        case Bytes.svSE.lowercasedHashValue:  self = .svSE
-        case Bytes.sw.lowercasedHashValue:    self = .sw
-        case Bytes.swKE.lowercasedHashValue:  self = .swKE
-        case Bytes.syr.lowercasedHashValue:   self = .syr
-        case Bytes.syrSY.lowercasedHashValue: self = .syrSY
-        case Bytes.ta.lowercasedHashValue:    self = .ta
-        case Bytes.taIN.lowercasedHashValue:  self = .taIN
-        case Bytes.te.lowercasedHashValue:    self = .te
-        case Bytes.teIN.lowercasedHashValue:  self = .teIN
-        case Bytes.th.lowercasedHashValue:    self = .th
-        case Bytes.thTH.lowercasedHashValue:  self = .thTH
-        case Bytes.tl.lowercasedHashValue:    self = .tl
-        case Bytes.tlPH.lowercasedHashValue:  self = .tlPH
-        case Bytes.tn.lowercasedHashValue:    self = .tn
-        case Bytes.tnZA.lowercasedHashValue:  self = .tnZA
-        case Bytes.tr.lowercasedHashValue:    self = .tr
-        case Bytes.trTR.lowercasedHashValue:  self = .trTR
-        case Bytes.tt.lowercasedHashValue:    self = .tt
-        case Bytes.ttRU.lowercasedHashValue:  self = .ttRU
-        case Bytes.ts.lowercasedHashValue:    self = .ts
-        case Bytes.uk.lowercasedHashValue:    self = .uk
-        case Bytes.ukUA.lowercasedHashValue:  self = .ukUA
-        case Bytes.ur.lowercasedHashValue:    self = .ur
-        case Bytes.urPK.lowercasedHashValue:  self = .urPK
-        case Bytes.uz.lowercasedHashValue:    self = .uz
-        case Bytes.uzUZ.lowercasedHashValue:  self = .uzUZ
-        case Bytes.vi.lowercasedHashValue:    self = .vi
-        case Bytes.viVN.lowercasedHashValue:  self = .viVN
-        case Bytes.xh.lowercasedHashValue:    self = .xh
-        case Bytes.xhZA.lowercasedHashValue:  self = .xhZA
-        case Bytes.zh.lowercasedHashValue:    self = .zh
-        case Bytes.zhCN.lowercasedHashValue:  self = .zhCN
-        case Bytes.zhHK.lowercasedHashValue:  self = .zhHK
-        case Bytes.zhMO.lowercasedHashValue:  self = .zhMO
-        case Bytes.zhSG.lowercasedHashValue:  self = .zhSG
-        case Bytes.zhTW.lowercasedHashValue:  self = .zhTW
-        case Bytes.zu.lowercasedHashValue:    self = .zu
-        case Bytes.zuZA.lowercasedHashValue:  self = .zuZA
-        case Bytes.any.lowercasedHashValue:   self = .any
-        default: self = .custom(String(decoding: bytes, as: UTF8.self))
+    init<T: StreamReader>(from stream: T) throws {
+        self = try stream.read(allowedBytes: .token) { bytes in
+            switch bytes.lowercasedHashValue {
+            case Bytes.af.lowercasedHashValue:    return .af
+            case Bytes.afZA.lowercasedHashValue:  return .afZA
+            case Bytes.ar.lowercasedHashValue:    return .ar
+            case Bytes.arAE.lowercasedHashValue:  return .arAE
+            case Bytes.arBH.lowercasedHashValue:  return .arBH
+            case Bytes.arDZ.lowercasedHashValue:  return .arDZ
+            case Bytes.arEG.lowercasedHashValue:  return .arEG
+            case Bytes.arIQ.lowercasedHashValue:  return .arIQ
+            case Bytes.arJO.lowercasedHashValue:  return .arJO
+            case Bytes.arKW.lowercasedHashValue:  return .arKW
+            case Bytes.arLB.lowercasedHashValue:  return .arLB
+            case Bytes.arLY.lowercasedHashValue:  return .arLY
+            case Bytes.arMA.lowercasedHashValue:  return .arMA
+            case Bytes.arOM.lowercasedHashValue:  return .arOM
+            case Bytes.arQA.lowercasedHashValue:  return .arQA
+            case Bytes.arSA.lowercasedHashValue:  return .arSA
+            case Bytes.arSY.lowercasedHashValue:  return .arSY
+            case Bytes.arTN.lowercasedHashValue:  return .arTN
+            case Bytes.arYE.lowercasedHashValue:  return .arYE
+            case Bytes.az.lowercasedHashValue:    return .az
+            case Bytes.azAZ.lowercasedHashValue:  return .azAZ
+            case Bytes.be.lowercasedHashValue:    return .be
+            case Bytes.beBY.lowercasedHashValue:  return .beBY
+            case Bytes.bg.lowercasedHashValue:    return .bg
+            case Bytes.bgBG.lowercasedHashValue:  return .bgBG
+            case Bytes.bsBA.lowercasedHashValue:  return .bsBA
+            case Bytes.ca.lowercasedHashValue:    return .ca
+            case Bytes.caES.lowercasedHashValue:  return .caES
+            case Bytes.cs.lowercasedHashValue:    return .cs
+            case Bytes.csCZ.lowercasedHashValue:  return .csCZ
+            case Bytes.cy.lowercasedHashValue:    return .cy
+            case Bytes.cyGB.lowercasedHashValue:  return .cyGB
+            case Bytes.da.lowercasedHashValue:    return .da
+            case Bytes.daDK.lowercasedHashValue:  return .daDK
+            case Bytes.de.lowercasedHashValue:    return .de
+            case Bytes.deAT.lowercasedHashValue:  return .deAT
+            case Bytes.deCH.lowercasedHashValue:  return .deCH
+            case Bytes.deDE.lowercasedHashValue:  return .deDE
+            case Bytes.deLI.lowercasedHashValue:  return .deLI
+            case Bytes.deLU.lowercasedHashValue:  return .deLU
+            case Bytes.dv.lowercasedHashValue:    return .dv
+            case Bytes.dvMV.lowercasedHashValue:  return .dvMV
+            case Bytes.el.lowercasedHashValue:    return .el
+            case Bytes.elGR.lowercasedHashValue:  return .elGR
+            case Bytes.en.lowercasedHashValue:    return .en
+            case Bytes.enAU.lowercasedHashValue:  return .enAU
+            case Bytes.enBZ.lowercasedHashValue:  return .enBZ
+            case Bytes.enCA.lowercasedHashValue:  return .enCA
+            case Bytes.enCB.lowercasedHashValue:  return .enCB
+            case Bytes.enGB.lowercasedHashValue:  return .enGB
+            case Bytes.enIE.lowercasedHashValue:  return .enIE
+            case Bytes.enJM.lowercasedHashValue:  return .enJM
+            case Bytes.enNZ.lowercasedHashValue:  return .enNZ
+            case Bytes.enPH.lowercasedHashValue:  return .enPH
+            case Bytes.enTT.lowercasedHashValue:  return .enTT
+            case Bytes.enUS.lowercasedHashValue:  return .enUS
+            case Bytes.enZA.lowercasedHashValue:  return .enZA
+            case Bytes.enZW.lowercasedHashValue:  return .enZW
+            case Bytes.eo.lowercasedHashValue:    return .eo
+            case Bytes.es.lowercasedHashValue:    return .es
+            case Bytes.esAR.lowercasedHashValue:  return .esAR
+            case Bytes.esBO.lowercasedHashValue:  return .esBO
+            case Bytes.esCL.lowercasedHashValue:  return .esCL
+            case Bytes.esCO.lowercasedHashValue:  return .esCO
+            case Bytes.esCR.lowercasedHashValue:  return .esCR
+            case Bytes.esDO.lowercasedHashValue:  return .esDO
+            case Bytes.esEC.lowercasedHashValue:  return .esEC
+            case Bytes.esES.lowercasedHashValue:  return .esES
+            case Bytes.esGT.lowercasedHashValue:  return .esGT
+            case Bytes.esHN.lowercasedHashValue:  return .esHN
+            case Bytes.esMX.lowercasedHashValue:  return .esMX
+            case Bytes.esNI.lowercasedHashValue:  return .esNI
+            case Bytes.esPA.lowercasedHashValue:  return .esPA
+            case Bytes.esPE.lowercasedHashValue:  return .esPE
+            case Bytes.esPR.lowercasedHashValue:  return .esPR
+            case Bytes.esPY.lowercasedHashValue:  return .esPY
+            case Bytes.esSV.lowercasedHashValue:  return .esSV
+            case Bytes.esUY.lowercasedHashValue:  return .esUY
+            case Bytes.esVE.lowercasedHashValue:  return .esVE
+            case Bytes.et.lowercasedHashValue:    return .et
+            case Bytes.etEE.lowercasedHashValue:  return .etEE
+            case Bytes.eu.lowercasedHashValue:    return .eu
+            case Bytes.euES.lowercasedHashValue:  return .euES
+            case Bytes.fa.lowercasedHashValue:    return .fa
+            case Bytes.faIR.lowercasedHashValue:  return .faIR
+            case Bytes.fi.lowercasedHashValue:    return .fi
+            case Bytes.fiFI.lowercasedHashValue:  return .fiFI
+            case Bytes.fo.lowercasedHashValue:    return .fo
+            case Bytes.foFO.lowercasedHashValue:  return .foFO
+            case Bytes.fr.lowercasedHashValue:    return .fr
+            case Bytes.frBE.lowercasedHashValue:  return .frBE
+            case Bytes.frCA.lowercasedHashValue:  return .frCA
+            case Bytes.frCH.lowercasedHashValue:  return .frCH
+            case Bytes.frFR.lowercasedHashValue:  return .frFR
+            case Bytes.frLU.lowercasedHashValue:  return .frLU
+            case Bytes.frMC.lowercasedHashValue:  return .frMC
+            case Bytes.gl.lowercasedHashValue:    return .gl
+            case Bytes.glES.lowercasedHashValue:  return .glES
+            case Bytes.gu.lowercasedHashValue:    return .gu
+            case Bytes.guIN.lowercasedHashValue:  return .guIN
+            case Bytes.he.lowercasedHashValue:    return .he
+            case Bytes.heIL.lowercasedHashValue:  return .heIL
+            case Bytes.hi.lowercasedHashValue:    return .hi
+            case Bytes.hiIN.lowercasedHashValue:  return .hiIN
+            case Bytes.hr.lowercasedHashValue:    return .hr
+            case Bytes.hrBA.lowercasedHashValue:  return .hrBA
+            case Bytes.hrHR.lowercasedHashValue:  return .hrHR
+            case Bytes.hu.lowercasedHashValue:    return .hu
+            case Bytes.huHU.lowercasedHashValue:  return .huHU
+            case Bytes.hy.lowercasedHashValue:    return .hy
+            case Bytes.hyAM.lowercasedHashValue:  return .hyAM
+            case Bytes.id.lowercasedHashValue:    return .id
+            case Bytes.idID.lowercasedHashValue:  return .idID
+            case Bytes.is.lowercasedHashValue:    return .is
+            case Bytes.isIS.lowercasedHashValue:  return .isIS
+            case Bytes.it.lowercasedHashValue:    return .it
+            case Bytes.itCH.lowercasedHashValue:  return .itCH
+            case Bytes.itIT.lowercasedHashValue:  return .itIT
+            case Bytes.ja.lowercasedHashValue:    return .ja
+            case Bytes.jaJP.lowercasedHashValue:  return .jaJP
+            case Bytes.ka.lowercasedHashValue:    return .ka
+            case Bytes.kaGE.lowercasedHashValue:  return .kaGE
+            case Bytes.kk.lowercasedHashValue:    return .kk
+            case Bytes.kkKZ.lowercasedHashValue:  return .kkKZ
+            case Bytes.kn.lowercasedHashValue:    return .kn
+            case Bytes.knIN.lowercasedHashValue:  return .knIN
+            case Bytes.ko.lowercasedHashValue:    return .ko
+            case Bytes.koKR.lowercasedHashValue:  return .koKR
+            case Bytes.kok.lowercasedHashValue:   return .kok
+            case Bytes.kokIN.lowercasedHashValue: return .kokIN
+            case Bytes.ky.lowercasedHashValue:    return .ky
+            case Bytes.kyKG.lowercasedHashValue:  return .kyKG
+            case Bytes.lt.lowercasedHashValue:    return .lt
+            case Bytes.ltLT.lowercasedHashValue:  return .ltLT
+            case Bytes.lv.lowercasedHashValue:    return .lv
+            case Bytes.lvLV.lowercasedHashValue:  return .lvLV
+            case Bytes.mi.lowercasedHashValue:    return .mi
+            case Bytes.miNZ.lowercasedHashValue:  return .miNZ
+            case Bytes.mk.lowercasedHashValue:    return .mk
+            case Bytes.mkMK.lowercasedHashValue:  return .mkMK
+            case Bytes.mn.lowercasedHashValue:    return .mn
+            case Bytes.mnMN.lowercasedHashValue:  return .mnMN
+            case Bytes.mr.lowercasedHashValue:    return .mr
+            case Bytes.mrIN.lowercasedHashValue:  return .mrIN
+            case Bytes.ms.lowercasedHashValue:    return .ms
+            case Bytes.msBN.lowercasedHashValue:  return .msBN
+            case Bytes.msMY.lowercasedHashValue:  return .msMY
+            case Bytes.mt.lowercasedHashValue:    return .mt
+            case Bytes.mtMT.lowercasedHashValue:  return .mtMT
+            case Bytes.nb.lowercasedHashValue:    return .nb
+            case Bytes.nbNO.lowercasedHashValue:  return .nbNO
+            case Bytes.nl.lowercasedHashValue:    return .nl
+            case Bytes.nlBE.lowercasedHashValue:  return .nlBE
+            case Bytes.nlNL.lowercasedHashValue:  return .nlNL
+            case Bytes.nnNO.lowercasedHashValue:  return .nnNO
+            case Bytes.ns.lowercasedHashValue:    return .ns
+            case Bytes.nsZA.lowercasedHashValue:  return .nsZA
+            case Bytes.pa.lowercasedHashValue:    return .pa
+            case Bytes.paIN.lowercasedHashValue:  return .paIN
+            case Bytes.pl.lowercasedHashValue:    return .pl
+            case Bytes.plPL.lowercasedHashValue:  return .plPL
+            case Bytes.ps.lowercasedHashValue:    return .ps
+            case Bytes.psAR.lowercasedHashValue:  return .psAR
+            case Bytes.pt.lowercasedHashValue:    return .pt
+            case Bytes.ptBR.lowercasedHashValue:  return .ptBR
+            case Bytes.ptPT.lowercasedHashValue:  return .ptPT
+            case Bytes.qu.lowercasedHashValue:    return .qu
+            case Bytes.quBO.lowercasedHashValue:  return .quBO
+            case Bytes.quEC.lowercasedHashValue:  return .quEC
+            case Bytes.quPE.lowercasedHashValue:  return .quPE
+            case Bytes.ro.lowercasedHashValue:    return .ro
+            case Bytes.roRO.lowercasedHashValue:  return .roRO
+            case Bytes.ru.lowercasedHashValue:    return .ru
+            case Bytes.ruRU.lowercasedHashValue:  return .ruRU
+            case Bytes.sa.lowercasedHashValue:    return .sa
+            case Bytes.saIN.lowercasedHashValue:  return .saIN
+            case Bytes.se.lowercasedHashValue:    return .se
+            case Bytes.seFI.lowercasedHashValue:  return .seFI
+            case Bytes.seNO.lowercasedHashValue:  return .seNO
+            case Bytes.seSE.lowercasedHashValue:  return .seSE
+            case Bytes.sk.lowercasedHashValue:    return .sk
+            case Bytes.skSK.lowercasedHashValue:  return .skSK
+            case Bytes.sl.lowercasedHashValue:    return .sl
+            case Bytes.slSI.lowercasedHashValue:  return .slSI
+            case Bytes.sq.lowercasedHashValue:    return .sq
+            case Bytes.sqAL.lowercasedHashValue:  return .sqAL
+            case Bytes.srBA.lowercasedHashValue:  return .srBA
+            case Bytes.srSP.lowercasedHashValue:  return .srSP
+            case Bytes.sv.lowercasedHashValue:    return .sv
+            case Bytes.svFI.lowercasedHashValue:  return .svFI
+            case Bytes.svSE.lowercasedHashValue:  return .svSE
+            case Bytes.sw.lowercasedHashValue:    return .sw
+            case Bytes.swKE.lowercasedHashValue:  return .swKE
+            case Bytes.syr.lowercasedHashValue:   return .syr
+            case Bytes.syrSY.lowercasedHashValue: return .syrSY
+            case Bytes.ta.lowercasedHashValue:    return .ta
+            case Bytes.taIN.lowercasedHashValue:  return .taIN
+            case Bytes.te.lowercasedHashValue:    return .te
+            case Bytes.teIN.lowercasedHashValue:  return .teIN
+            case Bytes.th.lowercasedHashValue:    return .th
+            case Bytes.thTH.lowercasedHashValue:  return .thTH
+            case Bytes.tl.lowercasedHashValue:    return .tl
+            case Bytes.tlPH.lowercasedHashValue:  return .tlPH
+            case Bytes.tn.lowercasedHashValue:    return .tn
+            case Bytes.tnZA.lowercasedHashValue:  return .tnZA
+            case Bytes.tr.lowercasedHashValue:    return .tr
+            case Bytes.trTR.lowercasedHashValue:  return .trTR
+            case Bytes.tt.lowercasedHashValue:    return .tt
+            case Bytes.ttRU.lowercasedHashValue:  return .ttRU
+            case Bytes.ts.lowercasedHashValue:    return .ts
+            case Bytes.uk.lowercasedHashValue:    return .uk
+            case Bytes.ukUA.lowercasedHashValue:  return .ukUA
+            case Bytes.ur.lowercasedHashValue:    return .ur
+            case Bytes.urPK.lowercasedHashValue:  return .urPK
+            case Bytes.uz.lowercasedHashValue:    return .uz
+            case Bytes.uzUZ.lowercasedHashValue:  return .uzUZ
+            case Bytes.vi.lowercasedHashValue:    return .vi
+            case Bytes.viVN.lowercasedHashValue:  return .viVN
+            case Bytes.xh.lowercasedHashValue:    return .xh
+            case Bytes.xhZA.lowercasedHashValue:  return .xhZA
+            case Bytes.zh.lowercasedHashValue:    return .zh
+            case Bytes.zhCN.lowercasedHashValue:  return .zhCN
+            case Bytes.zhHK.lowercasedHashValue:  return .zhHK
+            case Bytes.zhMO.lowercasedHashValue:  return .zhMO
+            case Bytes.zhSG.lowercasedHashValue:  return .zhSG
+            case Bytes.zhTW.lowercasedHashValue:  return .zhTW
+            case Bytes.zu.lowercasedHashValue:    return .zu
+            case Bytes.zuZA.lowercasedHashValue:  return .zuZA
+            case Bytes.any.lowercasedHashValue:   return .any
+            default: return .custom(String(decoding: bytes, as: UTF8.self))
+            }
         }
     }
 }
 
 extension Language {
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         let bytes: [UInt8]
         switch self {
         case .af:    bytes = Bytes.af

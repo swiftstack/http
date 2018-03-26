@@ -3,8 +3,8 @@ import Stream
 public enum Body {
     case none
     case bytes([UInt8])
-    case input(UnsafeStreamReader)
-    case output((UnsafeStreamWriter) throws -> Void)
+    case input(StreamReader)
+    case output((StreamWriter) throws -> Void)
 }
 
 extension Body: Equatable {
@@ -21,11 +21,11 @@ public protocol BodyInpuStream: class {
     var body: Body { get set }
     var contentLength: Int? { get set }
     var transferEncoding: [TransferEncoding]? { get set }
-    var inputStream: UnsafeStreamReader? { get }
+    var inputStream: StreamReader? { get }
 }
 
 extension BodyInpuStream {
-    public var inputStream: UnsafeStreamReader? {
+    public var inputStream: StreamReader? {
         get {
             guard case .input(let reader) = body else {
                 return nil
@@ -40,7 +40,7 @@ extension BodyInpuStream {
         }
     }
 
-    public var outputStream: ((UnsafeStreamWriter) throws -> Void)? {
+    public var outputStream: ((StreamWriter) throws -> Void)? {
         get {
             guard case .output(let writer) = body else {
                 return nil
@@ -102,15 +102,16 @@ extension BodyInpuStream {
         do {
             let bytes: [UInt8]
             if let contentLength = contentLength {
-                let buffer = try reader.read(count: contentLength)
-                guard buffer.count > 0 else {
-                    body = .none
-                    throw ParseError.invalidRequest
+                bytes = try reader.read(count: contentLength) { bytes in
+                    guard bytes.count > 0 else {
+                        body = .none
+                        throw ParseError.invalidRequest
+                    }
+                    return [UInt8](bytes)
                 }
-                bytes = [UInt8](buffer)
             } else if self.transferEncoding?.contains(.chunked) == true  {
                 let reader = ChunkedStreamReader(baseStream: reader)
-                bytes = try reader.readBytes()
+                bytes = try reader.readUntilEnd()
             } else {
                 throw ParseError.invalidRequest
             }
@@ -124,8 +125,7 @@ extension BodyInpuStream {
 }
 
 fileprivate extension ChunkedStreamReader {
-    func readBytes() throws -> [UInt8] {
-        let buffer = try read(while: {_ in true}, allowingExhaustion: true)
-        return [UInt8](buffer)
+    func readUntilEnd() throws -> [UInt8] {
+        return try read(while: {_ in true}, allowingExhaustion: true)
     }
 }

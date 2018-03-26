@@ -2,7 +2,7 @@ import Stream
 import struct Foundation.Date
 
 extension Array where Element == Cookie {
-    init<T: UnsafeStreamReader>(from stream: T) throws {
+    init<T: StreamReader>(from stream: T) throws {
         var cookies = [Cookie]()
         while true {
             cookies.append(try Cookie(from: stream))
@@ -14,7 +14,7 @@ extension Array where Element == Cookie {
         self = cookies
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         for i in 0..<count {
             try self[i].encode(to: stream)
             if i + 1 < count {
@@ -37,22 +37,24 @@ extension Cookie {
     }
 
 
-    init<T: UnsafeStreamReader>(from stream: T) throws {
-        var buffer = try stream.read(allowedBytes: .cookie)
-        guard buffer.count > 0 else {
-            throw ParseError.invalidCookieHeader
+    init<T: StreamReader>(from stream: T) throws {
+        self.name = try stream.read(allowedBytes: .cookie) { bytes in
+            guard bytes.count > 0 else {
+                throw ParseError.invalidCookieHeader
+            }
+            return String(decoding: bytes, as: UTF8.self)
         }
-        self.name = String(decoding: buffer, as: UTF8.self)
 
         guard try stream.consume(.equal) else {
             throw ParseError.invalidCookieHeader
         }
 
-        buffer = try stream.read(allowedBytes: .cookie)
-        self.value = String(decoding: buffer, as: UTF8.self)
+        self.value = try stream.read(allowedBytes: .cookie) { bytes in
+            return String(decoding: bytes, as: UTF8.self)
+        }
     }
 
-    init<T: UnsafeStreamReader>(responseCookieFrom stream: T) throws {
+    init<T: StreamReader>(responseCookieFrom stream: T) throws {
         try self.init(from: stream)
 
         while true {
@@ -62,21 +64,21 @@ extension Cookie {
             }
 
             // attibute name
-            var buffer = try stream.read(allowedBytes: .token)
-            let attributeHashValue = buffer.lowercasedHashValue
+            let attributeHashValue = try stream.read(allowedBytes: .token) { bytes in
+                return bytes.lowercasedHashValue
+            }
 
-            func consumeEquals() throws {
-                // =
-                guard try stream.consume(.equal) else {
+            func consume(_ byte: UInt8) throws {
+                guard try stream.consume(byte) else {
                     throw ParseError.invalidCookieHeader
                 }
             }
             // only in case if the attribute has a value
             func readValue(allowedBytes: AllowedBytes) throws -> String {
-                try consumeEquals()
-                // value
-                buffer = try stream.read(allowedBytes: allowedBytes)
-                return String(decoding: buffer, as: UTF8.self)
+                try consume(.equal)
+                return try stream.read(allowedBytes: allowedBytes) { bytes in
+                    return String(decoding: bytes, as: UTF8.self)
+                }
             }
 
             // FIXME: validate values using value-specific rules
@@ -96,7 +98,7 @@ extension Cookie {
                 self.expires = date
 
             case Bytes.maxAge.lowercasedHashValue:
-                try consumeEquals()
+                try consume(.equal)
                 guard let maxAge = try? Int(from: stream) else {
                     throw ParseError.invalidSetCookieHeader
                 }
@@ -115,7 +117,7 @@ extension Cookie {
         }
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         try stream.write(name)
         try stream.write(.equal)
         try stream.write(value)

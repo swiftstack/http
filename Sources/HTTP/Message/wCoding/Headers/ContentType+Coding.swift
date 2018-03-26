@@ -5,7 +5,7 @@ extension ContentType {
         static let charset = ASCII("charset=")
     }
 
-    init<T: UnsafeStreamReader>(from stream: T) throws {
+    init<T: StreamReader>(from stream: T) throws {
         self.mediaType = try MediaType(from: stream)
 
         switch self.mediaType {
@@ -35,7 +35,7 @@ extension ContentType {
         }
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         try mediaType.encode(to: stream)
         if let charset = charset {
             try charset.encode(to: stream)
@@ -48,12 +48,11 @@ extension Boundary {
         static let boundary = ASCII("boundary=")
     }
 
-    init<T: UnsafeStreamReader>(from stream: T) throws {
+    init<T: StreamReader>(from stream: T) throws {
         guard try stream.consume(sequence: Bytes.boundary) else {
             throw ParseError.invalidBoundary
         }
         // FIXME: validate with value-specific rule
-        let buffer = try stream.read(allowedBytes: .text)
-        self = try Boundary([UInt8](buffer))
+        self = try Boundary(try stream.read(allowedBytes: .text))
     }
 }

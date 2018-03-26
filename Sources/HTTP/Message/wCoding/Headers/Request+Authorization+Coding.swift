@@ -7,33 +7,34 @@ extension Request.Authorization {
         static let token = ASCII("Token")
     }
 
-    init<T: UnsafeStreamReader>(from stream: T) throws {
-        var buffer = try stream.read(until: .whitespace)
-        let schemeHashValue = buffer.lowercasedHashValue
-
+    init<T: StreamReader>(from stream: T) throws {
         func readCredentials() throws -> String {
             guard try stream.consume(.whitespace) else {
                 throw ParseError.invalidAuthorizationHeader
             }
             // FIXME: validate with value-specific rule
-            buffer = try stream.read(allowedBytes: .text)
-            return String(decoding: buffer, as: UTF8.self)
+            return try stream.read(allowedBytes: .text) { bytes in
+                return String(decoding: bytes, as: UTF8.self)
+            }
         }
 
-        switch schemeHashValue {
-        case Bytes.basic.lowercasedHashValue:
-            self = .basic(credentials: try readCredentials())
-        case Bytes.bearer.lowercasedHashValue:
-            self = .bearer(credentials: try readCredentials())
-        case Bytes.token.lowercasedHashValue:
-            self = .token(credentials: try readCredentials())
-        default:
-            let scheme = String(decoding: buffer, as: UTF8.self)
-            self = .custom(scheme: scheme, credentials:  try readCredentials())
+        self = try stream.read(until: .whitespace) { bytes in
+            switch bytes.lowercasedHashValue {
+            case Bytes.basic.lowercasedHashValue:
+                return .basic(credentials: try readCredentials())
+            case Bytes.bearer.lowercasedHashValue:
+                return .bearer(credentials: try readCredentials())
+            case Bytes.token.lowercasedHashValue:
+                return .token(credentials: try readCredentials())
+            default:
+                return .custom(
+                    scheme: String(decoding: bytes, as: UTF8.self),
+                    credentials: try readCredentials())
+            }
         }
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         switch self {
         case .basic(let credentials):
             try stream.write(Bytes.basic)

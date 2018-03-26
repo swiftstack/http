@@ -7,18 +7,19 @@ extension Connection {
         static let upgrade = ASCII("Upgrade")
     }
 
-    init<T: UnsafeStreamReader>(from stream: T) throws {
+    init<T: StreamReader>(from stream: T) throws {
         // FIXME: validate with value-specific rule
-        let bytes = try stream.read(allowedBytes: .token)
-        switch bytes.lowercasedHashValue {
-        case Bytes.keepAlive.lowercasedHashValue: self = .keepAlive
-        case Bytes.close.lowercasedHashValue: self = .close
-        case Bytes.upgrade.lowercasedHashValue: self = .upgrade
-        default: throw ParseError.unsupportedContentType
+        self = try stream.read(allowedBytes: .token) { bytes in
+            switch bytes.lowercasedHashValue {
+            case Bytes.keepAlive.lowercasedHashValue: return .keepAlive
+            case Bytes.close.lowercasedHashValue: return .close
+            case Bytes.upgrade.lowercasedHashValue: return .upgrade
+            default: throw ParseError.unsupportedContentType
+            }
         }
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         let bytes: [UInt8]
         switch self {
         case .keepAlive: bytes = Bytes.keepAlive

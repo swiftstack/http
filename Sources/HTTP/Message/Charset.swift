@@ -16,18 +16,19 @@ extension Charset {
         static let any = ASCII("*")
     }
 
-    init<T: UnsafeStreamReader>(from stream: T) throws {
-        let bytes = try stream.read(allowedBytes: .token)
-        switch bytes.lowercasedHashValue {
-        case Bytes.utf8.lowercasedHashValue: self = .utf8
-        case Bytes.ascii.lowercasedHashValue: self = .ascii
-        case Bytes.isoLatin1.lowercasedHashValue: self = .isoLatin1
-        case Bytes.any.lowercasedHashValue: self = .any
-        default: self = .custom(String(decoding: bytes, as: UTF8.self))
+    init<T: StreamReader>(from reader: T) throws {
+        self = try reader.read(allowedBytes: .token) { bytes in
+            switch bytes.lowercasedHashValue {
+            case Bytes.utf8.lowercasedHashValue: return .utf8
+            case Bytes.ascii.lowercasedHashValue: return .ascii
+            case Bytes.isoLatin1.lowercasedHashValue: return .isoLatin1
+            case Bytes.any.lowercasedHashValue: return .any
+            default: return .custom(String(decoding: bytes, as: UTF8.self))
+            }
         }
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         let bytes: [UInt8]
         switch self {
         case .utf8: bytes = Bytes.utf8

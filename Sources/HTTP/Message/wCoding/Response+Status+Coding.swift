@@ -77,91 +77,94 @@ extension Response.Status {
             ASCII("511 Network Authentication Required")
     }
 
-    init<T: UnsafeStreamReader>(from stream: T) throws {
-        let bytes = try stream.read(until: .cr)
-        switch bytes.lowercasedHashValue {
-        case Bytes.`continue`.lowercasedHashValue: self = .`continue`
-        case Bytes.switchingProtocols.lowercasedHashValue: self = .switchingProtocols
-        case Bytes.processing.lowercasedHashValue: self = .processing
-        case Bytes.earlyHints.lowercasedHashValue: self = .earlyHints
-        case Bytes.ok.lowercasedHashValue: self = .ok
-        case Bytes.created.lowercasedHashValue: self = .created
-        case Bytes.accepted.lowercasedHashValue: self = .accepted
-        case Bytes.nonAuthoritativeInformation.lowercasedHashValue: self = .nonAuthoritativeInformation
-        case Bytes.noContent.lowercasedHashValue: self = .noContent
-        case Bytes.resetContent.lowercasedHashValue: self = .resetContent
-        case Bytes.partialContent.lowercasedHashValue: self = .partialContent
-        case Bytes.multiStatus.lowercasedHashValue: self = .multiStatus
-        case Bytes.alreadyReported.lowercasedHashValue: self = .alreadyReported
-        case Bytes.imUsed.lowercasedHashValue: self = .imUsed
-        case Bytes.multipleChoices.lowercasedHashValue: self = .multipleChoices
-        case Bytes.moved.lowercasedHashValue: self = .moved
-        case Bytes.found.lowercasedHashValue: self = .found
-        case Bytes.seeOther.lowercasedHashValue: self = .seeOther
-        case Bytes.notModified.lowercasedHashValue: self = .notModified
-        case Bytes.useProxy.lowercasedHashValue: self = .useProxy
-        case Bytes.switchProxy.lowercasedHashValue: self = .switchProxy
-        case Bytes.temporaryRedirect.lowercasedHashValue: self = .temporaryRedirect
-        case Bytes.permanentRedirect.lowercasedHashValue: self = .permanentRedirect
-        case Bytes.badRequest.lowercasedHashValue: self = .badRequest
-        case Bytes.unauthorized.lowercasedHashValue: self = .unauthorized
-        case Bytes.paymentRequired.lowercasedHashValue: self = .paymentRequired
-        case Bytes.forbidden.lowercasedHashValue: self = .forbidden
-        case Bytes.notFound.lowercasedHashValue: self = .notFound
-        case Bytes.methodNotAllowed.lowercasedHashValue: self = .methodNotAllowed
-        case Bytes.notAcceptable.lowercasedHashValue: self = .notAcceptable
-        case Bytes.proxyAuthenticationRequired.lowercasedHashValue: self = .proxyAuthenticationRequired
-        case Bytes.requestTimeout.lowercasedHashValue: self = .requestTimeout
-        case Bytes.conflict.lowercasedHashValue: self = .conflict
-        case Bytes.gone.lowercasedHashValue: self = .gone
-        case Bytes.lengthRequired.lowercasedHashValue: self = .lengthRequired
-        case Bytes.preconditionFailed.lowercasedHashValue: self = .preconditionFailed
-        case Bytes.payloadTooLarge.lowercasedHashValue: self = .payloadTooLarge
-        case Bytes.uriTooLong.lowercasedHashValue: self = .uriTooLong
-        case Bytes.unsupportedMediaType.lowercasedHashValue: self = .unsupportedMediaType
-        case Bytes.rangeNotSatisfiable.lowercasedHashValue: self = .rangeNotSatisfiable
-        case Bytes.expectationFailed.lowercasedHashValue: self = .expectationFailed
-        case Bytes.iAmATeapot.lowercasedHashValue: self = .iAmATeapot
-        case Bytes.misdirectedRequest.lowercasedHashValue: self = .misdirectedRequest
-        case Bytes.unprocessableEntity.lowercasedHashValue: self = .unprocessableEntity
-        case Bytes.locked.lowercasedHashValue: self = .locked
-        case Bytes.failedDependency.lowercasedHashValue: self = .failedDependency
-        case Bytes.upgradeRequired.lowercasedHashValue: self = .upgradeRequired
-        case Bytes.preconditionRequired.lowercasedHashValue: self = .preconditionRequired
-        case Bytes.tooManyRequests.lowercasedHashValue: self = .tooManyRequests
-        case Bytes.requestHeaderFieldsTooLarge.lowercasedHashValue: self = .requestHeaderFieldsTooLarge
-        case Bytes.unavailableForLegalReasons.lowercasedHashValue: self = .unavailableForLegalReasons
-        case Bytes.internalServerError.lowercasedHashValue: self = .internalServerError
-        case Bytes.notImplemented.lowercasedHashValue: self = .notImplemented
-        case Bytes.badGateway.lowercasedHashValue: self = .badGateway
-        case Bytes.serviceUnavailable.lowercasedHashValue: self = .serviceUnavailable
-        case Bytes.gatewayTimeout.lowercasedHashValue: self = .gatewayTimeout
-        case Bytes.httpVersionNotSupported.lowercasedHashValue: self = .httpVersionNotSupported
-        case Bytes.variantAlsoNegotiates.lowercasedHashValue: self = .variantAlsoNegotiates
-        case Bytes.insufficientStorage.lowercasedHashValue: self = .insufficientStorage
-        case Bytes.loopDetected.lowercasedHashValue: self = .loopDetected
-        case Bytes.notExtended.lowercasedHashValue: self = .notExtended
-        case Bytes.networkAuthenticationRequired.lowercasedHashValue: self = .networkAuthenticationRequired
-        default:
-            guard let spaceIndex = bytes.index(of: .whitespace) else {
-                throw ParseError.invalidStatus
+    init<T: StreamReader>(from stream: T) throws {
+        self = try stream.read(until: .cr) { bytes in
+            switch bytes.lowercasedHashValue {
+            case Bytes.`continue`.lowercasedHashValue: return .`continue`
+            case Bytes.switchingProtocols.lowercasedHashValue: return .switchingProtocols
+            case Bytes.processing.lowercasedHashValue: return .processing
+            case Bytes.earlyHints.lowercasedHashValue: return .earlyHints
+            case Bytes.ok.lowercasedHashValue: return .ok
+            case Bytes.created.lowercasedHashValue: return .created
+            case Bytes.accepted.lowercasedHashValue: return .accepted
+            case Bytes.nonAuthoritativeInformation.lowercasedHashValue: return .nonAuthoritativeInformation
+            case Bytes.noContent.lowercasedHashValue: return .noContent
+            case Bytes.resetContent.lowercasedHashValue: return .resetContent
+            case Bytes.partialContent.lowercasedHashValue: return .partialContent
+            case Bytes.multiStatus.lowercasedHashValue: return .multiStatus
+            case Bytes.alreadyReported.lowercasedHashValue: return .alreadyReported
+            case Bytes.imUsed.lowercasedHashValue: return .imUsed
+            case Bytes.multipleChoices.lowercasedHashValue: return .multipleChoices
+            case Bytes.moved.lowercasedHashValue: return .moved
+            case Bytes.found.lowercasedHashValue: return .found
+            case Bytes.seeOther.lowercasedHashValue: return .seeOther
+            case Bytes.notModified.lowercasedHashValue: return .notModified
+            case Bytes.useProxy.lowercasedHashValue: return .useProxy
+            case Bytes.switchProxy.lowercasedHashValue: return .switchProxy
+            case Bytes.temporaryRedirect.lowercasedHashValue: return .temporaryRedirect
+            case Bytes.permanentRedirect.lowercasedHashValue: return .permanentRedirect
+            case Bytes.badRequest.lowercasedHashValue: return .badRequest
+            case Bytes.unauthorized.lowercasedHashValue: return .unauthorized
+            case Bytes.paymentRequired.lowercasedHashValue: return .paymentRequired
+            case Bytes.forbidden.lowercasedHashValue: return .forbidden
+            case Bytes.notFound.lowercasedHashValue: return .notFound
+            case Bytes.methodNotAllowed.lowercasedHashValue: return .methodNotAllowed
+            case Bytes.notAcceptable.lowercasedHashValue: return .notAcceptable
+            case Bytes.proxyAuthenticationRequired.lowercasedHashValue: return .proxyAuthenticationRequired
+            case Bytes.requestTimeout.lowercasedHashValue: return .requestTimeout
+            case Bytes.conflict.lowercasedHashValue: return .conflict
+            case Bytes.gone.lowercasedHashValue: return .gone
+            case Bytes.lengthRequired.lowercasedHashValue: return .lengthRequired
+            case Bytes.preconditionFailed.lowercasedHashValue: return .preconditionFailed
+            case Bytes.payloadTooLarge.lowercasedHashValue: return .payloadTooLarge
+            case Bytes.uriTooLong.lowercasedHashValue: return .uriTooLong
+            case Bytes.unsupportedMediaType.lowercasedHashValue: return .unsupportedMediaType
+            case Bytes.rangeNotSatisfiable.lowercasedHashValue: return .rangeNotSatisfiable
+            case Bytes.expectationFailed.lowercasedHashValue: return .expectationFailed
+            case Bytes.iAmATeapot.lowercasedHashValue: return .iAmATeapot
+            case Bytes.misdirectedRequest.lowercasedHashValue: return .misdirectedRequest
+            case Bytes.unprocessableEntity.lowercasedHashValue: return .unprocessableEntity
+            case Bytes.locked.lowercasedHashValue: return .locked
+            case Bytes.failedDependency.lowercasedHashValue: return .failedDependency
+            case Bytes.upgradeRequired.lowercasedHashValue: return .upgradeRequired
+            case Bytes.preconditionRequired.lowercasedHashValue: return .preconditionRequired
+            case Bytes.tooManyRequests.lowercasedHashValue: return .tooManyRequests
+            case Bytes.requestHeaderFieldsTooLarge.lowercasedHashValue: return .requestHeaderFieldsTooLarge
+            case Bytes.unavailableForLegalReasons.lowercasedHashValue: return .unavailableForLegalReasons
+            case Bytes.internalServerError.lowercasedHashValue: return .internalServerError
+            case Bytes.notImplemented.lowercasedHashValue: return .notImplemented
+            case Bytes.badGateway.lowercasedHashValue: return .badGateway
+            case Bytes.serviceUnavailable.lowercasedHashValue: return .serviceUnavailable
+            case Bytes.gatewayTimeout.lowercasedHashValue: return .gatewayTimeout
+            case Bytes.httpVersionNotSupported.lowercasedHashValue: return .httpVersionNotSupported
+            case Bytes.variantAlsoNegotiates.lowercasedHashValue: return .variantAlsoNegotiates
+            case Bytes.insufficientStorage.lowercasedHashValue: return .insufficientStorage
+            case Bytes.loopDetected.lowercasedHashValue: return .loopDetected
+            case Bytes.notExtended.lowercasedHashValue: return .notExtended
+            case Bytes.networkAuthenticationRequired.lowercasedHashValue: return .networkAuthenticationRequired
+            default:
+                guard let spaceIndex = bytes.index(of: .whitespace) else {
+                    throw ParseError.invalidStatus
+                }
+                guard let code = Int(String(
+                    decoding: bytes[..<spaceIndex],
+                    as: UTF8.self)) else
+                {
+                    throw ParseError.invalidStatus
+                }
+                let descriptionIndex = spaceIndex + 1
+                guard descriptionIndex < bytes.endIndex else {
+                    throw ParseError.invalidStatus
+                }
+                let description = String(
+                    decoding: bytes[descriptionIndex...],
+                    as: UTF8.self)
+                return .custom(code, description)
             }
-            let codeString =
-                String(decoding: bytes[..<spaceIndex], as: UTF8.self)
-            guard let code = Int(codeString) else {
-                throw ParseError.invalidStatus
-            }
-            let descriptionIndex = spaceIndex + 1
-            guard descriptionIndex < bytes.endIndex else {
-                throw ParseError.invalidStatus
-            }
-            let description =
-                String(decoding: bytes[descriptionIndex...], as: UTF8.self)
-            self = .custom(code, description)
         }
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         let bytes: [UInt8]
         switch self {
         case .`continue`: bytes = Bytes.`continue`

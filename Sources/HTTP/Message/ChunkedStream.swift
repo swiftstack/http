@@ -1,13 +1,13 @@
 import Stream
 
-class ChunkedStreamWriter: UnsafeStreamWriter {
-    let baseStream: UnsafeStreamWriter
+class ChunkedStreamWriter: StreamWriter {
+    let baseStream: StreamWriter
 
     var buffered: Int {
         return baseStream.buffered
     }
 
-    init(baseStream: UnsafeStreamWriter) {
+    init(baseStream: StreamWriter) {
         self.baseStream = baseStream
     }
 
@@ -29,9 +29,9 @@ class ChunkedStreamWriter: UnsafeStreamWriter {
 }
 
 class ChunkedInputStream: InputStream {
-    let baseStream: UnsafeStreamReader
+    let baseStream: StreamReader
 
-    init(baseStream: UnsafeStreamReader) {
+    init(baseStream: StreamReader) {
         self.baseStream = baseStream
     }
 
@@ -39,13 +39,13 @@ class ChunkedInputStream: InputStream {
     var currentChunkBytesLeft = 0
 
     func readNextChunkSize() throws -> Int {
-        let sizeBytes = try baseStream.read(until: .cr)
-        try readLineEnd()
-
-        guard let size = Int(from: sizeBytes, radix: 16) else {
-            throw ParseError.invalidRequest
+        return try baseStream.read(until: .cr) { bytes in
+            guard let size = Int(from: bytes, radix: 16) else {
+                throw ParseError.invalidRequest
+            }
+            try readLineEnd()
+            return size
         }
-        return size
     }
 
     func read(
@@ -58,10 +58,13 @@ class ChunkedInputStream: InputStream {
 
         @inline(__always)
         func read(byteCount: Int, offset: Int = 0) throws {
-            let buffer = try baseStream.read(count: byteCount)
-            pointer.advanced(by: offset).copyMemory(
-                from: buffer.baseAddress!,
-                byteCount: buffer.count)
+            try baseStream.read(count: byteCount) { bytes in
+                pointer
+                    .advanced(by: offset)
+                    .copyMemory(
+                        from: bytes.baseAddress!,
+                        byteCount: bytes.count)
+            }
         }
 
         if currentChunkBytesLeft > requested {
@@ -101,7 +104,7 @@ class ChunkedInputStream: InputStream {
             return
         }
         if currentChunkBytesLeft > 0 {
-            _ = try baseStream.read(count: currentChunkBytesLeft)
+            try baseStream.consume(count: currentChunkBytesLeft)
             currentChunkBytesLeft = 0
         }
         while true {
@@ -111,7 +114,7 @@ class ChunkedInputStream: InputStream {
                 closed = true
                 break
             }
-            _ = try baseStream.read(count: size)
+            try baseStream.consume(count: size)
         }
     }
 
@@ -124,10 +127,10 @@ class ChunkedInputStream: InputStream {
     }
 }
 
-class ChunkedStreamReader: UnsafeStreamReader {
+class ChunkedStreamReader: StreamReader {
     let baseStream: BufferedInputStream<ChunkedInputStream>
 
-    init(baseStream: UnsafeStreamReader) {
+    init(baseStream: StreamReader) {
         self.baseStream = BufferedInputStream(
             baseStream: ChunkedInputStream(baseStream: baseStream),
             capacity: 4096)
@@ -141,24 +144,53 @@ class ChunkedStreamReader: UnsafeStreamReader {
         return baseStream.buffered
     }
 
-    func peek(count: Int) throws -> UnsafeRawBufferPointer? {
-        return try baseStream.peek(count: count)
+    func cache(count: Int) throws -> Bool {
+        return try baseStream.cache(count: count)
     }
 
-    func read() throws -> UInt8 {
-        return try baseStream.read()
+    public func next<T>(is sequence: T) throws -> Bool
+        where T : Collection, T.Element == UInt8
+    {
+        return try baseStream.next(is: sequence)
     }
 
-    func read(count: Int) throws -> UnsafeRawBufferPointer {
+    func read(_ type: UInt8.Type) throws -> UInt8 {
+        return try baseStream.read(UInt8.self)
+    }
+
+    func read<T: BinaryInteger>(_ type: T.Type) throws -> T {
+        return try baseStream.read(type)
+    }
+
+    func read(count: Int) throws -> [UInt8] {
         return try baseStream.read(count: count)
+    }
+
+    func read<T>(
+        count: Int,
+        body: (UnsafeRawBufferPointer) throws -> T) throws -> T
+    {
+        return try baseStream.read(count: count, body: body)
     }
 
     func read(
         while predicate: (UInt8) -> Bool,
-        allowingExhaustion: Bool
-    ) throws -> UnsafeRawBufferPointer {
+        allowingExhaustion: Bool) throws -> [UInt8]
+    {
         return try baseStream.read(
-            while: predicate, allowingExhaustion: allowingExhaustion)
+            while: predicate,
+            allowingExhaustion: allowingExhaustion)
+    }
+
+    func read<T>(
+        while predicate: (UInt8) -> Bool,
+        allowingExhaustion: Bool,
+        body: (UnsafeRawBufferPointer) throws -> T) throws -> T
+    {
+        return try baseStream.read(
+            while: predicate,
+            allowingExhaustion: allowingExhaustion,
+            body: body)
     }
 
     func consume(count: Int) throws {
@@ -174,6 +206,7 @@ class ChunkedStreamReader: UnsafeStreamReader {
         allowingExhaustion: Bool
     ) throws {
         return try baseStream.consume(
-            while: predicate, allowingExhaustion: allowingExhaustion)
+            while: predicate,
+            allowingExhaustion: allowingExhaustion)
     }
 }

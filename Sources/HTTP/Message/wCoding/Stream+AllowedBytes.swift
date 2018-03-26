@@ -31,10 +31,23 @@ final class AllowedBytes {
     }
 }
 
-extension UnsafeStreamReader {
-    func read(allowedBytes: AllowedBytes) throws -> UnsafeRawBufferPointer {
+extension StreamReader {
+    @inline(__always)
+    func read(allowedBytes: AllowedBytes) throws -> [UInt8] {
         let buffer = allowedBytes.buffer
         return try read(while: { buffer[Int($0)] })
+    }
+
+    @inline(__always)
+    func read<T>(
+        allowedBytes: AllowedBytes,
+        body: (UnsafeRawBufferPointer) throws -> T
+    ) throws -> T {
+        let buffer = allowedBytes.buffer
+        return try read(
+            while: { buffer[Int($0)] },
+            allowingExhaustion: true,
+            body: body)
     }
 }
 

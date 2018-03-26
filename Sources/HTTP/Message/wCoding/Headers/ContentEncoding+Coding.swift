@@ -1,7 +1,7 @@
 import Stream
 
 extension Array where Element == ContentEncoding {
-    init<T: UnsafeStreamReader>(from stream: T) throws {
+    init<T: StreamReader>(from stream: T) throws {
         var values = [ContentEncoding]()
         while true {
             let contentEncoding = try ContentEncoding(from: stream)
@@ -14,7 +14,7 @@ extension Array where Element == ContentEncoding {
         self = values
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         for i in startIndex..<endIndex {
             if i != startIndex {
                 try stream.write(.comma)
@@ -31,16 +31,17 @@ extension ContentEncoding {
         static let deflate = ASCII("deflate")
     }
 
-    init<T: UnsafeStreamReader>(from stream: T) throws {
-        let bytes = try stream.read(allowedBytes: .token)
-        switch bytes.lowercasedHashValue {
-        case Bytes.gzip.lowercasedHashValue: self = .gzip
-        case Bytes.deflate.lowercasedHashValue: self = .deflate
-        default: self = .custom(String(decoding: bytes, as: UTF8.self))
+    init<T: StreamReader>(from stream: T) throws {
+        self = try stream.read(allowedBytes: .token) { bytes in
+            switch bytes.lowercasedHashValue {
+            case Bytes.gzip.lowercasedHashValue: return .gzip
+            case Bytes.deflate.lowercasedHashValue: return .deflate
+            default: return .custom(String(decoding: bytes, as: UTF8.self))
+            }
         }
     }
 
-    func encode<T: UnsafeStreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) throws {
         let bytes: [UInt8]
         switch self {
         case .gzip: bytes = Bytes.gzip

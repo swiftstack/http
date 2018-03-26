@@ -207,65 +207,68 @@ extension URL.Query {
 // Decode from Stream
 
 extension URL {
-    init<T: UnsafeStreamReader>(from stream: T) throws {
-        var buffer = try stream.read(allowedBytes: .path)
-        self.path = try String(removingPercentEncoding: buffer)
-
-        if try stream.consume(.questionMark) {
-            self.query = try Query(from: stream)
-        } else {
-            self.query = nil
-        }
-
-        if try stream.consume(.hash) {
-            buffer = try stream.read(allowedBytes: .fragment)
-            self.fragment = try String(removingPercentEncoding: buffer)
-        } else {
-            self.fragment = nil
-        }
-
+    init<T: StreamReader>(from stream: T) throws {
         self.scheme = nil
         self.host = nil
+
+        self.path = try stream.read(allowedBytes: .path) { bytes in
+            return try String(removingPercentEncoding: bytes)
+        }
+
+        switch try stream.consume(.questionMark) {
+        case true: self.query = try Query(from: stream)
+        case false: self.query = nil
+        }
+
+        switch try stream.consume(.hash) {
+        case true:
+            self.fragment = try stream.read(allowedBytes: .fragment) { bytes in
+                return try String(removingPercentEncoding: bytes)
+            }
+        default:
+            self.fragment = nil
+        }
     }
 }
 
 extension URL.Host {
-    init<T: UnsafeStreamReader>(from stream: T) throws {
-        let bytes = try stream.read(allowedBytes: .domain)
-        guard bytes.count > 0 else {
-            throw ParseError.invalidHost
-        }
-        if Punycode.isEncoded(domain: bytes) {
-            self.address = Punycode.decode(domain: bytes)
-        } else {
-            self.address = String(decoding: bytes, as: UTF8.self)
+    init<T: StreamReader>(from stream: T) throws {
+        self.address = try stream.read(allowedBytes: .domain) { bytes in
+            guard bytes.count > 0 else {
+                throw ParseError.invalidHost
+            }
+            switch Punycode.isEncoded(domain: bytes) {
+            case true: return Punycode.decode(domain: bytes)
+            case false: return String(decoding: bytes, as: UTF8.self)
+            }
         }
 
-        guard try stream.consume(.colon) else {
+        switch try stream.consume(.colon) {
+        case true:
+            guard let port = try Int(from: stream) else {
+                throw ParseError.invalidPort
+            }
+            self.port = port
+        default:
             self.port = nil
-            return
         }
-        guard let port = try Int(from: stream) else {
-            throw ParseError.invalidPort
-        }
-        self.port = port
     }
 }
 
 extension URL.Query {
-    init<T: UnsafeStreamReader>(from stream: T) throws {
+    init<T: StreamReader>(from stream: T) throws {
         var values =  [String : String]()
 
         while true {
-            var buffer = try stream.read(allowedBytes: .queryPart)
-            let name = try String(removingPercentEncoding: buffer)
-
+            let name = try stream.read(allowedBytes: .queryPart) { bytes in
+                return try String(removingPercentEncoding: bytes)
+            }
             guard try stream.consume(.equal) else {
                 throw ParseError.invalidURL
             }
-
-            buffer = try stream.read(allowedBytes: .queryPart)
-            let value = try String(removingPercentEncoding: buffer)
+            let value = try stream.read(allowedBytes: .queryPart) { bytes in
+                return try String(removingPercentEncoding: bytes)
+            }
 
             values[name] = value
 

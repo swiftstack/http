@@ -3,7 +3,7 @@ import Network
 
 extension Request {
     @_specialize(exported: true, where T == BufferedInputStream<NetworkStream>)
-    public convenience init<T: UnsafeStreamReader>(from stream: T) throws {
+    public convenience init<T: StreamReader>(from stream: T) throws {
         self.init()
         do {
             self.method = try Request.Method(from: stream)
@@ -29,10 +29,10 @@ extension Request {
             try readLineEnd()
 
             while true {
-                guard let nextLine = try stream.peek(count: 2) else {
+                guard try stream.cache(count: 2) else {
                     throw ParseError.unexpectedEnd
                 }
-                if nextLine.elementsEqual(Constants.lineEnd) {
+                if try stream.next(is: Constants.lineEnd) {
                     try stream.consume(count: 2)
                     break
                 }
@@ -53,9 +53,10 @@ extension Request {
                     self.host = try URL.Host(from: stream)
                 case .userAgent:
                     // FIXME: validate
-                    let bytes = try stream.read(until: .cr)
-                    let trimmed = bytes.trimmingRightSpace()
-                    self.userAgent = String(decoding: trimmed, as: UTF8.self)
+                    self.userAgent = try stream.read(until: .cr) { bytes in
+                        let trimmed = bytes.trimmingRightSpace()
+                        return String(decoding: trimmed, as: UTF8.self)
+                    }
                 case .accept:
                     self.accept = try [Accept](from: stream)
                 case .acceptLanguage:
@@ -82,9 +83,9 @@ extension Request {
                     self.expect = try Expect(from: stream)
                 default:
                     // FIXME: validate
-                    let bytes = try stream.read(until: .cr)
-                    let trimmed = bytes.trimmingRightSpace()
-                    headers[name] = String(decoding: trimmed, as: UTF8.self)
+                    headers[name] = try stream.read(until: .cr) { bytes in
+                        return String(decoding: bytes, as: UTF8.self)
+                    }
                 }
 
                 try readLineEnd()
