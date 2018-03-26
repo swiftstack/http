@@ -23,6 +23,11 @@ class ChunkedStreamWriter: StreamWriter {
         try write(&copy, byteCount: 1)
     }
 
+    func write<T: BinaryInteger>(_ value: T) throws {
+        var copy = value
+        try write(&copy, byteCount: MemoryLayout<T>.size)
+    }
+
     func close() throws {
         try baseStream.write("0\r\n\r\n")
     }
