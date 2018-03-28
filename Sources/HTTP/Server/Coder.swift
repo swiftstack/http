@@ -66,7 +66,7 @@ public struct Coder {
         switch type {
         case .json:
             // TODO: Use stream + chunked?
-            let bytes = try JSONEncoder().encode(object)
+            let bytes = try JSON.encode(encodable: object)
             response.bytes = bytes
             response.contentLength = bytes.count
             response.contentType = .json
@@ -120,18 +120,9 @@ public struct Coder {
         switch request.body {
         case .bytes(let bytes):
             let stream = InputByteStream(bytes)
-            return try JSONDecoder().decode(type, from: stream)
+            return try JSON.decode(type, from: stream)
         case .input(let reader):
-            switch reader {
-            // FIXME: Use typed reader or add the api to JSONDecoder
-            case let stream as BufferedInputStream<NetworkStream>:
-                return try JSONDecoder().decode(type, from: stream)
-            default:
-                return try reader.read(while: { _ in true }) { bytes -> T in
-                    let stream = UnsafeRawInputStream(bytes)
-                    return try JSONDecoder().decode(type, from: stream)
-                }
-            }
+            return try JSON.decode(type, from: reader)
         default:
             throw Error.invalidRequest
         }
