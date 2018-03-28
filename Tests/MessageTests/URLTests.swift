@@ -64,12 +64,10 @@ class URLTests: TestCase {
     }
 
     func testUnicode() {
-        do {
+        scope {
             let urlString = "http://domain.com:8080/тест?ключ=значение"
             let url = try URL(urlString)
             assertEqual(url.description, urlString)
-        } catch {
-            fail(String(describing: error))
         }
     }
 

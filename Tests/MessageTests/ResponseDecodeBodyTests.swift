@@ -6,7 +6,7 @@ import struct Foundation.Date
 
 class ResponseDecodeBodyTests: TestCase {
     func testStringResponse() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Type: text/plain\r\n" +
@@ -20,13 +20,11 @@ class ResponseDecodeBodyTests: TestCase {
             assertEqual(response.contentLength, 5)
             assertEqual(response.bytes, ASCII("Hello"))
             assertEqual(response.string, "Hello")
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testHtmlResponse() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Type: text/html\r\n" +
@@ -41,13 +39,11 @@ class ResponseDecodeBodyTests: TestCase {
             assertEqual(response.contentLength, 13)
             assertEqual(response.bytes, ASCII("<html></html>"))
             assertEqual(response.string, "<html></html>")
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testBytesResponse() {
-        do {
+        scope {
             let bytes = ASCII(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Type: application/stream\r\n" +
@@ -61,13 +57,11 @@ class ResponseDecodeBodyTests: TestCase {
             )
             assertEqual(response.contentLength, 3)
             assertEqual(response.bytes, [1,2,3])
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testJsonResponse() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Type: application/json\r\n" +
@@ -82,13 +76,11 @@ class ResponseDecodeBodyTests: TestCase {
             assertEqual(response.contentLength, 28)
             assertEqual(response.bytes, ASCII("{'message': 'Hello, World!'}"))
             assertEqual(response.string, "{'message': 'Hello, World!'}")
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testZeroContentLenght() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: 0\r\n" +
@@ -97,13 +89,11 @@ class ResponseDecodeBodyTests: TestCase {
             assertEqual(response.contentLength, 0)
             assertNil(response.bytes)
             assertEqual(response.body, .none)
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testChunked() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Transfer-Encoding: chunked\r\n" +
@@ -114,8 +104,6 @@ class ResponseDecodeBodyTests: TestCase {
                 "\r\n")
              let response = try Response(from: stream)
             assertEqual(response.string, "Hello, World!")
-        } catch {
-            fail(String(describing: error))
         }
     }
 }

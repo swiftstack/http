@@ -6,93 +6,79 @@ import struct Foundation.Date
 
 class ResponseDecodeTests: TestCase {
     func testOk() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
             assertEqual(response.status, .ok)
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testNotFound() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 404 Not Found\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
             assertEqual(response.status, .notFound)
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testMoved() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 301 Moved Permanently\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
             assertEqual(response.status, .moved)
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testBad() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 400 Bad Request\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
             assertEqual(response.status, .badRequest)
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testUnauthorized() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 401 Unauthorized\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
             assertEqual(response.status, .unauthorized)
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testInternalServerError() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 500 Internal Server Error\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
             assertEqual(response.status, .internalServerError)
-        } catch {
-            fail(String(describing: error))
         }
     }
 
 
     func testContentLength() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: 0\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
             assertEqual(response.contentLength, 0)
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testContentType() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Type: text/plain\r\n" +
@@ -100,13 +86,11 @@ class ResponseDecodeTests: TestCase {
                 "\r\n")
             let response = try Response(from: stream)
             assertEqual(response.contentType, .text)
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testConnection() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: 0\r\n" +
@@ -114,13 +98,11 @@ class ResponseDecodeTests: TestCase {
                 "\r\n")
             let response = try Response(from: stream)
             assertEqual(response.connection, .close)
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testContentEncoding() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: 0\r\n" +
@@ -128,13 +110,11 @@ class ResponseDecodeTests: TestCase {
                 "\r\n")
             let response = try Response(from: stream)
             assertEqual(response.contentEncoding, [.gzip, .deflate])
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testTransferEncoding() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: 0\r\n" +
@@ -142,13 +122,11 @@ class ResponseDecodeTests: TestCase {
                 "\r\n")
             let response = try Response(from: stream)
             assertEqual(response.transferEncoding, [.gzip, .chunked])
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testCustomHeader() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: 0\r\n" +
@@ -156,13 +134,11 @@ class ResponseDecodeTests: TestCase {
                 "\r\n")
             let response = try Response(from: stream)
             assertEqual(response.headers["User"], "guest")
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testSetCookie() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: 0\r\n" +
@@ -172,13 +148,11 @@ class ResponseDecodeTests: TestCase {
             assertEqual(response.cookies, [
                 Cookie(name: "username", value: "tony")
             ])
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testSetCookieExpires() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: 0\r\n" +
@@ -192,13 +166,11 @@ class ResponseDecodeTests: TestCase {
                     value: "tony",
                     expires: Date(timeIntervalSinceReferenceDate: 467105280))
                 ])
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testSetCookieMaxAge() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: 0\r\n" +
@@ -208,13 +180,11 @@ class ResponseDecodeTests: TestCase {
             assertEqual(response.cookies, [
                 Cookie(name: "username", value: "tony", maxAge: 42)
             ])
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testSetCookieHttpOnly() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: 0\r\n" +
@@ -224,13 +194,11 @@ class ResponseDecodeTests: TestCase {
             assertEqual(response.cookies, [
                 Cookie(name: "username", value: "tony", httpOnly: true)
             ])
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testSetCookieSecure() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: 0\r\n" +
@@ -240,13 +208,11 @@ class ResponseDecodeTests: TestCase {
             assertEqual(response.cookies, [
                 Cookie(name: "username", value: "tony", secure: true)
             ])
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testSetCookieDomain() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: 0\r\n" +
@@ -259,13 +225,11 @@ class ResponseDecodeTests: TestCase {
                     value: "tony",
                     domain: "somedomain.com")
             ])
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testSetCookiePath() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: 0\r\n" +
@@ -275,13 +239,11 @@ class ResponseDecodeTests: TestCase {
             assertEqual(response.cookies, [
                 Cookie(name: "username", value: "tony", path: "/")
             ])
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testSetCookieManyValues() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "HTTP/1.1 200 OK\r\n" +
                 "Set-Cookie: num=0; Path=/; Max-Age=42; Secure; HttpOnly\r\n" +
@@ -318,8 +280,6 @@ class ResponseDecodeTests: TestCase {
                             name: "date",
                             value: "",
                             expires: Date(timeIntervalSince1970: 1536237674.0)))
-        } catch {
-            fail(String(describing: error))
         }
     }
 }

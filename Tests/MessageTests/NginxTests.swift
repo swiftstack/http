@@ -4,7 +4,7 @@ import Stream
 
 class NginxTests: TestCase {
     func testCurlGet() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "GET /test HTTP/1.1\r\n" +
                 "User-Agent: curl/7.18.0 (i486-pc-linux-gnu) libcurl/7.18.0 OpenSSL/0.9.8g zlib/1.2.3.3 libidn/1.1\r\n" +
@@ -18,13 +18,11 @@ class NginxTests: TestCase {
             assertEqual(request.version, .oneOne)
             assertEqual(request.userAgent, "curl/7.18.0 (i486-pc-linux-gnu) libcurl/7.18.0 OpenSSL/0.9.8g zlib/1.2.3.3 libidn/1.1")
             assertEqual(request.host, URL.Host(address: "0.0.0.0", port: 5000))
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testFirefoxGet() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "GET /favicon.ico HTTP/1.1\r\n" +
                 "Host: 0.0.0.0:5000\r\n" +
@@ -62,13 +60,11 @@ class NginxTests: TestCase {
             )
             assertEqual(request.keepAlive, 300)
             assertEqual(request.connection, .keepAlive)
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testChankedAllYourBase() {
-        do {
+        scope {
             let stream = InputByteStream(
                 "POST /post_chunked_all_your_base HTTP/1.1\r\n" +
                 "Transfer-Encoding: chunked\r\n" +
@@ -79,8 +75,6 @@ class NginxTests: TestCase {
             let request = try Request(from: stream)
             assertEqual(request.transferEncoding, [.chunked])
             assertEqual(request.string, "all your base are belong to us")
-        } catch {
-            fail(String(describing: error))
         }
     }
 }

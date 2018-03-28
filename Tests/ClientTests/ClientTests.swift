@@ -33,8 +33,9 @@ class ClientTests: TestCase {
     }
 
     func testRequest() {
-        do {
-            let requestString = "GET / HTTP/1.1\r\n" +
+        scope {
+            let requestString =
+                "GET / HTTP/1.1\r\n" +
                 "Host: 127.0.0.1:8080\r\n" +
                 "User-Agent: swift-stack/http\r\n" +
                 "Accept-Encoding: gzip, deflate\r\n" +
@@ -52,14 +53,13 @@ class ClientTests: TestCase {
             let response = try client.makeRequest(request, input, output)
             assertEqual(outputStream.string, requestString)
             assertEqual(response.status, .ok)
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testDeflate() {
-        do {
-            let requestString = "GET / HTTP/1.1\r\n" +
+        scope {
+            let requestString =
+                "GET / HTTP/1.1\r\n" +
                 "Host: 127.0.0.1:8080\r\n" +
                 "User-Agent: swift-stack/http\r\n" +
                 "Accept-Encoding: gzip, deflate\r\n" +
@@ -87,14 +87,13 @@ class ClientTests: TestCase {
             assertEqual(response.status, .ok)
             assertEqual(response.contentEncoding, [.deflate])
             assertEqual(response.string, "Hello, World!")
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testGZip() {
-        do {
-            let requestString = "GET / HTTP/1.1\r\n" +
+        scope {
+            let requestString =
+                "GET / HTTP/1.1\r\n" +
                 "Host: 127.0.0.1:8080\r\n" +
                 "User-Agent: swift-stack/http\r\n" +
                 "Accept-Encoding: gzip, deflate\r\n" +
@@ -122,8 +121,6 @@ class ClientTests: TestCase {
             assertEqual(response.status, .ok)
             assertEqual(response.contentEncoding, [.gzip])
             assertEqual(response.string, "Hello, World!")
-        } catch {
-            fail(String(describing: error))
         }
     }
 }

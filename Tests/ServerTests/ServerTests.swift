@@ -76,27 +76,23 @@ class ServerTests: TestCase {
     }
 
     func testBufferSize() {
-        do {
+        scope {
             let server = try Server(
                 host: "0.0.0.0",
                 port: 4003)
 
             server.bufferSize = 16384
             assertEqual(server.bufferSize, 16384)
-        } catch {
-            fail(String(describing: error))
         }
     }
 
     func testDescription() {
-        do {
+        scope {
             let server = try Server(
                 host: "127.0.0.1",
                 port: 4004)
 
             assertEqual(server.address, "http://127.0.0.1:4004")
-        } catch {
-            fail(String(describing: error))
         }
     }
 }

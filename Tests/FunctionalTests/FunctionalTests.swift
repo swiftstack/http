@@ -20,15 +20,13 @@ class FunctionalTests: TestCase {
         let semaphore = DispatchSemaphore(value: 0)
 
         async.task {
-            do {
+            scope {
                 let server = try Server(host: "127.0.0.1", port: port)
 
                 try serverCode(server)
 
                 semaphore.signal()
                 try server.start()
-            } catch {
-                fail(String(describing: error))
             }
             async.loop.terminate()
         }
@@ -36,13 +34,11 @@ class FunctionalTests: TestCase {
         semaphore.wait()
 
         async.task {
-            do {
+            scope {
                 let client = Client(host: "127.0.0.1", port: port)
                 try client.connect()
 
                 try clientCode(client)
-            } catch {
-                fail(String(describing: error))
             }
             async.loop.terminate()
         }
