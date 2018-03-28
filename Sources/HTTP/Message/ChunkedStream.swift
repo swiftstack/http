@@ -28,6 +28,10 @@ class ChunkedStreamWriter: StreamWriter {
         try write(&copy, byteCount: MemoryLayout<T>.size)
     }
 
+    func flush() throws {
+        try baseStream.flush()
+    }
+
     func close() throws {
         try baseStream.write("0\r\n\r\n")
     }
@@ -153,10 +157,14 @@ class ChunkedStreamReader: StreamReader {
         return try baseStream.cache(count: count)
     }
 
-    public func next<T>(is sequence: T) throws -> Bool
-        where T : Collection, T.Element == UInt8
+    func peek() throws -> UInt8 {
+        return try baseStream.peek()
+    }
+
+    func peek<T>(
+        count: Int, body: (UnsafeRawBufferPointer) throws -> T) throws -> T
     {
-        return try baseStream.next(is: sequence)
+        return try baseStream.peek(count: count, body: body)
     }
 
     func read(_ type: UInt8.Type) throws -> UInt8 {

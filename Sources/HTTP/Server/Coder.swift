@@ -1,4 +1,6 @@
 import JSON
+import Stream
+import Network
 
 // MARK: Coder
 
@@ -63,6 +65,7 @@ public struct Coder {
     ) throws {
         switch type {
         case .json:
+            // TODO: Use stream + chunked?
             let bytes = try JSONEncoder().encode(object)
             response.bytes = bytes
             response.contentLength = bytes.count
@@ -81,7 +84,7 @@ public struct Coder {
 
     // MARK: Transform route's Model from Request
 
-    @inline(__always)
+    @_inlineable
     public static func decodeModel<T: Decodable>(
         _ type: T.Type,
         from request: Request
@@ -92,22 +95,65 @@ public struct Coder {
             return try KeyValueDecoder().decode(type, from: values)
 
         default:
-            guard let body = request.bytes,
-                let contentType = request.contentType else {
-                    throw Error.invalidRequest
+            guard let contentType = request.contentType else {
+                throw Error.invalidRequest
             }
 
             switch contentType.mediaType {
             case .application(.json):
-                return try JSONDecoder().decode(type, from: body)
+                return try decodeJSON(type, from: request)
 
             case .application(.formURLEncoded):
-                let values = try URL.Query(from: body).values
-                return try KeyValueDecoder().decode(type, from: values)
+                return try decodeFormEncoded(type, from: request)
 
             default:
                 throw Error.invalidContentType
             }
         }
+    }
+
+    @_inlineable
+    public static func decodeJSON<T: Decodable>(
+        _ type: T.Type,
+        from request: Request) throws -> T
+    {
+        switch request.body {
+        case .bytes(let bytes):
+            let stream = InputByteStream(bytes)
+            return try JSONDecoder().decode(type, from: stream)
+        case .input(let reader):
+            switch reader {
+            // FIXME: Use typed reader or add the api to JSONDecoder
+            case let stream as BufferedInputStream<NetworkStream>:
+                return try JSONDecoder().decode(type, from: stream)
+            default:
+                return try reader.read(while: { _ in true }) { bytes -> T in
+                    let stream = UnsafeRawInputStream(bytes)
+                    return try JSONDecoder().decode(type, from: stream)
+                }
+            }
+        default:
+            throw Error.invalidRequest
+        }
+    }
+
+    @_inlineable
+    public static func decodeFormEncoded<T: Decodable>(
+        _ type: T.Type,
+        from request: Request) throws -> T
+    {
+        // TODO: Use stream
+        guard let bytes = request.bytes else {
+            throw Error.invalidRequest
+        }
+        let values = try URL.Query(from: bytes).values
+        return try KeyValueDecoder().decode(type, from: values)
+    }
+}
+
+extension UnsafeRawInputStream {
+    @_versioned
+    convenience init(_ bytes: UnsafeRawBufferPointer) {
+        self.init(pointer: bytes.baseAddress!, count: bytes.count)
     }
 }
