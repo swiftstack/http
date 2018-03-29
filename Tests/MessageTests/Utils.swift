@@ -29,14 +29,3 @@ extension OutputByteStream {
         return String(decoding: bytes, as: UTF8.self)
     }
 }
-
-extension StreamReader {
-    func readString() throws -> String {
-        let bytes = try readUntilEnd()
-        return String(decoding: bytes, as: UTF8.self)
-    }
-
-    func readUntilEnd() throws -> [UInt8] {
-        return try read(while: { _ in true }, allowingExhaustion: true)
-    }
-}

@@ -123,9 +123,3 @@ extension BodyInpuStream {
         }
     }
 }
-
-fileprivate extension ChunkedStreamReader {
-    func readUntilEnd() throws -> [UInt8] {
-        return try read(while: {_ in true}, allowingExhaustion: true)
-    }
-}

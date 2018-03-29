@@ -3,10 +3,6 @@ import Stream
 class ChunkedStreamWriter: StreamWriter {
     let baseStream: StreamWriter
 
-    var buffered: Int {
-        return baseStream.buffered
-    }
-
     init(baseStream: StreamWriter) {
         self.baseStream = baseStream
     }
@@ -48,13 +44,14 @@ class ChunkedInputStream: InputStream {
     var currentChunkBytesLeft = 0
 
     func readNextChunkSize() throws -> Int {
-        return try baseStream.read(until: .cr) { bytes in
+        let size = try baseStream.read(until: .cr) { bytes -> Int in
             guard let size = Int(from: bytes, radix: 16) else {
                 throw ParseError.invalidRequest
             }
-            try readLineEnd()
             return size
         }
+        try readLineEnd()
+        return size
     }
 
     func read(
@@ -175,10 +172,6 @@ class ChunkedStreamReader: StreamReader {
         return try baseStream.read(type)
     }
 
-    func read(count: Int) throws -> [UInt8] {
-        return try baseStream.read(count: count)
-    }
-
     func read<T>(
         count: Int,
         body: (UnsafeRawBufferPointer) throws -> T) throws -> T
@@ -186,23 +179,14 @@ class ChunkedStreamReader: StreamReader {
         return try baseStream.read(count: count, body: body)
     }
 
-    func read(
-        while predicate: (UInt8) -> Bool,
-        allowingExhaustion: Bool) throws -> [UInt8]
-    {
-        return try baseStream.read(
-            while: predicate,
-            allowingExhaustion: allowingExhaustion)
-    }
-
     func read<T>(
+        mode: PredicateMode,
         while predicate: (UInt8) -> Bool,
-        allowingExhaustion: Bool,
         body: (UnsafeRawBufferPointer) throws -> T) throws -> T
     {
         return try baseStream.read(
+            mode: mode,
             while: predicate,
-            allowingExhaustion: allowingExhaustion,
             body: body)
     }
 
@@ -214,12 +198,7 @@ class ChunkedStreamReader: StreamReader {
         return try baseStream.consume(byte)
     }
 
-    func consume(
-        while predicate: (UInt8) -> Bool,
-        allowingExhaustion: Bool
-    ) throws {
-        return try baseStream.consume(
-            while: predicate,
-            allowingExhaustion: allowingExhaustion)
+    func consume(mode: PredicateMode, while predicate: (UInt8) -> Bool) throws {
+        return try baseStream.consume(mode: mode, while: predicate)
     }
 }

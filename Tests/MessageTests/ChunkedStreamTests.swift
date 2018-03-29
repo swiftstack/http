@@ -19,7 +19,7 @@ class ChunkedStreamTests: TestCase {
             let chunked = "d\r\nHello, World!\r\n0\r\n\r\n"
             let byteStream = InputByteStream(ASCII(chunked))
             let chunkedStream = ChunkedStreamReader(baseStream: byteStream)
-            let string = try chunkedStream.readString()
+            let string = try chunkedStream.readUntilEnd(as: String.self)
             assertEqual(string, "Hello, World!")
         }
     }
@@ -53,7 +53,7 @@ class ChunkedStreamTests: TestCase {
                 "0\r\n\r\n"
             let byteStream = InputByteStream(ASCII(chunked))
             let chunkedStream = ChunkedStreamReader(baseStream: byteStream)
-            let string = try chunkedStream.readString()
+            let string = try chunkedStream.readUntilEnd(as: String.self)
 
             let expected = "This is the data in the first chunkand " +
                 "this is the second oneconsequence"
@@ -61,7 +61,6 @@ class ChunkedStreamTests: TestCase {
             assertEqual(string, expected)
         }
     }
-
 
     // TODO: make it work with 256 byte buffer
     func testSmallerBufferSize() {
@@ -82,7 +81,7 @@ class ChunkedStreamTests: TestCase {
             let chunked = "12C\r\n\(chars300)\r\n0\r\n\r\n"
             let byteStream = InputByteStream(ASCII(chunked))
             let chunkedStream = ChunkedStreamReader(baseStream: byteStream)
-            let string = try chunkedStream.readString()
+            let string = try chunkedStream.readUntilEnd(as: String.self)
 
             assertEqual(string, chars300)
         }
