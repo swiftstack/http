@@ -62,6 +62,8 @@ extension Set where Element == UInt8 {
     static let fragmentAllowed = queryAllowed
 }
 
+import Stream
+
 extension AllowedBytes {
     static let digits = AllowedBytes(byteSet: [
         .zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine
@@ -81,7 +83,7 @@ extension AllowedBytes {
     //                | "," | ";" | ":" | "\" | <">
     //                | "/" | "[" | "]" | "?" | "="
     //                | "{" | "}" | SP  | HT
-    static let token = AllowedBytes(usASCII: (
+    static let token = AllowedBytes(asciiTable: (
         /* nul   soh   stx    etx    eot    enq    ack    bel */
         false, false, false, false, false, false, false, false,
         /* bs    ht     nl    vt     np     cr     so     si  */
@@ -116,7 +118,7 @@ extension AllowedBytes {
         true,  true,  true,  false, true,  false, true,  false))
 
     // <any OCTET except CTLs, but including LWS>
-    static let text = AllowedBytes(usASCII: (
+    static let text = AllowedBytes(asciiTable: (
         /* nul   soh   stx    etx    eot    enq    ack    bel */
         false, false, false, false, false, false, false, false,
         /* bs    ht     nl    vt     np     cr     so     si  */
@@ -151,7 +153,7 @@ extension AllowedBytes {
         true,  true,  true,  true,  true,  true,  true,  false))
 
     // <any OCTET except CTLs, but including LWS and CRLF>
-    public static let ascii = AllowedBytes(usASCII: (
+    public static let ascii = AllowedBytes(asciiTable: (
         /* nul   soh   stx    etx    eot    enq    ack    bel */
         false, false, false, false, false, false, false, false,
         /* bs    ht     nl    vt     np     cr     so     si  */
