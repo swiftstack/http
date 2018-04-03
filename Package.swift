@@ -11,13 +11,10 @@ let package = Package(
             url: "https://github.com/swift-stack/log.git",
             .branch("master")),
         .package(
-            url: "https://github.com/swift-stack/async.git",
+            url: "https://github.com/swift-stack/aio.git",
             .branch("master")),
         .package(
             url: "https://github.com/swift-stack/stream.git",
-            .branch("master")),
-        .package(
-            url: "https://github.com/swift-stack/network.git",
             .branch("master")),
         .package(
             url: "https://github.com/swift-stack/json.git",
@@ -27,6 +24,9 @@ let package = Package(
             .branch("master")),
         .package(
             url: "https://github.com/swift-stack/test.git",
+            .branch("master")),
+        .package(
+            url: "https://github.com/swift-stack/fiber.git",
             .branch("master"))
     ],
     targets: [
@@ -40,13 +40,13 @@ let package = Package(
             dependencies: ["HTTP", "Test"]),
         .testTarget(
             name: "ServerTests",
-            dependencies: ["HTTP", "Test", "AsyncDispatch"]),
+            dependencies: ["HTTP", "Test", "Fiber"]),
         .testTarget(
             name: "ClientTests",
-            dependencies: ["HTTP", "Test", "AsyncDispatch"]),
+            dependencies: ["HTTP", "Test", "Fiber"]),
         .testTarget(
             name: "FunctionalTests",
-            dependencies: ["HTTP", "Test", "AsyncDispatch"]),
+            dependencies: ["HTTP", "Test", "Fiber"]),
         .testTarget(
             name: "KeyValueCodableTests",
             dependencies: ["HTTP", "Test"]),

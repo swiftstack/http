@@ -1,11 +1,12 @@
 import Test
 import HTTP
-import Dispatch
-import AsyncDispatch
+
+import Fiber
+@testable import Async
 
 class FunctionalTests: TestCase {
     static var once: Void = {
-        async.use(Dispatch.self)
+        async.use(Fiber.self)
     }()
 
     override func setUp() {
@@ -17,21 +18,16 @@ class FunctionalTests: TestCase {
         serverCode: @escaping (Server) throws -> Void,
         clientCode: @escaping (Client) throws -> Void
     ) {
-        let semaphore = DispatchSemaphore(value: 0)
-
         async.task {
             scope {
                 let server = try Server(host: "127.0.0.1", port: port)
 
                 try serverCode(server)
 
-                semaphore.signal()
                 try server.start()
             }
             async.loop.terminate()
         }
-
-        semaphore.wait()
 
         async.task {
             scope {
