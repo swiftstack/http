@@ -12,7 +12,7 @@ public struct Coder {
 
     // MARK: Transform convenient router result into Response
 
-    @_versioned
+    @usableFromInline
     @inline(__always)
     static func makeRespone<T: Encodable>(
         for request: Request,
@@ -57,7 +57,7 @@ public struct Coder {
         }
     }
 
-    @_versioned
+    @usableFromInline
     static func encode(
         object: Encodable,
         to response: Response,
@@ -84,7 +84,7 @@ public struct Coder {
 
     // MARK: Transform route's Model from Request
 
-    @_inlineable
+    @inlinable
     public static func decodeModel<T: Decodable>(
         _ type: T.Type,
         from request: Request
@@ -112,7 +112,7 @@ public struct Coder {
         }
     }
 
-    @_inlineable
+    @inlinable
     public static func decodeJSON<T: Decodable>(
         _ type: T.Type,
         from request: Request) throws -> T
@@ -128,7 +128,7 @@ public struct Coder {
         }
     }
 
-    @_inlineable
+    @inlinable
     public static func decodeFormEncoded<T: Decodable>(
         _ type: T.Type,
         from request: Request) throws -> T
@@ -143,7 +143,7 @@ public struct Coder {
 }
 
 extension UnsafeRawInputStream {
-    @_versioned
+    @usableFromInline
     convenience init(_ bytes: UnsafeRawBufferPointer) {
         self.init(pointer: bytes.baseAddress!, count: bytes.count)
     }

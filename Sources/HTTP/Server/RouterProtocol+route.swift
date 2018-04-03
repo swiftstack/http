@@ -2,7 +2,7 @@
 
 extension RouterProtocol {
     // MARK: void -> response
-    @_inlineable
+    @inlinable
     public func route(
         path: String,
         methods: Router.MethodSet,
@@ -21,7 +21,7 @@ extension RouterProtocol {
     }
 
     // MARK: request -> response
-    @_inlineable
+    @inlinable
     public func route(
         path: String,
         methods: Router.MethodSet,
@@ -39,7 +39,7 @@ extension RouterProtocol {
 
 extension RouterProtocol {
     // MARK: void -> encodable
-    @_inlineable
+    @inlinable
     public func route<Result: Encodable>(
         path: String,
         methods: Router.MethodSet,
@@ -53,7 +53,7 @@ extension RouterProtocol {
     }
 
     // MARK: request -> encodable
-    @_inlineable
+    @inlinable
     public func route<Result: Encodable>(
         path: String,
         methods: Router.MethodSet,
@@ -70,7 +70,7 @@ extension RouterProtocol {
 // MARK: Decoder
 
 extension RouterProtocol {
-    @_versioned
+    @usableFromInline
     @inline(__always)
     func makeHandler<Model: Decodable>(
         for path: String,
@@ -81,7 +81,7 @@ extension RouterProtocol {
         }
     }
 
-    @_versioned
+    @usableFromInline
     func makeHandler<Model: Decodable>(
         for path: String,
         wrapping handler: @escaping (Request, Model) throws -> Response
@@ -103,7 +103,7 @@ extension RouterProtocol {
         }
     }
 
-    @_versioned
+    @usableFromInline
     func makeHandler<URLMatch: Decodable, Model: Decodable>(
         for path: String,
         wrapping handler: @escaping (URLMatch, Model) throws -> Response
@@ -114,7 +114,7 @@ extension RouterProtocol {
         }
     }
 
-    @_versioned
+    @usableFromInline
     func makeHandler<URLMatch: Decodable, Model: Decodable>(
         for path: String,
         wrapping handler: @escaping (Request, URLMatch, Model) throws -> Response
@@ -135,7 +135,7 @@ extension RouterProtocol {
     }
 
     // MARK: model -> response
-    @_inlineable
+    @inlinable
     public func route<Model: Decodable>(
         path: String,
         methods: Router.MethodSet,
@@ -152,7 +152,7 @@ extension RouterProtocol {
     }
 
     // MARK: model -> encodable
-    @_inlineable
+    @inlinable
     public func route<Model: Decodable, Result: Encodable>(
         path: String,
         methods: Router.MethodSet,
@@ -167,7 +167,7 @@ extension RouterProtocol {
     }
 
     // MARK: request, model -> response
-    @_inlineable
+    @inlinable
     public func route<Model: Decodable>(
         path: String,
         methods: Router.MethodSet,
@@ -184,7 +184,7 @@ extension RouterProtocol {
     }
 
     // MARK: rquest, model -> encodable
-    @_inlineable
+    @inlinable
     public func route<Model: Decodable, Result: Encodable>(
         path: String,
         methods: Router.MethodSet,
@@ -199,7 +199,7 @@ extension RouterProtocol {
     }
 
     // MARK: url match, model -> result
-    @_inlineable
+    @inlinable
     public func route<URLMatch: Decodable, Model: Decodable>(
         path: String,
         methods: Router.MethodSet,
@@ -216,7 +216,7 @@ extension RouterProtocol {
     }
 
     // MARK: url match, model -> encodable
-    @_inlineable
+    @inlinable
     public func route<
         URLMatch: Decodable, Model: Decodable, Result: Encodable
         >(
@@ -234,7 +234,7 @@ extension RouterProtocol {
     }
 
     // MARK: request, url match, model -> request
-    @_inlineable
+    @inlinable
     public func route<URLMatch: Decodable, Model: Decodable>(
         path: String,
         methods: Router.MethodSet,
@@ -251,7 +251,7 @@ extension RouterProtocol {
     }
 
     // MARK: request, url match, model -> encodable
-    @_inlineable
+    @inlinable
     public func route<URLMatch: Decodable, Model: Decodable, Result: Encodable>(
         path: String,
         methods: Router.MethodSet,
