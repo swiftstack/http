@@ -168,7 +168,7 @@ class ChunkedStreamReader: StreamReader {
         return try baseStream.read(UInt8.self)
     }
 
-    func read<T: BinaryInteger>(_ type: T.Type) throws -> T {
+    func read<T: FixedWidthInteger>(_ type: T.Type) throws -> T {
         return try baseStream.read(type)
     }
 
