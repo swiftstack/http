@@ -62,12 +62,14 @@ class RequestDecodeTests: TestCase {
 
     func testUrl() {
         scope {
-            let stream = InputByteStream("GET /test?key=value#fragment HTTP/1.1\r\n\r\n")
+            let stream = InputByteStream(
+                "GET /test?k1=v1&k2=v2#fragment HTTP/1.1\r\n" +
+                "\r\n")
             let request = try Request(from: stream)
             assertNotNil(request)
             assertNotNil(request.url)
             assertEqual(request.url.path, "/test")
-            assertEqual(request.url.query?.values ?? [:], ["key": "value"])
+            assertEqual(request.url.query?.values, ["k1":"v1", "k2":"v2"])
             assertEqual(request.url.fragment, "fragment")
         }
     }

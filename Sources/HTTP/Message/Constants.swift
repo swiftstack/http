@@ -58,7 +58,7 @@ extension Set where Element == UInt8 {
         "%!$&'()*+,-./:=@_~"))
 
     static let queryAllowed = pathAllowed.union(Set<UInt8>(";?"))
-    static let queryPartAllowed = queryAllowed.subtracting(Set<UInt8>("="))
+    static let queryPartAllowed = queryAllowed.subtracting(Set<UInt8>("=&"))
     static let fragmentAllowed = queryAllowed
 }
 

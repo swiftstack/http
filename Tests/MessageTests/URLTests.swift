@@ -59,8 +59,7 @@ class URLTests: TestCase {
 
         let url = try! URL(urlString)
         assertEqual(url.path, "/привет-мир")
-        assertEqual(url.query?.values ?? [:],
-                    ["ключ" : "значение", "ключ2" : "значение2"])
+        assertEqual(url.query?.values, ["ключ":"значение", "ключ2":"значение2"])
     }
 
     func testUnicode() {
