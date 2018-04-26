@@ -7,7 +7,7 @@ class KeyValueDecoderTests: TestCase {
             let values = ["first":"one","second":"two"]
             struct Model: Decodable {
                 let first: String
-                let second: String
+                let second: String?
             }
             let object = try KeyValueDecoder().decode(Model.self, from: values)
             assertEqual(object.first, "one")
