@@ -25,6 +25,13 @@ extension UInt8 {
     static let eight = UInt8(ascii: "8")
     static let nine = UInt8(ascii: "9")
 
+    static let A = UInt8(ascii: "A")
+    static let B = UInt8(ascii: "B")
+    static let C = UInt8(ascii: "C")
+    static let D = UInt8(ascii: "D")
+    static let E = UInt8(ascii: "E")
+    static let F = UInt8(ascii: "F")
+
     static let a = UInt8(ascii: "a")
     static let f = UInt8(ascii: "f")
 }

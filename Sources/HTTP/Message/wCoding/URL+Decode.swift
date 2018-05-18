@@ -176,8 +176,8 @@ extension URL.Query {
                 guard valueIndex < pair.endIndex else {
                     throw URL.Error.invalidQuery
                 }
-                let name = try URL.removePercentEncoding(pair[..<index])
-                let value = try URL.removePercentEncoding(pair[valueIndex...])
+                let name = try URL.decode(pair[..<index])
+                let value = try URL.decode(pair[valueIndex...])
                 values[name] = value
             }
         }
@@ -289,7 +289,7 @@ extension String {
         case false:
             self = String(decoding: bytes, as: UTF8.self)
         case true:
-            let decoded = try URL.removePercentEncoding(bytes)
+            let decoded = try URL.decode(bytes)
             self = String(decoding: decoded, as: UTF8.self)
         }
     }

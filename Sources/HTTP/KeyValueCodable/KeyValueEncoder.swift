@@ -1,18 +1,14 @@
 public struct KeyValueEncoder {
     public init() {}
 
-    public func encode<T: Encodable>(
-        _ value: T
-    ) throws -> [String : String] {
+    public func encode<T: Encodable>(_ value: T) throws -> [String : String] {
         let encoder = _KeyValueEncoder()
         try value.encode(to: encoder)
         return encoder.values
     }
 
     // FIXME: the same interface shadows the generic one
-    public func encode(
-        encodable value: Encodable
-    ) throws -> [String : String] {
+    public func encode(encodable value: Encodable) throws -> [String : String] {
         let encoder = _KeyValueEncoder()
         try value.encode(to: encoder)
         return encoder.values
@@ -123,7 +119,8 @@ struct KeyValueKeyedEncodingContainer<K: CodingKey>
     }
 
     mutating func encode<T>(
-        _ value: T, forKey key: K
+        _ value: T,
+        forKey key: K
     ) throws where T : Encodable {
         guard let string = value as? String else {
             fatalError("unsupported")

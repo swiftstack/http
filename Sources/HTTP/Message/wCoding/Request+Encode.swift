@@ -7,10 +7,9 @@ extension Request {
         // Start Line
         try method.encode(to: stream)
         try stream.write(.whitespace)
-        try url.path.encode(to: stream, allowedCharacters: .urlPathAllowed)
-        if method == .get, let query = url.query, query.values.count > 0 {
-            try stream.write(.questionMark)
-            try query.encode(to: stream)
+        try url.encode(\URL.path, to: stream)
+        if method == .get {
+            try url.encode(\URL.query, to: stream)
         }
         try stream.write(.whitespace)
         try version.encode(to: stream)

@@ -1,12 +1,48 @@
+let hexchars: [UInt8] = [
+    .zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine,
+    .A, .B, .C, .D, .E, .F
+]
+
 extension URL {
-    static func removePercentEncoding<T: StringProtocol>(
+    static func encode(
+        _ string: String,
+        allowedCharacters: Set<UInt8>) -> [UInt8]
+    {
+        guard !string.isEmpty else {
+            return []
+        }
+        let bytes = [UInt8](string.utf8)
+        return encode(bytes, allowedCharacters: allowedCharacters)
+    }
+
+    // TODO: Handle special cases & Opmtimize using ascii table
+    static func encode(
+        _ bytes: [UInt8],
+        allowedCharacters: Set<UInt8>) -> [UInt8]
+    {
+        var result = [UInt8]()
+        for byte in bytes {
+            if allowedCharacters.contains(byte) {
+                result.append(byte)
+            } else {
+                result.append(.percent)
+                result.append(hexchars[Int(byte >> 4)])
+                result.append(hexchars[Int(byte & 0x0f)])
+            }
+        }
+        return result
+    }
+}
+
+extension URL {
+    static func decode<T: StringProtocol>(
         _ string: T
     ) throws -> String {
-        let encoded = try removePercentEncoding([UInt8](string.utf8))
+        let encoded = try decode([UInt8](string.utf8))
         return String(decoding: encoded, as: UTF8.self)
     }
 
-    static func removePercentEncoding<T: RandomAccessCollection>(
+    static func decode<T: RandomAccessCollection>(
         _ bytes: T
     ) throws -> [UInt8] where T.Element == UInt8, T.Index == Int {
         var result = [UInt8]()
