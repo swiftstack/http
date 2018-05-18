@@ -5,12 +5,8 @@ import Fiber
 @testable import Async
 
 class FunctionalTests: TestCase {
-    static var once: Void = {
-        async.use(Fiber.self)
-    }()
-
     override func setUp() {
-        _ = FunctionalTests.once
+        async.setUp(Fiber.self)
     }
 
     func setup(
