@@ -1,10 +1,8 @@
-import Foundation
-
 public struct URLParamMatcher {
     public let params: [(name: String, index: Int)]
 
     public init(_ url: String) {
-        let components = url.components(separatedBy: "/")
+        let components = url.split(separator: "/")
         var params: [(name: String, index: Int)] = []
         let count = components.count
         for (index, item) in components.enumerated() {
