@@ -47,10 +47,13 @@ extension Response {
         self.contentLength = bytes!.count
     }
 
-    public convenience init(bytes: [UInt8]) {
+    public convenience init(
+        bytes: [UInt8],
+        contentType: ContentType = .stream)
+    {
         self.init()
-        self.contentType = .stream
         self.bytes = bytes
+        self.contentType = contentType
         self.contentLength = bytes.count
     }
 }

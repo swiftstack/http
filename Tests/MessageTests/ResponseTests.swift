@@ -18,4 +18,9 @@ class ResponseTests: TestCase {
         let response = Response(version: .oneOne)
         assertEqual(response.version, .oneOne)
     }
+
+    func testBytes() {
+        let response = Response(bytes: [], contentType: .stream)
+        assertEqual(response.contentType, .stream)
+    }
 }
