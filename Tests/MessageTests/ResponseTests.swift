@@ -14,13 +14,35 @@ class ResponseTests: TestCase {
         assertNil(response.contentType)
     }
 
-    func testVersion() {
-        let response = Response(version: .oneOne)
-        assertEqual(response.version, .oneOne)
+    func testContentType() {
+        let response = Response(status: .ok, bytes: [], contentType: .json)
+        assertEqual(response.contentType, .json)
     }
 
     func testBytes() {
-        let response = Response(bytes: [], contentType: .stream)
-        assertEqual(response.contentType, .stream)
+        _ = Response(status: .ok, bytes: [], contentType: .stream)
+        _ = Response(bytes: [], contentType: .stream)
+        _ = Response(bytes: [])
+    }
+
+    func testString() {
+        _ = Response(status: .ok, string: "", contentType: .text)
+        _ = Response(string: "", contentType: .text)
+        _ = Response(string: "")
+    }
+
+    func testXML() {
+        _ = Response(status: .ok, xml: "")
+        _ = Response(xml: "")
+    }
+
+    func testHTML() {
+        _ = Response(status: .ok, html: "")
+        _ = Response(html: "")
+    }
+
+    func testJavaScript() {
+        _ = Response(status: .ok, javascript: "")
+        _ = Response(javascript: "")
     }
 }

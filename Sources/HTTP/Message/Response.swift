@@ -28,26 +28,8 @@ extension Response {
         self.status = status
     }
 
-    public convenience init(version: Version) {
-        self.init()
-        self.version = version
-    }
-
-    public convenience init(string: String) {
-        self.init()
-        self.contentType = .text
-        self.bytes = [UInt8](string.utf8)
-        self.contentLength = bytes!.count
-    }
-
-    public convenience init(html: String) {
-        self.init()
-        self.contentType = .html
-        self.bytes = [UInt8](html.utf8)
-        self.contentLength = bytes!.count
-    }
-
     public convenience init(
+        status: Status = .ok,
         bytes: [UInt8],
         contentType: ContentType = .stream)
     {
@@ -55,6 +37,38 @@ extension Response {
         self.bytes = bytes
         self.contentType = contentType
         self.contentLength = bytes.count
+    }
+
+    public convenience init(
+        status: Status = .ok,
+        string: String,
+        contentType: ContentType = .text)
+    {
+        self.init(
+            status: status,
+            bytes: [UInt8](string.utf8),
+            contentType: contentType)
+    }
+
+    public convenience init(status: Status = .ok, xml: String) {
+        self.init(
+            status: status,
+            bytes: [UInt8](xml.utf8),
+            contentType: .xml)
+    }
+
+    public convenience init(status: Status = .ok, html: String) {
+        self.init(
+            status: status,
+            bytes: [UInt8](html.utf8),
+            contentType: .html)
+    }
+
+    public convenience init(status: Status = .ok, javascript: String) {
+        self.init(
+            status: status,
+            bytes: [UInt8](javascript.utf8),
+            contentType: .javascript)
     }
 }
 
