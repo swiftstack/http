@@ -4,10 +4,6 @@ import Network
 import Stream
 import Compression
 
-// FIXME:
-// linker issue on macOS
-import struct Foundation.Date
-
 public class Client {
     public var bufferSize = 4096
     var networkClient: Network.Client
