@@ -38,8 +38,6 @@ public class Server: StreamingServer {
             /* connection closed */
         } catch let error as SocketError where error.number == ECONNRESET {
             /* connection closed */
-        } catch let error as NetworkStream.Error where error == .closed {
-            /* connection closed */
         } catch {
             /* log other errors */
             log(event: .error, message: String(describing: error))
