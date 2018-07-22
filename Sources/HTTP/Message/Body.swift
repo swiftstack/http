@@ -88,6 +88,7 @@ extension BodyInpuStream {
             switch newValue {
             case .none:
                 self.body = .none
+                self.contentLength = nil
             case .some(let bytes):
                 self.body = .bytes(bytes)
                 self.contentLength = bytes.count
