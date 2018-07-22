@@ -45,4 +45,24 @@ class BodyTests: TestCase {
         assertEqual(response.body, .none)
         assertEqual(response.contentLength, nil)
     }
+
+    func testRequestJSON() {
+        let request = Request()
+        request.json = .object(["message" : .string("Hello!")])
+        assertEqual(request.body, .bytes(ASCII("{\"message\":\"Hello!\"}")))
+        assertEqual(request.contentLength, 20)
+        request.json = nil
+        assertEqual(request.body, .none)
+        assertEqual(request.contentLength, nil)
+    }
+
+    func testResponseJSON() {
+        let response = Response()
+        response.json = .object(["message" : .string("Hello!")])
+        assertEqual(response.body, .bytes(ASCII("{\"message\":\"Hello!\"}")))
+        assertEqual(response.contentLength, 20)
+        response.json = nil
+        assertEqual(response.body, .none)
+        assertEqual(response.contentLength, nil)
+    }
 }
