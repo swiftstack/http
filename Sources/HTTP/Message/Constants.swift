@@ -1,3 +1,5 @@
+import Stream
+
 struct Constants {
     static let lineEnd: [UInt8] = [.cr, .lf]
     static let minimumHeaderLength = ASCII("a:a\r\n").count

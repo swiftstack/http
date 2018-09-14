@@ -5,6 +5,7 @@ import Network
 public protocol DecodableMessage {
     var contentType: ContentType? { get }
     var body: Body { get }
+    var bytes: [UInt8]? { get }
 }
 
 extension Request: DecodableMessage {}
@@ -163,17 +164,10 @@ public struct Coder {
         from message: Message) throws -> Model
         where Model: Decodable, Message: DecodableMessage
     {
-        let reader: StreamReader
-
-        switch message.body {
-        case .bytes(let bytes): reader = InputByteStream(bytes)
-        case .input(let input): reader = input
-        default:
+        // TODO: Use stream
+        guard let bytes = message.bytes else {
             throw Error.invalidRequest
         }
-
-        // TODO: Use stream
-        let bytes = try reader.readUntilEnd()
         let values = try URL.Query(from: bytes).values
         return try KeyValueDecoder().decode(type, from: values)
     }
