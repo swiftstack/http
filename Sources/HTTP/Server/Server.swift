@@ -40,7 +40,7 @@ public class Server: StreamingServer {
             /* connection closed */
         } catch {
             /* log other errors */
-            log(event: .error, message: String(describing: error))
+            log(level: .error, message: String(describing: error))
         }
     }
 }
