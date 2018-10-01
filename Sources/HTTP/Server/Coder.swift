@@ -94,37 +94,29 @@ public struct Coder {
     // MARK: Transform route's Model from Request
 
     @inlinable
-    public static func decodeModel<Model: Decodable>(
-        _ type: Model.Type,
-        from request: Request) throws -> Model
+    public static func getDecoder(for request: Request)
+        throws -> Swift.Decoder
     {
         switch request.method {
         case .get:
             let values = request.url.query?.values ?? [:]
-            return try KeyValueDecoder().decode(type, from: values)
+            return KeyValueDecoder(values)
 
         default:
-            guard let contentType = request.contentType else {
-                throw Error.invalidRequest
-            }
-
-            switch contentType.mediaType {
-            case .application(.json):
-                return try decodeJSON(type, from: request)
-
-            case .application(.formURLEncoded):
-                return try decodeFormEncoded(type, from: request)
-
-            default:
-                throw Error.invalidContentType
-            }
+            return try getBodyDecoder(for: request)
         }
     }
 
     @inlinable
-    public static func decodeModel<Model: Decodable, Message: DecodableMessage>(
-        _ type: Model.Type,
-        from message: Message) throws -> Model
+    public static func getDecoder<Message>(for message: Message)
+        throws -> Swift.Decoder where Message: DecodableMessage
+    {
+        return try getBodyDecoder(for: message)
+    }
+
+    @inlinable
+    public static func getBodyDecoder<Message>(for message: Message)
+        throws -> Swift.Decoder where Message: DecodableMessage
     {
         guard let contentType = message.contentType else {
             throw Error.invalidRequest
@@ -132,10 +124,9 @@ public struct Coder {
 
         switch contentType.mediaType {
         case .application(.json):
-            return try decodeJSON(type, from: message)
-
+            return try getJSONDecoder(for: message)
         case .application(.formURLEncoded):
-            return try decodeFormEncoded(type, from: message)
+            return try getFormDecoder(for: message)
 
         default:
             throw Error.invalidContentType
@@ -143,33 +134,50 @@ public struct Coder {
     }
 
     @inlinable
-    public static func decodeJSON<Model: Decodable, Message: DecodableMessage>(
-        _ type: Model.Type,
-        from message: Message) throws -> Model
+    public static func getJSONDecoder<Message>(for message: Message)throws
+        -> Swift.Decoder where Message: DecodableMessage
     {
         switch message.body {
         case .bytes(let bytes):
             let stream = InputByteStream(bytes)
-            return try JSON.decode(type, from: stream)
+            let json = try JSON.Value(from: stream)
+            return try JSON.Decoder(json)
         case .input(let reader):
-            return try JSON.decode(type, from: reader)
+            let json = try JSON.Value(from: reader)
+            return try JSON.Decoder(json)
         default:
             throw Error.invalidRequest
         }
     }
 
     @inlinable
-    public static func decodeFormEncoded<Model, Message>(
-        _ type: Model.Type,
-        from message: Message) throws -> Model
-        where Model: Decodable, Message: DecodableMessage
+    public static func getFormDecoder<Message>(for message: Message) throws
+        -> Swift.Decoder where Message: DecodableMessage
     {
         // TODO: Use stream
         guard let bytes = message.bytes else {
             throw Error.invalidRequest
         }
         let values = try URL.Query(from: bytes).values
-        return try KeyValueDecoder().decode(type, from: values)
+        return KeyValueDecoder(values)
+    }
+
+    @inlinable
+    public static func decode<Model: Decodable>(
+        _ type: Model.Type,
+        from request: Request) throws -> Model
+    {
+        let decoder = try getDecoder(for: request)
+        return try type.init(from: decoder)
+    }
+
+    @inlinable
+    public static func decode<Model: Decodable, Message: DecodableMessage>(
+        _ type: Model.Type,
+        from message: Message) throws -> Model
+    {
+        let decoder = try getDecoder(for: message)
+        return try type.init(from: decoder)
     }
 }
 
