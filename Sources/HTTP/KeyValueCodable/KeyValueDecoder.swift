@@ -1,40 +1,28 @@
-public struct KeyValueDecoder {
-    public init() {}
-
-    public func decode<T: Decodable>(
-        _ type: T.Type,
-        from values: [String : String]
-    ) throws -> T {
-        let decoder = _KeyValueDecoder(values)
-        return try T(from: decoder)
-    }
-}
-
-struct _KeyValueDecoder: Decoder {
-    var codingPath: [CodingKey] {
+public struct KeyValueDecoder: Decoder {
+    public var codingPath: [CodingKey] {
         return []
     }
-    var userInfo: [CodingUserInfoKey : Any] {
+    public var userInfo: [CodingUserInfoKey : Any] {
         return [:]
     }
 
     let values: [String : String]
-    init(_ values: [String : String]) {
+    public init(_ values: [String : String]) {
         self.values = values
     }
 
-    func container<Key>(
+    public func container<Key>(
         keyedBy type: Key.Type
-    ) throws -> KeyedDecodingContainer<Key> {
+        ) throws -> KeyedDecodingContainer<Key> {
         let container = KeyValueKeyedDecodingContainer<Key>(self)
         return KeyedDecodingContainer(container)
     }
 
-    func unkeyedContainer() throws -> UnkeyedDecodingContainer {
+    public func unkeyedContainer() throws -> UnkeyedDecodingContainer {
         fatalError("unsupported container")
     }
 
-    func singleValueContainer() throws -> SingleValueDecodingContainer {
+    public func singleValueContainer() throws -> SingleValueDecodingContainer {
         return KeyValueSingleValueDecodingContainer(self)
     }
 }
@@ -48,9 +36,9 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
         return []
     }
 
-    let decoder: _KeyValueDecoder
+    let decoder: KeyValueDecoder
 
-    init(_ decoder: _KeyValueDecoder) {
+    init(_ decoder: KeyValueDecoder) {
         self.decoder = decoder
     }
 
@@ -214,19 +202,19 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
 
     func decode<T>(
         _ type: T.Type, forKey key: K
-    ) throws -> T where T : Decodable {
+        ) throws -> T where T : Decodable {
         fatalError("unsupported")
     }
 
     func nestedContainer<NestedKey>(
         keyedBy type: NestedKey.Type, forKey key: K
-    ) throws -> KeyedDecodingContainer<NestedKey> {
+        ) throws -> KeyedDecodingContainer<NestedKey> {
         fatalError("unsupported")
     }
 
     func nestedUnkeyedContainer(
         forKey key: K
-    ) throws -> UnkeyedDecodingContainer {
+        ) throws -> UnkeyedDecodingContainer {
         fatalError("unsupported")
     }
 
@@ -244,8 +232,8 @@ struct KeyValueSingleValueDecodingContainer: SingleValueDecodingContainer {
         return []
     }
 
-    let decoder: _KeyValueDecoder
-    init(_ decoder: _KeyValueDecoder) {
+    let decoder: KeyValueDecoder
+    init(_ decoder: KeyValueDecoder) {
         self.decoder = decoder
     }
 

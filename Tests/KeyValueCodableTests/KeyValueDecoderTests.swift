@@ -9,7 +9,7 @@ class KeyValueDecoderTests: TestCase {
                 let first: String
                 let second: String?
             }
-            let object = try KeyValueDecoder().decode(Model.self, from: values)
+            let object = try Model(from: KeyValueDecoder(values))
             assertEqual(object.first, "one")
             assertEqual(object.second, "two")
         }
@@ -18,7 +18,7 @@ class KeyValueDecoderTests: TestCase {
     func testSingleValueDecoder() {
         scope {
             let value = ["integer":"42"]
-            let integer = try KeyValueDecoder().decode(Int.self, from: value)
+            let integer = try Int(from: KeyValueDecoder(value))
             assertEqual(integer, 42)
         }
     }

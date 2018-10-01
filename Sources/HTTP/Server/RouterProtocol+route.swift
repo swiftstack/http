@@ -75,7 +75,7 @@ extension RouterProtocol {
     func makeHandler<Model: Decodable>(
         for path: String,
         wrapping handler: @escaping (Model) throws -> Response
-        ) -> RequestHandler {
+    ) -> RequestHandler {
         return makeHandler(for: path) { (_: Request, model: Model) in
             try handler(model)
         }
@@ -85,19 +85,18 @@ extension RouterProtocol {
     func makeHandler<Model: Decodable>(
         for path: String,
         wrapping handler: @escaping (Request, Model) throws -> Response
-        ) -> RequestHandler {
-        let keyValueDecoder = KeyValueDecoder()
+    ) -> RequestHandler {
         let urlMatcher = URLParamMatcher(path)
 
         if urlMatcher.params.count > 0 {
             return { request in
                 let values = urlMatcher.match(from: request.url.path)
-                let match = try keyValueDecoder.decode(Model.self, from: values)
+                let match = try Model(from: KeyValueDecoder(values))
                 return try handler(request, match)
             }
         } else {
             return { request in
-                let model = try Coder.decodeModel(Model.self, from: request)
+                let model = try Coder.decode(Model.self, from: request)
                 return try handler(request, model)
             }
         }
@@ -107,7 +106,7 @@ extension RouterProtocol {
     func makeHandler<URLMatch: Decodable, Model: Decodable>(
         for path: String,
         wrapping handler: @escaping (URLMatch, Model) throws -> Response
-        ) -> RequestHandler {
+    ) -> RequestHandler {
         return makeHandler(for: path)
         { (_: Request, match: URLMatch, model: Model) in
             try handler(match, model)
@@ -118,8 +117,7 @@ extension RouterProtocol {
     func makeHandler<URLMatch: Decodable, Model: Decodable>(
         for path: String,
         wrapping handler: @escaping (Request, URLMatch, Model) throws -> Response
-        ) -> RequestHandler {
-        let keyValueDecoder = KeyValueDecoder()
+    ) -> RequestHandler {
         let urlMatcher = URLParamMatcher(path)
 
         guard urlMatcher.params.count > 0 else {
@@ -128,8 +126,8 @@ extension RouterProtocol {
 
         return { request in
             let values = urlMatcher.match(from: request.url.path)
-            let match = try keyValueDecoder.decode(URLMatch.self, from: values)
-            let model = try Coder.decodeModel(Model.self, from: request)
+            let match = try URLMatch(from: KeyValueDecoder(values))
+            let model = try Coder.decode(Model.self, from: request)
             return try handler(request, match, model)
         }
     }
