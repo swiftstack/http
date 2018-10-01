@@ -74,6 +74,7 @@ extension Response {
 
 extension Response {
     public convenience init(
+        status: Status = .ok,
         body object: Encodable,
         contentType type: ApplicationSubtype = .json
     ) throws {
