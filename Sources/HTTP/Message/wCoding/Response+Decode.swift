@@ -18,7 +18,7 @@ extension Response {
             func readLineEnd() throws {
                 guard try stream.consume(.cr),
                     try stream.consume(.lf) else {
-                        throw ParseError.invalidRequest
+                        throw ParseError.invalidResponse
                 }
             }
 
@@ -36,7 +36,7 @@ extension Response {
                 let name = try HeaderName(from: stream)
 
                 guard try stream.consume(.colon) else {
-                    throw ParseError.invalidRequest
+                    throw ParseError.invalidResponse
                 }
                 try stream.consume(while: { $0 == .whitespace })
 
