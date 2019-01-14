@@ -27,15 +27,20 @@ extension HeaderName {
 public struct HeaderName: Hashable {
     let bytes: [UInt8]
 
-    public let hashValue: Int
+    public let _hashValue: Int
 
     init(_ bytes: [UInt8]) {
         self.bytes = bytes
-        self.hashValue = bytes.lowercasedHashValue
+        self._hashValue = bytes.lowercasedHashValue
     }
 
     public init(_ value: String) {
         self.init([UInt8](value.utf8))
+    }
+
+    // TODO: inline lowercasedHashValue, benchmark
+    public func hash(into hasher: inout Hasher) {
+       hasher.combine(_hashValue)
     }
 
     public static func ==(lhs: HeaderName, rhs: HeaderName) -> Bool {
