@@ -13,7 +13,7 @@ public struct KeyValueDecoder: Decoder {
 
     public func container<Key>(
         keyedBy type: Key.Type
-        ) throws -> KeyedDecodingContainer<Key> {
+    ) throws -> KeyedDecodingContainer<Key> {
         let container = KeyValueKeyedDecodingContainer<Key>(self)
         return KeyedDecodingContainer(container)
     }
@@ -202,19 +202,19 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
 
     func decode<T>(
         _ type: T.Type, forKey key: K
-        ) throws -> T where T : Decodable {
+    ) throws -> T where T : Decodable {
         fatalError("unsupported")
     }
 
     func nestedContainer<NestedKey>(
         keyedBy type: NestedKey.Type, forKey key: K
-        ) throws -> KeyedDecodingContainer<NestedKey> {
+    ) throws -> KeyedDecodingContainer<NestedKey> {
         fatalError("unsupported")
     }
 
     func nestedUnkeyedContainer(
         forKey key: K
-        ) throws -> UnkeyedDecodingContainer {
+    ) throws -> UnkeyedDecodingContainer {
         fatalError("unsupported")
     }
 
