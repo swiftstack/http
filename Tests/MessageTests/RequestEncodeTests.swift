@@ -70,7 +70,7 @@ class RequestEncodeTests: TestCase {
                 "GET / HTTP/1.1\r\n" +
                 "Host: domain.com:5000\r\n" +
                 "\r\n"
-            let request = Request(url: try URL("http://domain.com:5000"))
+            let request = Request(url: "http://domain.com:5000")
             assertEqual(try request.encode(), expected)
         }
     }
@@ -266,7 +266,7 @@ class RequestEncodeTests: TestCase {
                 "?%D0%BA%D0%BB%D1%8E%D1%87" +
                 "=%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5"
             let expected = "GET \(escapedUrl) HTTP/1.1\r\n\r\n"
-            let request = Request(url: try URL("/путь?ключ=значение#фрагмент"))
+            let request = Request(url: "/путь?ключ=значение#фрагмент")
             assertEqual(try request.encode(), expected)
         }
     }

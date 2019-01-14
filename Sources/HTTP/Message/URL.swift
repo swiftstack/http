@@ -88,12 +88,6 @@ extension URL: ExpressibleByStringLiteral {
             fatalError("invalid url: '\(error)'")
         }
     }
-    public init(extendedGraphemeClusterLiteral value: String) {
-        self.init(stringLiteral: value)
-    }
-    public init(unicodeScalarLiteral value: String) {
-        self.init(stringLiteral: value)
-    }
 }
 
 extension URL.Query: ExpressibleByDictionaryLiteral {

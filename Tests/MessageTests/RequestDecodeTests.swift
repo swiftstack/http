@@ -515,7 +515,7 @@ class RequestDecodeTests: TestCase {
                 "#%D1%84%D1%80%D0%B0%D0%B3%D0%BC%D0%B5%D0%BD%D1%82"
             let stream = InputByteStream("GET \(escapedUrl) HTTP/1.1\r\n\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.url, try URL("/путь?ключ=значение"))
+            assertEqual(request.url, "/путь?ключ=значение")
             assertEqual(request.url.fragment, "фрагмент")
         }
     }
