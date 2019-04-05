@@ -9,7 +9,7 @@ extension Array where Element == TransferEncoding {
             var values = [TransferEncoding]()
             while endIndex < bytes.endIndex {
                 endIndex =
-                    bytes[startIndex...].index(of: .comma) ??
+                    bytes[startIndex...].firstIndex(of: .comma) ??
                     bytes.endIndex
                 let value = try TransferEncoding(from: bytes[startIndex..<endIndex])
                 values.append(value)

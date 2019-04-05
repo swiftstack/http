@@ -58,7 +58,7 @@ extension URL {
         }
 
         func parseScheme() throws {
-            guard let slashIndex = bytes.index(of: .slash) else {
+            guard let slashIndex = bytes.firstIndex(of: .slash) else {
                 return
             }
             guard slashIndex > 1,
@@ -79,7 +79,7 @@ extension URL {
                 return
             }
 
-            let domainEndIndex = bytes[index...].index(where: {
+            let domainEndIndex = bytes[index...].firstIndex(where: {
                 !isValidDomainASCII($0)
             }) ?? bytes.endIndex
 
@@ -113,7 +113,7 @@ extension URL {
             guard bytes[index] == .slash else {
                 return
             }
-            let pathEndIndex = bytes[index...].index(where: {
+            let pathEndIndex = bytes[index...].firstIndex(where: {
                 $0 == .questionMark || $0 == .hash
             }) ?? bytes.endIndex
 
@@ -130,7 +130,7 @@ extension URL {
                 return
             }
             index += 1
-            let queryEndIndex = bytes[index...].index(where: {
+            let queryEndIndex = bytes[index...].firstIndex(where: {
                 $0 == .hash
             }) ?? bytes.endIndex
             self.query = try Query(from: bytes[index..<queryEndIndex])
@@ -171,7 +171,7 @@ extension URL.Query {
     public init(string: String) throws {
         var values =  [String : String]()
         for pair in string.components(separatedBy: "&") {
-            if let index = pair.index(of: "=") {
+            if let index = pair.firstIndex(of: "=") {
                 let valueIndex = pair.index(after: index)
                 guard valueIndex < pair.endIndex else {
                     throw URL.Error.invalidQuery
@@ -190,7 +190,7 @@ extension URL.Query {
     {
         var values =  [String : String]()
         for pair in bytes.split(separator: .ampersand) {
-            if var index = pair.index(of: .equal) {
+            if var index = pair.firstIndex(of: .equal) {
                 let name = try String(removingPercentEncoding: pair[..<index])
                 index += 1
                 guard index < bytes.endIndex else {

@@ -143,7 +143,7 @@ extension Response.Status {
             case Bytes.notExtended.lowercasedHashValue: return .notExtended
             case Bytes.networkAuthenticationRequired.lowercasedHashValue: return .networkAuthenticationRequired
             default:
-                guard let spaceIndex = bytes.index(of: .whitespace) else {
+                guard let spaceIndex = bytes.firstIndex(of: .whitespace) else {
                     throw ParseError.invalidStatus
                 }
                 guard let code = Int(String(
