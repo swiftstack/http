@@ -117,7 +117,7 @@ public class Client {
         if contentEncoding.contains(.gzip) {
             response.bytes = try GZip.decode(from: stream)
         } else if contentEncoding.contains(.deflate) {
-            response.bytes = try Inflate.decode(from: stream)
+            response.bytes = try Deflate.decode(from: stream)
         }
     }
 }
