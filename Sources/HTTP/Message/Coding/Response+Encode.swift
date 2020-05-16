@@ -1,18 +1,13 @@
 import Stream
 import Network
 
-extension Request {
-    @_specialize(exported: true, where T == BufferedOutputStream<NetworkStream>)
+extension Response {
+    @_specialize(where T == BufferedOutputStream<NetworkStream>)
     public func encode<T: StreamWriter>(to stream: T) throws {
-        // Start Line
-        try method.encode(to: stream)
-        try stream.write(.whitespace)
-        try url.encode(\URL.path, to: stream)
-        if method == .get {
-            try url.encode(\URL.query, to: stream)
-        }
-        try stream.write(.whitespace)
+        // Start line
         try version.encode(to: stream)
+        try stream.write(.whitespace)
+        try status.encode(to: stream)
         try stream.write(Constants.lineEnd)
 
         // Headers
@@ -35,10 +30,6 @@ extension Request {
             }
         }
 
-        if let host = self.host {
-            try writeHeader(.host, encoder: host.encode)
-        }
-
         if let contentType = self.contentType {
             try writeHeader(.contentType, encoder: contentType.encode)
         }
@@ -47,49 +38,24 @@ extension Request {
             try writeHeader(.contentLength, value: String(contentLength))
         }
 
-        if let userAgent = self.userAgent {
-            try writeHeader(.userAgent, value: userAgent)
-        }
-
-        if let accept = self.accept {
-            try writeHeader(.accept, encoder: accept.encode)
-        }
-
-        if let acceptLanguage = self.acceptLanguage {
-            try writeHeader(.acceptLanguage, encoder: acceptLanguage.encode)
-        }
-
-        if let acceptEncoding = self.acceptEncoding {
-            try writeHeader(.acceptEncoding, encoder: acceptEncoding.encode)
-        }
-
-        if let acceptCharset = self.acceptCharset {
-            try writeHeader(.acceptCharset, encoder: acceptCharset.encode)
-        }
-
-        if let authorization = self.authorization {
-            try writeHeader(.authorization, encoder: authorization.encode)
-        }
-
-        if let keepAlive = self.keepAlive {
-            try writeHeader(.keepAlive, value: String(keepAlive))
-        }
-
         if let connection = self.connection {
             try writeHeader(.connection, encoder: connection.encode)
+        }
+
+        if let contentEncoding = self.contentEncoding {
+            try writeHeader(.contentEncoding, encoder: contentEncoding.encode)
         }
 
         if let transferEncoding = self.transferEncoding {
             try writeHeader(.transferEncoding, encoder: transferEncoding.encode)
         }
 
-        for (key, value) in headers {
-            try writeHeader(key, value: value)
+        for cookie in self.cookies {
+            try writeHeader(.setCookie, encoder: cookie.encode)
         }
 
-        // Cookies
-        for cookie in cookies {
-            try writeHeader(.cookie, encoder: cookie.encode)
+        for (key, value) in headers {
+            try writeHeader(key, value: value)
         }
 
         // Separator

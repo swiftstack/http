@@ -30,15 +30,14 @@ extension Double {
             string.append(contentsOf: bytes)
         }
 
-        if (try? stream.consume(.dot)) ?? false {
+        if let result = try? stream.consume(.dot), result == true {
             string.append(.dot)
             try stream.read(while: { $0 >= .zero && $0 <= .nine }) { bytes in
                 string.append(contentsOf: bytes)
             }
         }
-        string.append(0)
 
-        let pointer = UnsafeRawPointer(string)
-        self = strtod(pointer.assumingMemoryBound(to: Int8.self), nil)
+        string.append(0)
+        self = strtod(unsafeBitCast(string, to: [Int8].self), nil)
     }
 }
