@@ -14,41 +14,40 @@ public struct RouteMatcher<T> {
 
     public init() {}
 
-    public mutating func add(route bytes: UnsafeRawBufferPointer, payload: T) {
-        guard bytes.count > 0, bytes[0] == .slash else {
+    public mutating func add(route: UnsafeBufferPointer<UInt8>, payload: T) {
+        guard route.count > 0, route[0] == .slash else {
             return
         }
 
         // main route: "/"
-        guard bytes.count > 1 else {
+        guard route.count > 1 else {
             root.payload.append(payload)
             return
         }
 
-        addNode(to: &root, characters: bytes.dropFirst(), payload: payload)
+        addNode(to: &root, characters: route.dropFirst(), payload: payload)
     }
 
-    public func matches(route bytes: UnsafeRawBufferPointer) -> [T] {
-        let startIndex = bytes.startIndex
-        guard bytes[startIndex] == .slash else {
+    public func matches(route: UnsafeBufferPointer<UInt8>) -> [T] {
+        let startIndex = route.startIndex
+        guard route[startIndex] == .slash else {
             return []
         }
 
-        let route = bytes.dropFirst()
-        guard route.count > 0 else {
+        let tail = route.dropFirst()
+        guard tail.count > 0 else {
             if root.wildcard != nil {
-                return root.payload +
-                    root.wildcard![.asterisk].payload
+                return root.payload + root.wildcard![.asterisk].payload
             }
             return root.payload
         }
 
         var result = [T]()
-        findNode(in: root, characters: route, result: &result)
+        findNode(in: root, characters: tail, result: &result)
         return result
     }
 
-    func addNode(to node: inout Node, characters: UnsafeRawBufferPointer.SubSequence, payload: T) {
+    func addNode(to node: inout Node, characters: UnsafeBufferPointer<UInt8>.SubSequence, payload: T) {
         let character = characters[characters.startIndex]
         if character == .asterisk || character == .colon {
             if node.wildcard == nil {
@@ -87,7 +86,7 @@ public struct RouteMatcher<T> {
         }
     }
 
-    func findNode(in node: Node, characters: UnsafeRawBufferPointer.SubSequence, result: inout [T]) {
+    func findNode(in node: Node, characters: UnsafeBufferPointer<UInt8>.SubSequence, result: inout [T]) {
         guard characters.startIndex < characters.endIndex else {
             if node.payload.count > 0 {
                 result.append(contentsOf: node.payload)
@@ -119,15 +118,17 @@ public struct RouteMatcher<T> {
 
 extension RouteMatcher {
     public mutating func add(route: String, payload: T) {
-        let bytes = [UInt8](route.utf8)
-        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
-        add(route: buffer, payload: payload)
+        var route = route
+        route.withUTF8 { buffer in
+            add(route: buffer, payload: payload)
+        }
     }
 
     public func matches(route: String) -> [T] {
-        let bytes = [UInt8](route.utf8)
-        let buffer = UnsafeRawBufferPointer(start: bytes, count: bytes.count)
-        return matches(route: buffer)
+        var route = route
+        return route.withUTF8 { buffer in
+            return matches(route: buffer)
+        }
     }
 
     public mutating func first(route: String) -> T? {
