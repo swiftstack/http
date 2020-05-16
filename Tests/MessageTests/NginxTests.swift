@@ -12,12 +12,11 @@ class NginxTests: TestCase {
                 "Accept: */*\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request.url)
-            assertEqual(request.url.path, "/test")
-            assertEqual(request.url, "0.0.0.0:5000/test")
-            assertEqual(request.version, .oneOne)
-            assertEqual(request.userAgent, "curl/7.18.0 (i486-pc-linux-gnu) libcurl/7.18.0 OpenSSL/0.9.8g zlib/1.2.3.3 libidn/1.1")
-            assertEqual(request.host, URL.Host(address: "0.0.0.0", port: 5000))
+            expect(request.url.path == "/test")
+            expect(request.url == "0.0.0.0:5000/test")
+            expect(request.version == .oneOne)
+            expect(request.userAgent == "curl/7.18.0 (i486-pc-linux-gnu) libcurl/7.18.0 OpenSSL/0.9.8g zlib/1.2.3.3 libidn/1.1")
+            expect(request.host == URL.Host(address: "0.0.0.0", port: 5000))
         }
     }
 
@@ -35,31 +34,30 @@ class NginxTests: TestCase {
                 "Connection: keep-alive\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request.url)
-            assertEqual(request.url, "0.0.0.0:5000/favicon.ico")
-            assertEqual(request.url.path, "/favicon.ico")
-            assertEqual(request.version, .oneOne)
-            assertEqual(request.host, URL.Host(address: "0.0.0.0", port: 5000))
-            assertEqual(request.userAgent, "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008061015 Firefox/3.0")
-            assertEqual(request.accept, [
+            expect(request.url == "0.0.0.0:5000/favicon.ico")
+            expect(request.url.path == "/favicon.ico")
+            expect(request.version == .oneOne)
+            expect(request.host == URL.Host(address: "0.0.0.0", port: 5000))
+            expect(request.userAgent == "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008061015 Firefox/3.0")
+            expect(request.accept == [
                 Request.Accept(.text(.html), priority: 1.0),
                 Request.Accept(.application(.xhtml), priority: 1.0),
                 Request.Accept(.application(.xml), priority: 0.9),
                 Request.Accept(.any, priority: 0.8)]
             )
-            assertEqual(request.acceptLanguage, [
+            expect(request.acceptLanguage == [
                 Request.AcceptLanguage(.enUS, priority: 1.0),
                 Request.AcceptLanguage(.en, priority: 0.5)]
             )
-            assertNotNil(request.acceptEncoding)
-            assertEqual(request.acceptEncoding, [.gzip, .deflate])
-            assertEqual(request.acceptCharset, [
+            expect(request.acceptEncoding != nil)
+            expect(request.acceptEncoding == [.gzip, .deflate])
+            expect(request.acceptCharset == [
                 Request.AcceptCharset(.isoLatin1),
                 Request.AcceptCharset(.utf8, priority: 0.7),
                 Request.AcceptCharset(.any, priority: 0.7)]
             )
-            assertEqual(request.keepAlive, 300)
-            assertEqual(request.connection, .keepAlive)
+            expect(request.keepAlive == 300)
+            expect(request.connection == .keepAlive)
         }
     }
 
@@ -73,8 +71,8 @@ class NginxTests: TestCase {
                 "0\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.transferEncoding, [.chunked])
-            assertEqual(request.string, "all your base are belong to us")
+            expect(request.transferEncoding == [.chunked])
+            expect(request.string == "all your base are belong to us")
         }
     }
 }

@@ -4,48 +4,54 @@ import Test
 class URLTests: TestCase {
     func testPath() {
         scope {
-            assertEqual(try URL(String("/test")).path, "/test")
-            assertEqual(try URL(String("domain.com")).path, "/")
-            assertEqual(try URL(String("domain.com/test")).path, "/test")
-            assertEqual(try URL(String("domain.com/test/")).path, "/test")
-            assertEqual(try URL(String("domain.com/test/#test")).path, "/test")
+            expect(try URL(String("/test")).path == "/test")
+            expect(try URL(String("domain.com")).path == "/")
+            expect(try URL(String("domain.com/test")).path == "/test")
+            expect(try URL(String("domain.com/test/")).path == "/test")
+            expect(try URL(String("domain.com/test/#test")).path == "/test")
         }
     }
 
     func testQuery() {
         scope {
             let url = try URL(String("/test?query=true"))
-            assertEqual(url.query, ["query" : "true"])
+            expect(url.query == ["query" : "true"])
         }
     }
 
     func testHost() {
         scope {
             let host = URL.Host(address: "domain.com", port: nil)
-            assertEqual(try URL(String("http://domain.com")).host, host)
-            assertEqual(try URL(String("domain.com")).host, host)
+            expect(try URL(String("http://domain.com")).host == host)
+            expect(try URL(String("domain.com")).host == host)
 
             let hostWithPort = URL.Host(address: "domain.com", port: 8080)
-            assertEqual(
-                try URL(String("http://domain.com:8080")).host, hostWithPort)
-            assertEqual(
-                try URL(String("http://domain.com:8080/")).host, hostWithPort)
+
+            expect(
+                try URL(String("http://domain.com:8080")).host
+                ==
+                hostWithPort)
+
+            expect(
+                try URL(String("http://domain.com:8080/")).host
+                ==
+                 hostWithPort)
         }
     }
 
     func testScheme() {
         scope {
-            assertEqual(try URL(String("http://domain.com/")).scheme, .http)
-            assertEqual(try URL(String("https://domain.com/")).scheme, .https)
+            expect(try URL(String("http://domain.com/")).scheme == .http)
+            expect(try URL(String("https://domain.com/")).scheme == .https)
         }
     }
 
     func testFragment() {
         scope {
             let url1 = try URL(String("http://domain.com/#fragment"))
-            assertEqual(url1.fragment, "fragment")
+            expect(url1.fragment == "fragment")
             let url2 = try URL(String("http://domain.com/test/#fragment"))
-            assertEqual(url2.fragment, "fragment")
+            expect(url2.fragment == "fragment")
         }
     }
 
@@ -53,7 +59,7 @@ class URLTests: TestCase {
         scope {
             let urlString = "http://domain.com:8080/test?query=true#fragment"
             let url = try URL(urlString)
-            assertEqual(url.absoluteString, urlString)
+            expect(url.absoluteString == urlString)
         }
     }
 
@@ -61,7 +67,7 @@ class URLTests: TestCase {
         scope {
             let urlString = "http://domain.com:8080/test?query=true#fragment"
             let url = try URL(urlString)
-            assertEqual(url.description, urlString)
+            expect(url.description == urlString)
         }
     }
 
@@ -75,8 +81,8 @@ class URLTests: TestCase {
                 "%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B52"
 
             let url = try URL(urlString)
-            assertEqual(url.path, "/привет-мир")
-            assertEqual(url.query?.values, [
+            expect(url.path == "/привет-мир")
+            expect(url.query?.values == [
                 "ключ" : "значение",
                 "ключ2" : "значение2"])
         }
@@ -86,13 +92,13 @@ class URLTests: TestCase {
         scope {
             let urlString = "http://domain.com:8080/тест?ключ=значение"
             let url = try URL(urlString)
-            assertEqual(url.description, urlString)
+            expect(url.description == urlString)
         }
     }
 
     func testInvalidScheme() {
-        assertThrowsError(try URL(String("htt://"))) { error in
-            assertEqual(error as? URL.Error, .invalidScheme)
+        expect(throws: URL.Error.invalidScheme) {
+            try URL(String("htt://"))
         }
     }
 }

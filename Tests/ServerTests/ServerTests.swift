@@ -26,7 +26,7 @@ class ServerTests: TestCase {
 
         let expected = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n"
         let response = String(decoding: outputStream.bytes, as: UTF8.self)
-        assertEqual(response, expected)
+        expect(response == expected)
     }
 
     func testExpect() {
@@ -72,7 +72,7 @@ class ServerTests: TestCase {
         let expected = expectedContinue + expectedResponse
 
         let response = String(decoding: outputStream.bytes, as: UTF8.self)
-        assertEqual(response, expected)
+        expect(response == expected)
     }
 
     func testBufferSize() {
@@ -82,7 +82,7 @@ class ServerTests: TestCase {
                 port: 4003)
 
             server.bufferSize = 16384
-            assertEqual(server.bufferSize, 16384)
+            expect(server.bufferSize == 16384)
         }
     }
 
@@ -92,7 +92,7 @@ class ServerTests: TestCase {
                 host: "127.0.0.1",
                 port: 4004)
 
-            assertEqual(server.address, "http://127.0.0.1:4004")
+            expect(server.address == "http://127.0.0.1:4004")
         }
     }
 }

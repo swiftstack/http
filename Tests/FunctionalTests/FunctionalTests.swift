@@ -49,9 +49,9 @@ class FunctionalTests: TestCase {
             clientCode: { client in
                 let request = Request(url: "/", method: .get)
                 let response = try client.makeRequest(request)
-                assertEqual(response.status, .ok)
-                assertNil(response.string)
-                assertEqual(response.body, .none)
+                expect(response.status == .ok)
+                expect(response.string == nil)
+                expect(response.body == .none)
             }
         )
     }
@@ -66,9 +66,9 @@ class FunctionalTests: TestCase {
             },
             clientCode: { client in
                 let response = try client.get(path: "/")
-                assertEqual(response.status, .ok)
-                assertNil(response.string)
-                assertEqual(response.body, .none)
+                expect(response.status == .ok)
+                expect(response.string == nil)
+                expect(response.body == .none)
             }
         )
     }
@@ -83,9 +83,9 @@ class FunctionalTests: TestCase {
             },
             clientCode: { client in
                 let response = try client.head(path: "/")
-                assertEqual(response.status, .ok)
-                assertNil(response.string)
-                assertEqual(response.body, .none)
+                expect(response.status == .ok)
+                expect(response.string == nil)
+                expect(response.body == .none)
             }
         )
     }
@@ -100,9 +100,9 @@ class FunctionalTests: TestCase {
             },
             clientCode: { client in
                 let response = try client.post(path: "/")
-                assertEqual(response.status, .ok)
-                assertNil(response.string)
-                assertEqual(response.body, .none)
+                expect(response.status == .ok)
+                expect(response.string == nil)
+                expect(response.body == .none)
             }
         )
     }
@@ -117,9 +117,9 @@ class FunctionalTests: TestCase {
             },
             clientCode: { client in
                 let response = try client.put(path: "/")
-                assertEqual(response.status, .ok)
-                assertNil(response.string)
-                assertEqual(response.body, .none)
+                expect(response.status == .ok)
+                expect(response.string == nil)
+                expect(response.body == .none)
             }
         )
     }
@@ -134,9 +134,9 @@ class FunctionalTests: TestCase {
             },
             clientCode: { client in
                 let response = try client.delete(path: "/")
-                assertEqual(response.status, .ok)
-                assertNil(response.string)
-                assertEqual(response.body, .none)
+                expect(response.status == .ok)
+                expect(response.string == nil)
+                expect(response.body == .none)
             }
         )
     }
@@ -151,9 +151,9 @@ class FunctionalTests: TestCase {
             },
             clientCode: { client in
                 let response = try client.options(path: "/")
-                assertEqual(response.status, .ok)
-                assertNil(response.string)
-                assertEqual(response.body, .none)
+                expect(response.status == .ok)
+                expect(response.string == nil)
+                expect(response.body == .none)
             }
         )
     }
@@ -168,22 +168,22 @@ class FunctionalTests: TestCase {
             },
             clientCode: { client in
                 let getResponse = try client.get(path: "/")
-                assertEqual(getResponse.status, .ok)
+                expect(getResponse.status == .ok)
 
                 let headResponse = try client.head(path: "/")
-                assertEqual(headResponse.status, .ok)
+                expect(headResponse.status == .ok)
 
                 let postResponse = try client.post(path: "/")
-                assertEqual(postResponse.status, .ok)
+                expect(postResponse.status == .ok)
 
                 let putResponse = try client.put(path: "/")
-                assertEqual(putResponse.status, .ok)
+                expect(putResponse.status == .ok)
 
                 let deleteResponse = try client.delete(path: "/")
-                assertEqual(deleteResponse.status, .ok)
+                expect(deleteResponse.status == .ok)
 
                 let optionsResponse = try client.post(path: "/")
-                assertEqual(optionsResponse.status, .ok)
+                expect(optionsResponse.status == .ok)
             }
         )
     }
@@ -196,15 +196,15 @@ class FunctionalTests: TestCase {
                     var message: String
                 }
                 server.route(post: "/") { (model: Model) -> Model in
-                    assertEqual(model.message, "Hello, Server!")
+                    expect(model.message == "Hello, Server!")
                     return Model(message: "Hello, Client!")
                 }
             },
             clientCode: { client in
                 let message = ["message": "Hello, Server!"]
                 let response = try client.post(path: "/", object: message)
-                assertEqual(response.status, .ok)
-                assertEqual(response.string, "{\"message\":\"Hello, Client!\"}")
+                expect(response.status == .ok)
+                expect(response.string == "{\"message\":\"Hello, Client!\"}")
             }
         )
     }
@@ -217,7 +217,7 @@ class FunctionalTests: TestCase {
                     var message: String
                 }
                 server.route(post: "/") { (model: Model) -> Response in
-                    assertEqual(model.message, "Hello, Server!")
+                    expect(model.message == "Hello, Server!")
                     return try Response(
                         body: ["message": "Hello, Client!"],
                         contentType: .formURLEncoded)
@@ -231,8 +231,8 @@ class FunctionalTests: TestCase {
                     path: "/",
                     object: Query(),
                     contentType: .formURLEncoded)
-                assertEqual(response.status, .ok)
-                assertEqual(response.string, "message=Hello,%20Client!")
+                expect(response.status == .ok)
+                expect(response.string == "message=Hello,%20Client!")
             }
         )
     }

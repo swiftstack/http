@@ -10,8 +10,7 @@ class RequestDecodeTests: TestCase {
         scope {
             let stream = InputByteStream("GET /test HTTP/1.1\r\n\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request)
-            assertEqual(request.method, Request.Method.get)
+            expect(request.method == Request.Method.get)
         }
     }
 
@@ -19,8 +18,7 @@ class RequestDecodeTests: TestCase {
         scope {
             let stream = InputByteStream("HEAD /test HTTP/1.1\r\n\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request)
-            assertEqual(request.method, Request.Method.head)
+            expect(request.method == Request.Method.head)
         }
     }
 
@@ -28,8 +26,7 @@ class RequestDecodeTests: TestCase {
         scope {
             let stream = InputByteStream("POST /test HTTP/1.1\r\n\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request)
-            assertEqual(request.method, Request.Method.post)
+            expect(request.method == Request.Method.post)
         }
     }
 
@@ -37,8 +34,7 @@ class RequestDecodeTests: TestCase {
         scope {
             let stream = InputByteStream("PUT /test HTTP/1.1\r\n\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request)
-            assertEqual(request.method, Request.Method.put)
+            expect(request.method == Request.Method.put)
         }
     }
 
@@ -46,8 +42,7 @@ class RequestDecodeTests: TestCase {
         scope {
             let stream = InputByteStream("DELETE /test HTTP/1.1\r\n\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request)
-            assertEqual(request.method, Request.Method.delete)
+            expect(request.method == Request.Method.delete)
         }
     }
 
@@ -55,8 +50,7 @@ class RequestDecodeTests: TestCase {
         scope {
             let stream = InputByteStream("GET /test HTTP/1.1\r\n\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request)
-            assertEqual(request.version, Version.oneOne)
+            expect(request.version == Version.oneOne)
         }
     }
 
@@ -66,67 +60,65 @@ class RequestDecodeTests: TestCase {
                 "GET /test?k1=v1&k2=v2#fragment HTTP/1.1\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertNotNil(request)
-            assertNotNil(request.url)
-            assertEqual(request.url.path, "/test")
-            assertEqual(request.url.query?.values, ["k1":"v1", "k2":"v2"])
-            assertEqual(request.url.fragment, "fragment")
+            expect(request.url.path == "/test")
+            expect(request.url.query?.values == ["k1":"v1", "k2":"v2"])
+            expect(request.url.fragment == "fragment")
         }
     }
 
     func testInvalidRequest() {
         let stream = InputByteStream("GET\r\n\r\n")
-        assertThrowsError(try Request(from: stream)) { error in
-            assertEqual(error as? ParseError, .invalidStartLine)
+        expect(throws: ParseError.invalidStartLine) {
+            try Request(from: stream)
         }
     }
 
     func testInvalidRequest2() {
         let stream = InputByteStream("GET \r\n\r\n")
-        assertThrowsError(try Request(from: stream)) { error in
-            assertEqual(error as? ParseError, .invalidStartLine)
+        expect(throws: ParseError.invalidStartLine) {
+            try Request(from: stream)
         }
     }
 
     func testInvalidMethod() {
         let stream = InputByteStream("BAD /test HTTP/1.1\r\n\r\n")
-        assertThrowsError(try Request(from: stream)) { error in
-            assertEqual(error as? ParseError, .invalidMethod)
+        expect(throws: ParseError.invalidMethod) {
+            try Request(from: stream)
         }
     }
 
     func testInvalidVersion() {
         let stream = InputByteStream("GET /test HTTP/0.1\r\n\r\n")
-        assertThrowsError(try Request(from: stream)) { error in
-            assertEqual(error as? ParseError, .invalidVersion)
+        expect(throws: ParseError.invalidVersion) {
+            try Request(from: stream)
         }
     }
 
     func testInvalidVersion2() {
         let stream = InputByteStream("GET /test HTTP/1.1WUT\r\n\r\n")
-        assertThrowsError(try Request(from: stream)) { error in
-            assertEqual(error as? ParseError, .invalidRequest)
+        expect(throws: ParseError.invalidRequest) {
+            try Request(from: stream)
         }
     }
 
     func testInvalidVersion3() {
         let stream = InputByteStream("GET /test HTTP/1.")
-        assertThrowsError(try Request(from: stream)) { error in
-            assertEqual(error as? ParseError, .unexpectedEnd)
+        expect(throws: ParseError.unexpectedEnd) {
+            try Request(from: stream)
         }
     }
 
     func testInvalidVersion4() {
         let stream = InputByteStream("GET /test HTPP/1.1\r\n\r\n")
-        assertThrowsError(try Request(from: stream)) { error in
-            assertEqual(error as? ParseError, .invalidVersion)
+        expect(throws: ParseError.invalidVersion) {
+            try Request(from: stream)
         }
     }
 
     func testInvalidEnd() {
         let stream = InputByteStream("GET /test HTTP/1.1\r\n")
-        assertThrowsError(try Request(from: stream)) { error in
-            assertEqual(error as? ParseError, .unexpectedEnd)
+        expect(throws: ParseError.unexpectedEnd) {
+            try Request(from: stream)
         }
     }
 
@@ -140,7 +132,7 @@ class RequestDecodeTests: TestCase {
                 "\r\n")
             let expected = URL.Host(address: "0.0.0.0", port: 5000)
             let request = try Request(from: stream)
-            assertEqual(request.host, expected)
+            expect(request.host == expected)
         }
     }
 
@@ -152,7 +144,7 @@ class RequestDecodeTests: TestCase {
                 "\r\n")
             let expected = URL.Host(address: "domain.com", port: 5000)
             let request = try Request(from: stream)
-            assertEqual(request.host, expected)
+            expect(request.host == expected)
         }
     }
 
@@ -164,7 +156,7 @@ class RequestDecodeTests: TestCase {
                 "\r\n")
             let expected = URL.Host(address: "домен.рф", port: 5000)
             let request = try Request(from: stream)
-            assertEqual(request.host, expected)
+            expect(request.host == expected)
         }
     }
 
@@ -175,7 +167,7 @@ class RequestDecodeTests: TestCase {
                 "User-Agent: Mozilla/5.0\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.userAgent, "Mozilla/5.0")
+            expect(request.userAgent == "Mozilla/5.0")
         }
     }
 
@@ -186,7 +178,7 @@ class RequestDecodeTests: TestCase {
                 "Accept: text/html,application/xml;q=0.9,*/*;q=0.8\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.accept, [
+            expect(request.accept == [
                 Request.Accept(.text(.html),priority: 1.0),
                 Request.Accept(.application(.xml), priority: 0.9),
                 Request.Accept(.any, priority: 0.8)
@@ -201,7 +193,7 @@ class RequestDecodeTests: TestCase {
                 "Accept-Language: en-US,en;q=0.5\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.acceptLanguage, [
+            expect(request.acceptLanguage == [
                 Request.AcceptLanguage(.enUS, priority: 1.0),
                 Request.AcceptLanguage(.en, priority: 0.5)
             ])
@@ -215,7 +207,7 @@ class RequestDecodeTests: TestCase {
                 "Accept-Encoding: gzip, deflate\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.acceptEncoding, [.gzip, .deflate])
+            expect(request.acceptEncoding == [.gzip, .deflate])
         }
     }
 
@@ -232,7 +224,7 @@ class RequestDecodeTests: TestCase {
                 Request.AcceptCharset(.utf8, priority: 0.7),
                 Request.AcceptCharset(.any, priority: 0.7)
             ]
-            assertEqual(request.acceptCharset, expectedAcceptCharset)
+            expect(request.acceptCharset == expectedAcceptCharset)
         }
     }
 
@@ -247,7 +239,7 @@ class RequestDecodeTests: TestCase {
                 Request.AcceptCharset(.isoLatin1),
                 Request.AcceptCharset(.utf8)
             ]
-            assertEqual(request.acceptCharset, expectedAcceptCharset)
+            expect(request.acceptCharset == expectedAcceptCharset)
         }
     }
 
@@ -260,7 +252,7 @@ class RequestDecodeTests: TestCase {
             let request = try Request(from: stream)
             let expected: Request.Authorization = .basic(
                 credentials: "QWxhZGRpbjpvcGVuIHNlc2FtZQ==")
-            assertEqual(request.authorization, expected)
+            expect(request.authorization == expected)
         }
     }
 
@@ -271,7 +263,7 @@ class RequestDecodeTests: TestCase {
                 "User: guest\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.headers["User"], "guest")
+            expect(request.headers["User"] == "guest")
         }
     }
 
@@ -283,8 +275,8 @@ class RequestDecodeTests: TestCase {
                 "User-Agent: Mozilla/5.0\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.host, URL.Host(address: "0.0.0.0", port: 5000))
-            assertEqual(request.userAgent, "Mozilla/5.0")
+            expect(request.host == URL.Host(address: "0.0.0.0", port: 5000))
+            expect(request.userAgent == "Mozilla/5.0")
         }
     }
 
@@ -296,8 +288,8 @@ class RequestDecodeTests: TestCase {
                 "User-Agent: Mozilla/5.0 \r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.host, URL.Host(address: "0.0.0.0", port: 5000))
-            assertEqual(request.userAgent, "Mozilla/5.0")
+            expect(request.host == URL.Host(address: "0.0.0.0", port: 5000))
+            expect(request.userAgent == "Mozilla/5.0")
         }
     }
 
@@ -306,8 +298,8 @@ class RequestDecodeTests: TestCase {
             "GET / HTTP/1.1\r\n" +
             "User-Agent; Mozilla/5.0\r\n" +
             "\r\n")
-        assertThrowsError(try Request(from: stream)) { error in
-            assertEqual(error as? ParseError, .invalidHeaderName)
+        expect(throws: ParseError.invalidHeaderName) {
+            try Request(from: stream)
         }
     }
 
@@ -315,8 +307,8 @@ class RequestDecodeTests: TestCase {
         let stream = InputByteStream(
             "GET / HTTP/1.1\r\n" +
             "User-Agent: Mozilla/5.0\n\n")
-        assertThrowsError(try Request(from: stream)) { error in
-            assertEqual(error as? ParseError, .unexpectedEnd)
+        expect(throws: ParseError.unexpectedEnd) {
+            try Request(from: stream)
         }
     }
 
@@ -325,23 +317,23 @@ class RequestDecodeTests: TestCase {
             "GET / HTTP/1.1\r\n" +
             "See-🙈-Evil: No\r\n" +
             "\r\n")
-        assertThrowsError(try Request(from: stream)) { error in
-            assertEqual(error as? ParseError, .invalidHeaderName)
+        expect(throws: ParseError.invalidHeaderName) {
+            try Request(from: stream)
         }
     }
 
     func testHeaderName() {
         let headerName = HeaderName(extendedGraphemeClusterLiteral: "Host")
         let headerName2 = HeaderName(unicodeScalarLiteral: "Host")
-        assertEqual(headerName, headerName2)
+        expect(headerName == headerName2)
     }
 
     func testUnexpectedEnd() {
         let stream = InputByteStream(
             "GET / HTTP/1.1\r\n" +
             "Header: Value\r\n")
-        assertThrowsError(try Request(from: stream)) { error in
-            assertEqual(error as? ParseError, .unexpectedEnd)
+        expect(throws: ParseError.unexpectedEnd) {
+            try Request(from: stream)
         }
     }
 
@@ -352,8 +344,9 @@ class RequestDecodeTests: TestCase {
                 "Content-Type: application/x-www-form-urlencoded\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertEqual(
-                request.contentType,
+            expect(
+                request.contentType
+                ==
                 ContentType(mediaType: .application(.formURLEncoded))
             )
         }
@@ -366,8 +359,9 @@ class RequestDecodeTests: TestCase {
                 "Content-Type: text/plain; charset=utf-8\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertEqual(
-                request.contentType,
+            expect(
+                request.contentType
+                ==
                 ContentType(mediaType: .text(.plain), charset: .utf8)
             )
         }
@@ -379,8 +373,8 @@ class RequestDecodeTests: TestCase {
             "Content-Type: text/plain;\r\n" +
             "Content-Length: 0\r\n" +
             "\r\n")
-        assertThrowsError(try Request(from: stream)) { error in
-            assertEqual((error as! ParseError), .invalidContentTypeHeader)
+        expect(throws: ParseError.invalidContentTypeHeader) {
+            try Request(from: stream)
         }
     }
 
@@ -391,8 +385,9 @@ class RequestDecodeTests: TestCase {
                 "Content-Type: multipart/form-data; boundary=---\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertEqual(
-                request.contentType,
+            expect(
+                request.contentType
+                ==
                 ContentType(
                     multipart: .formData,
                     boundary: try Boundary("---"))
@@ -406,8 +401,8 @@ class RequestDecodeTests: TestCase {
             "Content-Type: multipart/form-data;\r\n" +
             "Content-Length: 0\r\n" +
             "\r\n")
-        assertThrowsError(try Request(from: stream)) { error in
-            assertEqual((error as! ParseError), .invalidBoundary)
+        expect(throws: ParseError.invalidBoundary) {
+            try Request(from: stream)
         }
     }
 
@@ -418,7 +413,7 @@ class RequestDecodeTests: TestCase {
                 "Content-Length: 0\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.contentLength, 0)
+            expect(request.contentLength == 0)
         }
     }
 
@@ -429,7 +424,7 @@ class RequestDecodeTests: TestCase {
                 "Connection: Close\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertFalse(request.shouldKeepAlive)
+            expect(!request.shouldKeepAlive)
         }
     }
 
@@ -441,8 +436,8 @@ class RequestDecodeTests: TestCase {
                 "Keep-Alive: 300\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertTrue(request.shouldKeepAlive)
-            assertEqual(request.keepAlive, 300)
+            expect(request.shouldKeepAlive)
+            expect(request.keepAlive == 300)
         }
     }
 
@@ -454,7 +449,7 @@ class RequestDecodeTests: TestCase {
                 "\r\n" +
                 "0\r\n\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.transferEncoding, [.chunked])
+            expect(request.transferEncoding == [.chunked])
         }
     }
 
@@ -466,7 +461,7 @@ class RequestDecodeTests: TestCase {
                 "Cookie: lang=aurebesh\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.cookies, [
+            expect(request.cookies == [
                 Cookie(name: "username", value: "tony"),
                 Cookie(name: "lang", value: "aurebesh")
             ])
@@ -480,7 +475,7 @@ class RequestDecodeTests: TestCase {
                 "Cookie: username=tony; lang=aurebesh\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.cookies, [
+            expect(request.cookies == [
                 Cookie(name: "username", value: "tony"),
                 Cookie(name: "lang", value: "aurebesh")
             ])
@@ -492,8 +487,8 @@ class RequestDecodeTests: TestCase {
             "GET / HTTP/1.1\r\n" +
             "Cookie: username=tony;lang=aurebesh\r\n" +
             "\r\n")
-        assertThrowsError(try Request(from: stream)) { error in
-            assertEqual(error as? ParseError, .invalidRequest)
+        expect(throws: ParseError.invalidRequest) {
+            try Request(from: stream)
         }
     }
 
@@ -502,8 +497,8 @@ class RequestDecodeTests: TestCase {
             "GET / HTTP/1.1\r\n" +
             "Cookie: username=tony;\r\n" +
             "\r\n")
-        assertThrowsError(try Request(from: stream)) { error in
-            assertEqual(error as? ParseError, .invalidRequest)
+        expect(throws: ParseError.invalidRequest) {
+            try Request(from: stream)
         }
     }
 
@@ -515,8 +510,8 @@ class RequestDecodeTests: TestCase {
                 "#%D1%84%D1%80%D0%B0%D0%B3%D0%BC%D0%B5%D0%BD%D1%82"
             let stream = InputByteStream("GET \(escapedUrl) HTTP/1.1\r\n\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.url, "/путь?ключ=значение")
-            assertEqual(request.url.fragment, "фрагмент")
+            expect(request.url == "/путь?ключ=значение")
+            expect(request.url.fragment == "фрагмент")
         }
     }
 
@@ -527,7 +522,7 @@ class RequestDecodeTests: TestCase {
                 "Expect: 100-continue\r\n" +
                 "\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.expect, .continue)
+            expect(request.expect == .continue)
         }
     }
 
@@ -541,8 +536,8 @@ class RequestDecodeTests: TestCase {
                 "\r\n" +
                 "Hello")
             let request = try Request(from: stream)
-            assertEqual(request.contentLength, 5)
-            assertEqual(request.string, "Hello")
+            expect(request.contentLength == 5)
+            expect(request.string == "Hello")
         }
     }
 
@@ -555,7 +550,7 @@ class RequestDecodeTests: TestCase {
                 "5\r\nHello\r\n" +
                 "0\r\n\r\n")
             let request = try Request(from: stream)
-            assertEqual(request.string, "Hello")
+            expect(request.string == "Hello")
         }
     }
 
@@ -568,8 +563,8 @@ class RequestDecodeTests: TestCase {
             "0\r\n\r\n")
         scope {
             let request = try Request(from: stream)
-            assertThrowsError(try request.readBytes()) { error in
-                assertEqual(error as? ParseError, .invalidRequest)
+            expect(throws: ParseError.invalidRequest) {
+                try request.readBytes()
             }
         }
     }
@@ -583,8 +578,8 @@ class RequestDecodeTests: TestCase {
             "0\r\n\r\n")
         scope {
             let request = try Request(from: stream)
-            assertThrowsError(try request.readBytes()) { error in
-                assertEqual(error as? ParseError, .invalidRequest)
+            expect(throws: ParseError.invalidRequest) {
+                try request.readBytes()
             }
         }
     }
@@ -598,8 +593,8 @@ class RequestDecodeTests: TestCase {
             "0\r\n")
         scope {
             let request = try Request(from: stream)
-            assertThrowsError(try request.readBytes()) { error in
-                assertEqual(error as? ParseError, .unexpectedEnd)
+            expect(throws: ParseError.unexpectedEnd) {
+                try request.readBytes()
             }
         }
     }
@@ -612,8 +607,8 @@ class RequestDecodeTests: TestCase {
             "5\r\nHello")
         scope {
             let request = try Request(from: stream)
-            assertThrowsError(try request.readBytes()) { error in
-                assertEqual(error as? ParseError, .unexpectedEnd)
+            expect(throws: ParseError.unexpectedEnd) {
+                try request.readBytes()
             }
         }
     }

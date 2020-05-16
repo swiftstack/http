@@ -8,9 +8,9 @@ class ChunkedStreamTests: TestCase {
             let byteStream = OutputByteStream()
             let chunkedStream = ChunkedStreamWriter(baseStream: byteStream)
             try chunkedStream.write("Hello, World!")
-            assertEqual(byteStream.string, "d\r\nHello, World!\r\n")
+            expect(byteStream.string == "d\r\nHello, World!\r\n")
             try chunkedStream.close()
-            assertEqual(byteStream.string, "d\r\nHello, World!\r\n0\r\n\r\n")
+            expect(byteStream.string == "d\r\nHello, World!\r\n0\r\n\r\n")
         }
     }
 
@@ -20,7 +20,7 @@ class ChunkedStreamTests: TestCase {
             let byteStream = InputByteStream(ASCII(chunked))
             let chunkedStream = ChunkedStreamReader(baseStream: byteStream)
             let string = try chunkedStream.readUntilEnd(as: String.self)
-            assertEqual(string, "Hello, World!")
+            expect(string == "Hello, World!")
         }
     }
 
@@ -40,7 +40,7 @@ class ChunkedStreamTests: TestCase {
                 "8\r\nsequence\r\n" +
             "0\r\n\r\n"
 
-            assertEqual(byteStream.string, expected)
+            expect(byteStream.string == expected)
         }
     }
 
@@ -58,7 +58,7 @@ class ChunkedStreamTests: TestCase {
             let expected = "This is the data in the first chunkand " +
                 "this is the second oneconsequence"
 
-            assertEqual(string, expected)
+            expect(string == expected)
         }
     }
 
@@ -83,7 +83,7 @@ class ChunkedStreamTests: TestCase {
             let chunkedStream = ChunkedStreamReader(baseStream: byteStream)
             let string = try chunkedStream.readUntilEnd(as: String.self)
 
-            assertEqual(string, chars300)
+            expect(string == chars300)
         }
     }
 }

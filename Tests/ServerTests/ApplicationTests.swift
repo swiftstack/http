@@ -12,7 +12,7 @@ class ApplicationTests: TestCase {
 
         let request = Request(url: "/test", method: .get)
         let response = try? application.process(request)
-        assertEqual(response?.string, "test ok")
+        expect(response?.string == "test ok")
     }
 
     func testApplicationBasePath() {
@@ -23,7 +23,7 @@ class ApplicationTests: TestCase {
         }
         let request = Request(url: "/v1/test", method: .get)
         let response = try? application.process(request)
-        assertEqual(response?.string, "test ok")
+        expect(response?.string == "test ok")
     }
 
     func testApplicationMiddleware() {
@@ -67,15 +67,15 @@ class ApplicationTests: TestCase {
         }
         let firstRequest = Request(url: "/first", method: .get)
         let firstResponse = try? application.process(firstRequest)
-        assertEqual(firstResponse?.string, "first ok")
-        assertEqual(firstResponse?.headers["Middleware"], "first")
-        assertEqual(firstResponse?.headers["FirstMiddleware"], "true")
+        expect(firstResponse?.string == "first ok")
+        expect(firstResponse?.headers["Middleware"] == "first")
+        expect(firstResponse?.headers["FirstMiddleware"] == "true")
 
         let secondRequest = Request(url: "/first-second", method: .get)
         let secondResponse = try? application.process(secondRequest)
-        assertEqual(secondResponse?.string, "first-second ok")
-        assertEqual(secondResponse?.headers["Middleware"], "first")
-        assertEqual(secondResponse?.headers["FirstMiddleware"], "true")
-        assertEqual(secondResponse?.headers["SecondMiddleware"], "true")
+        expect(secondResponse?.string == "first-second ok")
+        expect(secondResponse?.headers["Middleware"] == "first")
+        expect(secondResponse?.headers["FirstMiddleware"] == "true")
+        expect(secondResponse?.headers["SecondMiddleware"] == "true")
     }
 }

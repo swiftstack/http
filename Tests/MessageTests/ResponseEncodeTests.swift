@@ -11,8 +11,8 @@ class ResponseEncodeTests: TestCase {
             "Content-Length: 0\r\n" +
             "\r\n"
         let response = Response(status: .ok)
-        assertEqual(response.status, .ok)
-        assertEqual(try response.encode(), expected)
+        expect(response.status == .ok)
+        expect(try response.encode() == expected)
     }
 
     func testNotFound() {
@@ -21,8 +21,8 @@ class ResponseEncodeTests: TestCase {
             "Content-Length: 0\r\n" +
             "\r\n"
         let response = Response(status: .notFound)
-        assertEqual(response.status, .notFound)
-        assertEqual(try response.encode(), expected)
+        expect(response.status == .notFound)
+        expect(try response.encode() == expected)
     }
 
     func testMoved() {
@@ -31,8 +31,8 @@ class ResponseEncodeTests: TestCase {
             "Content-Length: 0\r\n" +
             "\r\n"
         let response = Response(status: .moved)
-        assertEqual(response.status, .moved)
-        assertEqual(try response.encode(), expected)
+        expect(response.status == .moved)
+        expect(try response.encode() == expected)
     }
 
     func testBad() {
@@ -41,8 +41,8 @@ class ResponseEncodeTests: TestCase {
             "Content-Length: 0\r\n" +
             "\r\n"
         let response = Response(status: .badRequest)
-        assertEqual(response.status, .badRequest)
-        assertEqual(try response.encode(), expected)
+        expect(response.status == .badRequest)
+        expect(try response.encode() == expected)
     }
 
     func testUnauthorized() {
@@ -51,8 +51,8 @@ class ResponseEncodeTests: TestCase {
             "Content-Length: 0\r\n" +
             "\r\n"
         let response = Response(status: .unauthorized)
-        assertEqual(response.status, .unauthorized)
-        assertEqual(try response.encode(), expected)
+        expect(response.status == .unauthorized)
+        expect(try response.encode() == expected)
     }
 
     func testInternalServerError() {
@@ -61,8 +61,8 @@ class ResponseEncodeTests: TestCase {
             "Content-Length: 0\r\n" +
             "\r\n"
         let response = Response(status: .internalServerError)
-        assertEqual(response.status, .internalServerError)
-        assertEqual(try response.encode(), expected)
+        expect(response.status == .internalServerError)
+        expect(try response.encode() == expected)
     }
 
     func testContentType() {
@@ -73,8 +73,8 @@ class ResponseEncodeTests: TestCase {
             "\r\n"
         let response = Response()
         response.contentType = ContentType(mediaType: .text(.plain))
-        assertEqual(response.contentLength, 0)
-        assertEqual(try response.encode(), expected)
+        expect(response.contentLength == 0)
+        expect(try response.encode() == expected)
     }
 
     func testResponseHasContentLenght() {
@@ -83,8 +83,8 @@ class ResponseEncodeTests: TestCase {
             "Content-Length: 0\r\n" +
             "\r\n"
         let response = Response(status: .ok)
-        assertEqual(response.status, .ok)
-        assertEqual(try response.encode(), expected)
+        expect(response.status == .ok)
+        expect(try response.encode() == expected)
     }
 
     func testConnection() {
@@ -95,7 +95,7 @@ class ResponseEncodeTests: TestCase {
             "\r\n"
         let response = Response(status: .ok)
         response.connection = .close
-        assertEqual(try response.encode(), expected)
+        expect(try response.encode() == expected)
     }
 
     func testContentEncoding() {
@@ -106,7 +106,7 @@ class ResponseEncodeTests: TestCase {
             "\r\n"
         let response = Response(status: .ok)
         response.contentEncoding = [.gzip, .deflate]
-        assertEqual(try response.encode(), expected)
+        expect(try response.encode() == expected)
     }
 
     func testTransferEncoding() {
@@ -117,7 +117,7 @@ class ResponseEncodeTests: TestCase {
             "\r\n"
         let response = Response(status: .ok)
         response.transferEncoding = [.chunked]
-        assertEqual(try response.encode(), expected)
+        expect(try response.encode() == expected)
     }
 
     func testCustomHeader() {
@@ -128,7 +128,7 @@ class ResponseEncodeTests: TestCase {
             "\r\n"
         let response = Response(status: .ok)
         response.headers["User"] = "guest"
-        assertEqual(try response.encode(), expected)
+        expect(try response.encode() == expected)
     }
 
     func testSetCookie() {
@@ -141,7 +141,7 @@ class ResponseEncodeTests: TestCase {
         response.cookies = [
             Cookie(name: "username", value: "tony")
         ]
-        assertEqual(try response.encode(), expected)
+        expect(try response.encode() == expected)
     }
 
     func testSetCookieExpires() {
@@ -158,7 +158,7 @@ class ResponseEncodeTests: TestCase {
                 value: "tony",
                 expires: Date(timeIntervalSinceReferenceDate: 467105280))
         ]
-        assertEqual(try response.encode(), expected)
+        expect(try response.encode() == expected)
     }
 
     func testSetCookieMaxAge() {
@@ -171,7 +171,7 @@ class ResponseEncodeTests: TestCase {
         response.cookies = [
             Cookie(name: "username", value: "tony", maxAge: 42)
         ]
-        assertEqual(try response.encode(), expected)
+        expect(try response.encode() == expected)
     }
 
     func testSetCookieHttpOnly() {
@@ -184,7 +184,7 @@ class ResponseEncodeTests: TestCase {
         response.cookies = [
             Cookie(name: "username", value: "tony", httpOnly: true)
         ]
-        assertEqual(try response.encode(), expected)
+        expect(try response.encode() == expected)
     }
 
     func testSetCookieSecure() {
@@ -197,7 +197,7 @@ class ResponseEncodeTests: TestCase {
         response.cookies = [
             Cookie(name: "username", value: "tony", secure: true)
         ]
-        assertEqual(try response.encode(), expected)
+        expect(try response.encode() == expected)
     }
 
     func testSetCookieDomain() {
@@ -210,7 +210,7 @@ class ResponseEncodeTests: TestCase {
         response.cookies = [
             Cookie(name: "username", value: "tony", domain: "somedomain.com")
         ]
-        assertEqual(try response.encode(), expected)
+        expect(try response.encode() == expected)
     }
 
     func testSetCookiePath() {
@@ -223,7 +223,7 @@ class ResponseEncodeTests: TestCase {
         response.cookies = [
             Cookie(name: "username", value: "tony", path: "/")
         ]
-        assertEqual(try response.encode(), expected)
+        expect(try response.encode() == expected)
     }
 
     func testSetCookieManyValues() {
@@ -238,7 +238,7 @@ class ResponseEncodeTests: TestCase {
             Cookie(name: "user", value: "tony", secure: true, httpOnly: true),
             Cookie(name: "token", value: "1234", maxAge: 42, secure: true)
         ]
-        assertEqual(try response.encode(), expected)
+        expect(try response.encode() == expected)
     }
 
     // MARK: Body
@@ -251,14 +251,15 @@ class ResponseEncodeTests: TestCase {
             "\r\n" +
             "Hello"
         let response = Response(string: "Hello")
-        assertEqual(response.string, "Hello")
-        assertEqual(response.bytes, ASCII("Hello"))
-        assertEqual(
-            response.contentType,
+        expect(response.string == "Hello")
+        expect(response.bytes == ASCII("Hello"))
+        expect(
+            response.contentType
+            ==
             ContentType(mediaType: .text(.plain))
         )
-        assertEqual(response.contentLength, ASCII("Hello").count)
-        assertEqual(try response.encode(), expected)
+        expect(response.contentLength == ASCII("Hello").count)
+        expect(try response.encode() == expected)
     }
 
     func testBodyHtmlResponse() {
@@ -269,11 +270,11 @@ class ResponseEncodeTests: TestCase {
             "\r\n" +
             "<html></html>"
         let response = Response(html: "<html></html>")
-        assertEqual(response.string, "<html></html>")
-        assertEqual(response.bytes, ASCII("<html></html>"))
-        assertEqual(response.contentType, .html)
-        assertEqual(response.contentLength, 13)
-        assertEqual(try response.encode(), expected)
+        expect(response.string == "<html></html>")
+        expect(response.bytes == ASCII("<html></html>"))
+        expect(response.contentType == .html)
+        expect(response.contentLength == 13)
+        expect(try response.encode() == expected)
     }
 
     func testBodyBytesResponse() {
@@ -284,10 +285,10 @@ class ResponseEncodeTests: TestCase {
             "\r\n") + [1,2,3]
         let data: [UInt8] = [1,2,3]
         let response = Response(bytes: data)
-        assertEqual(response.bytes, data)
-        assertEqual(response.contentType, .stream)
-        assertEqual(response.contentLength, 3)
-        assertEqual(ASCII(try response.encode()), expected)
+        expect(response.bytes == data)
+        expect(response.contentType == .stream)
+        expect(response.contentLength == 3)
+        expect(ASCII(try response.encode()) == expected)
     }
 
     func testBodyJsonResponse() {
@@ -302,11 +303,11 @@ class ResponseEncodeTests: TestCase {
             let response = try Response(body: ["message" : "Hello, World!"])
 
             let body = "{\"message\":\"Hello, World!\"}"
-            assertEqual(response.string, body)
-            assertEqual(response.bytes, ASCII(body))
-            assertEqual(response.contentType, .json)
-            assertEqual(response.contentLength, 27)
-            assertEqual(try response.encode(), expected)
+            expect(response.string == body)
+            expect(response.bytes == ASCII(body))
+            expect(response.contentType == .json)
+            expect(response.contentLength == 27)
+            expect(try response.encode() == expected)
         }
     }
 
@@ -323,11 +324,11 @@ class ResponseEncodeTests: TestCase {
                 body: ["message" : "Hello, World!"],
                 contentType: .formURLEncoded)
 
-            assertEqual(response.string, "message=Hello,%20World!")
-            assertEqual(response.bytes, ASCII("message=Hello,%20World!"))
-            assertEqual(response.contentType, .formURLEncoded)
-            assertEqual(response.contentLength, 23)
-            assertEqual(try response.encode(), expected)
+            expect(response.string == "message=Hello,%20World!")
+            expect(response.bytes == ASCII("message=Hello,%20World!"))
+            expect(response.contentType == .formURLEncoded)
+            expect(response.contentLength == 23)
+            expect(try response.encode() == expected)
         }
     }
 }

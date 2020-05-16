@@ -11,7 +11,7 @@ class ResponseDecodeTests: TestCase {
                 "HTTP/1.1 200 OK\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.status, .ok)
+            expect(response.status == .ok)
         }
     }
 
@@ -21,7 +21,7 @@ class ResponseDecodeTests: TestCase {
                 "HTTP/1.1 404 Not Found\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.status, .notFound)
+            expect(response.status == .notFound)
         }
     }
 
@@ -31,7 +31,7 @@ class ResponseDecodeTests: TestCase {
                 "HTTP/1.1 301 Moved Permanently\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.status, .moved)
+            expect(response.status == .moved)
         }
     }
 
@@ -41,7 +41,7 @@ class ResponseDecodeTests: TestCase {
                 "HTTP/1.1 400 Bad Request\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.status, .badRequest)
+            expect(response.status == .badRequest)
         }
     }
 
@@ -51,7 +51,7 @@ class ResponseDecodeTests: TestCase {
                 "HTTP/1.1 401 Unauthorized\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.status, .unauthorized)
+            expect(response.status == .unauthorized)
         }
     }
 
@@ -61,7 +61,7 @@ class ResponseDecodeTests: TestCase {
                 "HTTP/1.1 500 Internal Server Error\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.status, .internalServerError)
+            expect(response.status == .internalServerError)
         }
     }
 
@@ -73,7 +73,7 @@ class ResponseDecodeTests: TestCase {
                 "Content-Length: 0\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.contentLength, 0)
+            expect(response.contentLength == 0)
         }
     }
 
@@ -85,7 +85,7 @@ class ResponseDecodeTests: TestCase {
                 "Content-Length: 0\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.contentType, .text)
+            expect(response.contentType == .text)
         }
     }
 
@@ -97,7 +97,7 @@ class ResponseDecodeTests: TestCase {
                 "Connection: close\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.connection, .close)
+            expect(response.connection == .close)
         }
     }
 
@@ -109,7 +109,7 @@ class ResponseDecodeTests: TestCase {
                 "Content-Encoding: gzip, deflate\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.contentEncoding, [.gzip, .deflate])
+            expect(response.contentEncoding == [.gzip, .deflate])
         }
     }
 
@@ -121,7 +121,7 @@ class ResponseDecodeTests: TestCase {
                 "Transfer-Encoding: gzip, chunked\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.transferEncoding, [.gzip, .chunked])
+            expect(response.transferEncoding == [.gzip, .chunked])
         }
     }
 
@@ -133,7 +133,7 @@ class ResponseDecodeTests: TestCase {
                 "User: guest\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.headers["User"], "guest")
+            expect(response.headers["User"] == "guest")
         }
     }
 
@@ -145,7 +145,7 @@ class ResponseDecodeTests: TestCase {
                 "Set-Cookie: username=tony\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.cookies, [
+            expect(response.cookies == [
                 Cookie(name: "username", value: "tony")
             ])
         }
@@ -160,7 +160,7 @@ class ResponseDecodeTests: TestCase {
                     "Expires=Wed, 21 Oct 2015 07:28:00 GMT\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.cookies, [
+            expect(response.cookies == [
                 Cookie(
                     name: "username",
                     value: "tony",
@@ -177,7 +177,7 @@ class ResponseDecodeTests: TestCase {
                 "Set-Cookie: username=tony; Max-Age=42\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.cookies, [
+            expect(response.cookies == [
                 Cookie(name: "username", value: "tony", maxAge: 42)
             ])
         }
@@ -191,7 +191,7 @@ class ResponseDecodeTests: TestCase {
                 "Set-Cookie: username=tony; HttpOnly\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.cookies, [
+            expect(response.cookies == [
                 Cookie(name: "username", value: "tony", httpOnly: true)
             ])
         }
@@ -205,7 +205,7 @@ class ResponseDecodeTests: TestCase {
                 "Set-Cookie: username=tony; Secure\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.cookies, [
+            expect(response.cookies == [
                 Cookie(name: "username", value: "tony", secure: true)
             ])
         }
@@ -219,7 +219,7 @@ class ResponseDecodeTests: TestCase {
                 "Set-Cookie: username=tony; Domain=somedomain.com\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.cookies, [
+            expect(response.cookies == [
                 Cookie(
                     name: "username",
                     value: "tony",
@@ -236,7 +236,7 @@ class ResponseDecodeTests: TestCase {
                 "Set-Cookie: username=tony; Path=/\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.cookies, [
+            expect(response.cookies == [
                 Cookie(name: "username", value: "tony", path: "/")
             ])
         }
@@ -253,33 +253,41 @@ class ResponseDecodeTests: TestCase {
                 "\r\n")
             let response = try Response(from: stream)
 
-            assertEqual(response.cookies[0],
-                        Cookie(
-                            name: "num",
-                            value: "0",
-                            path: "/",
-                            maxAge: 42,
-                            secure: true,
-                            httpOnly: true))
+            expect(
+                response.cookies[0]
+                ==
+                Cookie(
+                    name: "num",
+                    value: "0",
+                    path: "/",
+                    maxAge: 42,
+                    secure: true,
+                    httpOnly: true))
 
-            assertEqual(response.cookies[1],
-                        Cookie(
-                            name: "key",
-                            value: "value",
-                            secure: true,
-                            httpOnly: true))
+            expect(
+                response.cookies[1]
+                ==
+                Cookie(
+                    name: "key",
+                    value: "value",
+                    secure: true,
+                    httpOnly: true))
 
-            assertEqual(response.cookies[2],
-                        Cookie(
-                            name: "date",
-                            value: "",
-                            expires: Date(timeIntervalSince1970: 1536237674.0)))
+            expect(
+                response.cookies[2]
+                ==
+                Cookie(
+                    name: "date",
+                    value: "",
+                    expires: Date(timeIntervalSince1970: 1536237674.0)))
 
-            assertEqual(response.cookies[3],
-                        Cookie(
-                            name: "date",
-                            value: "",
-                            expires: Date(timeIntervalSince1970: 1536237674.0)))
+            expect(
+                response.cookies[3]
+                ==
+                Cookie(
+                    name: "date",
+                    value: "",
+                    expires: Date(timeIntervalSince1970: 1536237674.0)))
         }
     }
 
@@ -294,12 +302,13 @@ class ResponseDecodeTests: TestCase {
                 "\r\n" +
                 "Hello")
             let response = try Response(from: stream)
-            assertEqual(
-                response.contentType,
+            expect(
+                response.contentType
+                ==
                 ContentType(mediaType: .text(.plain)))
-            assertEqual(response.contentLength, 5)
-            assertEqual(response.bytes, ASCII("Hello"))
-            assertEqual(response.string, "Hello")
+            expect(response.contentLength == 5)
+            expect(response.bytes == ASCII("Hello"))
+            expect(response.string == "Hello")
         }
     }
 
@@ -312,13 +321,14 @@ class ResponseDecodeTests: TestCase {
                 "\r\n" +
                 "<html></html>")
             let response = try Response(from: stream)
-            assertEqual(
-                response.contentType,
+            expect(
+                response.contentType
+                ==
                 ContentType(mediaType: .text(.html))
             )
-            assertEqual(response.contentLength, 13)
-            assertEqual(response.bytes, ASCII("<html></html>"))
-            assertEqual(response.string, "<html></html>")
+            expect(response.contentLength == 13)
+            expect(response.bytes == ASCII("<html></html>"))
+            expect(response.string == "<html></html>")
         }
     }
 
@@ -331,12 +341,13 @@ class ResponseDecodeTests: TestCase {
                 "\r\n") + [1,2,3]
             let stream = InputByteStream(bytes)
             let response = try Response(from: stream)
-            assertEqual(
-                response.contentType,
+            expect(
+                response.contentType
+                ==
                 ContentType(mediaType: .application(.stream))
             )
-            assertEqual(response.contentLength, 3)
-            assertEqual(response.bytes, [1,2,3])
+            expect(response.contentLength == 3)
+            expect(response.bytes == [1,2,3])
         }
     }
 
@@ -349,13 +360,14 @@ class ResponseDecodeTests: TestCase {
                 "\r\n" +
                 "{'message': 'Hello, World!'}")
             let response = try Response(from: stream)
-            assertEqual(
-                response.contentType,
+            expect(
+                response.contentType
+                ==
                 ContentType(mediaType: .application(.json))
             )
-            assertEqual(response.contentLength, 28)
-            assertEqual(response.bytes, ASCII("{'message': 'Hello, World!'}"))
-            assertEqual(response.string, "{'message': 'Hello, World!'}")
+            expect(response.contentLength == 28)
+            expect(response.bytes == ASCII("{'message': 'Hello, World!'}"))
+            expect(response.string == "{'message': 'Hello, World!'}")
         }
     }
 
@@ -366,9 +378,9 @@ class ResponseDecodeTests: TestCase {
                 "Content-Length: 0\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.contentLength, 0)
-            assertNil(response.bytes)
-            assertEqual(response.body, .none)
+            expect(response.contentLength == 0)
+            expect(response.bytes == nil)
+            expect(response.body == .none)
         }
     }
 
@@ -383,7 +395,7 @@ class ResponseDecodeTests: TestCase {
                 "0\r\n" +
                 "\r\n")
             let response = try Response(from: stream)
-            assertEqual(response.string, "Hello, World!")
+            expect(response.string == "Hello, World!")
         }
     }
 }

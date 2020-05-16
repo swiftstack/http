@@ -28,7 +28,7 @@ class RouterTests: TestCase {
         for method in requestMethods {
             let request = Request(url: "/", method: method)
             let response = router.handleRequest(request)
-            assertEqual(response?.status, .ok)
+            expect(response?.status == .ok)
         }
     }
 
@@ -52,7 +52,7 @@ class RouterTests: TestCase {
                 return
             }
             let response = try? handler(Request(url: "/", method: method))
-            assertEqual(response?.status, .ok)
+            expect(response?.status == .ok)
         }
     }
 
@@ -60,28 +60,28 @@ class RouterTests: TestCase {
         let router = Router()
 
         router.route(path: "/", methods: [.get]) { (request: Request) in
-            assertEqual(request.url, "/")
-            assertEqual(request.method, .get)
+            expect(request.url == "/")
+            expect(request.method == .get)
             return Response(status: .ok)
         }
 
         let request = Request(url: "/", method: .get)
         let response = router.handleRequest(request)
-        assertEqual(response?.status, .ok)
+        expect(response?.status == .ok)
     }
 
     func testPostRequest() {
         let router = Router()
 
         router.route(path: "/", methods: [.post]) { (request: Request) in
-            assertEqual(request.url, "/")
-            assertEqual(request.method, .post)
+            expect(request.url == "/")
+            expect(request.method == .post)
             return Response(status: .ok)
         }
 
         let request = Request(url: "/", method: .post)
         let response = router.handleRequest(request)
-        assertEqual(response?.status, .ok)
+        expect(response?.status == .ok)
     }
 
     func testGetURLMatch() {
@@ -93,14 +93,14 @@ class RouterTests: TestCase {
         }
 
         router.route(path: "/:name/:number", methods: [.get]) { (page: Page) in
-            assertEqual(page.name, "news")
-            assertEqual(page.number, 2)
+            expect(page.name == "news")
+            expect(page.number == 2)
             return Response(status: .ok)
         }
 
         let request = Request(url: "/news/2", method: .get)
         let response = router.handleRequest(request)
-        assertEqual(response?.status, .ok)
+        expect(response?.status == .ok)
     }
 
     func testPostURLMatch() {
@@ -112,14 +112,14 @@ class RouterTests: TestCase {
         }
 
         router.route(path: "/:name/:number", methods: [.post]) { (page: Page) in
-            assertEqual(page.name, "news")
-            assertEqual(page.number, 2)
+            expect(page.name == "news")
+            expect(page.number == 2)
             return Response(status: .ok)
         }
 
         let request = Request(url: "/news/2", method: .post)
         let response = router.handleRequest(request)
-        assertEqual(response?.status, .ok)
+        expect(response?.status == .ok)
     }
 
     func testGetModel() {
@@ -132,14 +132,14 @@ class RouterTests: TestCase {
 
         router.route(path: "/", methods: [.get])
         { (page: Page) in
-            assertEqual(page.name, "news")
-            assertEqual(page.number, 2)
+            expect(page.name == "news")
+            expect(page.number == 2)
             return Response(status: .ok)
         }
 
         let request = Request(url: "/?name=news&number=2", method: .get)
         let response = router.handleRequest(request)
-        assertEqual(response?.status, .ok)
+        expect(response?.status == .ok)
     }
 
     func testPostModel() {
@@ -151,8 +151,8 @@ class RouterTests: TestCase {
         }
 
         router.route(path: "/", methods: [.post]) { (page: Page) in
-            assertEqual(page.name, "news")
-            assertEqual(page.number, 2)
+            expect(page.name == "news")
+            expect(page.number == 2)
             return Response(status: .ok)
         }
 
@@ -164,7 +164,7 @@ class RouterTests: TestCase {
                 method: .post,
                 body: model)
             let response = router.handleRequest(request)
-            assertEqual(response?.status, .ok)
+            expect(response?.status == .ok)
 
             let formURLEncodedRequest = try Request(
                 url: "/",
@@ -172,7 +172,7 @@ class RouterTests: TestCase {
                 body: model,
                 contentType: .formURLEncoded)
             let formURLEncodedResponse = router.handleRequest(formURLEncodedRequest)
-            assertEqual(formURLEncodedResponse?.status, .ok)
+            expect(formURLEncodedResponse?.status == .ok)
         }
     }
 
@@ -190,16 +190,16 @@ class RouterTests: TestCase {
 
         router.route(path: "/:name/:number", methods: [.get])
         { (page: Page, params: Params) in
-            assertEqual(page.name, "news")
-            assertEqual(page.number, 2)
-            assertEqual(params.id, 1)
-            assertEqual(params.token, "abcdef")
+            expect(page.name == "news")
+            expect(page.number == 2)
+            expect(params.id == 1)
+            expect(params.token == "abcdef")
             return Response(status: .ok)
         }
 
         let request = Request(url: "/news/2?id=1&token=abcdef", method: .get)
         let response = router.handleRequest(request)
-        assertEqual(response?.status, .ok)
+        expect(response?.status == .ok)
     }
 
     func testPostURLMatchModel() {
@@ -216,10 +216,10 @@ class RouterTests: TestCase {
 
         router.route(path: "/:name/:number", methods: [.post])
         { (page: Page, params: Params) in
-            assertEqual(page.name, "news")
-            assertEqual(page.number, 2)
-            assertEqual(params.id, 1)
-            assertEqual(params.token, "abcdef")
+            expect(page.name == "news")
+            expect(page.number == 2)
+            expect(params.id == 1)
+            expect(params.token == "abcdef")
             return Response(status: .ok)
         }
 
@@ -230,7 +230,7 @@ class RouterTests: TestCase {
                 method: .post,
                 body: model)
             let response = router.handleRequest(request)
-            assertEqual(response?.status, .ok)
+            expect(response?.status == .ok)
 
             let formURLEncodedRequest = try Request(
                 url: "/news/2",
@@ -238,7 +238,7 @@ class RouterTests: TestCase {
                 body: model,
                 contentType: .formURLEncoded)
             let formResponse = router.handleRequest(formURLEncodedRequest)
-            assertEqual(formResponse?.status, .ok)
+            expect(formResponse?.status == .ok)
         }
     }
 
@@ -252,16 +252,16 @@ class RouterTests: TestCase {
 
         router.route(path: "/:name/:number", methods: [.get])
         { (request: Request, page: Page) in
-            assertEqual(request.url, "/news/2")
-            assertEqual(request.method, .get)
-            assertEqual(page.name, "news")
-            assertEqual(page.number, 2)
+            expect(request.url == "/news/2")
+            expect(request.method == .get)
+            expect(page.name == "news")
+            expect(page.number == 2)
             return Response(status: .ok)
         }
 
         let request = Request(url: "/news/2", method: .get)
         let response = router.handleRequest(request)
-        assertEqual(response?.status, .ok)
+        expect(response?.status == .ok)
     }
 
     func testPostRequestURLMatch() {
@@ -274,16 +274,16 @@ class RouterTests: TestCase {
 
         router.route(path: "/:name/:number", methods: [.post])
         { (request: Request, page: Page) in
-            assertEqual(request.url, "/news/2")
-            assertEqual(request.method, .post)
-            assertEqual(page.name, "news")
-            assertEqual(page.number, 2)
+            expect(request.url == "/news/2")
+            expect(request.method == .post)
+            expect(page.name == "news")
+            expect(page.number == 2)
             return Response(status: .ok)
         }
 
         let request = Request(url: "/news/2", method: .post)
         let response = router.handleRequest(request)
-        assertEqual(response?.status, .ok)
+        expect(response?.status == .ok)
     }
 
     func testGetRequestModel() {
@@ -296,17 +296,17 @@ class RouterTests: TestCase {
 
         router.route(path: "/", methods: [.get])
         { (request: Request, page: Page) in
-            assertEqual(request.url, "/?name=news&number=2")
-            assertEqual(request.url.path, "/")
-            assertEqual(request.method, .get)
-            assertEqual(page.name, "news")
-            assertEqual(page.number, 2)
+            expect(request.url == "/?name=news&number=2")
+            expect(request.url.path == "/")
+            expect(request.method == .get)
+            expect(page.name == "news")
+            expect(page.number == 2)
             return Response(status: .ok)
         }
 
         let request = Request(url: "/?name=news&number=2", method: .get)
         let response = router.handleRequest(request)
-        assertEqual(response?.status, .ok)
+        expect(response?.status == .ok)
     }
 
     func testPostRequestModel() {
@@ -319,10 +319,10 @@ class RouterTests: TestCase {
 
         router.route(path: "/", methods: [.post])
         { (request: Request, page: Page) in
-            assertEqual(request.url, "/")
-            assertEqual(request.method, .post)
-            assertEqual(page.name, "news")
-            assertEqual(page.number, 2)
+            expect(request.url == "/")
+            expect(request.method == .post)
+            expect(page.name == "news")
+            expect(page.number == 2)
             return Response(status: .ok)
         }
 
@@ -333,7 +333,7 @@ class RouterTests: TestCase {
                 method: .post,
                 body: model)
             let response = router.handleRequest(request)
-            assertEqual(response?.status, .ok)
+            expect(response?.status == .ok)
 
             let formURLEncodedRequest = try Request(
                 url: "/",
@@ -341,7 +341,7 @@ class RouterTests: TestCase {
                 body: model,
                 contentType: .formURLEncoded)
             let formResponse = router.handleRequest(formURLEncodedRequest)
-            assertEqual(formResponse?.status, .ok)
+            expect(formResponse?.status == .ok)
         }
     }
 
@@ -360,19 +360,19 @@ class RouterTests: TestCase {
 
         router.route(path: "/:name/:number", methods: [.get])
         { (request: Request, page: Page, params: Params) in
-            assertEqual(request.url, "/news/2?id=1&token=abcdef")
-            assertEqual(request.url.path, "/news/2")
-            assertEqual(request.method, .get)
-            assertEqual(page.name, "news")
-            assertEqual(page.number, 2)
-            assertEqual(params.id, 1)
-            assertEqual(params.token, "abcdef")
+            expect(request.url == "/news/2?id=1&token=abcdef")
+            expect(request.url.path == "/news/2")
+            expect(request.method == .get)
+            expect(page.name == "news")
+            expect(page.number == 2)
+            expect(params.id == 1)
+            expect(params.token == "abcdef")
             return Response(status: .ok)
         }
 
         let request = Request(url: "/news/2?id=1&token=abcdef", method: .get)
         let response = router.handleRequest(request)
-        assertEqual(response?.status, .ok)
+        expect(response?.status == .ok)
     }
 
     func testPostRequestURLMatchModel() {
@@ -390,12 +390,12 @@ class RouterTests: TestCase {
 
         router.route(path: "/:name/:number", methods: [.post])
         { (request: Request, page: Page, params: Params) in
-            assertEqual(request.url, "/news/2")
-            assertEqual(request.method, .post)
-            assertEqual(page.name, "news")
-            assertEqual(page.number, 2)
-            assertEqual(params.id, 1)
-            assertEqual(params.token, "abcdef")
+            expect(request.url == "/news/2")
+            expect(request.method == .post)
+            expect(page.name == "news")
+            expect(page.number == 2)
+            expect(params.id == 1)
+            expect(params.token == "abcdef")
             return Response(status: .ok)
         }
 
@@ -406,7 +406,7 @@ class RouterTests: TestCase {
                 method: .post,
                 body: model)
             let response = router.handleRequest(request)
-            assertEqual(response?.status, .ok)
+            expect(response?.status == .ok)
 
             let formURLEncodedRequest = try Request(
                 url: "/news/2",
@@ -414,7 +414,7 @@ class RouterTests: TestCase {
                 body: model,
                 contentType: .formURLEncoded)
             let formResponse = router.handleRequest(formURLEncodedRequest)
-            assertEqual(formResponse?.status, .ok)
+            expect(formResponse?.status == .ok)
         }
     }
 
@@ -422,13 +422,13 @@ class RouterTests: TestCase {
         let router = Router()
 
         router.route(path: "/новости", methods: [.get]) { (request: Request) in
-            assertEqual(request.url, "/новости")
-            assertEqual(request.method, .get)
+            expect(request.url == "/новости")
+            expect(request.method == .get)
             return Response(status: .ok)
         }
 
         let request = Request(url: "/новости", method: .get)
         let response = router.handleRequest(request)
-        assertEqual(response?.status, .ok)
+        expect(response?.status == .ok)
     }
 }

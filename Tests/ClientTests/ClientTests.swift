@@ -21,7 +21,7 @@ extension InputByteStream {
 class ClientTests: TestCase {
     func testInitializer() {
         let client = HTTP.Client(host: "127.0.0.1", port: 80)
-        assertEqual(client.host, URL.Host(address: "127.0.0.1", port: 80))
+        expect(client.host == URL.Host(address: "127.0.0.1", port: 80))
     }
 
     func testURLInitializer() {
@@ -29,7 +29,7 @@ class ClientTests: TestCase {
             fail()
             return
         }
-        assertEqual(client.host, URL.Host(address: "127.0.0.1", port: 80))
+        expect(client.host == URL.Host(address: "127.0.0.1", port: 80))
     }
 
     func testRequest() {
@@ -51,8 +51,8 @@ class ClientTests: TestCase {
             let request = Request()
 
             let response = try client.makeRequest(request, input, output)
-            assertEqual(outputStream.string, requestString)
-            assertEqual(response.status, .ok)
+            expect(outputStream.string == requestString)
+            expect(response.status == .ok)
         }
     }
 
@@ -83,10 +83,10 @@ class ClientTests: TestCase {
             let request = Request()
 
             let response = try client.makeRequest(request, input, output)
-            assertEqual(outputStream.string, requestString)
-            assertEqual(response.status, .ok)
-            assertEqual(response.contentEncoding, [.deflate])
-            assertEqual(response.string, "Hello, World!")
+            expect(outputStream.string == requestString)
+            expect(response.status == .ok)
+            expect(response.contentEncoding == [.deflate])
+            expect(response.string == "Hello, World!")
         }
     }
 
@@ -117,10 +117,10 @@ class ClientTests: TestCase {
             let request = Request()
 
             let response = try client.makeRequest(request, input, output)
-            assertEqual(outputStream.string, requestString)
-            assertEqual(response.status, .ok)
-            assertEqual(response.contentEncoding, [.gzip])
-            assertEqual(response.string, "Hello, World!")
+            expect(outputStream.string == requestString)
+            expect(response.status == .ok)
+            expect(response.contentEncoding == [.gzip])
+            expect(response.string == "Hello, World!")
         }
     }
 }

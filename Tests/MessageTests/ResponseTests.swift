@@ -4,19 +4,19 @@ import Test
 class ResponseTests: TestCase {
     func testResponse() {
         let response = Response(status: .ok)
-        assertEqual(response.status, .ok)
-        assertNil(response.contentType)
+        expect(response.status == .ok)
+        expect(response.contentType == nil)
     }
 
     func testDefaultStatus() {
         let response = Response()
-        assertEqual(response.status, .ok)
-        assertNil(response.contentType)
+        expect(response.status == .ok)
+        expect(response.contentType == nil)
     }
 
     func testContentType() {
         let response = Response(status: .ok, bytes: [], contentType: .json)
-        assertEqual(response.contentType, .json)
+        expect(response.contentType == .json)
     }
 
     func testBytes() {

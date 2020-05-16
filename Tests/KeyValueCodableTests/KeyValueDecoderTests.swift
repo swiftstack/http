@@ -10,8 +10,8 @@ class KeyValueDecoderTests: TestCase {
                 let second: String?
             }
             let object = try Model(from: KeyValueDecoder(values))
-            assertEqual(object.first, "one")
-            assertEqual(object.second, "two")
+            expect(object.first == "one")
+            expect(object.second == "two")
         }
     }
 
@@ -19,7 +19,7 @@ class KeyValueDecoderTests: TestCase {
         scope {
             let value = ["integer":"42"]
             let integer = try Int(from: KeyValueDecoder(value))
-            assertEqual(integer, 42)
+            expect(integer == 42)
         }
     }
 }

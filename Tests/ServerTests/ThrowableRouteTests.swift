@@ -19,7 +19,7 @@ class ThrowableRouteTests: TestCase {
 
         let request = Request(url: "/", method: .get)
         let response = router.handleRequest(request)
-        assertEqual(response?.status, .internalServerError)
+        expect(response?.status == .internalServerError)
     }
 
     func testNotFound() {
@@ -31,6 +31,6 @@ class ThrowableRouteTests: TestCase {
 
         let request = Request(url: "/", method: .get)
         let response = router.handleRequest(request)
-        assertEqual(response?.status, .notFound)
+        expect(response?.status == .notFound)
     }
 }

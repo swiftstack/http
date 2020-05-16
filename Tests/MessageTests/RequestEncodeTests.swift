@@ -7,7 +7,7 @@ class RequestEncodeTests: TestCase {
         scope {
             let expected = "GET /test HTTP/1.1\r\n\r\n"
             let request = Request(url: "/test", method: .get)
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -17,7 +17,7 @@ class RequestEncodeTests: TestCase {
             let request = Request(
                 url: URL(path: "/test", fragment: "fragment"),
                 method: .get)
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -30,7 +30,7 @@ class RequestEncodeTests: TestCase {
                     query: ["key" : "value"],
                     fragment: "fragment"),
                 method: .get)
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -48,7 +48,7 @@ class RequestEncodeTests: TestCase {
                     query: ["key" : "value"],
                     fragment: "fragment"),
                 method: .post)
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -60,7 +60,7 @@ class RequestEncodeTests: TestCase {
                 "\r\n"
             let request = Request()
             request.host = URL.Host(address: "0.0.0.0", port: 5000)
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -71,7 +71,7 @@ class RequestEncodeTests: TestCase {
                 "Host: domain.com:5000\r\n" +
                 "\r\n"
             let request = Request(url: "http://domain.com:5000")
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -83,7 +83,7 @@ class RequestEncodeTests: TestCase {
                 "\r\n"
             let request = Request()
             request.host = URL.Host(address: "домен.рф", port: 5000)
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -95,7 +95,7 @@ class RequestEncodeTests: TestCase {
                 "\r\n"
             let request = Request()
             request.userAgent = "Mozilla/5.0"
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -109,7 +109,7 @@ class RequestEncodeTests: TestCase {
             request.accept = [
                 Request.Accept(.any, priority: 1.0)
             ]
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -124,7 +124,7 @@ class RequestEncodeTests: TestCase {
                 Request.AcceptLanguage(.enUS, priority: 1.0),
                 Request.AcceptLanguage(.en, priority: 0.5)
             ]
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -136,7 +136,7 @@ class RequestEncodeTests: TestCase {
                 "\r\n"
             let request = Request()
             request.acceptEncoding = [.gzip, .deflate]
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -153,7 +153,7 @@ class RequestEncodeTests: TestCase {
                 Request.AcceptCharset(.utf8, priority: 0.7),
                 Request.AcceptCharset(.any, priority: 0.7)
             ]
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -167,7 +167,7 @@ class RequestEncodeTests: TestCase {
             let request = Request()
             request.authorization = .basic(
                 credentials: "QWxhZGRpbjpvcGVuIHNlc2FtZQ==")
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -179,7 +179,7 @@ class RequestEncodeTests: TestCase {
                 "\r\n"
             let request = Request()
             request.keepAlive = 300
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -191,7 +191,7 @@ class RequestEncodeTests: TestCase {
                 "\r\n"
             let request = Request()
             request.connection = .close
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -203,7 +203,7 @@ class RequestEncodeTests: TestCase {
                 "\r\n"
             let request = Request()
             request.contentType = ContentType(mediaType: .text(.plain))
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -215,7 +215,7 @@ class RequestEncodeTests: TestCase {
                 "\r\n"
             let request = Request()
             request.contentLength = 0
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -227,7 +227,7 @@ class RequestEncodeTests: TestCase {
                 "\r\n"
             let request = Request()
             request.transferEncoding = [.chunked]
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -239,7 +239,7 @@ class RequestEncodeTests: TestCase {
                 "\r\n"
             let request = Request()
             request.headers["User"] = "guest"
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -255,7 +255,7 @@ class RequestEncodeTests: TestCase {
                 Cookie(name: "username", value: "tony"),
                 Cookie(name: "lang", value: "aurebesh")
             ]
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -267,7 +267,7 @@ class RequestEncodeTests: TestCase {
                 "=%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5"
             let expected = "GET \(escapedUrl) HTTP/1.1\r\n\r\n"
             let request = Request(url: "/путь?ключ=значение#фрагмент")
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -283,7 +283,7 @@ class RequestEncodeTests: TestCase {
                 "{\"message\":\"Hello, World!\"}"
             let values = ["message": "Hello, World!"]
             let request = try Request(url: "/", method: .post, body: values)
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 
@@ -303,7 +303,7 @@ class RequestEncodeTests: TestCase {
                 method: .post,
                 body: Query(),
                 contentType: .formURLEncoded)
-            assertEqual(try request.encode(), expected)
+            expect(try request.encode() == expected)
         }
     }
 }

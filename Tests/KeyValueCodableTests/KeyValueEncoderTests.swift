@@ -10,8 +10,8 @@ class KeyValueEncoderTests: TestCase {
             }
             let encoder = KeyValueEncoder()
             let values = try encoder.encode(Model(first: "one", second: "two"))
-            assertEqual(values["first"], "one")
-            assertEqual(values["second"], "two")
+            expect(values["first"] == "one")
+            expect(values["second"] == "two")
         }
     }
 
@@ -19,7 +19,7 @@ class KeyValueEncoderTests: TestCase {
         scope {
             let encoder = KeyValueEncoder()
             let values = try encoder.encode(42)
-            assertEqual(values["integer"], "42")
+            expect(values["integer"] == "42")
         }
     }
 }
