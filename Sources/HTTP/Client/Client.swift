@@ -2,7 +2,7 @@ import Log
 import Async
 import Network
 import Stream
-import Compression
+import DCompression
 
 public class Client {
     public var bufferSize = 4096

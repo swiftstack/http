@@ -33,7 +33,7 @@ let package = Package(
         .target(
             name: "HTTP",
             dependencies: [
-                "Log", "Network", "Stream", "JSON", "Compression"
+                "Log", "Network", "Stream", "JSON", "DCompression"
             ]),
         .testTarget(
             name: "MessageTests",
