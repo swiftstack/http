@@ -1,20 +1,14 @@
 import Test
 import HTTP
-
-import Fiber
-@testable import Async
+import Async
 
 class FunctionalTests: TestCase {
-    override func setUp() {
-        async.setUp(Fiber.self)
-    }
-
     func setup(
         port: Int,
         serverCode: @escaping (Server) throws -> Void,
         clientCode: @escaping (Client) throws -> Void
     ) {
-        async.task {
+        async {
             scope {
                 let server = try Server(host: "127.0.0.1", port: port)
 
@@ -22,20 +16,20 @@ class FunctionalTests: TestCase {
 
                 try server.start()
             }
-            async.loop.terminate()
+            loop.terminate()
         }
 
-        async.task {
+        async {
             scope {
                 let client = Client(host: "127.0.0.1", port: port)
                 try client.connect()
 
                 try clientCode(client)
             }
-            async.loop.terminate()
+            loop.terminate()
         }
 
-        async.loop.run()
+        loop.run()
     }
 
     func testRequest() {
