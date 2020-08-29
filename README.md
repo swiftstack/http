@@ -14,22 +14,20 @@ Asynchronous HTTP server/client using [cooperative multitasking](https://github.
 
 ```swift
 // main.swift
+import HTTP
+import Async
 
-import Fiber
-
-async.use(Fiber.self)
-
-async.main {
-    // entry point for our async code
+async {
+    // entry point for async http server
 }
 
-async.loop.run()
+loop.run()
 ```
 
 ### Simple server running "http://localhost:8080":
 
 ```swift
-// async.main {}
+// async body
 let server = try Server(host: "localhost", port: 8080)
 try registerRoutes(in: server)
 try server.start()
