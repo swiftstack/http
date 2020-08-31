@@ -36,7 +36,7 @@ public class Server: StreamingServer {
             try process(stream: NetworkStream(socket: socket))
         } catch let error as ParseError where error == .unexpectedEnd {
             /* connection closed */
-        } catch let error as SocketError where error.number == ECONNRESET {
+        } catch let error as Socket.Error where error == .connectionReset {
             /* connection closed */
         } catch {
             /* log other errors */
