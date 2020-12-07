@@ -2,7 +2,7 @@
 // but while Server registers it directly in the Router
 // Application needs to store them until it get passed to the Server
 
-public protocol RouterProtocol: class {
+public protocol RouterProtocol: AnyObject {
     var middleware: [Middleware.Type] { get set }
 
     func registerRoute(

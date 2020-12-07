@@ -18,7 +18,7 @@ extension Body: Equatable {
     }
 }
 
-public protocol BodyInpuStream: class {
+public protocol BodyInpuStream: AnyObject {
     var body: Body { get set }
     var contentLength: Int? { get set }
     var transferEncoding: [TransferEncoding]? { get set }
