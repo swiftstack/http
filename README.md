@@ -5,7 +5,7 @@ Asynchronous HTTP server/client using [cooperative multitasking](https://github.
 ## Package.swift
 
 ```swift
-.package(url: "https://github.com/swift-stack/http.git", .branch("dev"))
+.package(url: "https://github.com/swift-stack/http.git", .branch("fiber"))
 ```
 
 ## Quick Start [[source](https://github.com/swift-stack/examples/tree/master/http)]
