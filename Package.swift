@@ -26,38 +26,63 @@ let package = Package(
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
             ]),
-        .testTarget(
-            name: "MessageTests",
-            dependencies: ["HTTP", "Test"],
-            swiftSettings: [
-                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
-            ]),
-        .testTarget(
-            name: "ServerTests",
-            dependencies: ["HTTP", "Test", "Fiber"],
-            swiftSettings: [
-                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
-            ]),
-        .testTarget(
-            name: "ClientTests",
-            dependencies: ["HTTP", "Test", "Fiber"],
-            swiftSettings: [
-                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
-            ]),
-        .testTarget(
-            name: "FunctionalTests",
-            dependencies: ["HTTP", "Test", "Fiber"],
-            swiftSettings: [
-                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
-            ]),
-        .testTarget(
-            name: "KeyValueCodableTests",
-            dependencies: ["HTTP", "Test"],
-            swiftSettings: [
-                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
-            ]),
     ]
 )
+
+// MARK: - tests
+
+testTarget("Client") { test in
+    test("Client")
+}
+
+testTarget("Functional") { test in
+    test("Functional")
+}
+
+testTarget("KeyValueCodable") { test in
+    test("Decoder")
+    test("Encoder")
+}
+
+testTarget("Message") { test in
+    test("Body")
+    test("ChunkedStream")
+    test("Double")
+    test("HeaderName")
+    test("Headers+Authorization")
+    test("Nginx")
+    test("Punycode")
+    test("Request")
+    test("RequestDecode")
+    test("RequestEncode")
+    test("Response")
+    test("ResponseDecode")
+    test("ResponseEncode")
+    test("URL")
+}
+
+testTarget("Server") { test in
+    test("Application")
+    test("Middleware")
+    test("Router")
+    test("Server")
+    test("ThrowableRoute")
+}
+
+func testTarget(_ target: String, task: ((String) -> Void) -> Void) {
+    task { test in addTest(target: target, name: test) }
+}
+
+func addTest(target: String, name: String) {
+    package.targets.append(
+        .executableTarget(
+            name: "Tests/\(target)/\(name)",
+            dependencies: ["HTTP", "Test"],
+            path: "Tests/\(target)/\(name)",
+            swiftSettings: [
+                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
+            ]))
+}
 
 // MARK: - custom package source
 

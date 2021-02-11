@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -e
+
+swift build
+
+export DYLD_LIBRARY_PATH=/Library/Developer/Toolchains/swift-latest.xctoolchain/usr/lib/swift/macosx
+
+.build/debug/Tests/Client/Client
+
+.build/debug/Tests/Functional/Functional
+
+.build/debug/Tests/KeyValueCodable/Decoder
+.build/debug/Tests/KeyValueCodable/Encoder
+
+.build/debug/Tests/Message/Body
+.build/debug/Tests/Message/ChunkedStream
+.build/debug/Tests/Message/Double
+.build/debug/Tests/Message/HeaderName
+.build/debug/Tests/Message/Headers+Authorization
+.build/debug/Tests/Message/Nginx
+.build/debug/Tests/Message/Punycode
+.build/debug/Tests/Message/Request
+.build/debug/Tests/Message/RequestDecode
+.build/debug/Tests/Message/RequestEncode
+.build/debug/Tests/Message/Response
+.build/debug/Tests/Message/ResponseDecode
+.build/debug/Tests/Message/ResponseEncode
+.build/debug/Tests/Message/URL
+
+.build/debug/Tests/Server/Application
+.build/debug/Tests/Server/Middleware
+.build/debug/Tests/Server/Router
+.build/debug/Tests/Server/Server
+.build/debug/Tests/Server/ThrowableRoute
