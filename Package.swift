@@ -21,23 +21,41 @@ let package = Package(
         .target(
             name: "HTTP",
             dependencies: [
-            	"Log", "Stream", "JSON", "DCompression",
-             	.product(name: "Network", package: "AIO")]),
+                "Log", "Stream", "JSON", "DCompression",
+                .product(name: "Network", package: "AIO")],
+            swiftSettings: [
+                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
+            ]),
         .testTarget(
             name: "MessageTests",
-            dependencies: ["HTTP", "Test"]),
+            dependencies: ["HTTP", "Test"],
+            swiftSettings: [
+                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
+            ]),
         .testTarget(
             name: "ServerTests",
-            dependencies: ["HTTP", "Test", "Fiber"]),
+            dependencies: ["HTTP", "Test", "Fiber"],
+            swiftSettings: [
+                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
+            ]),
         .testTarget(
             name: "ClientTests",
-            dependencies: ["HTTP", "Test", "Fiber"]),
+            dependencies: ["HTTP", "Test", "Fiber"],
+            swiftSettings: [
+                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
+            ]),
         .testTarget(
             name: "FunctionalTests",
-            dependencies: ["HTTP", "Test", "Fiber"]),
+            dependencies: ["HTTP", "Test", "Fiber"],
+            swiftSettings: [
+                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
+            ]),
         .testTarget(
             name: "KeyValueCodableTests",
-            dependencies: ["HTTP", "Test"]),
+            dependencies: ["HTTP", "Test"],
+            swiftSettings: [
+                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
+            ]),
     ]
 )
 
