@@ -3,69 +3,72 @@ import Network
 
 extension Response {
     @_specialize(where T == BufferedInputStream<NetworkStream>)
-    public convenience init<T: StreamReader>(from stream: T) throws {
-        self.init()
-        self.contentLength = nil
+    public
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        let response = Self()
+        response.contentLength = nil
         do {
-            self.version = try Version(from: stream)
-            guard try stream.consume(.whitespace) else {
+            response.version = try await Version.decode(from: stream)
+            guard try await stream.consume(.whitespace) else {
                 throw ParseError.invalidStartLine
             }
 
-            self.status = try Status(from: stream)
+            response.status = try await Status.decode(from: stream)
 
             @inline(__always)
-            func readLineEnd() throws {
-                guard try stream.consume(.cr),
-                    try stream.consume(.lf) else {
-                        throw ParseError.invalidResponse
+            func readLineEnd() async throws {
+                guard try await stream.consume(.cr),
+                      try await stream.consume(.lf) else
+                {
+                    throw ParseError.invalidResponse
                 }
             }
 
-            try readLineEnd()
+            try await readLineEnd()
 
             while true {
-                guard try stream.cache(count: 2) else {
+                guard try await stream.cache(count: 2) else {
                     throw ParseError.unexpectedEnd
                 }
-                if try stream.next(is: Constants.lineEnd) {
-                    try stream.consume(count: 2)
+                if try await stream.next(is: Constants.lineEnd) {
+                    try await stream.consume(count: 2)
                     break
                 }
 
-                let name = try HeaderName(from: stream)
+                let name = try await HeaderName.decode(from: stream)
 
-                guard try stream.consume(.colon) else {
+                guard try await stream.consume(.colon) else {
                     throw ParseError.invalidResponse
                 }
-                try stream.consume(while: { $0 == .whitespace })
+                try await stream.consume(while: { $0 == .whitespace })
 
                 switch name {
                 case .connection:
-                    self.connection = try Connection(from: stream)
+                    response.connection = try await Connection.decode(from: stream)
                 case .contentEncoding:
-                    self.contentEncoding = try [ContentEncoding](from: stream)
+                    response.contentEncoding = try await [ContentEncoding].decode(from: stream)
                 case .contentLength:
-                    self.contentLength = try Int(from: stream)
+                    response.contentLength = try await Int.decode(from: stream)
                 case .contentType:
-                    self.contentType = try ContentType(from: stream)
+                    response.contentType = try await ContentType.decode(from: stream)
                 case .transferEncoding:
-                    self.transferEncoding = try [TransferEncoding](from: stream)
+                    response.transferEncoding = try await [TransferEncoding].decode(from: stream)
                 case .setCookie:
-                    self.cookies.append(try Cookie(responseCookieFrom: stream))
+                    response.cookies.append(try await Cookie.decode(responseCookieFrom: stream))
                 default:
                     // FIXME: validate
-                    headers[name] = try stream.read(until: .cr) { bytes in
+                    response.headers[name] = try await stream.read(until: .cr) { bytes in
                         return String(decoding: bytes, as: UTF8.self)
                     }
                 }
 
-                try readLineEnd()
+                try await readLineEnd()
             }
 
             // Body
 
-            self.body = .input(stream)
+            response.body = .input(stream)
+            return response
 
         } catch let error as StreamError where error == .insufficientData {
             throw ParseError.unexpectedEnd

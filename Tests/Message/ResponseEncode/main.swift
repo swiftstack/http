@@ -306,7 +306,7 @@ test.case("BodyJsonResponse") {
         "\r\n" +
         "{\"message\":\"Hello, World!\"}"
 
-    let response = try await Response.asyncInit(
+    let response = try Response(
         body: ["message" : "Hello, World!"])
 
     let body = "{\"message\":\"Hello, World!\"}"
@@ -325,7 +325,7 @@ test.case("BodyUrlFormEncodedResponse") {
         "\r\n" +
         "message=Hello,%20World!"
 
-    let response = try await Response.asyncInit(
+    let response = try Response(
         body: ["message" : "Hello, World!"],
         contentType: .formURLEncoded)
 

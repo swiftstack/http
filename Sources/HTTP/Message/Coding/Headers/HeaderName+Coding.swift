@@ -1,11 +1,11 @@
 import Stream
 
 extension HeaderName {
-    init<T: StreamReader>(from stream: T) throws {
-        let bytes = try stream.read(allowedBytes: .token)
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        let bytes = try await stream.read(allowedBytes: .token)
         guard bytes.count > 0 else {
             throw ParseError.invalidHeaderName
         }
-        self.init(bytes)
+        return .init(bytes)
     }
 }

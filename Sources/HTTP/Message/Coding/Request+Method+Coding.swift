@@ -1,8 +1,8 @@
 import Stream
 
 extension Request.Method {
-    init<T: StreamReader>(from stream: T) throws {
-        self = try stream.read(allowedBytes: .token) { bytes in
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        return try await stream.read(allowedBytes: .token) { bytes in
             guard bytes.count > 0 else {
                 throw ParseError.unexpectedEnd
             }
@@ -15,7 +15,7 @@ extension Request.Method {
         }
     }
 
-    func encode<T: StreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) async throws {
         let bytes: [UInt8]
         switch self {
         case .get: bytes = RequestMethodBytes.get
@@ -25,7 +25,7 @@ extension Request.Method {
         case .delete: bytes = RequestMethodBytes.delete
         case .options: bytes = RequestMethodBytes.options
         }
-        try stream.write(bytes)
+        try await stream.write(bytes)
     }
 }
 

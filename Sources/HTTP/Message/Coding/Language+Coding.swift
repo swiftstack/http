@@ -236,8 +236,8 @@ extension Language {
 }
 
 extension Language {
-    init<T: StreamReader>(from stream: T) throws {
-        self = try stream.read(allowedBytes: .token) { bytes in
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        return try await stream.read(allowedBytes: .token) { bytes in
             switch bytes.lowercasedHashValue {
             case Bytes.af.lowercasedHashValue:    return .af
             case Bytes.afZA.lowercasedHashValue:  return .afZA
@@ -475,7 +475,7 @@ extension Language {
 }
 
 extension Language {
-    func encode<T: StreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) async throws {
         let bytes: [UInt8]
         switch self {
         case .af:    bytes = Bytes.af
@@ -709,6 +709,6 @@ extension Language {
         case .any:   bytes = Bytes.any
         case .custom(let value): bytes = [UInt8](value)
         }
-        try stream.write(bytes)
+        try await stream.write(bytes)
     }
 }

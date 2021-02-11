@@ -209,7 +209,7 @@ test.case("FormEncoded") {
             }
             server.route(post: "/") { (model: Model) -> Response in
                 expect(model.message == "Hello, Server!")
-                return try await Response.asyncInit(
+                return try Response(
                     body: ["message": "Hello, Client!"],
                     contentType: .formURLEncoded)
             }

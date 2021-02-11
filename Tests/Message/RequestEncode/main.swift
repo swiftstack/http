@@ -247,7 +247,7 @@ test.case("BodyJsonInitializer") {
         "\r\n" +
         "{\"message\":\"Hello, World!\"}"
     let values = ["message": "Hello, World!"]
-    let request = try await Request.asyncInit(
+    let request = try Request(
         url: "/",
         method: .post,
         body: values)
@@ -264,7 +264,7 @@ test.case("BodyFormURLEncodedInitializer") {
     struct Query: Encodable {
         let message = "Hello, World!"
     }
-    let request = try await Request.asyncInit(
+    let request = try Request(
         url: "/",
         method: .post,
         body: Query(),

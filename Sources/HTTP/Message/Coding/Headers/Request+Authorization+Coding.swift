@@ -7,51 +7,51 @@ extension Request.Authorization {
         static let token = ASCII("Token")
     }
 
-    init<T: StreamReader>(from stream: T) throws {
-        func readCredentials() throws -> String {
-            guard try stream.consume(.whitespace) else {
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        func readCredentials() async throws -> String {
+            guard try await stream.consume(.whitespace) else {
                 throw ParseError.invalidAuthorizationHeader
             }
             // FIXME: validate with value-specific rule
-            return try stream.read(allowedBytes: .text) { bytes in
+            return try await stream.read(allowedBytes: .text) { bytes in
                 return String(decoding: bytes, as: UTF8.self)
             }
         }
 
-        self = try stream.read(until: .whitespace) { bytes in
-            switch bytes.lowercasedHashValue {
-            case Bytes.basic.lowercasedHashValue:
-                return .basic(credentials: try readCredentials())
-            case Bytes.bearer.lowercasedHashValue:
-                return .bearer(credentials: try readCredentials())
-            case Bytes.token.lowercasedHashValue:
-                return .token(credentials: try readCredentials())
-            default:
-                return .custom(
-                    scheme: String(decoding: bytes, as: UTF8.self),
-                    credentials: try readCredentials())
-            }
+        let bytes = try await stream.read(until: .whitespace)
+
+        switch bytes.lowercasedHashValue {
+        case Bytes.basic.lowercasedHashValue:
+            return .basic(credentials: try await readCredentials())
+        case Bytes.bearer.lowercasedHashValue:
+            return .bearer(credentials: try await readCredentials())
+        case Bytes.token.lowercasedHashValue:
+            return .token(credentials: try await readCredentials())
+        default:
+            return .custom(
+                scheme: String(decoding: bytes, as: UTF8.self),
+                credentials: try await readCredentials())
         }
     }
 
-    func encode<T: StreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) async throws {
         switch self {
         case .basic(let credentials):
-            try stream.write(Bytes.basic)
-            try stream.write(.whitespace)
-            try stream.write(credentials)
+            try await stream.write(Bytes.basic)
+            try await stream.write(.whitespace)
+            try await stream.write(credentials)
         case .bearer(let credentials):
-            try stream.write(Bytes.bearer)
-            try stream.write(.whitespace)
-            try stream.write(credentials)
+            try await stream.write(Bytes.bearer)
+            try await stream.write(.whitespace)
+            try await stream.write(credentials)
         case .token(let credentials):
-            try stream.write(Bytes.token)
-            try stream.write(.whitespace)
-            try stream.write(credentials)
+            try await stream.write(Bytes.token)
+            try await stream.write(.whitespace)
+            try await stream.write(credentials)
         case .custom(let schema, let credentials):
-            try stream.write(schema)
-            try stream.write(.whitespace)
-            try stream.write(credentials)
+            try await stream.write(schema)
+            try await stream.write(.whitespace)
+            try await stream.write(credentials)
         }
     }
 }

@@ -2,8 +2,8 @@ import Stream
 import Platform
 
 extension Int {
-    init?<T: StreamReader>(from stream: T) throws {
-        let result = try stream.read(while: { $0 >= .zero && $0 <= .nine })
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self? {
+        let result = try await stream.read(while: { $0 >= .zero && $0 <= .nine })
         { bytes -> Optional<Int> in
             guard bytes.count > 0 else {
                 return nil
@@ -18,26 +18,26 @@ extension Int {
         guard let integer = result else {
             return nil
         }
-        self = integer
+        return integer
     }
 }
 
 extension Double {
-    init?<T: StreamReader>(from stream: T) throws {
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self? {
         var string = [UInt8]()
 
-        try stream.read(while: { $0 >= .zero && $0 <= .nine }) { bytes in
+        try await stream.read(while: { $0 >= .zero && $0 <= .nine }) { bytes in
             string.append(contentsOf: bytes)
         }
 
-        if let result = try? stream.consume(.dot), result == true {
+        if let result = try? await stream.consume(.dot), result == true {
             string.append(.dot)
-            try stream.read(while: { $0 >= .zero && $0 <= .nine }) { bytes in
+            try await stream.read(while: { $0 >= .zero && $0 <= .nine }) { bytes in
                 string.append(contentsOf: bytes)
             }
         }
 
         string.append(0)
-        self = strtod(unsafeBitCast(string, to: [Int8].self), nil)
+        return strtod(unsafeBitCast(string, to: [Int8].self), nil)
     }
 }

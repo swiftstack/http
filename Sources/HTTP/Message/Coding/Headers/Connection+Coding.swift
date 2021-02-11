@@ -7,9 +7,9 @@ extension Connection {
         static let upgrade = ASCII("Upgrade")
     }
 
-    init<T: StreamReader>(from stream: T) throws {
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
         // FIXME: validate with value-specific rule
-        self = try stream.read(allowedBytes: .token) { bytes in
+        return try await stream.read(allowedBytes: .token) { bytes in
             switch bytes.lowercasedHashValue {
             case Bytes.keepAlive.lowercasedHashValue: return .keepAlive
             case Bytes.close.lowercasedHashValue: return .close
@@ -19,13 +19,13 @@ extension Connection {
         }
     }
 
-    func encode<T: StreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) async throws {
         let bytes: [UInt8]
         switch self {
         case .keepAlive: bytes = Bytes.keepAlive
         case .close: bytes = Bytes.close
         case .upgrade: bytes = Bytes.upgrade
         }
-        try stream.write(bytes)
+        try await stream.write(bytes)
     }
 }

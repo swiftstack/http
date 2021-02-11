@@ -64,9 +64,7 @@ extension Request {
         body: T,
         contentType type: ApplicationSubtype = .json
     ) throws {
-        self.init()
-        self.method = method
-        self.url = url
+        self.init(url: url, method: method)
 
         switch type {
         case .json:

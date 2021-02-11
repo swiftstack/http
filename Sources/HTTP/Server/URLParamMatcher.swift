@@ -45,6 +45,7 @@ public struct URLParamMatcher {
                 nextIndex += 1
             }
         }
+
         return dictionary
     }
 }

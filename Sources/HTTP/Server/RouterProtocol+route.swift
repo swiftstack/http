@@ -7,10 +7,10 @@ extension RouterProtocol {
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
-        handler: @escaping () throws -> Response
+        handler: @escaping () async throws -> Response
     ) {
         let handler: RequestHandler = { _ in
-            return try handler()
+            return try await handler()
         }
         registerRoute(
             path: path,
@@ -26,7 +26,7 @@ extension RouterProtocol {
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Request) throws -> Response
+        handler: @escaping (Request) async throws -> Response
     ) {
         registerRoute(
             path: path,
@@ -44,11 +44,11 @@ extension RouterProtocol {
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
-        handler: @escaping () throws -> Result
+        handler: @escaping () async throws -> Result
     ) {
         route(path: path, methods: methods, middleware: middleware) { request in
-            let result = try handler()
-            return try Coder.makeRespone(for: request, encoding: result)
+            let result = try await handler()
+            return try await Coder.makeRespone(for: request, encoding: result)
         }
     }
 
@@ -58,11 +58,11 @@ extension RouterProtocol {
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Request) throws -> Result
+        handler: @escaping (Request) async throws -> Result
     ) {
         route(path: path, methods: methods, middleware: middleware) { request in
-            let result = try handler(request)
-            return try Coder.makeRespone(for: request, encoding: result)
+            let result = try await handler(request)
+            return try await Coder.makeRespone(for: request, encoding: result)
         }
     }
 }
@@ -74,17 +74,17 @@ extension RouterProtocol {
     @inline(__always)
     func makeHandler<Model: Decodable>(
         for path: String,
-        wrapping handler: @escaping (Model) throws -> Response
+        wrapping handler: @escaping (Model) async throws -> Response
     ) -> RequestHandler {
         return makeHandler(for: path) { (_: Request, model: Model) in
-            try handler(model)
+            try await handler(model)
         }
     }
 
     @usableFromInline
     func makeHandler<Model: Decodable>(
         for path: String,
-        wrapping handler: @escaping (Request, Model) throws -> Response
+        wrapping handler: @escaping (Request, Model) async throws -> Response
     ) -> RequestHandler {
         let urlMatcher = URLParamMatcher(path)
 
@@ -92,12 +92,12 @@ extension RouterProtocol {
             return { request in
                 let values = urlMatcher.match(from: request.url.path)
                 let match = try Model(from: KeyValueDecoder(values))
-                return try handler(request, match)
+                return try await handler(request, match)
             }
         } else {
             return { request in
-                let model = try Coder.decode(Model.self, from: request)
-                return try handler(request, model)
+                let model = try await Coder.decode(Model.self, from: request)
+                return try await handler(request, model)
             }
         }
     }
@@ -105,18 +105,18 @@ extension RouterProtocol {
     @usableFromInline
     func makeHandler<URLMatch: Decodable, Model: Decodable>(
         for path: String,
-        wrapping handler: @escaping (URLMatch, Model) throws -> Response
+        wrapping handler: @escaping (URLMatch, Model) async throws -> Response
     ) -> RequestHandler {
         return makeHandler(for: path)
         { (_: Request, match: URLMatch, model: Model) in
-            try handler(match, model)
+            try await handler(match, model)
         }
     }
 
     @usableFromInline
     func makeHandler<URLMatch: Decodable, Model: Decodable>(
         for path: String,
-        wrapping handler: @escaping (Request, URLMatch, Model) throws -> Response
+        wrapping handler: @escaping (Request, URLMatch, Model) async throws -> Response
     ) -> RequestHandler {
         let urlMatcher = URLParamMatcher(path)
 
@@ -127,8 +127,8 @@ extension RouterProtocol {
         return { request in
             let values = urlMatcher.match(from: request.url.path)
             let match = try URLMatch(from: KeyValueDecoder(values))
-            let model = try Coder.decode(Model.self, from: request)
-            return try handler(request, match, model)
+            let model = try await Coder.decode(Model.self, from: request)
+            return try await handler(request, match, model)
         }
     }
 
@@ -138,7 +138,7 @@ extension RouterProtocol {
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Model) throws -> Response
+        handler: @escaping (Model) async throws -> Response
     ) {
         let handler = makeHandler(for: path, wrapping: handler)
         registerRoute(
@@ -155,12 +155,12 @@ extension RouterProtocol {
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Model) throws -> Result
+        handler: @escaping (Model) async throws -> Result
     ) {
         route(path: path, methods: methods, middleware: middleware)
-        { (request: Request, model: Model) throws -> Response in
-            let result = try handler(model)
-            return try Coder.makeRespone(for: request, encoding: result)
+        { (request: Request, model: Model) async throws -> Response in
+            let result = try await handler(model)
+            return try await Coder.makeRespone(for: request, encoding: result)
         }
     }
 
@@ -170,7 +170,7 @@ extension RouterProtocol {
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, Model) throws -> Response
+        handler: @escaping (Request, Model) async throws -> Response
     ) {
         let handler = makeHandler(for: path, wrapping: handler)
         registerRoute(
@@ -187,12 +187,12 @@ extension RouterProtocol {
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, Model) throws -> Result
+        handler: @escaping (Request, Model) async throws -> Result
     ) {
         route(path: path, methods: methods, middleware: middleware)
-        { (request: Request, model: Model) throws -> Response in
-            let result = try handler(request, model)
-            return try Coder.makeRespone(for: request, encoding: result)
+        { (request: Request, model: Model) async throws -> Response in
+            let result = try await handler(request, model)
+            return try await Coder.makeRespone(for: request, encoding: result)
         }
     }
 
@@ -202,7 +202,7 @@ extension RouterProtocol {
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (URLMatch, Model) throws -> Response
+        handler: @escaping (URLMatch, Model) async throws -> Response
     ) {
         let handler = makeHandler(for: path, wrapping: handler)
         registerRoute(
@@ -221,13 +221,13 @@ extension RouterProtocol {
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (URLMatch, Model) throws -> Result
+        handler: @escaping (URLMatch, Model) async throws -> Result
     ) {
         route(path: path, methods: methods, middleware: middleware)
-        { (request: Request, match: URLMatch, model: Model) throws -> Response
+        { (request: Request, match: URLMatch, model: Model) async throws -> Response
             in
-            let result = try handler(match, model)
-            return try Coder.makeRespone(for: request, encoding: result)
+            let result = try await handler(match, model)
+            return try await Coder.makeRespone(for: request, encoding: result)
         }
     }
 
@@ -237,7 +237,7 @@ extension RouterProtocol {
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, URLMatch, Model) throws -> Response
+        handler: @escaping (Request, URLMatch, Model) async throws -> Response
     ) {
         let handler = makeHandler(for: path, wrapping: handler)
         registerRoute(
@@ -254,13 +254,13 @@ extension RouterProtocol {
         path: String,
         methods: Router.MethodSet,
         middleware: [Middleware.Type] = [],
-        handler: @escaping (Request, URLMatch, Model) throws -> Result
+        handler: @escaping (Request, URLMatch, Model) async throws -> Result
     ) {
         route(path: path, methods: methods, middleware: middleware)
-        { (request: Request, match: URLMatch, model: Model) throws -> Response
+        { (request: Request, match: URLMatch, model: Model) async throws -> Response
             in
-            let result = try handler(request, match, model)
-            return try Coder.makeRespone(for: request, encoding: result)
+            let result = try await handler(request, match, model)
+            return try await Coder.makeRespone(for: request, encoding: result)
         }
     }
 }

@@ -5,41 +5,40 @@ extension ContentType {
         static let charset = ASCII("charset=")
     }
 
-    init<T: StreamReader>(from stream: T) throws {
-        self.mediaType = try MediaType(from: stream)
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        let mediaType = try await MediaType.decode(from: stream)
 
-        switch self.mediaType {
-        case .multipart:
-            guard try stream.consume(.semicolon) else {
+        switch mediaType {
+        case .multipart(let subtype):
+            guard try await stream.consume(.semicolon) else {
                 throw ParseError.invalidContentTypeHeader
             }
-            try stream.consume(while: { $0 == .whitespace })
+            try await stream.consume(while: { $0 == .whitespace })
 
-            self.charset = nil
-            self.boundary = try Boundary(from: stream)
+            let boundary = try await Boundary.decode(from: stream)
+            return .init(multipart: subtype, boundary: boundary)
 
         default:
-            guard try stream.consume(.semicolon) else {
-                self.charset = nil
-                self.boundary = nil
-                break
+            guard try await stream.consume(.semicolon) else {
+                return .init(mediaType: mediaType)!
             }
-            try stream.consume(while: { $0 == .whitespace })
+            try await stream.consume(while: { $0 == .whitespace })
 
             // FIXME: validate with value-specific rule
-            guard try stream.consume(sequence: Bytes.charset) else {
+            guard try await stream.consume(sequence: Bytes.charset) else {
                 throw ParseError.invalidContentTypeHeader
             }
-            self.charset = try Charset(from: stream)
-            self.boundary = nil
+            let charset = try await Charset.decode(from: stream)
+            return .init(mediaType: mediaType, charset: charset)!
         }
     }
 
-    func encode<T: StreamWriter>(to stream: T) throws {
-        try mediaType.encode(to: stream)
-        if let charset = charset {
-            try charset.encode(to: stream)
-        }
+    func encode<T: StreamWriter>(to stream: T) async throws {
+        try await mediaType.encode(to: stream)
+        // FIXME: [Concurrency] build crash
+        // if let charset = charset {
+        //     try await charset.encode(to: stream)
+        // }
     }
 }
 
@@ -48,11 +47,11 @@ extension Boundary {
         static let boundary = ASCII("boundary=")
     }
 
-    init<T: StreamReader>(from stream: T) throws {
-        guard try stream.consume(sequence: Bytes.boundary) else {
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        guard try await stream.consume(sequence: Bytes.boundary) else {
             throw ParseError.invalidBoundary
         }
         // FIXME: validate with value-specific rule
-        self = try Boundary(try stream.read(allowedBytes: .text))
+        return try Boundary(try await stream.read(allowedBytes: .text))
     }
 }

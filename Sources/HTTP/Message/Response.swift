@@ -1,6 +1,6 @@
 import JSON
 
-public class Response {
+public final class Response {
     public var status: Status = .ok
     public var version: Version = .oneOne
 
@@ -78,7 +78,7 @@ extension Response {
         body object: Encodable,
         contentType type: ApplicationSubtype = .json
     ) throws {
-        self.init()
+        self.init(status: status)
         try Coder.encode(object: object, to: self, contentType: type)
     }
 }

@@ -1,26 +1,26 @@
 import Stream
 
 extension Array where Element == ContentEncoding {
-    init<T: StreamReader>(from stream: T) throws {
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
         var values = [ContentEncoding]()
         while true {
-            let contentEncoding = try ContentEncoding(from: stream)
+            let contentEncoding = try await ContentEncoding.decode(from: stream)
             values.append(contentEncoding)
-            guard try stream.consume(.comma) else {
+            guard try await stream.consume(.comma) else {
                 break
             }
-            try stream.consume(while: { $0 == .whitespace })
+            try await stream.consume(while: { $0 == .whitespace })
         }
-        self = values
+        return values
     }
 
-    func encode<T: StreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) async throws {
         for i in startIndex..<endIndex {
             if i != startIndex {
-                try stream.write(.comma)
-                try stream.write(.whitespace)
+                try await stream.write(.comma)
+                try await stream.write(.whitespace)
             }
-            try self[i].encode(to: stream)
+            try await self[i].encode(to: stream)
         }
     }
 }
@@ -31,8 +31,8 @@ extension ContentEncoding {
         static let deflate = ASCII("deflate")
     }
 
-    init<T: StreamReader>(from stream: T) throws {
-        self = try stream.read(allowedBytes: .token) { bytes in
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        return try await stream.read(allowedBytes: .token) { bytes in
             switch bytes.lowercasedHashValue {
             case Bytes.gzip.lowercasedHashValue: return .gzip
             case Bytes.deflate.lowercasedHashValue: return .deflate
@@ -41,13 +41,13 @@ extension ContentEncoding {
         }
     }
 
-    func encode<T: StreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) async throws {
         let bytes: [UInt8]
         switch self {
         case .gzip: bytes = Bytes.gzip
         case .deflate: bytes = Bytes.deflate
         case .custom(let value): bytes = [UInt8](value.utf8)
         }
-        try stream.write(bytes)
+        try await stream.write(bytes)
     }
 }

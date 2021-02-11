@@ -1,4 +1,4 @@
-public typealias RequestHandler = (Request) throws -> Response
+public typealias RequestHandler = (Request) async throws -> Response
 
 public class Router: RouterProtocol {
     public struct MethodSet: OptionSet {
@@ -72,25 +72,25 @@ public class Router: RouterProtocol {
 import Log
 
 extension Router {
-    public func process(_ request: Request) throws -> Response {
+    public func process(_ request: Request) async throws -> Response {
         let path = request.url.path
         let methods = Router.MethodSet(request.method)
         guard let handler = findHandler(path: path, methods: methods) else {
             throw HTTP.Error.notFound
         }
-        return try handler(request)
+        return try await handler(request)
     }
 
-    func handleRequest(_ request: Request) -> Response? {
+    func handleRequest(_ request: Request) async -> Response? {
         do {
-            return try process(request)
+            return try await process(request)
         } catch {
-            return handleError(error, for: request)
+            return await handleError(error, for: request)
         }
     }
 
-    func handleError(_ error: Swift.Error, for request: Request) -> Response? {
-        Log.error(String(describing: error))
+    func handleError(_ error: Swift.Error, for request: Request) async -> Response? {
+        await Log.error(String(describing: error))
         return Response(status: .internalServerError)
     }
 }

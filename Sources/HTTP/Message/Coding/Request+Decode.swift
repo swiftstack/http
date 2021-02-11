@@ -3,97 +3,100 @@ import Network
 
 extension Request {
     @_specialize(where T == BufferedInputStream<NetworkStream>)
-    public convenience init<T: StreamReader>(from stream: T) throws {
-        self.init()
+    public
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        let request = Self()
         do {
-            self.method = try Request.Method(from: stream)
-            guard try stream.consume(.whitespace) else {
+            request.method = try await Request.Method.decode(from: stream)
+            guard try await stream.consume(.whitespace) else {
                 throw ParseError.invalidStartLine
             }
 
-            self.url = try URL(from: stream)
-            guard try stream.consume(.whitespace) else {
+            request.url = try await URL.decode(from: stream)
+            guard try await stream.consume(.whitespace) else {
                 throw ParseError.invalidStartLine
             }
 
-            self.version = try Version(from: stream)
+            request.version = try await Version.decode(from: stream)
 
             @inline(__always)
-            func readLineEnd() throws {
-                guard try stream.consume(.cr),
-                    try stream.consume(.lf) else {
-                        throw ParseError.invalidRequest
+            func readLineEnd() async throws {
+                guard try await stream.consume(.cr),
+                      try await stream.consume(.lf) else
+                {
+                    throw ParseError.invalidRequest
                 }
             }
 
-            try readLineEnd()
+            try await readLineEnd()
 
             while true {
-                guard try stream.cache(count: 2) else {
+                guard try await stream.cache(count: 2) else {
                     throw ParseError.unexpectedEnd
                 }
-                if try stream.next(is: Constants.lineEnd) {
-                    try stream.consume(count: 2)
+                if try await stream.next(is: Constants.lineEnd) {
+                    try await stream.consume(count: 2)
                     break
                 }
 
-                let name = try HeaderName(from: stream)
+                let name = try await HeaderName.decode(from: stream)
 
-                guard try stream.consume(.colon) else {
+                guard try await stream.consume(.colon) else {
                     throw ParseError.invalidHeaderName
                 }
-                try stream.consume(while: { $0 == .whitespace })
+                try await stream.consume(while: { $0 == .whitespace })
 
                 switch name {
                 case .host:
-                    guard self.url.host == nil else {
-                        try stream.consume(until: .cr)
+                    guard request.url.host == nil else {
+                        try await stream.consume(until: .cr)
                         continue
                     }
-                    self.host = try URL.Host(from: stream)
+                    request.host = try await URL.Host.decode(from: stream)
                 case .userAgent:
                     // FIXME: validate
-                    self.userAgent = try stream.read(until: .cr) { bytes in
+                    request.userAgent = try await stream.read(until: .cr) { bytes in
                         let trimmed = bytes.trimmingRightSpace()
                         return String(decoding: trimmed, as: UTF8.self)
                     }
                 case .accept:
-                    self.accept = try [Accept](from: stream)
+                    request.accept = try await [Accept].decode(from: stream)
                 case .acceptLanguage:
-                    self.acceptLanguage = try [AcceptLanguage](from: stream)
+                    request.acceptLanguage = try await [AcceptLanguage].decode(from: stream)
                 case .acceptEncoding:
-                    self.acceptEncoding = try [ContentEncoding](from: stream)
+                    request.acceptEncoding = try await [ContentEncoding].decode(from: stream)
                 case .acceptCharset:
-                    self.acceptCharset = try [AcceptCharset](from: stream)
+                    request.acceptCharset = try await [AcceptCharset].decode(from: stream)
                 case .authorization:
-                    self.authorization = try Authorization(from: stream)
+                    request.authorization = try await Authorization.decode(from: stream)
                 case .keepAlive:
-                    self.keepAlive = try Int(from: stream)
+                    request.keepAlive = try await Int.decode(from: stream)
                 case .connection:
-                    self.connection = try Connection(from: stream)
+                    request.connection = try await Connection.decode(from: stream)
                 case .contentLength:
-                    self.contentLength = try Int(from: stream)
+                    request.contentLength = try await Int.decode(from: stream)
                 case .contentType:
-                    self.contentType = try ContentType(from: stream)
+                    request.contentType = try await ContentType.decode(from: stream)
                 case .transferEncoding:
-                    self.transferEncoding = try [TransferEncoding](from: stream)
+                    request.transferEncoding = try await [TransferEncoding].decode(from: stream)
                 case .cookie:
-                    self.cookies.append(contentsOf: try [Cookie](from: stream))
+                    request.cookies.append(contentsOf: try await [Cookie].decode(from: stream))
                 case .expect:
-                    self.expect = try Expect(from: stream)
+                    request.expect = try await Expect.decode(from: stream)
                 default:
                     // FIXME: validate
-                    headers[name] = try stream.read(until: .cr) { bytes in
+                    request.headers[name] = try await stream.read(until: .cr) { bytes in
                         return String(decoding: bytes, as: UTF8.self)
                     }
                 }
 
-                try readLineEnd()
+                try await readLineEnd()
             }
 
             // Body
 
-            self.body = .input(stream)
+            request.body = .input(stream)
+            return request
 
         } catch let error as StreamError where error == .insufficientData {
             throw ParseError.unexpectedEnd

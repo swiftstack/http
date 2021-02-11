@@ -207,33 +207,37 @@ extension URL.Query {
 // Decode from Stream
 
 extension URL {
-    init<T: StreamReader>(from stream: T) throws {
-        self.scheme = nil
-        self.host = nil
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        var url = URL("")
 
-        self.path = try stream.read(allowedBytes: .path) { bytes in
+        url.scheme = nil
+        url.host = nil
+
+        url.path = try await stream.read(allowedBytes: .path) { bytes in
             return try String(removingPercentEncoding: bytes)
         }
 
-        switch try stream.consume(.questionMark) {
-        case true: self.query = try Query(from: stream)
-        case false: self.query = nil
+        switch try await stream.consume(.questionMark) {
+        case true: url.query = try await Query.decode(from: stream)
+        case false: url.query = nil
         }
 
-        switch try stream.consume(.hash) {
+        switch try await stream.consume(.hash) {
         case true:
-            self.fragment = try stream.read(allowedBytes: .fragment) { bytes in
+            url.fragment = try await stream.read(allowedBytes: .fragment) { bytes in
                 return try String(removingPercentEncoding: bytes)
             }
         default:
-            self.fragment = nil
+            url.fragment = nil
         }
+        return url
     }
 }
 
 extension URL.Host {
-    init<T: StreamReader>(from stream: T) throws {
-        self.address = try stream.read(allowedBytes: .domain) { bytes in
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        let address = try await stream.read(allowedBytes: .domain)
+        { bytes -> String in
             guard bytes.count > 0 else {
                 throw ParseError.invalidHost
             }
@@ -243,41 +247,40 @@ extension URL.Host {
             }
         }
 
-        switch try stream.consume(.colon) {
-        case true:
-            guard let port = try Int(from: stream) else {
-                throw ParseError.invalidPort
-            }
-            self.port = port
-        default:
-            self.port = nil
+        guard try await stream.consume(.colon) else {
+            return .init(address: address, port: nil)
         }
+
+        guard let port = try await Int.decode(from: stream) else {
+            throw ParseError.invalidPort
+        }
+        return .init(address: address, port: port)
     }
 }
 
 extension URL.Query {
-    init<T: StreamReader>(from stream: T) throws {
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
         var values =  [String : String]()
 
         while true {
-            let name = try stream.read(allowedBytes: .queryPart) { bytes in
+            let name = try await stream.read(allowedBytes: .queryPart) { bytes in
                 return try String(removingPercentEncoding: bytes)
             }
-            guard try stream.consume(.equal) else {
+            guard try await stream.consume(.equal) else {
                 throw ParseError.invalidURL
             }
-            let value = try stream.read(allowedBytes: .queryPart) { bytes in
+            let value = try await stream.read(allowedBytes: .queryPart) { bytes in
                 return try String(removingPercentEncoding: bytes)
             }
 
             values[name] = value
 
-            guard try stream.consume(.ampersand) else {
+            guard try await stream.consume(.ampersand) else {
                 break
             }
         }
 
-        self.values = values
+        return .init(values: values)
     }
 }
 

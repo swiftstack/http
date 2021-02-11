@@ -77,8 +77,8 @@ extension Response.Status {
             ASCII("511 Network Authentication Required")
     }
 
-    init<T: StreamReader>(from stream: T) throws {
-        self = try stream.read(until: .cr) { bytes in
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        return try await stream.read(until: .cr) { bytes in
             switch bytes.lowercasedHashValue {
             case Bytes.`continue`.lowercasedHashValue: return .`continue`
             case Bytes.switchingProtocols.lowercasedHashValue: return .switchingProtocols
@@ -164,7 +164,7 @@ extension Response.Status {
         }
     }
 
-    func encode<T: StreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) async throws {
         let bytes: [UInt8]
         switch self {
         case .`continue`: bytes = Bytes.`continue`
@@ -232,6 +232,6 @@ extension Response.Status {
         case .custom(let code, let description):
             bytes = [UInt8]("\(code) " + description)
         }
-        try stream.write(bytes)
+        try await stream.write(bytes)
     }
 }

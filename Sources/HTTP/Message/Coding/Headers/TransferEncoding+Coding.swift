@@ -1,9 +1,9 @@
 import Stream
 
 extension Array where Element == TransferEncoding {
-    init<T: StreamReader>(from stream: T) throws {
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
         // FIXME: validate
-        self = try stream.read(until: .cr) { bytes in
+        return try await stream.read(until: .cr) { bytes in
             var startIndex = bytes.startIndex
             var endIndex = startIndex
             var values = [TransferEncoding]()
@@ -23,12 +23,12 @@ extension Array where Element == TransferEncoding {
         }
     }
 
-    func encode<T: StreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) async throws {
         for i in startIndex..<endIndex {
             if i != startIndex {
-                try stream.write(.comma)
+                try await stream.write(.comma)
             }
-            try self[i].encode(to: stream)
+            try await self[i].encode(to: stream)
         }
     }
 }
@@ -54,7 +54,7 @@ extension TransferEncoding {
         }
     }
 
-    func encode<T: StreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) async throws {
         let bytes: [UInt8]
         switch self {
         case .chunked: bytes = Bytes.chunked
@@ -63,6 +63,6 @@ extension TransferEncoding {
         case .gzip: bytes = Bytes.gzip
         case .identity: bytes = Bytes.identity
         }
-        try stream.write(bytes)
+        try await stream.write(bytes)
     }
 }

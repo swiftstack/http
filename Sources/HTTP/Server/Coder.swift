@@ -25,10 +25,10 @@ public struct Coder {
     @inline(__always)
     static func makeRespone<T: Encodable>(
         for request: Request,
-        encoding object: T) throws -> Response
+        encoding object: T) async throws -> Response
     {
         let response = Response(status: .ok)
-        try Coder.updateRespone(response, for: request, with: .object(object))
+        try await Coder.updateRespone(response, for: request, with: .object(object))
         return response
     }
 
@@ -36,7 +36,7 @@ public struct Coder {
     public static func updateRespone(
         _ response: Response,
         for request: Request,
-        with result: ApiResult) throws
+        with result: ApiResult) async throws
     {
         switch result {
         case .string(let string):
@@ -95,7 +95,7 @@ public struct Coder {
 
     @inlinable
     public static func getDecoder(for request: Request)
-        throws -> Swift.Decoder
+        async throws -> Swift.Decoder
     {
         switch request.method {
         case .get:
@@ -103,20 +103,20 @@ public struct Coder {
             return KeyValueDecoder(values)
 
         default:
-            return try getBodyDecoder(for: request)
+            return try await getBodyDecoder(for: request)
         }
     }
 
     @inlinable
     public static func getDecoder<Message>(for message: Message)
-        throws -> Swift.Decoder where Message: DecodableMessage
+        async throws -> Swift.Decoder where Message: DecodableMessage
     {
-        return try getBodyDecoder(for: message)
+        return try await getBodyDecoder(for: message)
     }
 
     @inlinable
     public static func getBodyDecoder<Message>(for message: Message)
-        throws -> Swift.Decoder where Message: DecodableMessage
+        async throws -> Swift.Decoder where Message: DecodableMessage
     {
         guard let contentType = message.contentType else {
             throw Error.invalidRequest
@@ -124,9 +124,9 @@ public struct Coder {
 
         switch contentType.mediaType {
         case .application(.json):
-            return try getJSONDecoder(for: message)
+            return try await getJSONDecoder(for: message)
         case .application(.formURLEncoded):
-            return try getFormDecoder(for: message)
+            return try await getFormDecoder(for: message)
 
         default:
             throw Error.invalidContentType
@@ -134,16 +134,16 @@ public struct Coder {
     }
 
     @inlinable
-    public static func getJSONDecoder<Message>(for message: Message)throws
+    public static func getJSONDecoder<Message>(for message: Message) async throws
         -> Swift.Decoder where Message: DecodableMessage
     {
         switch message.body {
         case .bytes(let bytes):
             let stream = InputByteStream(bytes)
-            let json = try JSON.Value(from: stream)
+            let json = try await JSON.Value.decode(from: stream)
             return try JSON.Decoder(json)
         case .input(let reader):
-            let json = try JSON.Value(from: reader)
+            let json = try await JSON.Value.decode(from: reader)
             return try JSON.Decoder(json)
         default:
             throw Error.invalidRequest
@@ -151,7 +151,7 @@ public struct Coder {
     }
 
     @inlinable
-    public static func getFormDecoder<Message>(for message: Message) throws
+    public static func getFormDecoder<Message>(for message: Message) async throws
         -> Swift.Decoder where Message: DecodableMessage
     {
         // TODO: Use stream
@@ -165,18 +165,18 @@ public struct Coder {
     @inlinable
     public static func decode<Model: Decodable>(
         _ type: Model.Type,
-        from request: Request) throws -> Model
+        from request: Request) async throws -> Model
     {
-        let decoder = try getDecoder(for: request)
+        let decoder = try await getDecoder(for: request)
         return try type.init(from: decoder)
     }
 
     @inlinable
     public static func decode<Model: Decodable, Message: DecodableMessage>(
         _ type: Model.Type,
-        from message: Message) throws -> Model
+        from message: Message) async throws -> Model
     {
-        let decoder = try getDecoder(for: message)
+        let decoder = try await getDecoder(for: message)
         return try type.init(from: decoder)
     }
 }

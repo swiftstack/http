@@ -157,14 +157,14 @@ test.case("PostModel") {
 
     let model = Page(name: "news", number: 2)
 
-    let request = try await Request.asyncInit(
+    let request = try Request(
         url: "/",
         method: .post,
         body: model)
     let response = await router.handleRequest(request)
     expect(response?.status == .ok)
 
-    let formURLEncodedRequest = try await Request.asyncInit(
+    let formURLEncodedRequest = try Request(
         url: "/",
         method: .post,
         body: model,
@@ -221,14 +221,14 @@ test.case("PostURLMatchModel") {
     }
 
     let model = Params(id: 1, token: "abcdef")
-    let request = try await Request.asyncInit(
+    let request = try Request(
         url: "/news/2",
         method: .post,
         body: model)
     let response = await router.handleRequest(request)
     expect(response?.status == .ok)
 
-    let formURLEncodedRequest = try await Request.asyncInit(
+    let formURLEncodedRequest = try Request(
         url: "/news/2",
         method: .post,
         body: model,
@@ -322,14 +322,14 @@ test.case("PostRequestModel") {
     }
 
     let model = Page(name: "news", number: 2)
-    let request = try await Request.asyncInit(
+    let request = try Request(
         url: "/",
         method: .post,
         body: model)
     let response = await router.handleRequest(request)
     expect(response?.status == .ok)
 
-    let formURLEncodedRequest = try await Request.asyncInit(
+    let formURLEncodedRequest = try Request(
         url: "/",
         method: .post,
         body: model,
@@ -393,14 +393,14 @@ test.case("PostRequestURLMatchModel") {
     }
 
     let model = Params(id: 1, token: "abcdef")
-    let request = try await Request.asyncInit(
+    let request = try Request(
         url: "/news/2",
         method: .post,
         body: model)
     let response = await router.handleRequest(request)
     expect(response?.status == .ok)
 
-    let formURLEncodedRequest = try await Request.asyncInit(
+    let formURLEncodedRequest = try Request(
         url: "/news/2",
         method: .post,
         body: model,

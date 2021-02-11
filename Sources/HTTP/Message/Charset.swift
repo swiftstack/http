@@ -16,8 +16,8 @@ extension Charset {
         static let any = ASCII("*")
     }
 
-    init<T: StreamReader>(from reader: T) throws {
-        self = try reader.read(allowedBytes: .token) { bytes in
+    static func decode<T: StreamReader>(from reader: T) async throws -> Self {
+        return try await reader.read(allowedBytes: .token) { bytes in
             switch bytes.lowercasedHashValue {
             case Bytes.utf8.lowercasedHashValue: return .utf8
             case Bytes.ascii.lowercasedHashValue: return .ascii
@@ -28,7 +28,7 @@ extension Charset {
         }
     }
 
-    func encode<T: StreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) async throws {
         let bytes: [UInt8]
         switch self {
         case .utf8: bytes = Bytes.utf8
@@ -37,6 +37,6 @@ extension Charset {
         case .any: bytes = Bytes.any
         case .custom(let value): bytes = [UInt8](value)
         }
-        try stream.write(bytes)
+        try await stream.write(bytes)
     }
 }

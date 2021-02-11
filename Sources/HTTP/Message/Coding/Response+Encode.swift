@@ -3,67 +3,67 @@ import Network
 
 extension Response {
     @_specialize(where T == BufferedOutputStream<NetworkStream>)
-    public func encode<T: StreamWriter>(to stream: T) throws {
+    public func encode<T: StreamWriter>(to stream: T) async throws {
         // Start line
-        try version.encode(to: stream)
-        try stream.write(.whitespace)
-        try status.encode(to: stream)
-        try stream.write(Constants.lineEnd)
+        try await version.encode(to: stream)
+        try await stream.write(.whitespace)
+        try await status.encode(to: stream)
+        try await stream.write(Constants.lineEnd)
 
         // Headers
         @inline(__always)
         func writeHeader(
             _ name: HeaderName,
-            encoder: (T) throws -> Void
-        ) throws {
-            try stream.write(name.bytes)
-            try stream.write(.colon)
-            try stream.write(.whitespace)
-            try encoder(stream)
-            try stream.write(Constants.lineEnd)
+            encoder: (T) async throws -> Void
+        ) async throws {
+            try await stream.write(name.bytes)
+            try await stream.write(.colon)
+            try await stream.write(.whitespace)
+            try await encoder(stream)
+            try await stream.write(Constants.lineEnd)
         }
 
         @inline(__always)
-        func writeHeader(_ name: HeaderName, value: String) throws {
-            try writeHeader(name) { stream in
-                try stream.write(value)
+        func writeHeader(_ name: HeaderName, value: String) async throws {
+            try await writeHeader(name) { stream in
+                try await stream.write(value)
             }
         }
 
         if let contentType = self.contentType {
-            try writeHeader(.contentType, encoder: contentType.encode)
+            try await writeHeader(.contentType, encoder: contentType.encode)
         }
 
         if let contentLength = self.contentLength {
-            try writeHeader(.contentLength, value: String(contentLength))
+            try await writeHeader(.contentLength, value: String(contentLength))
         }
 
         if let connection = self.connection {
-            try writeHeader(.connection, encoder: connection.encode)
+            try await writeHeader(.connection, encoder: connection.encode)
         }
 
         if let contentEncoding = self.contentEncoding {
-            try writeHeader(.contentEncoding, encoder: contentEncoding.encode)
+            try await writeHeader(.contentEncoding, encoder: contentEncoding.encode)
         }
 
         if let transferEncoding = self.transferEncoding {
-            try writeHeader(.transferEncoding, encoder: transferEncoding.encode)
+            try await writeHeader(.transferEncoding, encoder: transferEncoding.encode)
         }
 
         for cookie in self.cookies {
-            try writeHeader(.setCookie, encoder: cookie.encode)
+            try await writeHeader(.setCookie, encoder: cookie.encode)
         }
 
         for (key, value) in headers {
-            try writeHeader(key, value: value)
+            try await writeHeader(key, value: value)
         }
 
         // Separator
-        try stream.write(Constants.lineEnd)
+        try await stream.write(Constants.lineEnd)
 
         // Body
         switch body {
-        case .bytes(let bytes): try stream.write(bytes)
+        case .bytes(let bytes): try await stream.write(bytes)
         // TODO:
         // case .output(let writer): try writer(stream)
         default: break

@@ -10,19 +10,16 @@ let package = Package(
     ],
     dependencies: [
         .package(name: "Log"),
-        .package(name: "AIO"),
+        .package(name: "Network"),
         .package(name: "Stream"),
         .package(name: "DCompression"),
         .package(name: "JSON"),
         .package(name: "Test"),
-        .package(name: "Fiber"),
     ],
     targets: [
         .target(
             name: "HTTP",
-            dependencies: [
-                "Log", "Stream", "JSON", "DCompression",
-                .product(name: "Network", package: "AIO")],
+            dependencies: ["Network", "Stream", "JSON", "DCompression", "Log"],
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
             ]),

@@ -63,16 +63,25 @@ extension BodyInpuStream {
             guard let bytes = bytes else {
                 return nil
             }
-            let stream = InputByteStream(bytes)
-            return try? JSON.Value(from: stream)
+            var value: JSON.Value? = nil
+            // FIXME: [Concurrency]
+            runAsyncAndBlock {
+                let stream = InputByteStream(bytes)
+                value = try? await JSON.Value.decode(from: stream)
+            }
+            return value
         }
         set {
+
             switch newValue {
             case .none:
                 self.bytes = nil
             case .some(let json):
                 let stream = OutputByteStream()
-                try? json.encode(to: stream)
+                // FIXME: [Concurrency]
+                runAsyncAndBlock {
+                    try? await json.encode(to: stream)
+                }
                 self.bytes = stream.bytes
             }
         }
@@ -98,8 +107,10 @@ extension BodyInpuStream {
             switch body {
             case .bytes(let bytes): return bytes
             case .input(_):
-                guard let bytes = try? readBytes() else {
-                    return nil
+                // FIXME: [Concurrency]
+                var bytes: [UInt8]? = nil
+                runAsyncAndBlock {
+                    bytes = try? await self.readBytes()
                 }
                 return bytes
             default: return nil
@@ -117,28 +128,28 @@ extension BodyInpuStream {
         }
     }
 
-    func readBytes() throws -> [UInt8] {
-        guard let reader = inputStream else {
+    func readBytes() async throws -> [UInt8] {
+        guard let reader = self.inputStream else {
             throw ParseError.invalidRequest
         }
         do {
             let bytes: [UInt8]
-            if let contentLength = contentLength {
-                bytes = try reader.read(count: contentLength) { bytes in
+            if let contentLength = self.contentLength {
+                bytes = try await reader.read(count: contentLength) { bytes in
                     guard bytes.count > 0 else {
-                        body = .none
+                        self.body = .none
                         throw ParseError.invalidRequest
                     }
                     return [UInt8](bytes)
                 }
             } else if self.transferEncoding?.contains(.chunked) == true  {
                 let reader = ChunkedStreamReader(baseStream: reader)
-                bytes = try reader.readUntilEnd()
+                bytes = try await reader.readUntilEnd()
             } else {
                 throw ParseError.invalidRequest
             }
             // cache
-            body = .bytes(bytes)
+            self.body = .bytes(bytes)
             return bytes
         } catch let error as StreamError where error == .insufficientData {
             throw ParseError.unexpectedEnd

@@ -1,9 +1,9 @@
 import Log
-import Async
+import Stream
 import Network
 import Platform
 
-public class Server: StreamingServer {
+public class Server {
     public var bufferSize: Int
 
     let networkServer: Network.Server
@@ -26,21 +26,57 @@ public class Server: StreamingServer {
         return "http://\(networkServer.address)"
     }
 
-    public func start() throws {
-        Log.info("server at \(address) started")
-        try networkServer.start()
+    public func start() async throws {
+        await Log.info("server at \(address) started")
+        try await networkServer.start()
     }
 
-    func onClient(socket: Socket) {
+    func onClient(socket: Socket) async {
         do {
-            try process(stream: NetworkStream(socket: socket))
+            try await process(stream: NetworkStream(socket: socket))
         } catch let error as ParseError where error == .unexpectedEnd {
             /* connection closed */
         } catch let error as Socket.Error where error == .connectionReset {
             /* connection closed */
         } catch {
             /* log other errors */
-            Log.error(String(describing: error))
+            await Log.error(String(describing: error))
         }
+    }
+
+    func process<T: Stream>(stream: T) async throws {
+        try await process(
+            inputStream: BufferedInputStream(
+                baseStream: stream,
+                capacity: bufferSize),
+            outputStream: BufferedOutputStream(
+                baseStream: stream,
+                capacity: bufferSize))
+    }
+
+    func process<I: InputStream, O: OutputStream>(
+        inputStream: BufferedInputStream<I>,
+        outputStream: BufferedOutputStream<O>
+    ) async throws {
+        while true {
+            let request = try await Request.decode(from: inputStream)
+            if request.expect == .continue {
+                let `continue` = Response(status: .continue)
+                try await `continue`.encode(to: outputStream)
+                try await outputStream.flush()
+            }
+            if let response = await handleRequest(request) {
+                try await response.encode(to: outputStream)
+                try await outputStream.flush()
+            }
+            if request.connection == .close {
+                break
+            }
+        }
+    }
+
+    @inline(__always)
+    func handleRequest(_ request: Request) async -> Response? {
+        return await router.handleRequest(request)
     }
 }

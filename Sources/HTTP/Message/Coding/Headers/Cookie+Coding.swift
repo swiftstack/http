@@ -2,24 +2,24 @@ import Stream
 import struct Foundation.Date
 
 extension Array where Element == Cookie {
-    init<T: StreamReader>(from stream: T) throws {
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
         var cookies = [Cookie]()
         while true {
-            cookies.append(try Cookie(from: stream))
+            cookies.append(try await Cookie.decode(from: stream))
             // should be separated by a semi-colon and a space ('; ')
-            guard try stream.consume(sequence: [.semicolon, .whitespace]) else {
+            guard try await stream.consume(sequence: [.semicolon, .whitespace]) else {
                 break
             }
         }
-        self = cookies
+        return cookies
     }
 
-    func encode<T: StreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) async throws {
         for i in 0..<count {
-            try self[i].encode(to: stream)
+            try await self[i].encode(to: stream)
             if i + 1 < count {
-                try stream.write(.semicolon)
-                try stream.write(.whitespace)
+                try await stream.write(.semicolon)
+                try await stream.write(.whitespace)
             }
         }
     }
@@ -37,46 +37,48 @@ extension Cookie {
     }
 
 
-    init<T: StreamReader>(from stream: T) throws {
-        self.name = try stream.read(allowedBytes: .cookie) { bytes in
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        let name: String = try await stream.read(allowedBytes: .cookie) { bytes in
             guard bytes.count > 0 else {
                 throw ParseError.invalidCookieHeader
             }
             return String(decoding: bytes, as: UTF8.self)
         }
 
-        guard try stream.consume(.equal) else {
+        guard try await stream.consume(.equal) else {
             throw ParseError.invalidCookieHeader
         }
 
-        self.value = try stream.read(allowedBytes: .cookie) { bytes in
+        let value = try await stream.read(allowedBytes: .cookie) { bytes in
             return String(decoding: bytes, as: UTF8.self)
         }
+
+        return .init(name: name, value: value)
     }
 
-    init<T: StreamReader>(responseCookieFrom stream: T) throws {
-        try self.init(from: stream)
+    static func decode<T: StreamReader>(responseCookieFrom stream: T) async throws -> Self {
+        var cookie = try await Self.decode(from: stream)
 
         while true {
             // should be separated by a semi-colon and a space ('; ')
-            guard try stream.consume(sequence: [.semicolon, .whitespace]) else {
+            guard try await stream.consume(sequence: [.semicolon, .whitespace]) else {
                 break
             }
 
             // attibute name
-            let attributeHashValue = try stream.read(allowedBytes: .token) { bytes in
+            let attributeHashValue = try await stream.read(allowedBytes: .token) { bytes in
                 return bytes.lowercasedHashValue
             }
 
-            func consume(_ byte: UInt8) throws {
-                guard try stream.consume(byte) else {
+            func consume(_ byte: UInt8) async throws {
+                guard try await stream.consume(byte) else {
                     throw ParseError.invalidCookieHeader
                 }
             }
             // only in case if the attribute has a value
-            func readValue(allowedBytes: AllowedBytes) throws -> String {
-                try consume(.equal)
-                return try stream.read(allowedBytes: allowedBytes) { bytes in
+            func readValue(allowedBytes: AllowedBytes) async throws -> String {
+                try await consume(.equal)
+                return try await stream.read(allowedBytes: allowedBytes) { bytes in
                     return String(decoding: bytes, as: UTF8.self)
                 }
             }
@@ -85,80 +87,82 @@ extension Cookie {
             switch attributeHashValue {
             // attributes with value
             case Bytes.domain.lowercasedHashValue:
-                self.domain = try readValue(allowedBytes: .cookie)
+                cookie.domain = try await readValue(allowedBytes: .cookie)
 
             case Bytes.path.lowercasedHashValue:
-                self.path = try readValue(allowedBytes: .cookie)
+                cookie.path = try await readValue(allowedBytes: .cookie)
 
             case Bytes.expires.lowercasedHashValue:
-                let dateString = try readValue(allowedBytes: .cookie)
+                let dateString = try await readValue(allowedBytes: .cookie)
                 guard let date = Date(from: dateString) else {
                     throw ParseError.invalidSetCookieHeader
                 }
-                self.expires = date
+                cookie.expires = date
 
             case Bytes.maxAge.lowercasedHashValue:
-                try consume(.equal)
-                guard let maxAge = try? Int(from: stream) else {
+                try await consume(.equal)
+                guard let maxAge = try? await Int.decode(from: stream) else {
                     throw ParseError.invalidSetCookieHeader
                 }
-                self.maxAge = maxAge
+                cookie.maxAge = maxAge
 
             // single attributes
             case Bytes.httpOnly.lowercasedHashValue:
-                self.httpOnly = true
+                cookie.httpOnly = true
 
             case Bytes.secure.lowercasedHashValue:
-                self.secure = true
+                cookie.secure = true
 
             default:
                 throw ParseError.invalidSetCookieHeader
             }
         }
+
+        return cookie
     }
 
-    func encode<T: StreamWriter>(to stream: T) throws {
-        try stream.write(name)
-        try stream.write(.equal)
-        try stream.write(value)
+    func encode<T: StreamWriter>(to stream: T) async throws {
+        try await stream.write(name)
+        try await stream.write(.equal)
+        try await stream.write(value)
 
         if let domain = self.domain {
-            try stream.write(.semicolon)
-            try stream.write(.whitespace)
-            try stream.write(Bytes.domain)
-            try stream.write(.equal)
-            try stream.write(domain)
+            try await stream.write(.semicolon)
+            try await stream.write(.whitespace)
+            try await stream.write(Bytes.domain)
+            try await stream.write(.equal)
+            try await stream.write(domain)
         }
         if let path = self.path {
-            try stream.write(.semicolon)
-            try stream.write(.whitespace)
-            try stream.write(Bytes.path)
-            try stream.write(.equal)
-            try stream.write(path)
+            try await stream.write(.semicolon)
+            try await stream.write(.whitespace)
+            try await stream.write(Bytes.path)
+            try await stream.write(.equal)
+            try await stream.write(path)
         }
         if let expires = self.expires {
-            try stream.write(.semicolon)
-            try stream.write(.whitespace)
-            try stream.write(Bytes.expires)
-            try stream.write(.equal)
-            try stream.write(expires.rawValue)
+            try await stream.write(.semicolon)
+            try await stream.write(.whitespace)
+            try await stream.write(Bytes.expires)
+            try await stream.write(.equal)
+            try await stream.write(expires.rawValue)
         }
         if let maxAge = self.maxAge {
-            try stream.write(.semicolon)
-            try stream.write(.whitespace)
-            try stream.write(Bytes.maxAge)
-            try stream.write(.equal)
-            try stream.write(String(describing: maxAge))
+            try await stream.write(.semicolon)
+            try await stream.write(.whitespace)
+            try await stream.write(Bytes.maxAge)
+            try await stream.write(.equal)
+            try await stream.write(String(describing: maxAge))
         }
         if self.secure == true {
-            try stream.write(.semicolon)
-            try stream.write(.whitespace)
-            try stream.write(Bytes.secure)
+            try await stream.write(.semicolon)
+            try await stream.write(.whitespace)
+            try await stream.write(Bytes.secure)
         }
         if self.httpOnly == true {
-            try stream.write(.semicolon)
-            try stream.write(.whitespace)
-            try stream.write(Bytes.httpOnly)
+            try await stream.write(.semicolon)
+            try await stream.write(.whitespace)
+            try await stream.write(Bytes.httpOnly)
         }
     }
 }

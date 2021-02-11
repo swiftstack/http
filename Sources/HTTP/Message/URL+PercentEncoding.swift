@@ -11,13 +11,15 @@ extension URL {
         guard !string.isEmpty else {
             return []
         }
-        let bytes = [UInt8](string.utf8)
-        return encode(bytes, allowedCharacters: allowedCharacters)
+        var string = string
+        return string.withUTF8 { buffer in
+            return encode(buffer, allowedCharacters: allowedCharacters)
+        }
     }
 
     // TODO: Handle special cases & Opmtimize using ascii table
     static func encode(
-        _ bytes: [UInt8],
+        _ bytes: UnsafeBufferPointer<UInt8>,
         allowedCharacters: Set<UInt8>) -> [UInt8]
     {
         var result = [UInt8]()

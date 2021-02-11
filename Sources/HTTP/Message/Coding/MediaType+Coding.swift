@@ -11,75 +11,76 @@ extension MediaType {
         static let any = ASCII("*")
     }
 
-    init<T: StreamReader>(from stream: T) throws {
-        let hashValue = try stream.read(until: .slash) { bytes -> Int in
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        let hashValue: Int = try await {
+            let bytes = try await stream.read(until: .slash)
             guard bytes.count > 0 else {
                 throw ParseError.invalidMediaTypeHeader
             }
-            try stream.consume(count: 1)
+            try await stream.consume(count: 1)
             return bytes.lowercasedHashValue
-        }
+        }()
 
         switch hashValue {
         case Bytes.application.lowercasedHashValue:
-            self = .application(try ApplicationSubtype(from: stream))
+            return .application(try await ApplicationSubtype.decode(from: stream))
 
         case Bytes.audio.lowercasedHashValue:
-            self = .audio(try AudioSubtype(from: stream))
+            return .audio(try await AudioSubtype.decode(from: stream))
 
         case Bytes.image.lowercasedHashValue:
-            self = .image(try ImageSubtype(from: stream))
+            return .image(try await ImageSubtype.decode(from: stream))
 
         case Bytes.multipart.lowercasedHashValue:
-            self = .multipart(try MultipartSubtype(from: stream))
+            return .multipart(try await MultipartSubtype.decode(from: stream))
 
         case Bytes.text.lowercasedHashValue:
-            self = .text(try TextSubtype(from: stream))
+            return .text(try await TextSubtype.decode(from: stream))
 
         case Bytes.video.lowercasedHashValue:
-            self = .video(try VideoSubtype(from: stream))
+            return .video(try await VideoSubtype.decode(from: stream))
 
         case Bytes.any.lowercasedHashValue:
-            guard try stream.consume(.asterisk) else {
+            guard try await stream.consume(.asterisk) else {
                 throw ParseError.unsupportedMediaType
             }
-            self = .any
+            return .any
 
         default:
             throw ParseError.unsupportedMediaType
         }
     }
 
-    func encode<T: StreamWriter>(to stream: T) throws {
+    func encode<T: StreamWriter>(to stream: T) async throws {
         switch self {
         case .application(let subtype):
-            try stream.write(Bytes.application)
-            try stream.write(.slash)
-            try stream.write(subtype.rawValue)
+            try await stream.write(Bytes.application)
+            try await stream.write(.slash)
+            try await stream.write(subtype.rawValue)
         case .audio(let subtype):
-            try stream.write(Bytes.audio)
-            try stream.write(.slash)
-            try stream.write(subtype.rawValue)
+            try await stream.write(Bytes.audio)
+            try await stream.write(.slash)
+            try await stream.write(subtype.rawValue)
         case .image(let subtype):
-            try stream.write(Bytes.image)
-            try stream.write(.slash)
-            try stream.write(subtype.rawValue)
+            try await stream.write(Bytes.image)
+            try await stream.write(.slash)
+            try await stream.write(subtype.rawValue)
         case .multipart(let subtype):
-            try stream.write(Bytes.multipart)
-            try stream.write(.slash)
-            try stream.write(subtype.rawValue)
+            try await stream.write(Bytes.multipart)
+            try await stream.write(.slash)
+            try await stream.write(subtype.rawValue)
         case .text(let subtype):
-            try stream.write(Bytes.text)
-            try stream.write(.slash)
-            try stream.write(subtype.rawValue)
+            try await stream.write(Bytes.text)
+            try await stream.write(.slash)
+            try await stream.write(subtype.rawValue)
         case .video(let subtype):
-            try stream.write(Bytes.video)
-            try stream.write(.slash)
-            try stream.write(subtype.rawValue)
+            try await stream.write(Bytes.video)
+            try await stream.write(.slash)
+            try await stream.write(subtype.rawValue)
         case .any:
-            try stream.write(.asterisk)
-            try stream.write(.slash)
-            try stream.write(.asterisk)
+            try await stream.write(.asterisk)
+            try await stream.write(.slash)
+            try await stream.write(.asterisk)
         }
     }
 }
@@ -99,8 +100,8 @@ extension ApplicationSubtype {
         static let any = ASCII("*")
     }
 
-    init<T: StreamReader>(from stream: T) throws {
-        self = try stream.read(allowedBytes: .token) { bytes in
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        return try await stream.read(allowedBytes: .token) { bytes in
             switch bytes.lowercasedHashValue {
             case Bytes.json.lowercasedHashValue: return .json
             case Bytes.javascript.lowercasedHashValue: return .javascript
@@ -145,8 +146,8 @@ extension AudioSubtype {
         static let any = ASCII("*")
     }
 
-    init<T: StreamReader>(from stream: T) throws {
-        self = try stream.read(allowedBytes: .token) { bytes in
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        return try await stream.read(allowedBytes: .token) { bytes in
             switch bytes.lowercasedHashValue {
             case Bytes.mp4.lowercasedHashValue: return .mp4
             case Bytes.aac.lowercasedHashValue: return .aac
@@ -184,8 +185,8 @@ extension ImageSubtype {
         static let any = ASCII("*")
     }
 
-    init<T: StreamReader>(from stream: T) throws {
-        self = try stream.read(allowedBytes: .token) { bytes in
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        return try await stream.read(allowedBytes: .token) { bytes in
             switch bytes.lowercasedHashValue {
             case Bytes.gif.lowercasedHashValue: return .gif
             case Bytes.jpeg.lowercasedHashValue: return .jpeg
@@ -222,8 +223,8 @@ extension MultipartSubtype {
         static let any = ASCII("*")
     }
 
-    init<T: StreamReader>(from stream: T) throws {
-        self = try stream.read(allowedBytes: .token) { bytes in
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        return try await stream.read(allowedBytes: .token) { bytes in
             switch bytes.lowercasedHashValue {
             case Bytes.formData.lowercasedHashValue: return .formData
             case Bytes.any.lowercasedHashValue: return .any
@@ -251,8 +252,8 @@ extension TextSubtype {
         static let any = ASCII("*")
     }
 
-    init<T: StreamReader>(from stream: T) throws {
-        self = try stream.read(allowedBytes: .token) { bytes in
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        return try await stream.read(allowedBytes: .token) { bytes in
             switch bytes.lowercasedHashValue {
             case Bytes.css.lowercasedHashValue: return .css
             case Bytes.csv.lowercasedHashValue: return .csv
@@ -289,8 +290,8 @@ extension VideoSubtype {
         static let any = ASCII("*")
     }
 
-    init<T: StreamReader>(from stream: T) throws {
-        self = try stream.read(allowedBytes: .token) { bytes in
+    static func decode<T: StreamReader>(from stream: T) async throws -> Self {
+        return try await stream.read(allowedBytes: .token) { bytes in
             switch bytes.lowercasedHashValue {
             case Bytes.mpeg.lowercasedHashValue: return .mpeg
             case Bytes.mp4.lowercasedHashValue: return .mp4

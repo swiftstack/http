@@ -1,5 +1,4 @@
 import Log
-import Async
 import Network
 import Stream
 import DCompression
@@ -38,45 +37,49 @@ public class Client {
         self.init(host: host.address, port: host.port)
     }
 
-    public func connect() throws {
+    public func connect() async throws {
         guard !isConnected else {
             return
         }
-        self.stream = try networkClient.connect()
+        let networkStream = try await networkClient.connect()
+        self.stream = BufferedStream(baseStream: networkStream)
     }
 
     public func disconnect() throws {
-        self.stream = nil
+        stream = nil
         try networkClient.disconnect()
     }
 
-    public func makeRequest(_ request: Request) throws -> Response {
+    public func makeRequest(_ request: Request) async throws -> Response {
         if !isConnected {
-            try connect()
+            try await connect()
         }
         do {
-            return try makeRequest(
+            guard let stream = self.stream else {
+                throw Error.internalServerError
+            }
+            return try await makeRequest(
                 request,
-                stream!.inputStream,
-                stream!.outputStream)
+                stream.inputStream,
+                stream.outputStream)
         } catch {
             try? disconnect()
             throw error
         }
     }
 
-    func makeRequest<I: InputStream, O: OutputStream>(
+    func makeRequest<I: StreamReader, O: StreamWriter>(
         _ request: Request,
-        _ inputStream: BufferedInputStream<I>,
-        _ outputStream: BufferedOutputStream<O>
-    ) throws -> Response {
+        _ inputStream: I,
+        _ outputStream: O
+    ) async throws -> Response {
         var request = request
         updateHeaders(&request)
-        try request.encode(to: outputStream)
-        try outputStream.flush()
+        try await request.encode(to: outputStream)
+        try await outputStream.flush()
 
-        var response = try Response(from: inputStream)
-        try decode(&response)
+        var response = try await Response.decode(from: inputStream)
+        try await decode(&response)
         return response
     }
 
@@ -108,16 +111,16 @@ public class Client {
         request.acceptEncoding = acceptEncoding
     }
 
-    private func decode(_ response: inout Response) throws {
+    private func decode(_ response: inout Response) async throws {
         guard let bytes = response.bytes,
             let contentEncoding = response.contentEncoding else {
                 return
         }
         let stream = InputByteStream(bytes)
         if contentEncoding.contains(.gzip) {
-            response.bytes = try GZip.decode(from: stream)
+            response.bytes = try await GZip.decode(from: stream)
         } else if contentEncoding.contains(.deflate) {
-            response.bytes = try Deflate.decode(from: stream)
+            response.bytes = try await Deflate.decode(from: stream)
         }
     }
 }
@@ -126,32 +129,32 @@ extension Client {
     private func makeRequest(
         method: Request.Method,
         path: String
-    ) throws -> Response {
-        return try makeRequest(Request(url: URL(path), method: method))
+    ) async throws -> Response {
+        return try await makeRequest(Request(url: URL(path), method: method))
     }
 
-    public func get(path: String) throws -> Response {
-        return try makeRequest(method: .get, path: path)
+    public func get(path: String) async throws -> Response {
+        return try await makeRequest(method: .get, path: path)
     }
 
-    public func head(path: String) throws -> Response {
-        return try makeRequest(method: .head, path: path)
+    public func head(path: String) async throws -> Response {
+        return try await makeRequest(method: .head, path: path)
     }
 
-    public func post(path: String) throws -> Response {
-        return try makeRequest(method: .post, path: path)
+    public func post(path: String) async throws -> Response {
+        return try await makeRequest(method: .post, path: path)
     }
 
-    public func put(path: String) throws -> Response {
-        return try makeRequest(method: .put, path: path)
+    public func put(path: String) async throws -> Response {
+        return try await makeRequest(method: .put, path: path)
     }
 
-    public func delete(path: String) throws -> Response {
-        return try makeRequest(method: .delete, path: path)
+    public func delete(path: String) async throws -> Response {
+        return try await makeRequest(method: .delete, path: path)
     }
 
-    public func options(path: String) throws -> Response {
-        return try makeRequest(method: .options, path: path)
+    public func options(path: String) async throws -> Response {
+        return try await makeRequest(method: .options, path: path)
     }
 }
 
@@ -160,12 +163,12 @@ extension Client {
         path: String,
         object: T,
         contentType type: ApplicationSubtype = .json
-    ) throws -> Response {
+    ) async throws -> Response {
         let request = try Request(
             url: URL(path),
             method: .post,
             body: object,
             contentType: type)
-        return try makeRequest(request)
+        return try await makeRequest(request)
     }
 }
