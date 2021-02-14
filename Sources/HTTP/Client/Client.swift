@@ -56,13 +56,10 @@ public class Client {
             try await connect()
         }
         do {
-            guard let stream = self.stream else {
-                throw Error.internalServerError
-            }
             return try await makeRequest(
                 request,
-                stream.inputStream,
-                stream.outputStream)
+                stream!.inputStream,
+                stream!.outputStream)
         } catch {
             try? disconnect()
             throw error

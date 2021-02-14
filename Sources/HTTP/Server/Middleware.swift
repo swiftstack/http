@@ -26,7 +26,7 @@ public struct ErrorHandlerMiddleware: Middleware {
                 return try await handler(request)
             } catch {
                 switch error {
-                case let error as HTTP.Error:
+                case let error as Server.Error:
                     switch error {
                     case .notFound:
                         await Log.warning("not found: \(request.url.path)")

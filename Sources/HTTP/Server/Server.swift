@@ -34,7 +34,7 @@ public class Server {
     func onClient(socket: Socket) async {
         do {
             try await process(stream: NetworkStream(socket: socket))
-        } catch let error as ParseError where error == .unexpectedEnd {
+        } catch let error as HTTP.Error where error == .unexpectedEnd {
             /* connection closed */
         } catch let error as Socket.Error where error == .connectionReset {
             /* connection closed */

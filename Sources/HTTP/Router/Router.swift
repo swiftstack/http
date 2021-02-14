@@ -76,7 +76,7 @@ extension Router {
         let path = request.url.path
         let methods = Router.MethodSet(request.method)
         guard let handler = findHandler(path: path, methods: methods) else {
-            throw HTTP.Error.notFound
+            throw Server.Error.notFound
         }
         return try await handler(request)
     }

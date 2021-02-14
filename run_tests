@@ -19,11 +19,11 @@ export DYLD_LIBRARY_PATH=/Library/Developer/Toolchains/swift-latest.xctoolchain/
 .build/debug/Tests/Message/Headers+Authorization
 .build/debug/Tests/Message/Nginx
 .build/debug/Tests/Message/Request
-.build/debug/Tests/Message/RequestDecode
-.build/debug/Tests/Message/RequestEncode
+.build/debug/Tests/Message/Request+Decode
+.build/debug/Tests/Message/Request+Encode
 .build/debug/Tests/Message/Response
-.build/debug/Tests/Message/ResponseDecode
-.build/debug/Tests/Message/ResponseEncode
+.build/debug/Tests/Message/Response+Decode
+.build/debug/Tests/Message/Response+Encode
 
 .build/debug/Tests/Server/Application
 .build/debug/Tests/Server/Middleware

@@ -25,7 +25,7 @@ test.case("NotFound") {
     let router = Router(middleware: [ErrorHandlerMiddleware.self])
 
     router.route(get: "/") {
-        throw Error.notFound
+        throw Server.Error.notFound
     }
 
     let request = Request(url: "/", method: .get)

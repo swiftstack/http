@@ -51,11 +51,11 @@ testTarget("Message") { test in
     test("Headers+Authorization")
     test("Nginx")
     test("Request")
-    test("RequestDecode")
-    test("RequestEncode")
+    test("Request+Decode")
+    test("Request+Encode")
     test("Response")
-    test("ResponseDecode")
-    test("ResponseEncode")
+    test("Response+Decode")
+    test("Response+Encode")
 }
 
 testTarget("Server") { test in

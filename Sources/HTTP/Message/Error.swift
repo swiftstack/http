@@ -1,10 +1,4 @@
 public enum Error: Swift.Error {
-    case notFound
-    case conflict
-    case internalServerError
-}
-
-public enum ParseError: Swift.Error {
     case invalidRequest
     case invalidResponse
     case invalidStartLine
