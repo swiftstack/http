@@ -15,7 +15,6 @@ export DYLD_LIBRARY_PATH=/Library/Developer/Toolchains/swift-latest.xctoolchain/
 
 .build/debug/Tests/Message/Body
 .build/debug/Tests/Message/ChunkedStream
-.build/debug/Tests/Message/Double
 .build/debug/Tests/Message/HeaderName
 .build/debug/Tests/Message/Headers+Authorization
 .build/debug/Tests/Message/Nginx

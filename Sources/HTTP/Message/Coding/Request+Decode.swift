@@ -71,11 +71,11 @@ extension Request {
                 case .authorization:
                     request.authorization = try await Authorization.decode(from: stream)
                 case .keepAlive:
-                    request.keepAlive = try await Int.decode(from: stream)
+                    request.keepAlive = try await stream.parse(Int.self)
                 case .connection:
                     request.connection = try await Connection.decode(from: stream)
                 case .contentLength:
-                    request.contentLength = try await Int.decode(from: stream)
+                    request.contentLength = try await stream.parse(Int.self)
                 case .contentType:
                     request.contentType = try await ContentType.decode(from: stream)
                 case .transferEncoding:

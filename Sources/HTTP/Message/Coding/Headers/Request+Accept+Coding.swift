@@ -43,7 +43,7 @@ extension Request.Accept {
             throw ParseError.invalidAcceptHeader
         }
 
-        guard let priority = try await Double.decode(from: stream) else {
+        guard let priority = try await stream.parse(Double.self) else {
             throw ParseError.invalidAcceptHeader
         }
         return .init(mediaType, priority: priority)

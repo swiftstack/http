@@ -42,7 +42,7 @@ extension Request.AcceptCharset {
         guard try await stream.consume(sequence: Bytes.qEqual) else {
             throw ParseError.invalidAcceptCharsetHeader
         }
-        guard let priority = try await Double.decode(from: stream) else {
+        guard let priority = try await stream.parse(Double.self) else {
             throw ParseError.invalidAcceptCharsetHeader
         }
         return .init(charset, priority: priority)

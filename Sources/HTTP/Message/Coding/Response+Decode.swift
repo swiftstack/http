@@ -48,7 +48,7 @@ extension Response {
                 case .contentEncoding:
                     response.contentEncoding = try await [ContentEncoding].decode(from: stream)
                 case .contentLength:
-                    response.contentLength = try await Int.decode(from: stream)
+                    response.contentLength = try await stream.parse(Int.self)
                 case .contentType:
                     response.contentType = try await ContentType.decode(from: stream)
                 case .transferEncoding:

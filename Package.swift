@@ -47,7 +47,6 @@ testTarget("KeyValueCodable") { test in
 testTarget("Message") { test in
     test("Body")
     test("ChunkedStream")
-    test("Double")
     test("HeaderName")
     test("Headers+Authorization")
     test("Nginx")

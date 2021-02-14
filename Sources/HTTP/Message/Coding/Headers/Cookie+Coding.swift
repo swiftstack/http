@@ -101,7 +101,7 @@ extension Cookie {
 
             case Bytes.maxAge.lowercasedHashValue:
                 try await consume(.equal)
-                guard let maxAge = try? await Int.decode(from: stream) else {
+                guard let maxAge = try? await stream.parse(Int.self) else {
                     throw ParseError.invalidSetCookieHeader
                 }
                 cookie.maxAge = maxAge
