@@ -1,3 +1,4 @@
+import URL
 import Stream
 
 struct FormURLEncoded {

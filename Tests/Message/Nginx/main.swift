@@ -1,3 +1,4 @@
+import URL
 import Test
 import Stream
 

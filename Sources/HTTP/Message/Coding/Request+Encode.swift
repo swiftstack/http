@@ -1,3 +1,4 @@
+import URL
 import Stream
 import Network
 

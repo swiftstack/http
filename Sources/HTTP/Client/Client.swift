@@ -1,4 +1,5 @@
 import Log
+import URL
 import Network
 import Stream
 import DCompression

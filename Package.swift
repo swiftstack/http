@@ -9,17 +9,20 @@ let package = Package(
             targets: ["HTTP"]),
     ],
     dependencies: [
-        .package(name: "Log"),
+        .package(name: "URL"),
         .package(name: "Network"),
         .package(name: "Stream"),
         .package(name: "DCompression"),
         .package(name: "JSON"),
+        .package(name: "Log"),
         .package(name: "Test"),
     ],
     targets: [
         .target(
             name: "HTTP",
-            dependencies: ["Network", "Stream", "JSON", "DCompression", "Log"],
+            dependencies: [
+                "URL", "Network", "Stream", "JSON", "DCompression", "Log"
+            ],
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
             ]),
@@ -48,14 +51,12 @@ testTarget("Message") { test in
     test("HeaderName")
     test("Headers+Authorization")
     test("Nginx")
-    test("Punycode")
     test("Request")
     test("RequestDecode")
     test("RequestEncode")
     test("Response")
     test("ResponseDecode")
     test("ResponseEncode")
-    test("URL")
 }
 
 testTarget("Server") { test in
