@@ -248,6 +248,19 @@ test.case("SetCookieManyValues") {
     expect(try await response.encode() == expected)
 }
 
+test.case("SetCookieEqualSingInTheValue") {
+    let expected =
+        "HTTP/1.1 200 OK\r\n" +
+        "Content-Length: 0\r\n" +
+        "Set-Cookie: key=value=\r\n" +
+        "\r\n"
+    let response = Response()
+    response.cookies = [
+        .init(name: "key", value: "value=")
+    ]
+    expect(try await response.encode() == expected)
+}
+
 test.case("SetCookieSameSite") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
