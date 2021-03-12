@@ -9,6 +9,7 @@ public struct Cookie: Equatable {
     public var path: String? = nil
     public var expires: Date? = nil
     public var maxAge: Int? = nil
+    public var sameSite: String? = nil
     public var secure: Bool? = nil
     public var httpOnly: Bool? = nil
 
@@ -19,6 +20,7 @@ public struct Cookie: Equatable {
         path: String? = nil,
         expires: Date? = nil,
         maxAge: Int? = nil,
+        sameSite: String? = nil,
         secure: Bool? = nil,
         httpOnly: Bool? = nil)
     {
@@ -28,6 +30,7 @@ public struct Cookie: Equatable {
         self.path = path
         self.expires = expires
         self.maxAge = maxAge
+        self.sameSite = sameSite
         self.secure = secure
         self.httpOnly = httpOnly
     }

@@ -258,6 +258,15 @@ test.case("SetCookieEqualSingInTheValue") {
     expect(response.cookies == [.init(name: "key", value: "value=")])
 }
 
+test.case("SetCookieSameSite") {
+    let stream = InputByteStream(
+        "HTTP/1.1 200 OK\r\n" +
+        "Set-Cookie: n=v; SameSite=Lax\r\n" +
+        "\r\n")
+    let response = try await Response.decode(from: stream)
+    expect(response.cookies == [.init(name: "n", value: "v", sameSite: "Lax")])
+}
+
 // MARK: Body
 
 test.case("BodyStringResponse") {

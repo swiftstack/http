@@ -32,10 +32,10 @@ extension Cookie {
         static let domain = ASCII("Domain")
         static let path = ASCII("Path")
 
+        static let sameSite = ASCII("SameSite")
         static let httpOnly = ASCII("HttpOnly")
         static let secure = ASCII("Secure")
     }
-
 
     static func decode<T: StreamReader>(from stream: T) async throws -> Self {
         let name: String = try await stream.read(allowedBytes: .cookie) { bytes in
@@ -106,6 +106,9 @@ extension Cookie {
                 }
                 cookie.maxAge = maxAge
 
+            case Bytes.sameSite.lowercasedHashValue:
+                cookie.sameSite = try await readValue(allowedBytes: .cookie)
+
             // single attributes
             case Bytes.httpOnly.lowercasedHashValue:
                 cookie.httpOnly = true
@@ -153,6 +156,13 @@ extension Cookie {
             try await stream.write(Bytes.maxAge)
             try await stream.write(.equal)
             try await stream.write(String(describing: maxAge))
+        }
+        if let sameSite = self.sameSite {
+            try await stream.write(.semicolon)
+            try await stream.write(.whitespace)
+            try await stream.write(Bytes.sameSite)
+            try await stream.write(.equal)
+            try await stream.write(sameSite)
         }
         if self.secure == true {
             try await stream.write(.semicolon)

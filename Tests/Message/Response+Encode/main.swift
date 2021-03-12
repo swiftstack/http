@@ -248,6 +248,19 @@ test.case("SetCookieManyValues") {
     expect(try await response.encode() == expected)
 }
 
+test.case("SetCookieSameSite") {
+    let expected =
+        "HTTP/1.1 200 OK\r\n" +
+        "Content-Length: 0\r\n" +
+        "Set-Cookie: n=v; SameSite=Lax\r\n" +
+        "\r\n"
+    let response = Response()
+    response.cookies = [
+        .init(name: "n", value: "v", sameSite: "Lax")
+    ]
+    expect(try await response.encode() == expected)
+}
+
 // MARK: Body
 
 test.case("BodyStringResponse") {
