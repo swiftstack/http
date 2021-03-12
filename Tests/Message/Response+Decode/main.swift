@@ -249,6 +249,15 @@ test.case("SetCookieManyValues") {
             expires: Date(timeIntervalSince1970: 1536237674.0)))
 }
 
+test.case("SetCookieEqualSingInTheValue") {
+    let stream = InputByteStream(
+        "HTTP/1.1 200 OK\r\n" +
+        "Set-Cookie: key=value=\r\n" +
+        "\r\n")
+    let response = try await Response.decode(from: stream)
+    expect(response.cookies == [.init(name: "key", value: "value=")])
+}
+
 // MARK: Body
 
 test.case("BodyStringResponse") {

@@ -24,6 +24,9 @@ extension Set where Element == UInt8 {
         letters.union(digits).union(Set<UInt8>(
         "!#$%&'()*+,-./:<>?@[]^_`{|}~- "))
 
+    static let cookieValueAllowed =
+        cookieAllowed.union(Set<UInt8>("="))
+
     static let pathAllowed =
         letters.union(digits).union(Set<UInt8>(
         "%!$&'()*+,-./:=@_~"))
@@ -41,6 +44,7 @@ extension AllowedBytes {
     ])
     static let domain = AllowedBytes(byteSet: .idnAllowed)
     static let cookie = AllowedBytes(byteSet: .cookieAllowed)
+    static let cookieValue = AllowedBytes(byteSet: .cookieValueAllowed)
 
     static let path = AllowedBytes(byteSet: .pathAllowed)
     static let query = AllowedBytes(byteSet: .queryAllowed)

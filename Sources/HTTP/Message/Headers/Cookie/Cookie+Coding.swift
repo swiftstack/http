@@ -49,7 +49,7 @@ extension Cookie {
             throw Error.invalidCookieHeader
         }
 
-        let value = try await stream.read(allowedBytes: .cookie) { bytes in
+        let value = try await stream.read(allowedBytes: .cookieValue) { bytes in
             return String(decoding: bytes, as: UTF8.self)
         }
 
