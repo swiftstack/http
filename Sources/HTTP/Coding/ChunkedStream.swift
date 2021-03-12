@@ -40,88 +40,43 @@ class ChunkedInputStream: InputStream {
         self.baseStream = baseStream
     }
 
-    var closed = false
-    var currentChunkBytesLeft = 0
-
-    func readNextChunkSize() async throws -> Int {
-        let size = try await baseStream.read(until: .cr) { bytes -> Int in
-            guard let size = Int(from: bytes, radix: 16) else {
-                throw Error.invalidRequest
-            }
-            return size
-        }
-        try await readLineEnd()
-        return size
-    }
+    var isEmpty = false
+    var remainingChunkBytes = 0
 
     func read(
         to pointer: UnsafeMutableRawPointer,
         byteCount requested: Int
     ) async throws -> Int {
-        guard !closed else {
+        guard !isEmpty else {
             return 0
         }
 
-        @inline(__always)
-        func read(byteCount: Int, offset: Int = 0) async throws {
-            try await baseStream.read(count: byteCount) { bytes in
-                pointer
-                    .advanced(by: offset)
-                    .copyMemory(
-                        from: bytes.baseAddress!,
-                        byteCount: bytes.count)
+        if remainingChunkBytes == 0 {
+            remainingChunkBytes = try await baseStream.read(until: .cr)
+            { bytes -> Int in
+                guard let size = Int(from: bytes, radix: 16) else {
+                    throw Error.invalidRequest
+                }
+                return size
             }
-        }
-
-        if currentChunkBytesLeft > requested {
-            try await read(byteCount: requested)
-            currentChunkBytesLeft -= requested
-            return requested
-        }
-
-        var remaining = requested
-        if currentChunkBytesLeft > 0 {
-            try await read(byteCount: currentChunkBytesLeft)
-            remaining -= currentChunkBytesLeft
-            currentChunkBytesLeft = 0
             try await readLineEnd()
         }
 
-        while remaining > 0 {
-            currentChunkBytesLeft = try await readNextChunkSize()
-            guard currentChunkBytesLeft > 0 else {
-                try await readLineEnd()
-                closed = true
-                return requested - remaining
-            }
-            let count = min(remaining, currentChunkBytesLeft)
-            try await read(byteCount: count, offset: requested - remaining)
-            if currentChunkBytesLeft <= remaining {
-                try await readLineEnd()
-            }
-            remaining -= count
+        guard remainingChunkBytes > 0 else {
+            try await readLineEnd()
+            isEmpty = true
+            return 0
         }
 
-        return requested
-    }
-
-    func close() async throws {
-        guard !closed else {
-            return
+        let count = min(remainingChunkBytes, requested)
+        try await baseStream.read(count: count) { bytes in
+            pointer.copyMemory(from: bytes.baseAddress!, byteCount: bytes.count)
         }
-        if currentChunkBytesLeft > 0 {
-            try await baseStream.consume(count: currentChunkBytesLeft)
-            currentChunkBytesLeft = 0
+        remainingChunkBytes -= count
+        if remainingChunkBytes == 0 {
+            try await readLineEnd()
         }
-        while true {
-            let size = try await readNextChunkSize()
-            guard size > 0 else {
-                try await readLineEnd()
-                closed = true
-                break
-            }
-            try await baseStream.consume(count: size)
-        }
+        return count
     }
 
     @inline(__always)
@@ -137,14 +92,10 @@ class ChunkedInputStream: InputStream {
 class ChunkedStreamReader: StreamReader {
     let baseStream: BufferedInputStream<ChunkedInputStream>
 
-    init(baseStream: StreamReader) {
+    init(baseStream: StreamReader, capacity: Int = 16384) {
         self.baseStream = BufferedInputStream(
             baseStream: ChunkedInputStream(baseStream: baseStream),
-            capacity: 4096)
-    }
-
-    func close() async throws {
-        try await baseStream.baseStream.close()
+            capacity: capacity)
     }
 
     var buffered: Int {

@@ -495,9 +495,8 @@ test.case("BodyChunkedInvalidSizeSeparator") {
         "\r\n" +
         "5\rHello\r\n" +
         "0\r\n\r\n")
+    let request = try await Request.decode(from: stream)
     expect(throws: Error.invalidRequest) {
-        // FIXME: [Concurrency] move out
-        let request = try await Request.decode(from: stream)
         _ = try await request.readBytes()
     }
 }
@@ -509,9 +508,8 @@ test.case("BodyChunkedNoSizeSeparator") {
         "\r\n" +
         "5 Hello\r\n" +
         "0\r\n\r\n")
+    let request = try await Request.decode(from: stream)
     expect(throws: Error.invalidRequest) {
-        // FIXME: [Concurrency] move out
-        let request = try await Request.decode(from: stream)
         _ = try await request.readBytes()
     }
 }
@@ -523,9 +521,8 @@ test.case("BodyChunkedMissingLineEnd") {
         "\r\n" +
         "5\r\nHello\r\n" +
         "0\r\n")
+    let request = try await Request.decode(from: stream)
     expect(throws: Error.unexpectedEnd) {
-        // FIXME: [Concurrency] move out
-        let request = try await Request.decode(from: stream)
         _ = try await request.readBytes()
     }
 }
@@ -536,9 +533,8 @@ test.case("BodyChunkedInvalidBody") {
         "Transfer-Encoding: chunked\r\n" +
         "\r\n" +
         "5\r\nHello")
+    let request = try await Request.decode(from: stream)
     expect(throws: Error.unexpectedEnd) {
-        // FIXME: [Concurrency] move out
-        let request = try await Request.decode(from: stream)
         _ = try await request.readBytes()
     }
 }
