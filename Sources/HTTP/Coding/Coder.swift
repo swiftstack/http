@@ -181,10 +181,3 @@ public struct Coder {
         return try type.init(from: decoder)
     }
 }
-
-extension UnsafeRawInputStream {
-    @usableFromInline
-    convenience init(_ bytes: UnsafeRawBufferPointer) {
-        self.init(pointer: bytes.baseAddress!, count: bytes.count)
-    }
-}
