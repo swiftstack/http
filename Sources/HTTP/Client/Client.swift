@@ -6,15 +6,15 @@ import DCompression
 
 public class Client {
     public var bufferSize = 4096
-    var networkClient: Network.Client
-    var stream: BufferedStream<NetworkStream>?
+    var tcpClient: Network.TCP.Client
+    var stream: BufferedStream<TCP.Stream>?
 
     public var isConnected: Bool {
-        return networkClient.isConnected
+        return tcpClient.isConnected
     }
 
     var host: URL.Host {
-        return URL.Host(address: networkClient.host, port: networkClient.port)
+        return URL.Host(address: tcpClient.host, port: tcpClient.port)
     }
 
     public enum Compression {
@@ -28,7 +28,7 @@ public class Client {
 
     public init(host: String, port: Int? = nil) {
         let port = port ?? 80
-        self.networkClient = Network.Client(host: host, port: port)
+        self.tcpClient = Network.TCP.Client(host: host, port: port)
     }
 
     public convenience init?(url: URL) {
@@ -42,13 +42,13 @@ public class Client {
         guard !isConnected else {
             return
         }
-        let networkStream = try await networkClient.connect()
-        self.stream = BufferedStream(baseStream: networkStream)
+        let tcpStream = try await tcpClient.connect()
+        self.stream = BufferedStream(baseStream: tcpStream)
     }
 
     public func disconnect() throws {
         stream = nil
-        try networkClient.disconnect()
+        try tcpClient.disconnect()
     }
 
     public func makeRequest(_ request: Request) async throws -> Response {
@@ -83,8 +83,8 @@ public class Client {
 
     private func updateHeaders(_ request: inout Request) {
         request.host = URL.Host(
-            address: networkClient.host,
-            port: networkClient.port)
+            address: tcpClient.host,
+            port: tcpClient.port)
 
         if request.userAgent == nil && self.userAgent != nil {
             request.userAgent = self.userAgent

@@ -3,7 +3,7 @@ import Stream
 import Network
 
 extension Request {
-    @_specialize(where T == BufferedOutputStream<NetworkStream>)
+    @_specialize(where T == BufferedOutputStream<TCP.Stream>)
     public func encode<T: StreamWriter>(to stream: T) async throws {
         // Start Line
         try await method.encode(to: stream)

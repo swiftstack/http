@@ -2,7 +2,7 @@ import Stream
 import Network
 
 extension Response {
-    @_specialize(where T == BufferedOutputStream<NetworkStream>)
+    @_specialize(where T == BufferedOutputStream<TCP.Stream>)
     public func encode<T: StreamWriter>(to stream: T) async throws {
         // Start line
         try await version.encode(to: stream)

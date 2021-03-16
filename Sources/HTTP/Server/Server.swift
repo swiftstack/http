@@ -6,34 +6,34 @@ import Platform
 public class Server {
     public var bufferSize: Int
 
-    let networkServer: Network.Server
+    let tcpServer: TCP.Server
 
     public let router = Router(middleware: [ErrorHandlerMiddleware.self])
 
     public init(host: String, port: Int, bufferSize: Int = 4096) throws {
         self.bufferSize = bufferSize
-        self.networkServer = try Network.Server(host: host, port: port)
-        self.networkServer.onClient = onClient
+        self.tcpServer = try TCP.Server(host: host, port: port)
+        self.tcpServer.onClient = onClient
     }
 
     public init(host: String, reusePort: Int, bufferSize: Int = 4096) throws {
         self.bufferSize = bufferSize
-        self.networkServer = try Network.Server(host: host, reusePort: reusePort)
-        self.networkServer.onClient = onClient
+        self.tcpServer = try TCP.Server(host: host, reusePort: reusePort)
+        self.tcpServer.onClient = onClient
     }
 
     public var address: String {
-        return "http://\(networkServer.address)"
+        return "http://\(tcpServer.address)"
     }
 
     public func start() async throws {
         await Log.info("server at \(address) started")
-        try await networkServer.start()
+        try await tcpServer.start()
     }
 
-    func onClient(socket: Socket) async {
+    func onClient(socket: TCP.Socket) async {
         do {
-            try await process(stream: NetworkStream(socket: socket))
+            try await process(stream: TCP.Stream(socket: socket))
         } catch let error as HTTP.Error where error == .unexpectedEnd {
             /* connection closed */
         } catch let error as Socket.Error where error == .connectionReset {

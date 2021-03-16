@@ -2,7 +2,7 @@ import Stream
 import Network
 
 extension Response {
-    @_specialize(where T == BufferedInputStream<NetworkStream>)
+    @_specialize(where T == BufferedInputStream<TCP.Stream>)
     public
     static func decode<T: StreamReader>(from stream: T) async throws -> Self {
         let response = Self()
