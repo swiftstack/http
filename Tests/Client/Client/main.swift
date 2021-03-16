@@ -5,20 +5,6 @@ import Network
 
 @testable import HTTP
 
-import struct Foundation.Data
-
-extension OutputByteStream {
-    var string: String {
-        return String(decoding: bytes, as: UTF8.self)
-    }
-}
-
-extension InputByteStream {
-    convenience init(_ string: String) {
-        self.init(ASCII(string))
-    }
-}
-
 test.case("Initializer") {
     let client = HTTP.Client(host: "127.0.0.1", port: 80)
     expect(client.host == URL.Host(address: "127.0.0.1", port: 80))
@@ -50,7 +36,7 @@ test.case("Request") {
     let request = Request()
 
     let response = try await client.makeRequest(request, input, output)
-    expect(outputStream.string == requestString)
+    expect(outputStream.stringValue == requestString)
     expect(response.status == .ok)
 }
 

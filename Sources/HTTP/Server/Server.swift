@@ -46,12 +46,8 @@ public class Server {
 
     func process<T: Stream>(stream: T) async throws {
         try await process(
-            inputStream: BufferedInputStream(
-                baseStream: stream,
-                capacity: bufferSize),
-            outputStream: BufferedOutputStream(
-                baseStream: stream,
-                capacity: bufferSize))
+            inputStream: .init(baseStream: stream, capacity: bufferSize),
+            outputStream: .init(baseStream: stream, capacity: bufferSize))
     }
 
     func process<I: InputStream, O: OutputStream>(

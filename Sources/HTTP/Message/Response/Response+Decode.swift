@@ -44,17 +44,17 @@ extension Response {
 
                 switch name {
                 case .connection:
-                    response.connection = try await Connection.decode(from: stream)
+                    response.connection = try await .decode(from: stream)
                 case .contentEncoding:
-                    response.contentEncoding = try await [ContentEncoding].decode(from: stream)
+                    response.contentEncoding = try await.decode(from: stream)
                 case .contentLength:
                     response.contentLength = try await stream.parse(Int.self)
                 case .contentType:
-                    response.contentType = try await ContentType.decode(from: stream)
+                    response.contentType = try await .decode(from: stream)
                 case .transferEncoding:
-                    response.transferEncoding = try await [TransferEncoding].decode(from: stream)
+                    response.transferEncoding = try await .decode(from: stream)
                 case .setCookie:
-                    response.cookies.append(try await Cookie.decode(responseCookieFrom: stream))
+                    response.cookies.append(try await .decode(responseCookieFrom: stream))
                 default:
                     // FIXME: validate
                     response.headers[name] = try await stream.read(until: .cr) { bytes in

@@ -56,37 +56,39 @@ extension Request {
                     request.host = try await URL.Host.decode(from: stream)
                 case .userAgent:
                     // FIXME: validate
-                    request.userAgent = try await stream.read(until: .cr) { bytes in
+                    request.userAgent = try await stream.read(until: .cr)
+                    { bytes in
                         let trimmed = bytes.trimmingRightSpace()
                         return String(decoding: trimmed, as: UTF8.self)
                     }
                 case .accept:
-                    request.accept = try await [Accept].decode(from: stream)
+                    request.accept = try await .decode(from: stream)
                 case .acceptLanguage:
-                    request.acceptLanguage = try await [AcceptLanguage].decode(from: stream)
+                    request.acceptLanguage = try await .decode(from: stream)
                 case .acceptEncoding:
-                    request.acceptEncoding = try await [ContentEncoding].decode(from: stream)
+                    request.acceptEncoding = try await .decode(from: stream)
                 case .acceptCharset:
-                    request.acceptCharset = try await [AcceptCharset].decode(from: stream)
+                    request.acceptCharset = try await .decode(from: stream)
                 case .authorization:
-                    request.authorization = try await Authorization.decode(from: stream)
+                    request.authorization = try await .decode(from: stream)
                 case .keepAlive:
                     request.keepAlive = try await stream.parse(Int.self)
                 case .connection:
-                    request.connection = try await Connection.decode(from: stream)
+                    request.connection = try await .decode(from: stream)
                 case .contentLength:
                     request.contentLength = try await stream.parse(Int.self)
                 case .contentType:
-                    request.contentType = try await ContentType.decode(from: stream)
+                    request.contentType = try await .decode(from: stream)
                 case .transferEncoding:
-                    request.transferEncoding = try await [TransferEncoding].decode(from: stream)
+                    request.transferEncoding = try await .decode(from: stream)
                 case .cookie:
-                    request.cookies.append(contentsOf: try await [Cookie].decode(from: stream))
+                    request.cookies += try await .decode(from: stream)
                 case .expect:
-                    request.expect = try await Expect.decode(from: stream)
+                    request.expect = try await .decode(from: stream)
                 default:
                     // FIXME: validate
-                    request.headers[name] = try await stream.read(until: .cr) { bytes in
+                    request.headers[name] = try await stream.read(until: .cr)
+                    { bytes in
                         return String(decoding: bytes, as: UTF8.self)
                     }
                 }

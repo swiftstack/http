@@ -17,14 +17,12 @@ test.case("Server") {
     let inputStream = InputByteStream([UInt8](request.utf8))
     let outputStream = OutputByteStream()
 
-    let byteStream = ByteStream(
-        inputStream: inputStream,
-        outputStream: outputStream)
-
-    try? await server.process(stream: byteStream)
+    try? await server.process(
+        inputStream: .init(baseStream: inputStream),
+        outputStream: .init(baseStream: outputStream))
 
     let expected = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n"
-    let response = String(decoding: outputStream.bytes, as: UTF8.self)
+    let response = outputStream.stringValue
     expect(response == expected)
 }
 
@@ -50,15 +48,12 @@ test.case("Expect") {
         "\r\n"
     let body = "name=tony"
 
-    let input = [UInt8](request.utf8) + [UInt8](body.utf8)
-    let inputStream = InputByteStream(input)
+    let inputStream = InputByteStream(request + body)
     let outputStream = OutputByteStream()
 
-    let byteStream = ByteStream(
-        inputStream: inputStream,
-        outputStream: outputStream)
-
-    try? await server.process(stream: byteStream)
+    try? await server.process(
+        inputStream: .init(baseStream: inputStream),
+        outputStream: .init(baseStream: outputStream))
 
     let expectedContinue =
         "HTTP/1.1 100 Continue\r\n" +
@@ -69,8 +64,7 @@ test.case("Expect") {
         "Content-Length: 0\r\n" +
         "\r\n"
     let expected = expectedContinue + expectedResponse
-
-    let response = String(decoding: outputStream.bytes, as: UTF8.self)
+    let response = outputStream.stringValue
     expect(response == expected)
 }
 

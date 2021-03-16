@@ -11,14 +11,14 @@ public protocol BodyInputStream: AnyObject {
 extension BodyInputStream {
     public var inputStream: StreamReader? {
         get {
-            guard case .input(let reader) = body else {
-                return nil
+            switch body {
+            case let .input(reader): return reader
+            default: return nil
             }
-            return reader
         }
         set {
             switch newValue {
-            case .none: self.body = .none
+            case .none: body = .none
             case .some(let reader): self.body = .input(reader)
             }
         }
@@ -26,10 +26,10 @@ extension BodyInputStream {
 
     public var outputStream: ((StreamWriter) async throws -> Void)? {
         get {
-            guard case .output(let writer) = body else {
-                return nil
+            switch body {
+            case let .output(writer): return writer
+            default: return nil
             }
-            return writer
         }
         set {
             switch newValue {
