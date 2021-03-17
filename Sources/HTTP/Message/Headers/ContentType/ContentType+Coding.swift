@@ -36,9 +36,14 @@ extension ContentType {
     func encode<T: StreamWriter>(to stream: T) async throws {
         try await mediaType.encode(to: stream)
         // FIXME: [Concurrency] build crash
-        // if let charset = charset {
-        //     try await charset.encode(to: stream)
-        // }
+        try await _encodeCharset(to: stream)
+
+    }
+
+    private func _encodeCharset<T: StreamWriter>(to stream: T) async throws {
+        if let charset = charset {
+            try await charset.encode(to: stream)
+        }
     }
 }
 
