@@ -35,7 +35,7 @@ extension BodyInputStream {
             guard let bytes = bytes else {
                 return nil
             }
-            return String(bytes: bytes, encoding: .utf8)
+            return String(decoding: bytes, as: UTF8.self)
         }
         set {
             switch newValue {
