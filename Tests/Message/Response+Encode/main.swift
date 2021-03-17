@@ -146,7 +146,7 @@ test.case("SetCookie") {
         "\r\n"
     let response = Response()
     response.cookies = [
-        Cookie(name: "username", value: "tony")
+        SetCookie(name: "username", value: "tony")
     ]
     expect(try await response.encode() == expected)
 }
@@ -160,7 +160,7 @@ test.case("SetCookieExpires") {
         "\r\n"
     let response = Response()
     response.cookies = [
-        Cookie(
+        SetCookie(
             name: "username",
             value: "tony",
             expires: Date(timeIntervalSinceReferenceDate: 467105280))
@@ -176,7 +176,7 @@ test.case("SetCookieMaxAge") {
         "\r\n"
     let response = Response()
     response.cookies = [
-        Cookie(name: "username", value: "tony", maxAge: 42)
+        SetCookie(name: "username", value: "tony", maxAge: 42)
     ]
     expect(try await response.encode() == expected)
 }
@@ -189,7 +189,7 @@ test.case("SetCookieHttpOnly") {
         "\r\n"
     let response = Response()
     response.cookies = [
-        Cookie(name: "username", value: "tony", httpOnly: true)
+        SetCookie(name: "username", value: "tony", httpOnly: true)
     ]
     expect(try await response.encode() == expected)
 }
@@ -202,7 +202,7 @@ test.case("SetCookieSecure") {
         "\r\n"
     let response = Response()
     response.cookies = [
-        Cookie(name: "username", value: "tony", secure: true)
+        SetCookie(name: "username", value: "tony", secure: true)
     ]
     expect(try await response.encode() == expected)
 }
@@ -215,7 +215,7 @@ test.case("SetCookieDomain") {
         "\r\n"
     let response = Response()
     response.cookies = [
-        Cookie(name: "username", value: "tony", domain: "somedomain.com")
+        SetCookie(name: "username", value: "tony", domain: "somedomain.com")
     ]
     expect(try await response.encode() == expected)
 }
@@ -228,7 +228,7 @@ test.case("SetCookiePath") {
         "\r\n"
     let response = Response()
     response.cookies = [
-        Cookie(name: "username", value: "tony", path: "/")
+        SetCookie(name: "username", value: "tony", path: "/")
     ]
     expect(try await response.encode() == expected)
 }
@@ -242,8 +242,8 @@ test.case("SetCookieManyValues") {
         "\r\n"
     let response = Response()
     response.cookies = [
-        Cookie(name: "user", value: "tony", secure: true, httpOnly: true),
-        Cookie(name: "token", value: "1234", maxAge: 42, secure: true)
+        SetCookie(name: "user", value: "tony", secure: true, httpOnly: true),
+        SetCookie(name: "token", value: "1234", maxAge: 42, secure: true)
     ]
     expect(try await response.encode() == expected)
 }

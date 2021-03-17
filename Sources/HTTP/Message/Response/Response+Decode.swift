@@ -54,7 +54,7 @@ extension Response {
                 case .transferEncoding:
                     response.transferEncoding = try await .decode(from: stream)
                 case .setCookie:
-                    response.cookies.append(try await .decode(responseCookieFrom: stream))
+                    response.cookies.append(try await .decode(from: stream))
                 default:
                     // FIXME: validate
                     response.headers[name] = try await stream.read(until: .cr) { bytes in

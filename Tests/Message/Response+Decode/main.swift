@@ -120,7 +120,7 @@ test.case("SetCookie") {
         "\r\n")
     let response = try await Response.decode(from: stream)
     expect(response.cookies == [
-        Cookie(name: "username", value: "tony")
+        SetCookie(name: "username", value: "tony")
     ])
 }
 
@@ -132,7 +132,7 @@ test.case("SetCookieExpires") {
         "\r\n")
     let response = try await Response.decode(from: stream)
     expect(response.cookies == [
-        Cookie(
+        SetCookie(
             name: "username",
             value: "tony",
             expires: Date(timeIntervalSinceReferenceDate: 467105280))
@@ -147,7 +147,7 @@ test.case("SetCookieMaxAge") {
         "\r\n")
     let response = try await Response.decode(from: stream)
     expect(response.cookies == [
-        Cookie(name: "username", value: "tony", maxAge: 42)
+        SetCookie(name: "username", value: "tony", maxAge: 42)
     ])
 }
 
@@ -159,7 +159,7 @@ test.case("SetCookieHttpOnly") {
         "\r\n")
     let response = try await Response.decode(from: stream)
     expect(response.cookies == [
-        Cookie(name: "username", value: "tony", httpOnly: true)
+        SetCookie(name: "username", value: "tony", httpOnly: true)
     ])
 }
 
@@ -171,7 +171,7 @@ test.case("SetCookieSecure") {
         "\r\n")
     let response = try await Response.decode(from: stream)
     expect(response.cookies == [
-        Cookie(name: "username", value: "tony", secure: true)
+        SetCookie(name: "username", value: "tony", secure: true)
     ])
 }
 
@@ -183,7 +183,7 @@ test.case("SetCookieDomain") {
         "\r\n")
     let response = try await Response.decode(from: stream)
     expect(response.cookies == [
-        Cookie(
+        SetCookie(
             name: "username",
             value: "tony",
             domain: "somedomain.com")
@@ -198,7 +198,7 @@ test.case("SetCookiePath") {
         "\r\n")
     let response = try await Response.decode(from: stream)
     expect(response.cookies == [
-        Cookie(name: "username", value: "tony", path: "/")
+        SetCookie(name: "username", value: "tony", path: "/")
     ])
 }
 
@@ -215,7 +215,7 @@ test.case("SetCookieManyValues") {
     expect(
         response.cookies[0]
         ==
-        Cookie(
+        SetCookie(
             name: "num",
             value: "0",
             path: "/",
@@ -226,7 +226,7 @@ test.case("SetCookieManyValues") {
     expect(
         response.cookies[1]
         ==
-        Cookie(
+        SetCookie(
             name: "key",
             value: "value",
             secure: true,
@@ -235,7 +235,7 @@ test.case("SetCookieManyValues") {
     expect(
         response.cookies[2]
         ==
-        Cookie(
+        SetCookie(
             name: "date",
             value: "",
             expires: Date(timeIntervalSince1970: 1536237674.0)))
@@ -243,7 +243,7 @@ test.case("SetCookieManyValues") {
     expect(
         response.cookies[3]
         ==
-        Cookie(
+        SetCookie(
             name: "date",
             value: "",
             expires: Date(timeIntervalSince1970: 1536237674.0)))
