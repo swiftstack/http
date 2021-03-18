@@ -63,22 +63,6 @@ extension Request {
         contentType type: ApplicationSubtype = .json
     ) throws {
         self.init(url: url, method: method)
-
-        switch type {
-        case .json:
-            let bytes = try JSON.encode(body)
-            self.contentType = .json
-            self.body = .output(bytes)
-            self.contentLength = bytes.count
-
-        case .formURLEncoded:
-            let bytes = try FormURLEncoded.encode(body)
-            self.contentType = .formURLEncoded
-            self.body = .output(bytes)
-            self.contentLength = bytes.count
-
-        default:
-            throw Error.unsupportedContentType
-        }
+        try Coder.encode(object: body, to: self, contentType: type)
     }
 }

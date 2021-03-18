@@ -2,6 +2,7 @@ import URL
 import JSON
 import Stream
 import Network
+import DCompression
 
 // MARK: Coder
 
@@ -59,24 +60,24 @@ public struct Coder {
     }
 
     @usableFromInline
-    static func encode(
+    static func encode<Message: EncodableMessage>(
         object: Encodable,
-        to response: Response,
+        to message: Message,
         contentType type: ApplicationSubtype) throws
     {
         switch type {
         case .json:
             // TODO: Use stream + chunked?
             let bytes = try JSON.encode(encodable: object)
-            response.body = .output(bytes)
-            response.contentLength = bytes.count
-            response.contentType = .json
+            message.body = .output(bytes)
+            message.contentLength = bytes.count
+            message.contentType = .json
 
         case .formURLEncoded:
             let bytes = try FormURLEncoded.encode(encodable: object)
-            response.body = .output(bytes)
-            response.contentLength = bytes.count
-            response.contentType = .formURLEncoded
+            message.body = .output(bytes)
+            message.contentLength = bytes.count
+            message.contentType = .formURLEncoded
 
         default:
             throw HTTP.Error.unsupportedContentType
@@ -169,5 +170,27 @@ public struct Coder {
     {
         let decoder = try await getDecoder(for: message)
         return try type.init(from: decoder)
+    }
+}
+
+// GZip, Deflate
+extension Coder {
+    static func decode<Message: DecodableMessage>(_ message: inout Message) async throws {
+        guard let contentEncoding = message.contentEncoding else {
+            return
+        }
+        // FIXME: use GZip/Deflate stream
+        // instead of changing contentLength
+        let bytes = try await message.readBody()
+        let stream = InputByteStream(bytes)
+        if contentEncoding.contains(.gzip) {
+            let bytes = try await GZip.decode(from: stream)
+            message.body = .input(bytes)
+            message.contentLength = bytes.count
+        } else if contentEncoding.contains(.deflate) {
+            let bytes = try await Deflate.decode(from: stream)
+            message.body = .input(bytes)
+            message.contentLength = bytes.count
+        }
     }
 }

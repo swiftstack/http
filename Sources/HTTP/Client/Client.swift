@@ -2,7 +2,6 @@ import Log
 import URL
 import Network
 import Stream
-import DCompression
 
 public class Client {
     public var bufferSize = 4096
@@ -77,7 +76,7 @@ public class Client {
         try await outputStream.flush()
 
         var response = try await Response.decode(from: inputStream)
-        try await decode(&response)
+        try await Coder.decode(&response)
         return response
     }
 
@@ -107,25 +106,6 @@ public class Client {
                 acceptEncoding.append(.deflate)
         }
         request.acceptEncoding = acceptEncoding
-    }
-
-    private func decode(_ response: inout Response) async throws {
-        guard let contentEncoding = response.contentEncoding else {
-            return
-        }
-        // FIXME: use GZip/Deflate stream
-        // instead of changing contentLength
-        let bytes = try await response.readBody()
-        let stream = InputByteStream(bytes)
-        if contentEncoding.contains(.gzip) {
-            let bytes = try await GZip.decode(from: stream)
-            response.body = .input(bytes)
-            response.contentLength = bytes.count
-        } else if contentEncoding.contains(.deflate) {
-            let bytes = try await Deflate.decode(from: stream)
-            response.body = .input(bytes)
-            response.contentLength = bytes.count
-        }
     }
 }
 

@@ -2,13 +2,20 @@ import Stream
 
 public protocol DecodableMessage: AnyObject {
     var contentType: ContentType? { get }
+    var contentEncoding: [ContentEncoding]? { get }
     var transferEncoding: [TransferEncoding]? { get }
-    var contentLength: Int? { get }
+    var contentLength: Int? { get set }
     var body: Body { get set }
 }
 
-extension Request: DecodableMessage {}
-extension Response: DecodableMessage {}
+public protocol EncodableMessage: AnyObject {
+    var contentType: ContentType? { get set }
+    var contentLength: Int? { get set }
+    var body: Body { get set }
+}
+
+extension Request: DecodableMessage, EncodableMessage {}
+extension Response: DecodableMessage, EncodableMessage {}
 
 extension DecodableMessage {
     public func readBody() async throws -> [UInt8] {
