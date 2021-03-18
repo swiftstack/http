@@ -369,6 +369,16 @@ test.case("ContentLength") {
     expect(request.contentLength == 0)
 }
 
+test.case("ContentEncoding") {
+    let stream = InputByteStream(
+        "GET / HTTP/1.1\r\n" +
+        "Content-Length: 0\r\n" +
+        "Content-Encoding: gzip\r\n" +
+        "\r\n")
+    let request = try await Request.decode(from: stream)
+    expect(request.contentEncoding == [.gzip])
+}
+
 test.case("KeepAliveFalse") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +

@@ -48,6 +48,10 @@ extension Request {
             try await writeHeader(.contentLength, value: String(contentLength))
         }
 
+        if let contentEncoding = self.contentEncoding {
+            try await writeHeader(.contentEncoding, encoder: contentEncoding.encode)
+        }
+
         if let userAgent = self.userAgent {
             try await writeHeader(.userAgent, value: userAgent)
         }

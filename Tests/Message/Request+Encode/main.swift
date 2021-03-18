@@ -194,6 +194,18 @@ test.case("ContentLength") {
     expect(try await request.encode() == expected)
 }
 
+test.case("ContentEncoding") {
+    let expected =
+        "GET / HTTP/1.1\r\n" +
+        "Content-Length: 0\r\n" +
+        "Content-Encoding: gzip\r\n" +
+        "\r\n"
+    let request = Request()
+    request.contentLength = 0
+    request.contentEncoding = [.gzip]
+    expect(try await request.encode() == expected)
+}
+
 test.case("TransferEncoding") {
     let expected =
         "GET / HTTP/1.1\r\n" +

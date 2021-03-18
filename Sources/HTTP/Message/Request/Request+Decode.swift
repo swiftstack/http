@@ -75,10 +75,12 @@ extension Request {
                     request.keepAlive = try await stream.parse(Int.self)
                 case .connection:
                     request.connection = try await .decode(from: stream)
-                case .contentLength:
-                    request.contentLength = try await stream.parse(Int.self)
                 case .contentType:
                     request.contentType = try await .decode(from: stream)
+                case .contentLength:
+                    request.contentLength = try await stream.parse(Int.self)
+                case .contentEncoding:
+                    request.contentEncoding = try await .decode(from: stream)
                 case .transferEncoding:
                     request.transferEncoding = try await .decode(from: stream)
                 case .cookie:

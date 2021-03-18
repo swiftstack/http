@@ -20,6 +20,7 @@ public final class Request {
     public var keepAlive: Int? = nil
     public var connection: Connection? = nil
     public var contentType: ContentType? = nil
+    public var contentEncoding: [ContentEncoding]? = nil
     public var contentLength: Int? = nil
     public var transferEncoding: [TransferEncoding]? = nil
 
