@@ -3,15 +3,6 @@ import JSON
 import Stream
 import Network
 
-public protocol DecodableMessage {
-    var contentType: ContentType? { get }
-    var body: Body { get }
-    var bytes: [UInt8]? { get }
-}
-
-extension Request: DecodableMessage {}
-extension Response: DecodableMessage {}
-
 // MARK: Coder
 
 public struct Coder {
@@ -42,7 +33,7 @@ public struct Coder {
         switch result {
         case .string(let string):
             response.contentType = .text
-            response.string = string
+            response.body = .output(string)
         case .redirect(let to):
             response.status = .found
             response.headers["Location"] = to
@@ -57,7 +48,7 @@ public struct Coder {
                 if response.contentType == nil {
                     response.contentType = .text
                 }
-                response.string = string
+                response.body = .output(string)
             default:
                 try Coder.encode(
                     object: object,
@@ -77,13 +68,13 @@ public struct Coder {
         case .json:
             // TODO: Use stream + chunked?
             let bytes = try JSON.encode(encodable: object)
-            response.bytes = bytes
+            response.body = .output(bytes)
             response.contentLength = bytes.count
             response.contentType = .json
 
         case .formURLEncoded:
             let bytes = try FormURLEncoded.encode(encodable: object)
-            response.bytes = bytes
+            response.body = .output(bytes)
             response.contentLength = bytes.count
             response.contentType = .formURLEncoded
 
@@ -139,15 +130,16 @@ public struct Coder {
         -> Swift.Decoder where Message: DecodableMessage
     {
         switch message.body {
-        case .bytes(let bytes):
-            let stream = InputByteStream(bytes)
-            let json = try await JSON.Value.decode(from: stream)
-            return try JSON.Decoder(json)
         case .input(let reader):
             let json = try await JSON.Value.decode(from: reader)
             return try JSON.Decoder(json)
-        default:
-            throw Error.invalidRequest
+        // @testable
+        case .output(let writer):
+            let stream = OutputByteStream()
+            try await writer(stream)
+            let reader = InputByteStream(stream.bytes)
+            let json = try await JSON.Value.decode(from: reader)
+            return try JSON.Decoder(json)
         }
     }
 
@@ -156,9 +148,7 @@ public struct Coder {
         -> Swift.Decoder where Message: DecodableMessage
     {
         // TODO: Use stream
-        guard let bytes = message.bytes else {
-            throw Error.invalidRequest
-        }
+        let bytes = try await message.readBody()
         let values = try URL.Query(from: bytes).values
         return KeyValueDecoder(values)
     }

@@ -70,7 +70,7 @@ test.case("Deflate") {
     expect(outputStream.stringValue == requestString)
     expect(response.status == .ok)
     expect(response.contentEncoding == [.deflate])
-    expect(response.string == "Hello, World!")
+    expect(try await response.readBody() == ASCII("Hello, World!"))
 }
 
 test.case("GZip") {
@@ -106,7 +106,7 @@ test.case("GZip") {
     expect(outputStream.stringValue == requestString)
     expect(response.status == .ok)
     expect(response.contentEncoding == [.gzip])
-    expect(response.string == "Hello, World!")
+    expect(try await response.readBody() == ASCII("Hello, World!"))
 }
 
 test.run()

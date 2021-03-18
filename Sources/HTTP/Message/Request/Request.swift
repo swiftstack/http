@@ -29,7 +29,7 @@ public final class Request {
 
     public var expect: Expect? = nil
 
-    public var body: Body = .none
+    public var body: Body = .output([])
 
     public init(url: URL = URL(path: "/"), method: Method = .get) {
         self.url = url
@@ -39,7 +39,7 @@ public final class Request {
 
         if method == .post || method == .put, let query = url.query {
             let bytes = query.encode()
-            self.body = .bytes(bytes)
+            self.body = .output(bytes)
             self.contentLength = bytes.count
             self.contentType = .formURLEncoded
         }
@@ -51,10 +51,6 @@ extension Request {
         return self.connection != .close
     }
 }
-
-// MARK: Body Streams
-
-extension Request: BodyInputStream { }
 
 // MARK: Convenience
 
@@ -69,12 +65,16 @@ extension Request {
 
         switch type {
         case .json:
+            let bytes = try JSON.encode(body)
             self.contentType = .json
-            self.bytes = try JSON.encode(body)
+            self.body = .output(bytes)
+            self.contentLength = bytes.count
 
         case .formURLEncoded:
+            let bytes = try FormURLEncoded.encode(body)
             self.contentType = .formURLEncoded
-            self.bytes = try FormURLEncoded.encode(body)
+            self.body = .output(bytes)
+            self.contentLength = bytes.count
 
         default:
             throw Error.unsupportedContentType

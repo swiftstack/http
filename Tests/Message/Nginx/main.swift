@@ -68,7 +68,8 @@ test.case("ChankedAllYourBase") {
         "\r\n")
     let request = try await Request.decode(from: stream)
     expect(request.transferEncoding == [.chunked])
-    expect(request.string == "all your base are belong to us")
+    let body = try await request.readBody()
+    expect(body == ASCII("all your base are belong to us"))
 }
 
 test.run()

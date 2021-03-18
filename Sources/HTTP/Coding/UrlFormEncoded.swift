@@ -2,9 +2,9 @@ import URL
 import Stream
 
 struct FormURLEncoded {
-    static func encode<T: Encodable, Stream: StreamWriter>(
+    static func encode<T: Encodable>(
         _ object: T,
-        to stream: Stream
+        to stream: StreamWriter
     ) async throws {
         let values = try KeyValueEncoder().encode(object)
         let query = URL.Query(values: values)
@@ -12,9 +12,9 @@ struct FormURLEncoded {
     }
 
     // FIXME: the same interface shadows the generic one
-    static func encode<Stream: StreamWriter>(
+    static func encode(
         encodable object: Encodable,
-        to stream: Stream
+        to stream: StreamWriter
     ) async throws {
         let values = try KeyValueEncoder().encode(encodable: object)
         let query = URL.Query(values: values)

@@ -1,6 +1,6 @@
 import Test
-import HTTP
 import Event
+@testable import HTTP
 
 func setup(
     port: Int,
@@ -41,8 +41,7 @@ test.case("Request") {
             let request = Request(url: "/", method: .get)
             let response = try await client.makeRequest(request)
             expect(response.status == .ok)
-            expect(response.string == nil)
-            expect(response.body == .none)
+            expect(try await response.readBody() == [])
         }
     )
 }
@@ -58,8 +57,7 @@ test.case("Get") {
         clientCode: { client in
             let response = try await client.get(path: "/")
             expect(response.status == .ok)
-            expect(response.string == nil)
-            expect(response.body == .none)
+            expect(try await response.readBody() == [])
         }
     )
 }
@@ -75,8 +73,7 @@ test.case("Head") {
         clientCode: { client in
             let response = try await client.head(path: "/")
             expect(response.status == .ok)
-            expect(response.string == nil)
-            expect(response.body == .none)
+            expect(try await response.readBody() == [])
         }
     )
 }
@@ -92,8 +89,7 @@ test.case("Post") {
         clientCode: { client in
             let response = try await client.post(path: "/")
             expect(response.status == .ok)
-            expect(response.string == nil)
-            expect(response.body == .none)
+            expect(try await response.readBody() == [])
         }
     )
 }
@@ -109,8 +105,7 @@ test.case("Put") {
         clientCode: { client in
             let response = try await client.put(path: "/")
             expect(response.status == .ok)
-            expect(response.string == nil)
-            expect(response.body == .none)
+            expect(try await response.readBody() == [])
         }
     )
 }
@@ -126,8 +121,7 @@ test.case("Delete") {
         clientCode: { client in
             let response = try await client.delete(path: "/")
             expect(response.status == .ok)
-            expect(response.string == nil)
-            expect(response.body == .none)
+            expect(try await response.readBody() == [])
         }
     )
 }
@@ -143,8 +137,7 @@ test.case("Options") {
         clientCode: { client in
             let response = try await client.options(path: "/")
             expect(response.status == .ok)
-            expect(response.string == nil)
-            expect(response.body == .none)
+            expect(try await response.readBody() == [])
         }
     )
 }
@@ -195,7 +188,8 @@ test.case("Json") {
             let message = ["message": "Hello, Server!"]
             let response = try await client.post(path: "/", object: message)
             expect(response.status == .ok)
-            expect(response.string == "{\"message\":\"Hello, Client!\"}")
+            let body = try await response.readBody()
+            expect(body == ASCII("{\"message\":\"Hello, Client!\"}"))
         }
     )
 }
@@ -223,7 +217,8 @@ test.case("FormEncoded") {
                 object: Query(),
                 contentType: .formURLEncoded)
             expect(response.status == .ok)
-            expect(response.string == "message=Hello,%20Client!")
+            let body = try await response.readBody()
+            expect(body == ASCII("message=Hello,%20Client!"))
         }
     )
 }

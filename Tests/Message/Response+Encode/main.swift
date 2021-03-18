@@ -284,8 +284,6 @@ test.case("BodyStringResponse") {
         "\r\n" +
         "Hello"
     let response = Response(string: "Hello")
-    expect(response.string == "Hello")
-    expect(response.bytes == ASCII("Hello"))
     expect(
         response.contentType
         ==
@@ -303,8 +301,6 @@ test.case("BodyHtmlResponse") {
         "\r\n" +
         "<html></html>"
     let response = Response(html: "<html></html>")
-    expect(response.string == "<html></html>")
-    expect(response.bytes == ASCII("<html></html>"))
     expect(response.contentType == .html)
     expect(response.contentLength == 13)
     expect(try await response.encode() == expected)
@@ -318,7 +314,6 @@ test.case("BodyBytesResponse") {
         "\r\n") + [1,2,3]
     let data: [UInt8] = [1,2,3]
     let response = Response(bytes: data)
-    expect(response.bytes == data)
     expect(response.contentType == .stream)
     expect(response.contentLength == 3)
     expect(ASCII(try await response.encode()) == expected)
@@ -332,12 +327,9 @@ test.case("BodyJsonResponse") {
         "\r\n" +
         "{\"message\":\"Hello, World!\"}"
 
-    let response = try Response(
+    let response = try Response.init(
         body: ["message" : "Hello, World!"])
 
-    let body = "{\"message\":\"Hello, World!\"}"
-    expect(response.string == body)
-    expect(response.bytes == ASCII(body))
     expect(response.contentType == .json)
     expect(response.contentLength == 27)
     expect(try await response.encode() == expected)
@@ -355,8 +347,6 @@ test.case("BodyUrlFormEncodedResponse") {
         body: ["message" : "Hello, World!"],
         contentType: .formURLEncoded)
 
-    expect(response.string == "message=Hello,%20World!")
-    expect(response.bytes == ASCII("message=Hello,%20World!"))
     expect(response.contentType == .formURLEncoded)
     expect(response.contentLength == 23)
     expect(try await response.encode() == expected)

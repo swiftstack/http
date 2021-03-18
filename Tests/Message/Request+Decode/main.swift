@@ -474,7 +474,7 @@ test.case("BodyContentLength") {
         "Hello")
     let request = try await Request.decode(from: stream)
     expect(request.contentLength == 5)
-    expect(request.string == "Hello")
+    expect(try await request.readBody() == ASCII("Hello"))
 }
 
 test.case("BodyChunked") {
@@ -485,7 +485,7 @@ test.case("BodyChunked") {
         "5\r\nHello\r\n" +
         "0\r\n\r\n")
     let request = try await Request.decode(from: stream)
-    expect(request.string == "Hello")
+    expect(try await request.readBody() == ASCII("Hello"))
 }
 
 test.case("BodyChunkedInvalidSizeSeparator") {
@@ -497,7 +497,7 @@ test.case("BodyChunkedInvalidSizeSeparator") {
         "0\r\n\r\n")
     let request = try await Request.decode(from: stream)
     expect(throws: Error.invalidRequest) {
-        _ = try await request.readBytes()
+        _ = try await request.readBody()
     }
 }
 
@@ -510,7 +510,7 @@ test.case("BodyChunkedNoSizeSeparator") {
         "0\r\n\r\n")
     let request = try await Request.decode(from: stream)
     expect(throws: Error.invalidRequest) {
-        _ = try await request.readBytes()
+        _ = try await request.readBody()
     }
 }
 
@@ -523,7 +523,7 @@ test.case("BodyChunkedMissingLineEnd") {
         "0\r\n")
     let request = try await Request.decode(from: stream)
     expect(throws: Error.unexpectedEnd) {
-        _ = try await request.readBytes()
+        _ = try await request.readBody()
     }
 }
 
@@ -535,7 +535,7 @@ test.case("BodyChunkedInvalidBody") {
         "5\r\nHello")
     let request = try await Request.decode(from: stream)
     expect(throws: Error.unexpectedEnd) {
-        _ = try await request.readBytes()
+        _ = try await request.readBody()
     }
 }
 

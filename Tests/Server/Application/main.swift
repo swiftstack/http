@@ -10,8 +10,8 @@ test.case("Application") {
     }
 
     let request = Request(url: "/test", method: .get)
-    let response = try? await application.process(request)
-    expect(response?.string == "test ok")
+    let response = try await application.process(request)
+    expect(try await response.readBody() == ASCII("test ok"))
 }
 
 test.case("ApplicationBasePath") {
@@ -21,8 +21,8 @@ test.case("ApplicationBasePath") {
         return Response(string: "test ok")
     }
     let request = Request(url: "/v1/test", method: .get)
-    let response = try? await application.process(request)
-    expect(response?.string == "test ok")
+    let response = try await application.process(request)
+    expect(try await response.readBody() == ASCII("test ok"))
 }
 
 test.case("ApplicationMiddleware") {
@@ -65,17 +65,17 @@ test.case("ApplicationMiddleware") {
         return Response(string: "first-second ok")
     }
     let firstRequest = Request(url: "/first", method: .get)
-    let firstResponse = try? await application.process(firstRequest)
-    expect(firstResponse?.string == "first ok")
-    expect(firstResponse?.headers["Middleware"] == "first")
-    expect(firstResponse?.headers["FirstMiddleware"] == "true")
+    let firstResponse = try await application.process(firstRequest)
+    expect(try await firstResponse.readBody() == ASCII("first ok"))
+    expect(firstResponse.headers["Middleware"] == "first")
+    expect(firstResponse.headers["FirstMiddleware"] == "true")
 
     let secondRequest = Request(url: "/first-second", method: .get)
-    let secondResponse = try? await application.process(secondRequest)
-    expect(secondResponse?.string == "first-second ok")
-    expect(secondResponse?.headers["Middleware"] == "first")
-    expect(secondResponse?.headers["FirstMiddleware"] == "true")
-    expect(secondResponse?.headers["SecondMiddleware"] == "true")
+    let secondResponse = try await application.process(secondRequest)
+    expect(try await secondResponse.readBody() == ASCII("first-second ok"))
+    expect(secondResponse.headers["Middleware"] == "first")
+    expect(secondResponse.headers["FirstMiddleware"] == "true")
+    expect(secondResponse.headers["SecondMiddleware"] == "true")
 }
 
 test.run()

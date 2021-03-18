@@ -13,14 +13,12 @@ public final class Response {
 
     public var headers: [HeaderName : String] = [:]
 
-    public var body: Body = .none
+    public var body: Body = .output([])
 
     public init() {
         self.contentLength = 0
     }
 }
-
-extension Response: BodyInputStream {}
 
 extension Response {
     public convenience init(status: Status) {
@@ -34,7 +32,7 @@ extension Response {
         contentType: ContentType = .stream)
     {
         self.init()
-        self.bytes = bytes
+        self.body = .output(bytes)
         self.contentType = contentType
         self.contentLength = bytes.count
     }

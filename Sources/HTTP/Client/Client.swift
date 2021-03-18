@@ -110,15 +110,21 @@ public class Client {
     }
 
     private func decode(_ response: inout Response) async throws {
-        guard let bytes = response.bytes,
-            let contentEncoding = response.contentEncoding else {
-                return
+        guard let contentEncoding = response.contentEncoding else {
+            return
         }
+        // FIXME: use GZip/Deflate stream
+        // instead of changing contentLength
+        let bytes = try await response.readBody()
         let stream = InputByteStream(bytes)
         if contentEncoding.contains(.gzip) {
-            response.bytes = try await GZip.decode(from: stream)
+            let bytes = try await GZip.decode(from: stream)
+            response.body = .input(bytes)
+            response.contentLength = bytes.count
         } else if contentEncoding.contains(.deflate) {
-            response.bytes = try await Deflate.decode(from: stream)
+            let bytes = try await Deflate.decode(from: stream)
+            response.body = .input(bytes)
+            response.contentLength = bytes.count
         }
     }
 }

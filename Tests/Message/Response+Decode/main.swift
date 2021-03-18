@@ -282,8 +282,7 @@ test.case("BodyStringResponse") {
         ==
         ContentType(mediaType: .text(.plain)))
     expect(response.contentLength == 5)
-    expect(response.bytes == ASCII("Hello"))
-    expect(response.string == "Hello")
+    expect(try await response.readBody() == ASCII("Hello"))
 }
 
 test.case("BodyHtmlResponse") {
@@ -300,8 +299,7 @@ test.case("BodyHtmlResponse") {
         ContentType(mediaType: .text(.html))
     )
     expect(response.contentLength == 13)
-    expect(response.bytes == ASCII("<html></html>"))
-    expect(response.string == "<html></html>")
+    expect(try await response.readBody() == ASCII("<html></html>"))
 }
 
 test.case("BodyBytesResponse") {
@@ -318,7 +316,7 @@ test.case("BodyBytesResponse") {
         ContentType(mediaType: .application(.stream))
     )
     expect(response.contentLength == 3)
-    expect(response.bytes == [1,2,3])
+    expect(try await response.readBody() == [1,2,3])
 }
 
 test.case("BodyJsonResponse") {
@@ -335,8 +333,7 @@ test.case("BodyJsonResponse") {
         ContentType(mediaType: .application(.json))
     )
     expect(response.contentLength == 28)
-    expect(response.bytes == ASCII("{'message': 'Hello, World!'}"))
-    expect(response.string == "{'message': 'Hello, World!'}")
+    expect(try await response.readBody() == ASCII("{'message': 'Hello, World!'}"))
 }
 
 test.case("BodyZeroContentLenght") {
@@ -346,8 +343,7 @@ test.case("BodyZeroContentLenght") {
         "\r\n")
     let response = try await Response.decode(from: stream)
     expect(response.contentLength == 0)
-    expect(response.bytes == nil)
-    expect(response.body == .none)
+    expect(try await response.readBody() == [])
 }
 
 test.case("BodyChunked") {
@@ -360,7 +356,7 @@ test.case("BodyChunked") {
         "0\r\n" +
         "\r\n")
     let response = try await Response.decode(from: stream)
-    expect(response.string == "Hello, World!")
+    expect(try await response.readBody() == ASCII("Hello, World!"))
 }
 
 test.run()

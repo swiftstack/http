@@ -63,10 +63,10 @@ extension Response {
 
         // Body
         switch body {
-        case .bytes(let bytes): try await stream.write(bytes)
-        // TODO:
-        // case .output(let writer): try writer(stream)
-        default: break
+        case .output(let task):
+            try await task(stream)
+        default:
+            break
         }
     }
 }
