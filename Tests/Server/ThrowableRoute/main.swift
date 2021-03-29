@@ -1,19 +1,17 @@
+import Log
 import Test
 
 @testable import HTTP
 
-extension String: Swift.Error {}
-
-func makeMistake() throws {
-    throw "expected failure"
-}
-
 test.case("InternalServerError") {
+    Log.isEnabled = false
+
     let router = Router(middleware: [ErrorHandlerMiddleware.self])
 
+    struct Error: Swift.Error {}
+
     router.route(get: "/") {
-        try makeMistake()
-        return Response(status: .ok)
+        throw Error()
     }
 
     let request = Request(url: "/", method: .get)
@@ -22,6 +20,8 @@ test.case("InternalServerError") {
 }
 
 test.case("NotFound") {
+    Log.isEnabled = false
+
     let router = Router(middleware: [ErrorHandlerMiddleware.self])
 
     router.route(get: "/") {
