@@ -54,56 +54,56 @@ test.case("Url") {
 
 test.case("InvalidRequest") {
     let stream = InputByteStream("GET\r\n\r\n")
-    expect(throws: Error.invalidStartLine) {
+    await expect(throws: Error.invalidStartLine) {
         try await Request.decode(from: stream)
     }
 }
 
 test.case("InvalidRequest2") {
     let stream = InputByteStream("GET \r\n\r\n")
-    expect(throws: Error.invalidStartLine) {
+    await expect(throws: Error.invalidStartLine) {
         try await Request.decode(from: stream)
     }
 }
 
 test.case("InvalidMethod") {
     let stream = InputByteStream("BAD /test HTTP/1.1\r\n\r\n")
-    expect(throws: Error.invalidMethod) {
+    await expect(throws: Error.invalidMethod) {
         try await Request.decode(from: stream)
     }
 }
 
 test.case("InvalidVersion") {
     let stream = InputByteStream("GET /test HTTP/0.1\r\n\r\n")
-    expect(throws: Error.invalidVersion) {
+    await expect(throws: Error.invalidVersion) {
         try await Request.decode(from: stream)
     }
 }
 
 test.case("InvalidVersion2") {
     let stream = InputByteStream("GET /test HTTP/1.1WUT\r\n\r\n")
-    expect(throws: Error.invalidRequest) {
+    await expect(throws: Error.invalidRequest) {
         try await Request.decode(from: stream)
     }
 }
 
 test.case("InvalidVersion3") {
     let stream = InputByteStream("GET /test HTTP/1.")
-    expect(throws: Error.unexpectedEnd) {
+    await expect(throws: Error.unexpectedEnd) {
         try await Request.decode(from: stream)
     }
 }
 
 test.case("InvalidVersion4") {
     let stream = InputByteStream("GET /test HTPP/1.1\r\n\r\n")
-    expect(throws: Error.invalidVersion) {
+    await expect(throws: Error.invalidVersion) {
         try await Request.decode(from: stream)
     }
 }
 
 test.case("InvalidEnd") {
     let stream = InputByteStream("GET /test HTTP/1.1\r\n")
-    expect(throws: Error.unexpectedEnd) {
+    await expect(throws: Error.unexpectedEnd) {
         try await Request.decode(from: stream)
     }
 }
@@ -258,7 +258,7 @@ test.case("InvalidHeaderColon") {
         "GET / HTTP/1.1\r\n" +
         "User-Agent; Mozilla/5.0\r\n" +
         "\r\n")
-    expect(throws: Error.invalidHeaderName) {
+    await expect(throws: Error.invalidHeaderName) {
         try await Request.decode(from: stream)
     }
 }
@@ -267,7 +267,7 @@ test.case("InvalidHeaderEnd") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "User-Agent: Mozilla/5.0\n\n")
-    expect(throws: Error.unexpectedEnd) {
+    await expect(throws: Error.unexpectedEnd) {
         try await Request.decode(from: stream)
     }
 }
@@ -277,7 +277,7 @@ test.case("InvalidHeaderName") {
         "GET / HTTP/1.1\r\n" +
         "See-🙈-Evil: No\r\n" +
         "\r\n")
-    expect(throws: Error.invalidHeaderName) {
+    await expect(throws: Error.invalidHeaderName) {
         try await Request.decode(from: stream)
     }
 }
@@ -292,7 +292,7 @@ test.case("UnexpectedEnd") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Header: Value\r\n")
-    expect(throws: Error.unexpectedEnd) {
+    await expect(throws: Error.unexpectedEnd) {
         try await Request.decode(from: stream)
     }
 }
@@ -329,7 +329,7 @@ test.case("ContentTypeEmptyCharset") {
         "Content-Type: text/plain;\r\n" +
         "Content-Length: 0\r\n" +
         "\r\n")
-    expect(throws: Error.invalidContentTypeHeader) {
+    await expect(throws: Error.invalidContentTypeHeader) {
         try await Request.decode(from: stream)
     }
 }
@@ -355,7 +355,7 @@ test.case("ContentTypeEmptyBoundary") {
         "Content-Type: multipart/form-data;\r\n" +
         "Content-Length: 0\r\n" +
         "\r\n")
-    expect(throws: Error.invalidBoundary) {
+    await expect(throws: Error.invalidBoundary) {
         try await Request.decode(from: stream)
     }
 }
@@ -439,7 +439,7 @@ test.case("CookiesNoSpace") {
         "GET / HTTP/1.1\r\n" +
         "Cookie: username=tony;lang=aurebesh\r\n" +
         "\r\n")
-    expect(throws: Error.invalidRequest) {
+    await expect(throws: Error.invalidRequest) {
         try await Request.decode(from: stream)
     }
 }
@@ -449,7 +449,7 @@ test.case("CookiesTrailingSemicolon") {
         "GET / HTTP/1.1\r\n" +
         "Cookie: username=tony;\r\n" +
         "\r\n")
-    expect(throws: Error.invalidRequest) {
+    await expect(throws: Error.invalidRequest) {
         try await Request.decode(from: stream)
     }
 }
@@ -506,7 +506,7 @@ test.case("BodyChunkedInvalidSizeSeparator") {
         "5\rHello\r\n" +
         "0\r\n\r\n")
     let request = try await Request.decode(from: stream)
-    expect(throws: Error.invalidRequest) {
+    await expect(throws: Error.invalidRequest) {
         _ = try await request.readBody()
     }
 }
@@ -519,7 +519,7 @@ test.case("BodyChunkedNoSizeSeparator") {
         "5 Hello\r\n" +
         "0\r\n\r\n")
     let request = try await Request.decode(from: stream)
-    expect(throws: Error.invalidRequest) {
+    await expect(throws: Error.invalidRequest) {
         _ = try await request.readBody()
     }
 }
@@ -532,7 +532,7 @@ test.case("BodyChunkedMissingLineEnd") {
         "5\r\nHello\r\n" +
         "0\r\n")
     let request = try await Request.decode(from: stream)
-    expect(throws: Error.unexpectedEnd) {
+    await expect(throws: Error.unexpectedEnd) {
         _ = try await request.readBody()
     }
 }
@@ -544,7 +544,7 @@ test.case("BodyChunkedInvalidBody") {
         "\r\n" +
         "5\r\nHello")
     let request = try await Request.decode(from: stream)
-    expect(throws: Error.unexpectedEnd) {
+    await expect(throws: Error.unexpectedEnd) {
         _ = try await request.readBody()
     }
 }
