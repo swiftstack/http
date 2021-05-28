@@ -18,6 +18,11 @@ extension Request: DecodableMessage, EncodableMessage {}
 extension Response: DecodableMessage, EncodableMessage {}
 
 extension DecodableMessage {
+    // TODO: Add support for Unicode.Encoding.Type
+    public func readBody(as encoding: UTF8.Type) async throws -> String {
+        .init(decoding: try await readBody(), as: encoding)
+    }
+
     public func readBody() async throws -> [UInt8] {
         switch body {
         case .input(let stream):
