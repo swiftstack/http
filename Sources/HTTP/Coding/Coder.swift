@@ -29,12 +29,23 @@ public struct Coder {
     public static func updateRespone(
         _ response: Response,
         for request: Request,
+        with result: String)
+    {
+        let bytes = [UInt8](result.utf8)
+        response.contentType = .text
+        response.contentLength = bytes.count
+        response.body = .output(bytes)
+    }
+
+    @inline(__always)
+    public static func updateRespone(
+        _ response: Response,
+        for request: Request,
         with result: ApiResult) async throws
     {
         switch result {
         case .string(let string):
-            response.contentType = .text
-            response.body = .output(string)
+            updateRespone(response, for: request, with: string)
         case .redirect(let to):
             response.status = .found
             response.headers["Location"] = to
@@ -46,10 +57,7 @@ public struct Coder {
             // TODO: respect Request.Accept
             switch object {
             case let string as String:
-                if response.contentType == nil {
-                    response.contentType = .text
-                }
-                response.body = .output(string)
+                updateRespone(response, for: request, with: string)
             default:
                 try Coder.encode(
                     object: object,

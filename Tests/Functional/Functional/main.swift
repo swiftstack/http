@@ -223,4 +223,27 @@ test.case("FormEncoded") {
     )
 }
 
+test.case("String") {
+    await setup(
+        port: 6010,
+        serverCode: { server in
+            struct Model: Codable {
+                var message: String
+            }
+            server.route(post: "/") { (message: String) -> String in
+                expect(message == "Hello, Server!")
+                return "Hello, Client!"
+            }
+        },
+        clientCode: { client in
+            let message = "Hello, Server!"
+            let request = try Request(url: "/", method: .post, body: message)
+            let response = try await client.makeRequest(request)
+            expect(response.status == .ok)
+            let body = try await response.readBody()
+            expect(body == ASCII("Hello, Client!"))
+        }
+    )
+}
+
 test.run()
