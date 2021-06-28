@@ -13,13 +13,11 @@ public class Server {
     public init(host: String, port: Int, bufferSize: Int = 4096) throws {
         self.bufferSize = bufferSize
         self.tcpServer = try TCP.Server(host: host, port: port)
-        self.tcpServer.onClient = onClient
     }
 
     public init(host: String, reusePort: Int, bufferSize: Int = 4096) throws {
         self.bufferSize = bufferSize
         self.tcpServer = try TCP.Server(host: host, reusePort: reusePort)
-        self.tcpServer.onClient = onClient
     }
 
     public var address: String {
@@ -27,6 +25,7 @@ public class Server {
     }
 
     public func start() async throws {
+        await self.tcpServer.onClient(onClient)
         await Log.info("server at \(address) started")
         try await tcpServer.start()
     }
