@@ -23,7 +23,7 @@ public class Client {
     }
 
     public var compression: [Compression] = [.gzip, .deflate]
-    public var userAgent: String? = "swift-stack/http"
+    public var userAgent: String? = "swiftstack/http"
 
     public init(host: String, port: Int? = nil) {
         let port = port ?? 80

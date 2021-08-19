@@ -22,7 +22,7 @@ test.case("Request") {
     let requestString =
         "GET / HTTP/1.1\r\n" +
         "Host: 127.0.0.1:8080\r\n" +
-        "User-Agent: swift-stack/http\r\n" +
+        "User-Agent: swiftstack/http\r\n" +
         "Accept-Encoding: gzip, deflate\r\n" +
         "\r\n"
 
@@ -44,7 +44,7 @@ test.case("Deflate") {
     let requestString =
         "GET / HTTP/1.1\r\n" +
         "Host: 127.0.0.1:8080\r\n" +
-        "User-Agent: swift-stack/http\r\n" +
+        "User-Agent: swiftstack/http\r\n" +
         "Accept-Encoding: gzip, deflate\r\n" +
         "\r\n"
 
@@ -77,7 +77,7 @@ test.case("GZip") {
     let requestString =
         "GET / HTTP/1.1\r\n" +
         "Host: 127.0.0.1:8080\r\n" +
-        "User-Agent: swift-stack/http\r\n" +
+        "User-Agent: swiftstack/http\r\n" +
         "Accept-Encoding: gzip, deflate\r\n" +
         "\r\n"
 

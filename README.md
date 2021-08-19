@@ -1,14 +1,14 @@
 # HTTP
 
-Asynchronous HTTP server/client using [cooperative multitasking](https://github.com/swift-stack/fiber). **No callbacks.**
+Asynchronous HTTP server/client 
 
 ## Package.swift
 
 ```swift
-.package(url: "https://github.com/swift-stack/http.git", .branch("dev"))
+.package(url: "https://github.com/swiftstack/http.git", .branch("dev"))
 ```
 
-## Quick Start [[source](https://github.com/swift-stack/examples/tree/master/http)]
+## Quick Start [[source](https://github.com/swiftstack/examples/tree/master/http)]
 
 ### First we need to create a root fiber and run the event loop:
 
