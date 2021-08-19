@@ -59,7 +59,7 @@ extension Package.Dependency {
             switch self {
             case .local: return "../"
             case .remote: return "https://swiftstack.io/"
-            case .github: return "https://github.com/swift-stack/"
+            case .github: return "https://github.com/swiftstack/"
             }
         }
 
