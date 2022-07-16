@@ -46,4 +46,4 @@ test.case("JavaScript") {
     _ = Response(javascript: "")
 }
 
-test.run()
+await test.run()

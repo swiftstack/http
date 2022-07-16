@@ -19,4 +19,4 @@ test.case("SingleValueDecoder") {
     expect(integer == 42)
 }
 
-test.run()
+await test.run()

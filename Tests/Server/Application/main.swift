@@ -78,4 +78,4 @@ test.case("ApplicationMiddleware") {
     expect(secondResponse.headers["SecondMiddleware"] == "true")
 }
 
-test.run()
+await test.run()

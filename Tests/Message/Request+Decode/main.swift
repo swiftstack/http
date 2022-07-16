@@ -549,4 +549,4 @@ test.case("BodyChunkedInvalidBody") {
     }
 }
 
-test.run()
+await test.run()

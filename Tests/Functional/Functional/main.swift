@@ -246,4 +246,4 @@ test.case("String") {
     )
 }
 
-test.run()
+await test.run()

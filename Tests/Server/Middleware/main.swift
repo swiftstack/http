@@ -75,4 +75,4 @@ test.case("MiddlewareOrder") {
     expect(response?.headers["Middleware"] == "first")
 }
 
-test.run()
+await test.run()

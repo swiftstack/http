@@ -33,4 +33,4 @@ test.case("NotFound") {
     expect(response?.status == .notFound)
 }
 
-test.run()
+await test.run()

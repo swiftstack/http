@@ -32,4 +32,4 @@ test.case("FromString") {
     expect(request.url.query == ["query" : "true"])
 }
 
-test.run()
+await test.run()

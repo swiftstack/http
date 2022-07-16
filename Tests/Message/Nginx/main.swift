@@ -72,4 +72,4 @@ test.case("ChankedAllYourBase") {
     expect(body == ASCII("all your base are belong to us"))
 }
 
-test.run()
+await test.run()

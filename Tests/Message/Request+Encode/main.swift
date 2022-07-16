@@ -285,4 +285,4 @@ test.case("BodyFormURLEncodedInitializer") {
     expect(try await request.encode() == expected)
 }
 
-test.run()
+await test.run()

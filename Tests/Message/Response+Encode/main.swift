@@ -352,4 +352,4 @@ test.case("BodyUrlFormEncodedResponse") {
     expect(try await response.encode() == expected)
 }
 
-test.run()
+await test.run()

@@ -13,4 +13,4 @@ test.case("HeaderNameDescription") {
     expect(name.description == "Content-Length")
 }
 
-test.run()
+await test.run()

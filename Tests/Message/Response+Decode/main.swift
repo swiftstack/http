@@ -359,4 +359,4 @@ test.case("BodyChunked") {
     expect(try await response.readBody() == ASCII("Hello, World!"))
 }
 
-test.run()
+await test.run()

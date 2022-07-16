@@ -34,4 +34,4 @@ test.case("Lowercased") {
     expect(token == .token(credentials: "sYbe7s3c73Tt0k3n"))
 }
 
-test.run()
+await test.run()

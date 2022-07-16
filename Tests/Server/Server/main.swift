@@ -85,4 +85,4 @@ test.case("Description") {
     expect(server.address == "http://127.0.0.1:4004")
 }
 
-test.run()
+await test.run()

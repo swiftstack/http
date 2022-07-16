@@ -423,4 +423,4 @@ test.case("UnicodeRoute") {
     expect(response?.status == .ok)
 }
 
-test.run()
+await test.run()

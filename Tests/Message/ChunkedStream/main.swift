@@ -77,4 +77,4 @@ test.case("SmallerBufferSize") {
     expect(string == chars300)
 }
 
-test.run()
+await test.run()
