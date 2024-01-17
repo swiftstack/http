@@ -31,7 +31,7 @@ test("UrlQueryGet") {
     let request = Request(
         url: URL(
             path: "/test",
-            query: ["key" : "value"],
+            query: ["key": "value"],
             fragment: "fragment"),
         method: .get)
     expect(try await request.encode() == expected)
@@ -47,7 +47,7 @@ test("UrlQueryPost") {
     let request = Request(
         url: URL(
             path: "/test",
-            query: ["key" : "value"],
+            query: ["key": "value"],
             fragment: "fragment"),
         method: .post)
     expect(try await request.encode() == expected)

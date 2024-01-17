@@ -11,24 +11,24 @@ public final class Request {
         get { return url.host }
         set { url.host = newValue }
     }
-    public var userAgent: String? = nil
-    public var accept: [Accept]? = nil
-    public var acceptLanguage: [AcceptLanguage]? = nil
-    public var acceptEncoding: [ContentEncoding]? = nil
-    public var acceptCharset: [AcceptCharset]? = nil
-    public var authorization: Authorization? = nil
-    public var keepAlive: Int? = nil
-    public var connection: Connection? = nil
-    public var contentType: ContentType? = nil
-    public var contentEncoding: [ContentEncoding]? = nil
-    public var contentLength: Int? = nil
-    public var transferEncoding: [TransferEncoding]? = nil
+    public var userAgent: String?
+    public var accept: [Accept]?
+    public var acceptLanguage: [AcceptLanguage]?
+    public var acceptEncoding: [ContentEncoding]?
+    public var acceptCharset: [AcceptCharset]?
+    public var authorization: Authorization?
+    public var keepAlive: Int?
+    public var connection: Connection?
+    public var contentType: ContentType?
+    public var contentEncoding: [ContentEncoding]?
+    public var contentLength: Int?
+    public var transferEncoding: [TransferEncoding]?
 
-    public var headers: [HeaderName : String] = [:]
+    public var headers: [HeaderName: String] = [:]
 
     public var cookies: [Cookie] = []
 
-    public var expect: Expect? = nil
+    public var expect: Expect?
 
     public var body: Body = .output([])
 

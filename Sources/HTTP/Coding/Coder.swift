@@ -18,10 +18,13 @@ public struct Coder {
     @inline(__always)
     static func makeRespone<T: Encodable>(
         for request: Request,
-        encoding object: T) async throws -> Response
-    {
+        encoding object: T
+    ) async throws -> Response {
         let response = Response(status: .ok)
-        try await Coder.updateRespone(response, for: request, with: .object(object))
+        try await Coder.updateRespone(
+            response,
+            for: request,
+            with: .object(object))
         return response
     }
 
@@ -29,8 +32,8 @@ public struct Coder {
     public static func updateRespone(
         _ response: Response,
         for request: Request,
-        with result: String)
-    {
+        with result: String
+    ) {
         let bytes = [UInt8](result.utf8)
         response.contentType = .text
         response.contentLength = bytes.count
@@ -41,8 +44,8 @@ public struct Coder {
     public static func updateRespone(
         _ response: Response,
         for request: Request,
-        with result: ApiResult) async throws
-    {
+        with result: ApiResult
+    ) async throws {
         switch result {
         case .string(let string):
             updateRespone(response, for: request, with: string)
@@ -71,8 +74,8 @@ public struct Coder {
     static func encode<Message: EncodableMessage>(
         object: Encodable,
         to message: Message,
-        contentType type: ApplicationSubtype) throws
-    {
+        contentType type: ApplicationSubtype
+    ) throws {
         switch type {
         case .json:
             // TODO: Use stream + chunked?
@@ -95,9 +98,9 @@ public struct Coder {
     // MARK: Transform route's Model from Request
 
     @inlinable
-    public static func getDecoder(for request: Request)
-        async throws -> Swift.Decoder
-    {
+    public static func getDecoder(
+        for request: Request
+    ) async throws -> Swift.Decoder {
         switch request.method {
         case .get:
             let values = request.url.query?.values ?? [:]
@@ -109,16 +112,16 @@ public struct Coder {
     }
 
     @inlinable
-    public static func getDecoder<Message>(for message: Message)
-        async throws -> Swift.Decoder where Message: DecodableMessage
-    {
+    public static func getDecoder<Message: DecodableMessage>(
+        for message: Message
+    ) async throws -> Swift.Decoder {
         return try await getBodyDecoder(for: message)
     }
 
     @inlinable
-    public static func getBodyDecoder<Message>(for message: Message)
-        async throws -> Swift.Decoder where Message: DecodableMessage
-    {
+    public static func getBodyDecoder<Message: DecodableMessage>(
+        for message: Message
+    ) async throws -> Swift.Decoder {
         guard let contentType = message.contentType else {
             throw Error.invalidRequest
         }
@@ -135,9 +138,9 @@ public struct Coder {
     }
 
     @inlinable
-    public static func getJSONDecoder<Message>(for message: Message) async throws
-        -> Swift.Decoder where Message: DecodableMessage
-    {
+    public static func getJSONDecoder<Message: DecodableMessage>(
+        for message: Message
+    ) async throws -> Swift.Decoder {
         switch message.body {
         case .input(let reader):
             let json = try await JSON.Value.decode(from: reader)
@@ -153,9 +156,9 @@ public struct Coder {
     }
 
     @inlinable
-    public static func getFormDecoder<Message>(for message: Message) async throws
-        -> Swift.Decoder where Message: DecodableMessage
-    {
+    public static func getFormDecoder<Message: DecodableMessage>(
+        for message: Message
+    ) async throws -> Swift.Decoder where Message: DecodableMessage {
         // TODO: Use stream
         let bytes = try await message.readBody()
         let values = try URL.Query(from: bytes).values
@@ -165,8 +168,8 @@ public struct Coder {
     @inlinable
     public static func decode<Model: Decodable>(
         _ type: Model.Type,
-        from request: Request) async throws -> Model
-    {
+        from request: Request
+    ) async throws -> Model {
         let decoder = try await getDecoder(for: request)
         return try type.init(from: decoder)
     }
@@ -174,8 +177,8 @@ public struct Coder {
     @inlinable
     public static func decode<Model: Decodable, Message: DecodableMessage>(
         _ type: Model.Type,
-        from message: Message) async throws -> Model
-    {
+        from message: Message
+    ) async throws -> Model {
         let decoder = try await getDecoder(for: message)
         return try type.init(from: decoder)
     }
@@ -183,7 +186,9 @@ public struct Coder {
 
 // GZip, Deflate
 extension Coder {
-    static func decode<Message: DecodableMessage>(_ message: inout Message) async throws {
+    static func decode<Message: DecodableMessage>(
+        _ message: inout Message
+    ) async throws {
         guard let contentEncoding = message.contentEncoding else {
             return
         }

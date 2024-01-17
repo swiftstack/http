@@ -26,7 +26,7 @@ test("Middleware") {
     }
 
     let request = Request(url: "/middleware", method: .get)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
 
     expect(response?.headers["Custom-Header"] == "Middleware")
 }
@@ -68,7 +68,7 @@ test("MiddlewareOrder") {
     }
 
     let request = Request(url: "/middleware", method: .get)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
 
     expect(response?.headers["FirstMiddleware"] == "true")
     expect(response?.headers["SecondMiddleware"] == "true")

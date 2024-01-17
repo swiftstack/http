@@ -36,8 +36,6 @@ extension Set where Element == UInt8 {
     static let fragmentAllowed = queryAllowed
 }
 
-import Stream
-
 extension AllowedBytes {
     static let digits = AllowedBytes(byteSet: [
         .zero, .one, .two, .three, .four, .five, .six, .seven, .eight, .nine

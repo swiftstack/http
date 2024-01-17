@@ -11,7 +11,8 @@ extension Array where Element == TransferEncoding {
                 endIndex =
                     bytes[startIndex...].firstIndex(of: .comma) ??
                     bytes.endIndex
-                let value = try TransferEncoding(from: bytes[startIndex..<endIndex])
+                let value = try TransferEncoding(
+                    from: bytes[startIndex..<endIndex])
                 values.append(value)
                 startIndex = endIndex.advanced(by: 1)
                 if startIndex < bytes.endIndex &&

@@ -26,7 +26,7 @@ test("MethodsVoid") {
 
     for method in requestMethods {
         let request = Request(url: "/", method: method)
-        let response = await router.handleRequest(request)
+        let response = await router.handle(request)
         expect(response?.status == .ok)
     }
 }
@@ -65,7 +65,7 @@ test("GetRequest") {
     }
 
     let request = Request(url: "/", method: .get)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .ok)
 }
 
@@ -79,7 +79,7 @@ test("PostRequest") {
     }
 
     let request = Request(url: "/", method: .post)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .ok)
 }
 
@@ -98,7 +98,7 @@ test("GetURLMatch") {
     }
 
     let request = Request(url: "/news/2", method: .get)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .ok)
 }
 
@@ -117,7 +117,7 @@ test("PostURLMatch") {
     }
 
     let request = Request(url: "/news/2", method: .post)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .ok)
 }
 
@@ -129,15 +129,14 @@ test("GetModel") {
         let number: Int
     }
 
-    router.route(path: "/", methods: [.get])
-    { (page: Page) in
+    router.route(path: "/", methods: [.get]) { (page: Page) in
         expect(page.name == "news")
         expect(page.number == 2)
         return Response(status: .ok)
     }
 
     let request = Request(url: "/?name=news&number=2", method: .get)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .ok)
 }
 
@@ -161,16 +160,16 @@ test("PostModel") {
         url: "/",
         method: .post,
         body: model)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .ok)
 
-    let formURLEncodedRequest = try Request(
+    let urlEncodedRequest = try Request(
         url: "/",
         method: .post,
         body: model,
         contentType: .formURLEncoded)
-    let formURLEncodedResponse = await router.handleRequest(formURLEncodedRequest)
-    expect(formURLEncodedResponse?.status == .ok)
+    let urlEncodedResponse = await router.handle(urlEncodedRequest)
+    expect(urlEncodedResponse?.status == .ok)
 }
 
 test("GetURLMatchModel") {
@@ -195,7 +194,7 @@ test("GetURLMatchModel") {
     }
 
     let request = Request(url: "/news/2?id=1&token=abcdef", method: .get)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .ok)
 }
 
@@ -225,7 +224,7 @@ test("PostURLMatchModel") {
         url: "/news/2",
         method: .post,
         body: model)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .ok)
 
     let formURLEncodedRequest = try Request(
@@ -233,7 +232,7 @@ test("PostURLMatchModel") {
         method: .post,
         body: model,
         contentType: .formURLEncoded)
-    let formResponse = await router.handleRequest(formURLEncodedRequest)
+    let formResponse = await router.handle(formURLEncodedRequest)
     expect(formResponse?.status == .ok)
 }
 
@@ -255,7 +254,7 @@ test("GetRequestURLMatch") {
     }
 
     let request = Request(url: "/news/2", method: .get)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .ok)
 }
 
@@ -277,7 +276,7 @@ test("PostRequestURLMatch") {
     }
 
     let request = Request(url: "/news/2", method: .post)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .ok)
 }
 
@@ -300,7 +299,7 @@ test("GetRequestModel") {
     }
 
     let request = Request(url: "/?name=news&number=2", method: .get)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .ok)
 }
 
@@ -326,7 +325,7 @@ test("PostRequestModel") {
         url: "/",
         method: .post,
         body: model)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .ok)
 
     let formURLEncodedRequest = try Request(
@@ -334,7 +333,7 @@ test("PostRequestModel") {
         method: .post,
         body: model,
         contentType: .formURLEncoded)
-    let formResponse = await router.handleRequest(formURLEncodedRequest)
+    let formResponse = await router.handle(formURLEncodedRequest)
     expect(formResponse?.status == .ok)
 }
 
@@ -364,7 +363,7 @@ test("GetRequestURLMatchModel") {
     }
 
     let request = Request(url: "/news/2?id=1&token=abcdef", method: .get)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .ok)
 }
 
@@ -397,7 +396,7 @@ test("PostRequestURLMatchModel") {
         url: "/news/2",
         method: .post,
         body: model)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .ok)
 
     let formURLEncodedRequest = try Request(
@@ -405,7 +404,7 @@ test("PostRequestURLMatchModel") {
         method: .post,
         body: model,
         contentType: .formURLEncoded)
-    let formResponse = await router.handleRequest(formURLEncodedRequest)
+    let formResponse = await router.handle(formURLEncodedRequest)
     expect(formResponse?.status == .ok)
 }
 
@@ -419,7 +418,7 @@ test("UnicodeRoute") {
     }
 
     let request = Request(url: "/новости", method: .get)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .ok)
 }
 

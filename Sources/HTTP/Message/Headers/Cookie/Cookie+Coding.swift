@@ -6,7 +6,9 @@ extension Array where Element == Cookie {
         while true {
             cookies.append(try await Cookie.decode(from: stream))
             // should be separated by a semi-colon and a space ('; ')
-            guard try await stream.consume(sequence: [.semicolon, .whitespace]) else {
+            guard
+                try await stream.consume(sequence: [.semicolon, .whitespace])
+            else {
                 break
             }
         }
@@ -26,8 +28,7 @@ extension Array where Element == Cookie {
 
 extension Cookie {
     static func decode<T: StreamReader>(from stream: T) async throws -> Self {
-        let name: String = try await stream.read(allowedBytes: .cookie)
-        { bytes in
+        let name = try await stream.read(allowedBytes: .cookie) { bytes in
             guard bytes.count > 0 else {
                 throw Error.invalidCookieHeader
             }

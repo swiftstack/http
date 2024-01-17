@@ -48,7 +48,7 @@ test("Url") {
         "\r\n")
     let request = try await Request.decode(from: stream)
     expect(request.url.path == "/test")
-    expect(request.url.query?.values == ["k1":"v1", "k2":"v2"])
+    expect(request.url.query?.values == ["k1": "v1", "k2": "v2"])
     expect(request.url.fragment == "fragment")
 }
 
@@ -156,7 +156,7 @@ test("AcceptHeader") {
         "\r\n")
     let request = try await Request.decode(from: stream)
     expect(request.accept == [
-        Request.Accept(.text(.html),priority: 1.0),
+        Request.Accept(.text(.html), priority: 1.0),
         Request.Accept(.application(.xml), priority: 0.9),
         Request.Accept(.any, priority: 0.8)
     ])

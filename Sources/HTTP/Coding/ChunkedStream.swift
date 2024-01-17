@@ -52,13 +52,13 @@ class ChunkedInputStream: InputStream {
         }
 
         if remainingChunkBytes == 0 {
-            remainingChunkBytes = try await baseStream.read(until: .cr)
-            { bytes -> Int in
-                guard let size = Int(from: bytes, radix: 16) else {
-                    throw Error.invalidRequest
+            remainingChunkBytes =
+                try await baseStream.read(until: .cr) { bytes -> Int in
+                    guard let size = Int(from: bytes, radix: 16) else {
+                        throw Error.invalidRequest
+                    }
+                    return size
                 }
-                return size
-            }
             try await readLineEnd()
         }
 
@@ -111,8 +111,8 @@ class ChunkedStreamReader: StreamReader {
     }
 
     func peek<T>(
-        count: Int, body: (UnsafeRawBufferPointer) throws -> T) async throws -> T
-    {
+        count: Int, body: (UnsafeRawBufferPointer) throws -> T
+    ) async throws -> T {
         return try await baseStream.peek(count: count, body: body)
     }
 
@@ -126,16 +126,16 @@ class ChunkedStreamReader: StreamReader {
 
     func read<T>(
         count: Int,
-        body: (UnsafeRawBufferPointer) throws -> T) async throws -> T
-    {
+        body: (UnsafeRawBufferPointer) throws -> T
+    ) async throws -> T {
         return try await baseStream.read(count: count, body: body)
     }
 
     func read<T>(
         mode: PredicateMode,
         while predicate: (UInt8) -> Bool,
-        body: (UnsafeRawBufferPointer) throws -> T) async throws -> T
-    {
+        body: (UnsafeRawBufferPointer) throws -> T
+    ) async throws -> T {
         return try await baseStream.read(
             mode: mode,
             while: predicate,
@@ -150,7 +150,10 @@ class ChunkedStreamReader: StreamReader {
         return try await baseStream.consume(byte)
     }
 
-    func consume(mode: PredicateMode, while predicate: (UInt8) -> Bool) async throws {
+    func consume(
+        mode: PredicateMode,
+        while predicate: (UInt8) -> Bool
+    ) async throws {
         return try await baseStream.consume(mode: mode, while: predicate)
     }
 }

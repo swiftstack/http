@@ -22,9 +22,10 @@ extension Request {
 
             @inline(__always)
             func readLineEnd() async throws {
-                guard try await stream.consume(.cr),
-                      try await stream.consume(.lf) else
-                {
+                guard
+                    try await stream.consume(.cr),
+                    try await stream.consume(.lf)
+                else {
                     throw Error.invalidRequest
                 }
             }
@@ -56,11 +57,11 @@ extension Request {
                     request.host = try await URL.Host.decode(from: stream)
                 case .userAgent:
                     // FIXME: validate
-                    request.userAgent = try await stream.read(until: .cr)
-                    { bytes in
-                        let trimmed = bytes.trimmingRightSpace()
-                        return String(decoding: trimmed, as: UTF8.self)
-                    }
+                    request.userAgent =
+                        try await stream.read(until: .cr) { bytes in
+                            let trimmed = bytes.trimmingRightSpace()
+                            return String(decoding: trimmed, as: UTF8.self)
+                        }
                 case .accept:
                     request.accept = try await .decode(from: stream)
                 case .acceptLanguage:
@@ -89,10 +90,10 @@ extension Request {
                     request.expect = try await .decode(from: stream)
                 default:
                     // FIXME: validate
-                    request.headers[name] = try await stream.read(until: .cr)
-                    { bytes in
-                        return String(decoding: bytes, as: UTF8.self)
-                    }
+                    request.headers[name] =
+                        try await stream.read(until: .cr) { bytes in
+                            return String(decoding: bytes, as: UTF8.self)
+                        }
                 }
 
                 try await readLineEnd()

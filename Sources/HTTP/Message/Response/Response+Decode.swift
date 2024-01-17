@@ -17,9 +17,10 @@ extension Response {
 
             @inline(__always)
             func readLineEnd() async throws {
-                guard try await stream.consume(.cr),
-                      try await stream.consume(.lf) else
-                {
+                guard
+                    try await stream.consume(.cr),
+                    try await stream.consume(.lf)
+                else {
                     throw Error.invalidResponse
                 }
             }
@@ -57,9 +58,10 @@ extension Response {
                     response.cookies.append(try await .decode(from: stream))
                 default:
                     // FIXME: validate
-                    response.headers[name] = try await stream.read(until: .cr) { bytes in
-                        return String(decoding: bytes, as: UTF8.self)
-                    }
+                    response.headers[name] =
+                        try await stream.read(until: .cr) { bytes in
+                            return String(decoding: bytes, as: UTF8.self)
+                        }
                 }
 
                 try await readLineEnd()

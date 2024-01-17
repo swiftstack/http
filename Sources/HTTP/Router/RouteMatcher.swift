@@ -1,8 +1,8 @@
 public class RouteMatcher<T> {
     class Node {
         var payload: [T] = []
-        var wildcard: Node? = nil
-        var rlist: [Node]? = nil
+        var wildcard: Node?
+        var rlist: [Node]?
     }
 
     let root = Node()

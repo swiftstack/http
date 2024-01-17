@@ -45,7 +45,7 @@ extension DecodableMessage {
                 bytes = try await stream.read(count: contentLength) { bytes in
                     return [UInt8](bytes)
                 }
-            } else if self.transferEncoding?.contains(.chunked) == true  {
+            } else if self.transferEncoding?.contains(.chunked) == true {
                 let reader = ChunkedStreamReader(baseStream: stream)
                 bytes = try await reader.readUntilEnd()
             } else {

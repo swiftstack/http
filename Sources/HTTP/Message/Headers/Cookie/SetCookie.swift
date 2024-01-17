@@ -4,13 +4,13 @@ import class Foundation.DateFormatter
 
 public struct SetCookie: Equatable {
     public var cookie: Cookie
-    public var domain: String? = nil
-    public var path: String? = nil
-    public var expires: Date? = nil
-    public var maxAge: Int? = nil
-    public var sameSite: String? = nil
-    public var secure: Bool? = nil
-    public var httpOnly: Bool? = nil
+    public var domain: String?
+    public var path: String?
+    public var expires: Date?
+    public var maxAge: Int?
+    public var sameSite: String?
+    public var secure: Bool?
+    public var httpOnly: Bool?
 
     public init(
         cookie: Cookie,
@@ -20,8 +20,8 @@ public struct SetCookie: Equatable {
         maxAge: Int? = nil,
         sameSite: String? = nil,
         secure: Bool? = nil,
-        httpOnly: Bool? = nil)
-    {
+        httpOnly: Bool? = nil
+    ) {
         self.cookie = cookie
         self.domain = domain
         self.path = path
@@ -43,8 +43,8 @@ extension SetCookie {
         maxAge: Int? = nil,
         sameSite: String? = nil,
         secure: Bool? = nil,
-        httpOnly: Bool? = nil)
-    {
+        httpOnly: Bool? = nil
+    ) {
         self.init(
             cookie: .init(name: name, value: value),
             domain: domain,

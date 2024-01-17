@@ -1,14 +1,14 @@
 public struct KeyValueEncoder {
     public init() {}
 
-    public func encode<T: Encodable>(_ value: T) throws -> [String : String] {
+    public func encode<T: Encodable>(_ value: T) throws -> [String: String] {
         let encoder = _KeyValueEncoder()
         try value.encode(to: encoder)
         return encoder.values
     }
 
     // FIXME: the same interface shadows the generic one
-    public func encode(encodable value: Encodable) throws -> [String : String] {
+    public func encode(encodable value: Encodable) throws -> [String: String] {
         let encoder = _KeyValueEncoder()
         try value.encode(to: encoder)
         return encoder.values
@@ -19,11 +19,11 @@ class _KeyValueEncoder: Encoder {
     var codingPath: [CodingKey] {
         return []
     }
-    var userInfo: [CodingUserInfoKey : Any] {
+    var userInfo: [CodingUserInfoKey: Any] {
         return [:]
     }
 
-    var values: [String : String] = [:]
+    var values: [String: String] = [:]
 
     func container<Key>(
         keyedBy type: Key.Type
@@ -121,7 +121,7 @@ struct KeyValueKeyedEncodingContainer<K: CodingKey>
     mutating func encode<T>(
         _ value: T,
         forKey key: K
-    ) throws where T : Encodable {
+    ) throws where T: Encodable {
         guard let string = value as? String else {
             fatalError("unsupported")
         }
@@ -221,7 +221,7 @@ struct KeyValueSingleValueEncodingContainer: SingleValueEncodingContainer {
         encoder.values["string"] = value.description
     }
 
-    mutating func encode<T>(_ value: T) throws where T : Encodable {
+    mutating func encode<T>(_ value: T) throws where T: Encodable {
         guard let string = value as? String else {
             fatalError("unsupported")
         }

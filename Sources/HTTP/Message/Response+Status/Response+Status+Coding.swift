@@ -146,10 +146,12 @@ extension Response.Status {
                 guard let spaceIndex = bytes.firstIndex(of: .whitespace) else {
                     throw Error.invalidStatus
                 }
-                guard let code = Int(String(
-                    decoding: bytes[..<spaceIndex],
-                    as: UTF8.self)) else
-                {
+                guard
+                    let code = Int(String(
+                        decoding: bytes[..<spaceIndex],
+                        as: UTF8.self)
+                    )
+                else {
                     throw Error.invalidStatus
                 }
                 let descriptionIndex = spaceIndex + 1

@@ -29,7 +29,7 @@ extension Request.Method {
     }
 }
 
-fileprivate struct RequestMethodBytes {
+private struct RequestMethodBytes {
     static let get = ASCII("GET")
     static let head = ASCII("HEAD")
     static let post = ASCII("POST")

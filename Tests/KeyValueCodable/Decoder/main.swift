@@ -3,7 +3,7 @@ import Test
 @testable import HTTP
 
 test("KeyedDecoder") {
-    let values = ["first":"one","second":"two"]
+    let values = ["first": "one", "second": "two"]
     struct Model: Decodable {
         let first: String
         let second: String?
@@ -14,7 +14,7 @@ test("KeyedDecoder") {
 }
 
 test("SingleValueDecoder") {
-    let value = ["integer":"42"]
+    let value = ["integer": "42"]
     let integer = try Int(from: KeyValueDecoder(value))
     expect(integer == 42)
 }

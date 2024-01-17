@@ -7,7 +7,9 @@ extension Array where Element == SetCookie {
         while true {
             cookies.append(try await .decode(from: stream))
             // should be separated by a semi-colon and a space ('; ')
-            guard try await stream.consume(sequence: [.semicolon, .whitespace]) else {
+            guard
+                try await stream.consume(sequence: [.semicolon, .whitespace])
+            else {
                 break
             }
         }
@@ -42,14 +44,17 @@ extension SetCookie {
 
         while true {
             // should be separated by a semi-colon and a space ('; ')
-            guard try await stream.consume(sequence: [.semicolon, .whitespace]) else {
+            guard
+                try await stream.consume(sequence: [.semicolon, .whitespace])
+            else {
                 break
             }
 
             // attibute name
-            let attributeHashValue = try await stream.read(allowedBytes: .token) { bytes in
-                return bytes.lowercasedHashValue
-            }
+            let attributeHashValue =
+                try await stream.read(allowedBytes: .token) { bytes in
+                    return bytes.lowercasedHashValue
+                }
 
             func consume(_ byte: UInt8) async throws {
                 guard try await stream.consume(byte) else {
@@ -59,8 +64,8 @@ extension SetCookie {
             // only in case if the attribute has a value
             func readValue(allowedBytes: AllowedBytes) async throws -> String {
                 try await consume(.equal)
-                return try await stream.read(allowedBytes: allowedBytes) { bytes in
-                    return String(decoding: bytes, as: UTF8.self)
+                return try await stream.read(allowedBytes: allowedBytes) {
+                    return String(decoding: $0, as: UTF8.self)
                 }
             }
 

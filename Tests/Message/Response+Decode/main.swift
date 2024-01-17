@@ -306,7 +306,7 @@ test("BodyBytesResponse") {
         "HTTP/1.1 200 OK\r\n" +
         "Content-Type: application/stream\r\n" +
         "Content-Length: 3\r\n" +
-        "\r\n") + [1,2,3]
+        "\r\n") + [1, 2, 3]
     let stream = InputByteStream(bytes)
     let response = try await Response.decode(from: stream)
     expect(
@@ -315,7 +315,7 @@ test("BodyBytesResponse") {
         ContentType(mediaType: .application(.stream))
     )
     expect(response.contentLength == 3)
-    expect(try await response.readBody() == [1,2,3])
+    expect(try await response.readBody() == [1, 2, 3])
 }
 
 test("BodyJsonResponse") {
@@ -332,7 +332,11 @@ test("BodyJsonResponse") {
         ContentType(mediaType: .application(.json))
     )
     expect(response.contentLength == 28)
-    expect(try await response.readBody() == ASCII("{'message': 'Hello, World!'}"))
+    expect(
+        try await response.readBody()
+        ==
+        ASCII("{'message': 'Hello, World!'}")
+    )
 }
 
 test("BodyZeroContentLenght") {

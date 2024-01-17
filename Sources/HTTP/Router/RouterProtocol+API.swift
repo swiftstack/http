@@ -2,7 +2,7 @@
 /** Convenience routes **/
 /************************/
 
-// MARK: -> Response
+// MARK: () -> Response
 
 extension RouterProtocol {
     // GET
@@ -559,7 +559,7 @@ extension RouterProtocol {
     }
 }
 
-// MARK: -> Result
+// MARK: () -> Result
 
 extension RouterProtocol {
     // GET

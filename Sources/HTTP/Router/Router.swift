@@ -81,15 +81,15 @@ extension Router {
         return try await handler(request)
     }
 
-    func handleRequest(_ request: Request) async -> Response? {
+    func handle(_ request: Request) async -> Response? {
         do {
             return try await process(request)
         } catch {
-            return await handleError(error, for: request)
+            return await handle(error, for: request)
         }
     }
 
-    func handleError(_ error: Swift.Error, for request: Request) async -> Response? {
+    func handle(_ error: Swift.Error, for request: Request) async -> Response? {
         await Log.error(String(describing: error))
         return Response(status: .internalServerError)
     }

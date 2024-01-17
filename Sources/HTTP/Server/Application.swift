@@ -9,8 +9,8 @@ public class Application: RouterProtocol {
             path: String,
             methods: Router.MethodSet,
             middleware: [Middleware.Type],
-            handler: @escaping RequestHandler)
-        {
+            handler: @escaping RequestHandler
+        ) {
             self.path = path
             self.methods = methods
             self.middleware = middleware

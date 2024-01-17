@@ -4,14 +4,14 @@ public final class Response {
     public var status: Status = .ok
     public var version: Version = .oneOne
 
-    public var connection: Connection? = nil
-    public var contentEncoding: [ContentEncoding]? = nil
-    public var contentType: ContentType? = nil
-    public var contentLength: Int? = nil
-    public var transferEncoding: [TransferEncoding]? = nil
+    public var connection: Connection?
+    public var contentEncoding: [ContentEncoding]?
+    public var contentType: ContentType?
+    public var contentLength: Int?
+    public var transferEncoding: [TransferEncoding]?
     public var cookies: [SetCookie] = []
 
-    public var headers: [HeaderName : String] = [:]
+    public var headers: [HeaderName: String] = [:]
 
     public var body: Body = .output([])
 
@@ -29,8 +29,8 @@ extension Response {
     public convenience init(
         status: Status = .ok,
         bytes: [UInt8],
-        contentType: ContentType = .stream)
-    {
+        contentType: ContentType = .stream
+    ) {
         self.init()
         self.body = .output(bytes)
         self.contentType = contentType
@@ -40,8 +40,8 @@ extension Response {
     public convenience init(
         status: Status = .ok,
         string: String,
-        contentType: ContentType = .text)
-    {
+        contentType: ContentType = .text
+    ) {
         self.init(
             status: status,
             bytes: [UInt8](string.utf8),

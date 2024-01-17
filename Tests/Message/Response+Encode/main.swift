@@ -311,8 +311,8 @@ test("BodyBytesResponse") {
         "HTTP/1.1 200 OK\r\n" +
         "Content-Type: application/stream\r\n" +
         "Content-Length: 3\r\n" +
-        "\r\n") + [1,2,3]
-    let data: [UInt8] = [1,2,3]
+        "\r\n") + [1, 2, 3]
+    let data: [UInt8] = [1, 2, 3]
     let response = Response(bytes: data)
     expect(response.contentType == .stream)
     expect(response.contentLength == 3)
@@ -328,7 +328,7 @@ test("BodyJsonResponse") {
         "{\"message\":\"Hello, World!\"}"
 
     let response = try Response.init(
-        body: ["message" : "Hello, World!"])
+        body: ["message": "Hello, World!"])
 
     expect(response.contentType == .json)
     expect(response.contentLength == 27)
@@ -344,7 +344,7 @@ test("BodyUrlFormEncodedResponse") {
         "message=Hello,%20World!"
 
     let response = try Response(
-        body: ["message" : "Hello, World!"],
+        body: ["message": "Hello, World!"],
         contentType: .formURLEncoded)
 
     expect(response.contentType == .formURLEncoded)

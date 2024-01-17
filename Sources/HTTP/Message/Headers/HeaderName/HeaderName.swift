@@ -43,7 +43,7 @@ public struct HeaderName: Hashable {
        hasher.combine(_hashValue)
     }
 
-    public static func ==(lhs: HeaderName, rhs: HeaderName) -> Bool {
+    public static func == (lhs: HeaderName, rhs: HeaderName) -> Bool {
         return lhs.hashValue == rhs.hashValue
     }
 }

@@ -60,7 +60,7 @@ public class Server {
                 try await `continue`.encode(to: outputStream)
                 try await outputStream.flush()
             }
-            if let response = await handleRequest(request) {
+            if let response = await handle(request) {
                 try await response.encode(to: outputStream)
                 try await outputStream.flush()
             }
@@ -71,7 +71,7 @@ public class Server {
     }
 
     @inline(__always)
-    func handleRequest(_ request: Request) async -> Response? {
-        return await router.handleRequest(request)
+    func handle(_ request: Request) async -> Response? {
+        return await router.handle(request)
     }
 }

@@ -2,12 +2,12 @@ public struct KeyValueDecoder: Decoder {
     public var codingPath: [CodingKey] {
         return []
     }
-    public var userInfo: [CodingUserInfoKey : Any] {
+    public var userInfo: [CodingUserInfoKey: Any] {
         return [:]
     }
 
-    let values: [String : String]
-    public init(_ values: [String : String]) {
+    let values: [String: String]
+    public init(_ values: [String: String]) {
         self.values = values
     }
 
@@ -27,7 +27,7 @@ public struct KeyValueDecoder: Decoder {
     }
 }
 
-struct KeyValueKeyedDecodingContainer<K : CodingKey>
+struct KeyValueKeyedDecodingContainer<K: CodingKey>
 : KeyedDecodingContainerProtocol {
     var codingPath: [CodingKey] {
         return []
@@ -202,7 +202,7 @@ struct KeyValueKeyedDecodingContainer<K : CodingKey>
 
     func decode<T>(
         _ type: T.Type, forKey key: K
-    ) throws -> T where T : Decodable {
+    ) throws -> T where T: Decodable {
         fatalError("unsupported")
     }
 
@@ -378,7 +378,7 @@ struct KeyValueSingleValueDecodingContainer: SingleValueDecodingContainer {
         return value
     }
 
-    func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
+    func decode<T>(_ type: T.Type) throws -> T where T: Decodable {
         fatalError("unsupported")
     }
 }

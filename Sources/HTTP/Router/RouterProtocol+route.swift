@@ -107,8 +107,7 @@ extension RouterProtocol {
         for path: String,
         wrapping handler: @escaping (URLMatch, Model) async throws -> Response
     ) -> RequestHandler {
-        return makeHandler(for: path)
-        { (_: Request, match: URLMatch, model: Model) in
+        makeHandler(for: path) { (_: Request, match: URLMatch, model: Model) in
             try await handler(match, model)
         }
     }

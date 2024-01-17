@@ -15,7 +15,7 @@ test("InternalServerError") {
     }
 
     let request = Request(url: "/", method: .get)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .internalServerError)
 }
 
@@ -29,7 +29,7 @@ test("NotFound") {
     }
 
     let request = Request(url: "/", method: .get)
-    let response = await router.handleRequest(request)
+    let response = await router.handle(request)
     expect(response?.status == .notFound)
 }
 

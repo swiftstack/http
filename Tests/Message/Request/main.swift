@@ -29,7 +29,7 @@ test("DefaultURL") {
 test("FromString") {
     let request = Request(url: "/test?query=true")
     expect(request.url.path == "/test")
-    expect(request.url.query == ["query" : "true"])
+    expect(request.url.query == ["query": "true"])
 }
 
 await run()

@@ -36,7 +36,7 @@ test("Expect") {
         let name: String
     }
 
-    server.route(post: "/test") { (user: User) in
+    server.route(post: "/test") { (_: User) in
         return Response(status: .ok)
     }
 

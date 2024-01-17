@@ -14,8 +14,8 @@ public struct URLParamMatcher {
         self.params = params.reversed()
     }
 
-    public func match(from url: String) -> [String : String] {
-        var dictionary: [String : String] = [:]
+    public func match(from url: String) -> [String: String] {
+        var dictionary: [String: String] = [:]
 
         let scalars = url.unicodeScalars
         var endIndex = scalars.endIndex
