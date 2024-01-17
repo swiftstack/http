@@ -4,8 +4,8 @@ import PackageDescription
 let package = Package(
     name: "HTTP",
     platforms: [
-        .iOS(.v13),
-        .macOS(.v10_15),
+        .iOS("16"),
+        .macOS("13"),
     ],
     products: [
         .library(
