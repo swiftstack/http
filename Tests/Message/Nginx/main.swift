@@ -4,7 +4,7 @@ import Stream
 
 @testable import HTTP
 
-test.case("CurlGet") {
+test("CurlGet") {
     let stream = InputByteStream(
         "GET /test HTTP/1.1\r\n" +
         "User-Agent: curl/7.18.0 (i486-pc-linux-gnu) libcurl/7.18.0 OpenSSL/0.9.8g zlib/1.2.3.3 libidn/1.1\r\n" +
@@ -19,7 +19,7 @@ test.case("CurlGet") {
     expect(request.host == URL.Host(address: "0.0.0.0", port: 5000))
 }
 
-test.case("FirefoxGet") {
+test("FirefoxGet") {
     let stream = InputByteStream(
         "GET /favicon.ico HTTP/1.1\r\n" +
         "Host: 0.0.0.0:5000\r\n" +
@@ -58,7 +58,7 @@ test.case("FirefoxGet") {
     expect(request.connection == .keepAlive)
 }
 
-test.case("ChankedAllYourBase") {
+test("ChankedAllYourBase") {
     let stream = InputByteStream(
         "POST /post_chunked_all_your_base HTTP/1.1\r\n" +
         "Transfer-Encoding: chunked\r\n" +
@@ -72,4 +72,4 @@ test.case("ChankedAllYourBase") {
     expect(body == ASCII("all your base are belong to us"))
 }
 
-await test.run()
+await run()

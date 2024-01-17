@@ -2,7 +2,7 @@ import Test
 
 @testable import HTTP
 
-test.case("Application") {
+test("Application") {
     let application = Application()
 
     application.route(get: "/test") {
@@ -14,7 +14,7 @@ test.case("Application") {
     expect(try await response.readBody() == ASCII("test ok"))
 }
 
-test.case("ApplicationBasePath") {
+test("ApplicationBasePath") {
     let application = Application(basePath: "/v1")
 
     application.route(get: "/test") {
@@ -25,7 +25,7 @@ test.case("ApplicationBasePath") {
     expect(try await response.readBody() == ASCII("test ok"))
 }
 
-test.case("ApplicationMiddleware") {
+test("ApplicationMiddleware") {
     struct FirstMiddleware: Middleware {
         public static func chain(
             with handler: @escaping RequestHandler
@@ -60,8 +60,8 @@ test.case("ApplicationMiddleware") {
 
     application.route(
         get: "/first-second",
-        through: [SecondMiddleware.self])
-    {
+        through: [SecondMiddleware.self]
+    ) {
         return Response(string: "first-second ok")
     }
     let firstRequest = Request(url: "/first", method: .get)
@@ -78,4 +78,4 @@ test.case("ApplicationMiddleware") {
     expect(secondResponse.headers["SecondMiddleware"] == "true")
 }
 
-await test.run()
+await run()

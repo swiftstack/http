@@ -3,35 +3,35 @@ import Stream
 
 @testable import HTTP
 
-test.case("Basic") {
+test("Basic") {
     let stream = InputByteStream("Basic sYbe7s3c73Tt0k3n")
     let basic = try await Request.Authorization.decode(from: stream)
     expect(basic == .basic(credentials: "sYbe7s3c73Tt0k3n"))
 }
 
-test.case("Bearer") {
+test("Bearer") {
     let stream = InputByteStream("Bearer sYbe7s3c73Tt0k3n")
     let bearer = try await Request.Authorization.decode(from: stream)
     expect(bearer == .bearer(credentials: "sYbe7s3c73Tt0k3n"))
 }
 
-test.case("Token") {
+test("Token") {
     let stream = InputByteStream("Token sYbe7s3c73Tt0k3n")
     let token = try await Request.Authorization.decode(from: stream)
     expect(token == .token(credentials: "sYbe7s3c73Tt0k3n"))
 }
 
-test.case("Custom") {
+test("Custom") {
     let stream = InputByteStream("Custom sYbe7s3c73Tt0k3n")
     let custom = try await Request.Authorization.decode(from: stream)
     expect(custom == .custom(
         scheme: "Custom", credentials: "sYbe7s3c73Tt0k3n"))
 }
 
-test.case("Lowercased") {
+test("Lowercased") {
     let stream = InputByteStream("token sYbe7s3c73Tt0k3n")
     let token = try await Request.Authorization.decode(from: stream)
     expect(token == .token(credentials: "sYbe7s3c73Tt0k3n"))
 }
 
-await test.run()
+await run()

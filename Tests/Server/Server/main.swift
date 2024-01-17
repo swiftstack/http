@@ -3,7 +3,7 @@ import Stream
 
 @testable import HTTP
 
-test.case("Server") {
+test("Server") {
     guard let server = try? Server(host: "127.0.0.1", port: 4001) else {
         fail()
         return
@@ -26,7 +26,7 @@ test.case("Server") {
     expect(response == expected)
 }
 
-test.case("Expect") {
+test("Expect") {
     guard let server = try? Server(host: "127.0.0.1", port: 4002) else {
         fail()
         return
@@ -68,7 +68,7 @@ test.case("Expect") {
     expect(response == expected)
 }
 
-test.case("BufferSize") {
+test("BufferSize") {
     let server = try Server(
         host: "0.0.0.0",
         port: 4003)
@@ -77,7 +77,7 @@ test.case("BufferSize") {
     expect(server.bufferSize == 16384)
 }
 
-test.case("Description") {
+test("Description") {
     let server = try Server(
         host: "127.0.0.1",
         port: 4004)
@@ -85,4 +85,4 @@ test.case("Description") {
     expect(server.address == "http://127.0.0.1:4004")
 }
 
-await test.run()
+await run()

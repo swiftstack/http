@@ -4,7 +4,7 @@ import Stream
 @testable import HTTP
 import struct Foundation.Date
 
-test.case("Ok") {
+test("Ok") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "\r\n")
@@ -12,7 +12,7 @@ test.case("Ok") {
     expect(response.status == .ok)
 }
 
-test.case("NotFound") {
+test("NotFound") {
     let stream = InputByteStream(
         "HTTP/1.1 404 Not Found\r\n" +
         "\r\n")
@@ -20,7 +20,7 @@ test.case("NotFound") {
     expect(response.status == .notFound)
 }
 
-test.case("Moved") {
+test("Moved") {
     let stream = InputByteStream(
         "HTTP/1.1 301 Moved Permanently\r\n" +
         "\r\n")
@@ -28,7 +28,7 @@ test.case("Moved") {
     expect(response.status == .moved)
 }
 
-test.case("Bad") {
+test("Bad") {
     let stream = InputByteStream(
         "HTTP/1.1 400 Bad Request\r\n" +
         "\r\n")
@@ -36,7 +36,7 @@ test.case("Bad") {
     expect(response.status == .badRequest)
 }
 
-test.case("Unauthorized") {
+test("Unauthorized") {
     let stream = InputByteStream(
         "HTTP/1.1 401 Unauthorized\r\n" +
         "\r\n")
@@ -44,7 +44,7 @@ test.case("Unauthorized") {
     expect(response.status == .unauthorized)
 }
 
-test.case("InternalServerError") {
+test("InternalServerError") {
     let stream = InputByteStream(
         "HTTP/1.1 500 Internal Server Error\r\n" +
         "\r\n")
@@ -52,8 +52,7 @@ test.case("InternalServerError") {
     expect(response.status == .internalServerError)
 }
 
-
-test.case("ContentLength") {
+test("ContentLength") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -62,7 +61,7 @@ test.case("ContentLength") {
     expect(response.contentLength == 0)
 }
 
-test.case("ContentType") {
+test("ContentType") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Type: text/plain\r\n" +
@@ -72,7 +71,7 @@ test.case("ContentType") {
     expect(response.contentType == .text)
 }
 
-test.case("Connection") {
+test("Connection") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -82,7 +81,7 @@ test.case("Connection") {
     expect(response.connection == .close)
 }
 
-test.case("ContentEncoding") {
+test("ContentEncoding") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -92,7 +91,7 @@ test.case("ContentEncoding") {
     expect(response.contentEncoding == [.gzip, .deflate])
 }
 
-test.case("TransferEncoding") {
+test("TransferEncoding") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -102,7 +101,7 @@ test.case("TransferEncoding") {
     expect(response.transferEncoding == [.gzip, .chunked])
 }
 
-test.case("CustomHeader") {
+test("CustomHeader") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -112,7 +111,7 @@ test.case("CustomHeader") {
     expect(response.headers["User"] == "guest")
 }
 
-test.case("SetCookie") {
+test("SetCookie") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -124,7 +123,7 @@ test.case("SetCookie") {
     ])
 }
 
-test.case("SetCookieExpires") {
+test("SetCookieExpires") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -139,7 +138,7 @@ test.case("SetCookieExpires") {
         ])
 }
 
-test.case("SetCookieMaxAge") {
+test("SetCookieMaxAge") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -151,7 +150,7 @@ test.case("SetCookieMaxAge") {
     ])
 }
 
-test.case("SetCookieHttpOnly") {
+test("SetCookieHttpOnly") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -163,7 +162,7 @@ test.case("SetCookieHttpOnly") {
     ])
 }
 
-test.case("SetCookieSecure") {
+test("SetCookieSecure") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -175,7 +174,7 @@ test.case("SetCookieSecure") {
     ])
 }
 
-test.case("SetCookieDomain") {
+test("SetCookieDomain") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -190,7 +189,7 @@ test.case("SetCookieDomain") {
     ])
 }
 
-test.case("SetCookiePath") {
+test("SetCookiePath") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -202,7 +201,7 @@ test.case("SetCookiePath") {
     ])
 }
 
-test.case("SetCookieManyValues") {
+test("SetCookieManyValues") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Set-Cookie: num=0; Path=/; Max-Age=42; Secure; HttpOnly\r\n" +
@@ -249,7 +248,7 @@ test.case("SetCookieManyValues") {
             expires: Date(timeIntervalSince1970: 1536237674.0)))
 }
 
-test.case("SetCookieEqualSingInTheValue") {
+test("SetCookieEqualSingInTheValue") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Set-Cookie: key=value=\r\n" +
@@ -258,7 +257,7 @@ test.case("SetCookieEqualSingInTheValue") {
     expect(response.cookies == [.init(name: "key", value: "value=")])
 }
 
-test.case("SetCookieSameSite") {
+test("SetCookieSameSite") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Set-Cookie: n=v; SameSite=Lax\r\n" +
@@ -269,7 +268,7 @@ test.case("SetCookieSameSite") {
 
 // MARK: Body
 
-test.case("BodyStringResponse") {
+test("BodyStringResponse") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Type: text/plain\r\n" +
@@ -285,7 +284,7 @@ test.case("BodyStringResponse") {
     expect(try await response.readBody() == ASCII("Hello"))
 }
 
-test.case("BodyHtmlResponse") {
+test("BodyHtmlResponse") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Type: text/html\r\n" +
@@ -302,7 +301,7 @@ test.case("BodyHtmlResponse") {
     expect(try await response.readBody() == ASCII("<html></html>"))
 }
 
-test.case("BodyBytesResponse") {
+test("BodyBytesResponse") {
     let bytes = ASCII(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Type: application/stream\r\n" +
@@ -319,7 +318,7 @@ test.case("BodyBytesResponse") {
     expect(try await response.readBody() == [1,2,3])
 }
 
-test.case("BodyJsonResponse") {
+test("BodyJsonResponse") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Type: application/json\r\n" +
@@ -336,7 +335,7 @@ test.case("BodyJsonResponse") {
     expect(try await response.readBody() == ASCII("{'message': 'Hello, World!'}"))
 }
 
-test.case("BodyZeroContentLenght") {
+test("BodyZeroContentLenght") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -346,7 +345,7 @@ test.case("BodyZeroContentLenght") {
     expect(try await response.readBody() == [])
 }
 
-test.case("BodyChunked") {
+test("BodyChunked") {
     let stream = InputByteStream(
         "HTTP/1.1 200 OK\r\n" +
         "Transfer-Encoding: chunked\r\n" +
@@ -359,4 +358,4 @@ test.case("BodyChunked") {
     expect(try await response.readBody() == ASCII("Hello, World!"))
 }
 
-await test.run()
+await run()

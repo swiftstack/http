@@ -2,7 +2,7 @@ import Test
 
 @testable import HTTP
 
-test.case("KeyedDecoder") {
+test("KeyedDecoder") {
     let values = ["first":"one","second":"two"]
     struct Model: Decodable {
         let first: String
@@ -13,10 +13,10 @@ test.case("KeyedDecoder") {
     expect(object.second == "two")
 }
 
-test.case("SingleValueDecoder") {
+test("SingleValueDecoder") {
     let value = ["integer":"42"]
     let integer = try Int(from: KeyValueDecoder(value))
     expect(integer == 42)
 }
 
-await test.run()
+await run()

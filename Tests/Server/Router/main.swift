@@ -2,7 +2,7 @@ import Test
 
 @testable import HTTP
 
-test.case("MethodsVoid") {
+test("MethodsVoid") {
     let router = Router()
 
     let methodsCollection: [Router.MethodSet] = [
@@ -31,7 +31,7 @@ test.case("MethodsVoid") {
     }
 }
 
-test.case("AllVoid") {
+test("AllVoid") {
     let router = Router()
 
     router.route(path: "/", methods: [.all]) {
@@ -55,7 +55,7 @@ test.case("AllVoid") {
     }
 }
 
-test.case("GetRequest") {
+test("GetRequest") {
     let router = Router()
 
     router.route(path: "/", methods: [.get]) { (request: Request) in
@@ -69,7 +69,7 @@ test.case("GetRequest") {
     expect(response?.status == .ok)
 }
 
-test.case("PostRequest") {
+test("PostRequest") {
     let router = Router()
 
     router.route(path: "/", methods: [.post]) { (request: Request) in
@@ -83,7 +83,7 @@ test.case("PostRequest") {
     expect(response?.status == .ok)
 }
 
-test.case("GetURLMatch") {
+test("GetURLMatch") {
     let router = Router()
 
     struct Page: Decodable {
@@ -102,7 +102,7 @@ test.case("GetURLMatch") {
     expect(response?.status == .ok)
 }
 
-test.case("PostURLMatch") {
+test("PostURLMatch") {
     let router = Router()
 
     struct Page: Decodable {
@@ -121,7 +121,7 @@ test.case("PostURLMatch") {
     expect(response?.status == .ok)
 }
 
-test.case("GetModel") {
+test("GetModel") {
     let router = Router()
 
     struct Page: Decodable {
@@ -141,7 +141,7 @@ test.case("GetModel") {
     expect(response?.status == .ok)
 }
 
-test.case("PostModel") {
+test("PostModel") {
     let router = Router()
 
     struct Page: Codable {
@@ -173,7 +173,7 @@ test.case("PostModel") {
     expect(formURLEncodedResponse?.status == .ok)
 }
 
-test.case("GetURLMatchModel") {
+test("GetURLMatchModel") {
     let router = Router()
 
     struct Page: Decodable {
@@ -199,7 +199,7 @@ test.case("GetURLMatchModel") {
     expect(response?.status == .ok)
 }
 
-test.case("PostURLMatchModel") {
+test("PostURLMatchModel") {
     let router = Router()
 
     struct Page: Decodable {
@@ -237,7 +237,7 @@ test.case("PostURLMatchModel") {
     expect(formResponse?.status == .ok)
 }
 
-test.case("GetRequestURLMatch") {
+test("GetRequestURLMatch") {
     let router = Router()
 
     struct Page: Decodable {
@@ -259,7 +259,7 @@ test.case("GetRequestURLMatch") {
     expect(response?.status == .ok)
 }
 
-test.case("PostRequestURLMatch") {
+test("PostRequestURLMatch") {
     let router = Router()
 
     struct Page: Decodable {
@@ -281,7 +281,7 @@ test.case("PostRequestURLMatch") {
     expect(response?.status == .ok)
 }
 
-test.case("GetRequestModel") {
+test("GetRequestModel") {
     let router = Router()
 
     struct Page: Decodable {
@@ -304,7 +304,7 @@ test.case("GetRequestModel") {
     expect(response?.status == .ok)
 }
 
-test.case("PostRequestModel") {
+test("PostRequestModel") {
     let router = Router()
 
     struct Page: Codable {
@@ -338,7 +338,7 @@ test.case("PostRequestModel") {
     expect(formResponse?.status == .ok)
 }
 
-test.case("GetRequestURLMatchModel") {
+test("GetRequestURLMatchModel") {
     let router = Router()
 
     struct Page: Decodable {
@@ -368,7 +368,7 @@ test.case("GetRequestURLMatchModel") {
     expect(response?.status == .ok)
 }
 
-test.case("PostRequestURLMatchModel") {
+test("PostRequestURLMatchModel") {
     let router = Router()
 
     struct Page: Decodable {
@@ -409,7 +409,7 @@ test.case("PostRequestURLMatchModel") {
     expect(formResponse?.status == .ok)
 }
 
-test.case("UnicodeRoute") {
+test("UnicodeRoute") {
     let router = Router()
 
     router.route(path: "/новости", methods: [.get]) { (request: Request) in
@@ -423,4 +423,4 @@ test.case("UnicodeRoute") {
     expect(response?.status == .ok)
 }
 
-await test.run()
+await run()

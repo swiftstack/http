@@ -5,12 +5,12 @@ import Network
 
 @testable import HTTP
 
-test.case("Initializer") {
+test("Initializer") {
     let client = HTTP.Client(host: "127.0.0.1", port: 80)
     expect(client.host == URL.Host(address: "127.0.0.1", port: 80))
 }
 
-test.case("URLInitializer") {
+test("URLInitializer") {
     guard let client = HTTP.Client(url: "http://127.0.0.1") else {
         fail()
         return
@@ -18,7 +18,7 @@ test.case("URLInitializer") {
     expect(client.host == URL.Host(address: "127.0.0.1", port: 80))
 }
 
-test.case("Request") {
+test("Request") {
     let requestString =
         "GET / HTTP/1.1\r\n" +
         "Host: 127.0.0.1:8080\r\n" +
@@ -40,7 +40,7 @@ test.case("Request") {
     expect(response.status == .ok)
 }
 
-test.case("Deflate") {
+test("Deflate") {
     let requestString =
         "GET / HTTP/1.1\r\n" +
         "Host: 127.0.0.1:8080\r\n" +
@@ -73,7 +73,7 @@ test.case("Deflate") {
     expect(try await response.readBody() == ASCII("Hello, World!"))
 }
 
-test.case("GZip") {
+test("GZip") {
     let requestString =
         "GET / HTTP/1.1\r\n" +
         "Host: 127.0.0.1:8080\r\n" +
@@ -109,4 +109,4 @@ test.case("GZip") {
     expect(try await response.readBody() == ASCII("Hello, World!"))
 }
 
-await test.run()
+await run()

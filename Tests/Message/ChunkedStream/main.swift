@@ -3,7 +3,7 @@ import Stream
 
 @testable import HTTP
 
-test.case("OutputStream") {
+test("OutputStream") {
     let byteStream = OutputByteStream()
     let chunkedStream = ChunkedStreamWriter(baseStream: byteStream)
     try await chunkedStream.write("Hello, World!")
@@ -12,7 +12,7 @@ test.case("OutputStream") {
     expect(byteStream.stringValue == "d\r\nHello, World!\r\n0\r\n\r\n")
 }
 
-test.case("InputStream") {
+test("InputStream") {
     let chunked = "d\r\nHello, World!\r\n0\r\n\r\n"
     let byteStream = InputByteStream(ASCII(chunked))
     let chunkedStream = ChunkedStreamReader(baseStream: byteStream)
@@ -20,7 +20,7 @@ test.case("InputStream") {
     expect(string == "Hello, World!")
 }
 
-test.case("OutputStreamMultiline") {
+test("OutputStreamMultiline") {
     let byteStream = OutputByteStream()
     let chunkedStream = ChunkedStreamWriter(baseStream: byteStream)
     try await chunkedStream.write("This is the data in the first chunk")
@@ -38,7 +38,7 @@ test.case("OutputStreamMultiline") {
     expect(byteStream.stringValue == expected)
 }
 
-test.case("InputStreamMultiline") {
+test("InputStreamMultiline") {
     let chunked = "23\r\nThis is the data in the first chunk\r\n" +
         "1A\r\nand this is the second one\r\n" +
         "3\r\ncon\r\n" +
@@ -55,7 +55,7 @@ test.case("InputStreamMultiline") {
 }
 
 // TODO: make it work with 256 byte buffer
-test.case("SmallerBufferSize") {
+test("SmallerBufferSize") {
     let chars300 =
         "Simple 30 byte string number 0" +
         "Simple 30 byte string number 1" +
@@ -77,4 +77,4 @@ test.case("SmallerBufferSize") {
     expect(string == chars300)
 }
 
-await test.run()
+await run()

@@ -2,34 +2,34 @@ import Test
 
 @testable import HTTP
 
-test.case("Request") {
+test("Request") {
     let request = Request(url: "/", method: .get)
     expect(request.method == .get)
     expect(request.url.path == "/")
 }
 
-test.case("DefaultRequest") {
+test("DefaultRequest") {
     let request = Request()
     expect(request.method == .get)
     expect(request.url.path == "/")
 }
 
-test.case("DefaultMethod") {
+test("DefaultMethod") {
     let request = Request(url: "/")
     expect(request.method == .get)
     expect(request.url.path == "/")
 }
 
-test.case("DefaultURL") {
+test("DefaultURL") {
     let request = Request(method: .get)
     expect(request.method == .get)
     expect(request.url.path == "/")
 }
 
-test.case("FromString") {
+test("FromString") {
     let request = Request(url: "/test?query=true")
     expect(request.url.path == "/test")
     expect(request.url.query == ["query" : "true"])
 }
 
-await test.run()
+await run()

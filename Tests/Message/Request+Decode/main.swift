@@ -6,43 +6,43 @@ import Stream
 
 // MARK: Start line
 
-test.case("Get") {
+test("Get") {
     let stream = InputByteStream("GET /test HTTP/1.1\r\n\r\n")
     let request = try await Request.decode(from: stream)
     expect(request.method == Request.Method.get)
 }
 
-test.case("Head") {
+test("Head") {
     let stream = InputByteStream("HEAD /test HTTP/1.1\r\n\r\n")
     let request = try await Request.decode(from: stream)
     expect(request.method == Request.Method.head)
 }
 
-test.case("Post") {
+test("Post") {
     let stream = InputByteStream("POST /test HTTP/1.1\r\n\r\n")
     let request = try await Request.decode(from: stream)
     expect(request.method == Request.Method.post)
 }
 
-test.case("Put") {
+test("Put") {
     let stream = InputByteStream("PUT /test HTTP/1.1\r\n\r\n")
     let request = try await Request.decode(from: stream)
     expect(request.method == Request.Method.put)
 }
 
-test.case("Delete") {
+test("Delete") {
     let stream = InputByteStream("DELETE /test HTTP/1.1\r\n\r\n")
     let request = try await Request.decode(from: stream)
     expect(request.method == Request.Method.delete)
 }
 
-test.case("Version") {
+test("Version") {
     let stream = InputByteStream("GET /test HTTP/1.1\r\n\r\n")
     let request = try await Request.decode(from: stream)
     expect(request.version == Version.oneOne)
 }
 
-test.case("Url") {
+test("Url") {
     let stream = InputByteStream(
         "GET /test?k1=v1&k2=v2#fragment HTTP/1.1\r\n" +
         "\r\n")
@@ -52,56 +52,56 @@ test.case("Url") {
     expect(request.url.fragment == "fragment")
 }
 
-test.case("InvalidRequest") {
+test("InvalidRequest") {
     let stream = InputByteStream("GET\r\n\r\n")
     await expect(throws: Error.invalidStartLine) {
         try await Request.decode(from: stream)
     }
 }
 
-test.case("InvalidRequest2") {
+test("InvalidRequest2") {
     let stream = InputByteStream("GET \r\n\r\n")
     await expect(throws: Error.invalidStartLine) {
         try await Request.decode(from: stream)
     }
 }
 
-test.case("InvalidMethod") {
+test("InvalidMethod") {
     let stream = InputByteStream("BAD /test HTTP/1.1\r\n\r\n")
     await expect(throws: Error.invalidMethod) {
         try await Request.decode(from: stream)
     }
 }
 
-test.case("InvalidVersion") {
+test("InvalidVersion") {
     let stream = InputByteStream("GET /test HTTP/0.1\r\n\r\n")
     await expect(throws: Error.invalidVersion) {
         try await Request.decode(from: stream)
     }
 }
 
-test.case("InvalidVersion2") {
+test("InvalidVersion2") {
     let stream = InputByteStream("GET /test HTTP/1.1WUT\r\n\r\n")
     await expect(throws: Error.invalidRequest) {
         try await Request.decode(from: stream)
     }
 }
 
-test.case("InvalidVersion3") {
+test("InvalidVersion3") {
     let stream = InputByteStream("GET /test HTTP/1.")
     await expect(throws: Error.unexpectedEnd) {
         try await Request.decode(from: stream)
     }
 }
 
-test.case("InvalidVersion4") {
+test("InvalidVersion4") {
     let stream = InputByteStream("GET /test HTPP/1.1\r\n\r\n")
     await expect(throws: Error.invalidVersion) {
         try await Request.decode(from: stream)
     }
 }
 
-test.case("InvalidEnd") {
+test("InvalidEnd") {
     let stream = InputByteStream("GET /test HTTP/1.1\r\n")
     await expect(throws: Error.unexpectedEnd) {
         try await Request.decode(from: stream)
@@ -110,7 +110,7 @@ test.case("InvalidEnd") {
 
 // MARK: Headers
 
-test.case("HostHeader") {
+test("HostHeader") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Host: 0.0.0.0:5000\r\n" +
@@ -120,7 +120,7 @@ test.case("HostHeader") {
     expect(request.host == expected)
 }
 
-test.case("HostDomainHeader") {
+test("HostDomainHeader") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Host: domain.com:5000\r\n" +
@@ -130,7 +130,7 @@ test.case("HostDomainHeader") {
     expect(request.host == expected)
 }
 
-test.case("HostEncodedHeader") {
+test("HostEncodedHeader") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Host: xn--d1acufc.xn--p1ai:5000\r\n" +
@@ -140,7 +140,7 @@ test.case("HostEncodedHeader") {
     expect(request.host == expected)
 }
 
-test.case("UserAgentHeader") {
+test("UserAgentHeader") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "User-Agent: Mozilla/5.0\r\n" +
@@ -149,7 +149,7 @@ test.case("UserAgentHeader") {
     expect(request.userAgent == "Mozilla/5.0")
 }
 
-test.case("AcceptHeader") {
+test("AcceptHeader") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Accept: text/html,application/xml;q=0.9,*/*;q=0.8\r\n" +
@@ -162,7 +162,7 @@ test.case("AcceptHeader") {
     ])
 }
 
-test.case("AcceptLanguageHeader") {
+test("AcceptLanguageHeader") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Accept-Language: en-US,en;q=0.5\r\n" +
@@ -174,7 +174,7 @@ test.case("AcceptLanguageHeader") {
     ])
 }
 
-test.case("AcceptEncodingHeader") {
+test("AcceptEncodingHeader") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Accept-Encoding: gzip, deflate\r\n" +
@@ -183,7 +183,7 @@ test.case("AcceptEncodingHeader") {
     expect(request.acceptEncoding == [.gzip, .deflate])
 }
 
-test.case("AcceptCharset") {
+test("AcceptCharset") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Accept-Charset: ISO-8859-1,utf-7,utf-8;q=0.7,*;q=0.7\r\n" +
@@ -198,7 +198,7 @@ test.case("AcceptCharset") {
     expect(request.acceptCharset == expectedAcceptCharset)
 }
 
-test.case("AcceptCharsetSpaceSeparator") {
+test("AcceptCharsetSpaceSeparator") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Accept-Charset: ISO-8859-1, utf-8\r\n" +
@@ -211,7 +211,7 @@ test.case("AcceptCharsetSpaceSeparator") {
     expect(request.acceptCharset == expectedAcceptCharset)
 }
 
-test.case("Authorization") {
+test("Authorization") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\n" +
@@ -222,7 +222,7 @@ test.case("Authorization") {
     expect(request.authorization == expected)
 }
 
-test.case("CustomHeader") {
+test("CustomHeader") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "User: guest\r\n" +
@@ -231,7 +231,7 @@ test.case("CustomHeader") {
     expect(request.headers["User"] == "guest")
 }
 
-test.case("TwoHeaders") {
+test("TwoHeaders") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Host: 0.0.0.0:5000\r\n" +
@@ -242,7 +242,7 @@ test.case("TwoHeaders") {
     expect(request.userAgent == "Mozilla/5.0")
 }
 
-test.case("TwoHeadersOptionalSpaces") {
+test("TwoHeadersOptionalSpaces") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Host:0.0.0.0:5000\r\n" +
@@ -253,7 +253,7 @@ test.case("TwoHeadersOptionalSpaces") {
     expect(request.userAgent == "Mozilla/5.0")
 }
 
-test.case("InvalidHeaderColon") {
+test("InvalidHeaderColon") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "User-Agent; Mozilla/5.0\r\n" +
@@ -263,7 +263,7 @@ test.case("InvalidHeaderColon") {
     }
 }
 
-test.case("InvalidHeaderEnd") {
+test("InvalidHeaderEnd") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "User-Agent: Mozilla/5.0\n\n")
@@ -272,7 +272,7 @@ test.case("InvalidHeaderEnd") {
     }
 }
 
-test.case("InvalidHeaderName") {
+test("InvalidHeaderName") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "See-🙈-Evil: No\r\n" +
@@ -282,13 +282,13 @@ test.case("InvalidHeaderName") {
     }
 }
 
-test.case("HeaderName") {
+test("HeaderName") {
     let headerName = HeaderName(extendedGraphemeClusterLiteral: "Host")
     let headerName2 = HeaderName(unicodeScalarLiteral: "Host")
     expect(headerName == headerName2)
 }
 
-test.case("UnexpectedEnd") {
+test("UnexpectedEnd") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Header: Value\r\n")
@@ -297,7 +297,7 @@ test.case("UnexpectedEnd") {
     }
 }
 
-test.case("ContentType") {
+test("ContentType") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Content-Type: application/x-www-form-urlencoded\r\n" +
@@ -310,7 +310,7 @@ test.case("ContentType") {
     )
 }
 
-test.case("ContentTypeCharset") {
+test("ContentTypeCharset") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Content-Type: text/plain; charset=utf-8\r\n" +
@@ -323,7 +323,7 @@ test.case("ContentTypeCharset") {
     )
 }
 
-test.case("ContentTypeEmptyCharset") {
+test("ContentTypeEmptyCharset") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Content-Type: text/plain;\r\n" +
@@ -334,7 +334,7 @@ test.case("ContentTypeEmptyCharset") {
     }
 }
 
-test.case("ContentTypeBoundary") {
+test("ContentTypeBoundary") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Content-Type: multipart/form-data; boundary=---\r\n" +
@@ -349,7 +349,7 @@ test.case("ContentTypeBoundary") {
     )
 }
 
-test.case("ContentTypeEmptyBoundary") {
+test("ContentTypeEmptyBoundary") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Content-Type: multipart/form-data;\r\n" +
@@ -360,7 +360,7 @@ test.case("ContentTypeEmptyBoundary") {
     }
 }
 
-test.case("ContentLength") {
+test("ContentLength") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Content-Length: 0\r\n" +
@@ -369,7 +369,7 @@ test.case("ContentLength") {
     expect(request.contentLength == 0)
 }
 
-test.case("ContentEncoding") {
+test("ContentEncoding") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Content-Length: 0\r\n" +
@@ -379,7 +379,7 @@ test.case("ContentEncoding") {
     expect(request.contentEncoding == [.gzip])
 }
 
-test.case("KeepAliveFalse") {
+test("KeepAliveFalse") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Connection: Close\r\n" +
@@ -388,7 +388,7 @@ test.case("KeepAliveFalse") {
     expect(!request.shouldKeepAlive)
 }
 
-test.case("KeepAliveTrue") {
+test("KeepAliveTrue") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Connection: Keep-Alive\r\n" +
@@ -399,7 +399,7 @@ test.case("KeepAliveTrue") {
     expect(request.keepAlive == 300)
 }
 
-test.case("TransferEncodingChunked") {
+test("TransferEncodingChunked") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Transfer-Encoding: chunked\r\n" +
@@ -409,7 +409,7 @@ test.case("TransferEncodingChunked") {
     expect(request.transferEncoding == [.chunked])
 }
 
-test.case("Cookies") {
+test("Cookies") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Cookie: username=tony\r\n" +
@@ -422,7 +422,7 @@ test.case("Cookies") {
     ])
 }
 
-test.case("CookiesJoined") {
+test("CookiesJoined") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Cookie: username=tony; lang=aurebesh\r\n" +
@@ -434,7 +434,7 @@ test.case("CookiesJoined") {
     ])
 }
 
-test.case("CookiesNoSpace") {
+test("CookiesNoSpace") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Cookie: username=tony;lang=aurebesh\r\n" +
@@ -444,7 +444,7 @@ test.case("CookiesNoSpace") {
     }
 }
 
-test.case("CookiesTrailingSemicolon") {
+test("CookiesTrailingSemicolon") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Cookie: username=tony;\r\n" +
@@ -454,7 +454,7 @@ test.case("CookiesTrailingSemicolon") {
     }
 }
 
-test.case("Escaped") {
+test("Escaped") {
     let escapedUrl = "/%D0%BF%D1%83%D1%82%D1%8C" +
         "?%D0%BA%D0%BB%D1%8E%D1%87" +
         "=%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5" +
@@ -465,7 +465,7 @@ test.case("Escaped") {
     expect(request.url.fragment == "фрагмент")
 }
 
-test.case("Expect") {
+test("Expect") {
     let stream = InputByteStream(
         "PUT / HTTP/1.1\r\n" +
         "Expect: 100-continue\r\n" +
@@ -476,7 +476,7 @@ test.case("Expect") {
 
 // MARK: Body
 
-test.case("BodyContentLength") {
+test("BodyContentLength") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Content-Length: 5\r\n" +
@@ -487,7 +487,7 @@ test.case("BodyContentLength") {
     expect(try await request.readBody() == ASCII("Hello"))
 }
 
-test.case("BodyChunked") {
+test("BodyChunked") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Transfer-Encoding: chunked\r\n" +
@@ -498,7 +498,7 @@ test.case("BodyChunked") {
     expect(try await request.readBody() == ASCII("Hello"))
 }
 
-test.case("BodyChunkedInvalidSizeSeparator") {
+test("BodyChunkedInvalidSizeSeparator") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Transfer-Encoding: chunked\r\n" +
@@ -511,7 +511,7 @@ test.case("BodyChunkedInvalidSizeSeparator") {
     }
 }
 
-test.case("BodyChunkedNoSizeSeparator") {
+test("BodyChunkedNoSizeSeparator") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Transfer-Encoding: chunked\r\n" +
@@ -524,7 +524,7 @@ test.case("BodyChunkedNoSizeSeparator") {
     }
 }
 
-test.case("BodyChunkedMissingLineEnd") {
+test("BodyChunkedMissingLineEnd") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Transfer-Encoding: chunked\r\n" +
@@ -537,7 +537,7 @@ test.case("BodyChunkedMissingLineEnd") {
     }
 }
 
-test.case("BodyChunkedInvalidBody") {
+test("BodyChunkedInvalidBody") {
     let stream = InputByteStream(
         "GET / HTTP/1.1\r\n" +
         "Transfer-Encoding: chunked\r\n" +
@@ -549,4 +549,4 @@ test.case("BodyChunkedInvalidBody") {
     }
 }
 
-await test.run()
+await run()

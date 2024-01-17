@@ -12,7 +12,7 @@ extension Response {
     }
 }
 
-test.case("Ok") {
+test("Ok") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -22,7 +22,7 @@ test.case("Ok") {
     expect(try await response.encode() == expected)
 }
 
-test.case("NotFound") {
+test("NotFound") {
     let expected =
         "HTTP/1.1 404 Not Found\r\n" +
         "Content-Length: 0\r\n" +
@@ -32,7 +32,7 @@ test.case("NotFound") {
     expect(try await response.encode() == expected)
 }
 
-test.case("Moved") {
+test("Moved") {
     let expected =
         "HTTP/1.1 301 Moved Permanently\r\n" +
         "Content-Length: 0\r\n" +
@@ -42,7 +42,7 @@ test.case("Moved") {
     expect(try await response.encode() == expected)
 }
 
-test.case("Bad") {
+test("Bad") {
     let expected =
         "HTTP/1.1 400 Bad Request\r\n" +
         "Content-Length: 0\r\n" +
@@ -52,7 +52,7 @@ test.case("Bad") {
     expect(try await response.encode() == expected)
 }
 
-test.case("Unauthorized") {
+test("Unauthorized") {
     let expected =
         "HTTP/1.1 401 Unauthorized\r\n" +
         "Content-Length: 0\r\n" +
@@ -62,7 +62,7 @@ test.case("Unauthorized") {
     expect(try await response.encode() == expected)
 }
 
-test.case("InternalServerError") {
+test("InternalServerError") {
     let expected =
         "HTTP/1.1 500 Internal Server Error\r\n" +
         "Content-Length: 0\r\n" +
@@ -72,7 +72,7 @@ test.case("InternalServerError") {
     expect(try await response.encode() == expected)
 }
 
-test.case("ContentType") {
+test("ContentType") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Type: text/plain\r\n" +
@@ -84,7 +84,7 @@ test.case("ContentType") {
     expect(try await response.encode() == expected)
 }
 
-test.case("ResponseHasContentLenght") {
+test("ResponseHasContentLenght") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -94,7 +94,7 @@ test.case("ResponseHasContentLenght") {
     expect(try await response.encode() == expected)
 }
 
-test.case("Connection") {
+test("Connection") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -105,7 +105,7 @@ test.case("Connection") {
     expect(try await response.encode() == expected)
 }
 
-test.case("ContentEncoding") {
+test("ContentEncoding") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -116,7 +116,7 @@ test.case("ContentEncoding") {
     expect(try await response.encode() == expected)
 }
 
-test.case("TransferEncoding") {
+test("TransferEncoding") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -127,7 +127,7 @@ test.case("TransferEncoding") {
     expect(try await response.encode() == expected)
 }
 
-test.case("CustomHeader") {
+test("CustomHeader") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -138,7 +138,7 @@ test.case("CustomHeader") {
     expect(try await response.encode() == expected)
 }
 
-test.case("SetCookie") {
+test("SetCookie") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -151,7 +151,7 @@ test.case("SetCookie") {
     expect(try await response.encode() == expected)
 }
 
-test.case("SetCookieExpires") {
+test("SetCookieExpires") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -168,7 +168,7 @@ test.case("SetCookieExpires") {
     expect(try await response.encode() == expected)
 }
 
-test.case("SetCookieMaxAge") {
+test("SetCookieMaxAge") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -181,7 +181,7 @@ test.case("SetCookieMaxAge") {
     expect(try await response.encode() == expected)
 }
 
-test.case("SetCookieHttpOnly") {
+test("SetCookieHttpOnly") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -194,7 +194,7 @@ test.case("SetCookieHttpOnly") {
     expect(try await response.encode() == expected)
 }
 
-test.case("SetCookieSecure") {
+test("SetCookieSecure") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -207,7 +207,7 @@ test.case("SetCookieSecure") {
     expect(try await response.encode() == expected)
 }
 
-test.case("SetCookieDomain") {
+test("SetCookieDomain") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -220,7 +220,7 @@ test.case("SetCookieDomain") {
     expect(try await response.encode() == expected)
 }
 
-test.case("SetCookiePath") {
+test("SetCookiePath") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -233,7 +233,7 @@ test.case("SetCookiePath") {
     expect(try await response.encode() == expected)
 }
 
-test.case("SetCookieManyValues") {
+test("SetCookieManyValues") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -248,7 +248,7 @@ test.case("SetCookieManyValues") {
     expect(try await response.encode() == expected)
 }
 
-test.case("SetCookieEqualSingInTheValue") {
+test("SetCookieEqualSingInTheValue") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -261,7 +261,7 @@ test.case("SetCookieEqualSingInTheValue") {
     expect(try await response.encode() == expected)
 }
 
-test.case("SetCookieSameSite") {
+test("SetCookieSameSite") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Length: 0\r\n" +
@@ -276,7 +276,7 @@ test.case("SetCookieSameSite") {
 
 // MARK: Body
 
-test.case("BodyStringResponse") {
+test("BodyStringResponse") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Type: text/plain\r\n" +
@@ -293,7 +293,7 @@ test.case("BodyStringResponse") {
     expect(try await response.encode() == expected)
 }
 
-test.case("BodyHtmlResponse") {
+test("BodyHtmlResponse") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Type: text/html\r\n" +
@@ -306,7 +306,7 @@ test.case("BodyHtmlResponse") {
     expect(try await response.encode() == expected)
 }
 
-test.case("BodyBytesResponse") {
+test("BodyBytesResponse") {
     let expected = ASCII(
         "HTTP/1.1 200 OK\r\n" +
         "Content-Type: application/stream\r\n" +
@@ -319,7 +319,7 @@ test.case("BodyBytesResponse") {
     expect(ASCII(try await response.encode()) == expected)
 }
 
-test.case("BodyJsonResponse") {
+test("BodyJsonResponse") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Type: application/json\r\n" +
@@ -335,7 +335,7 @@ test.case("BodyJsonResponse") {
     expect(try await response.encode() == expected)
 }
 
-test.case("BodyUrlFormEncodedResponse") {
+test("BodyUrlFormEncodedResponse") {
     let expected =
         "HTTP/1.1 200 OK\r\n" +
         "Content-Type: application/x-www-form-urlencoded\r\n" +
@@ -352,4 +352,4 @@ test.case("BodyUrlFormEncodedResponse") {
     expect(try await response.encode() == expected)
 }
 
-await test.run()
+await run()

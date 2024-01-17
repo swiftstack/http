@@ -2,15 +2,15 @@ import Test
 
 @testable import HTTP
 
-test.case("HeaderName") {
+test("HeaderName") {
     let name = HeaderName("Content-Length")
     expect(name == HeaderName("Content-Length"))
     expect(name == HeaderName("content-length"))
 }
 
-test.case("HeaderNameDescription") {
+test("HeaderNameDescription") {
     let name = HeaderName("Content-Length")
     expect(name.description == "Content-Length")
 }
 
-await test.run()
+await run()

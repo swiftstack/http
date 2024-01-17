@@ -3,7 +3,7 @@ import Test
 
 @testable import HTTP
 
-test.case("InternalServerError") {
+test("InternalServerError") {
     Log.isEnabled = false
 
     let router = Router(middleware: [ErrorHandlerMiddleware.self])
@@ -19,7 +19,7 @@ test.case("InternalServerError") {
     expect(response?.status == .internalServerError)
 }
 
-test.case("NotFound") {
+test("NotFound") {
     Log.isEnabled = false
 
     let router = Router(middleware: [ErrorHandlerMiddleware.self])
@@ -33,4 +33,4 @@ test.case("NotFound") {
     expect(response?.status == .notFound)
 }
 
-await test.run()
+await run()

@@ -5,23 +5,30 @@ import Event
 func setup(
     port: Int,
     serverCode: @escaping (Server) async throws -> Void,
-    clientCode: @escaping (Client) async throws -> Void
+    clientCode: @escaping (Client) async throws -> Void,
+    file: StaticString = #file,
+    line: UInt = #line
 ) async {
-    asyncTask {
-        let server = try Server(host: "127.0.0.1", port: port)
-
-        try await serverCode(server)
-
-        try await server.start()
-
-        await loop.terminate()
+    Task {
+        do {
+            let server = try Server(host: "127.0.0.1", port: port)
+            try await serverCode(server)
+            try await server.start()
+        } catch {
+            fail(String(describing: error), file: file, line: line)
+            await loop.terminate()
+        }
     }
 
-    asyncTask {
-        let client = Client(host: "127.0.0.1", port: port)
-        try await client.connect()
-
-        try await clientCode(client)
+    Task {
+        do {
+            let client = Client(host: "127.0.0.1", port: port)
+            try await Task.sleep(for: .milliseconds(1))
+            try await client.connect()
+            try await clientCode(client)
+        } catch {
+            fail(String(describing: error), file: file, line: line)
+        }
 
         await loop.terminate()
     }
@@ -29,7 +36,7 @@ func setup(
     await loop.run()
 }
 
-test.case("Request") {
+test("Request") {
     await setup(
         port: 6000,
         serverCode: { server in
@@ -46,7 +53,7 @@ test.case("Request") {
     )
 }
 
-test.case("Get") {
+test("Get") {
     await setup(
         port: 6001,
         serverCode: { server in
@@ -62,7 +69,7 @@ test.case("Get") {
     )
 }
 
-test.case("Head") {
+test("Head") {
     await setup(
         port: 6002,
         serverCode: { server in
@@ -78,7 +85,7 @@ test.case("Head") {
     )
 }
 
-test.case("Post") {
+test("Post") {
     await setup(
         port: 6003,
         serverCode: { server in
@@ -94,7 +101,7 @@ test.case("Post") {
     )
 }
 
-test.case("Put") {
+test("Put") {
     await setup(
         port: 6004,
         serverCode: { server in
@@ -110,7 +117,7 @@ test.case("Put") {
     )
 }
 
-test.case("Delete") {
+test("Delete") {
     await setup(
         port: 6005,
         serverCode: { server in
@@ -126,7 +133,7 @@ test.case("Delete") {
     )
 }
 
-test.case("Options") {
+test("Options") {
     await setup(
         port: 6006,
         serverCode: { server in
@@ -142,7 +149,7 @@ test.case("Options") {
     )
 }
 
-test.case("All") {
+test("All") {
     await setup(
         port: 6007,
         serverCode: { server in
@@ -172,7 +179,7 @@ test.case("All") {
     )
 }
 
-test.case("Json") {
+test("Json") {
     await setup(
         port: 6008,
         serverCode: { server in
@@ -194,7 +201,7 @@ test.case("Json") {
     )
 }
 
-test.case("FormEncoded") {
+test("FormEncoded") {
     await setup(
         port: 6009,
         serverCode: { server in
@@ -223,7 +230,7 @@ test.case("FormEncoded") {
     )
 }
 
-test.case("String") {
+test("String") {
     await setup(
         port: 6010,
         serverCode: { server in
@@ -246,4 +253,4 @@ test.case("String") {
     )
 }
 
-await test.run()
+await run()

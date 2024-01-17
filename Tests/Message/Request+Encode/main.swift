@@ -12,13 +12,13 @@ extension Request {
     }
 }
 
-test.case("Request") {
+test("Request") {
     let expected = "GET /test HTTP/1.1\r\n\r\n"
     let request = Request(url: "/test", method: .get)
     expect(try await request.encode() == expected)
 }
 
-test.case("Url") {
+test("Url") {
     let expected = "GET /test HTTP/1.1\r\n\r\n"
     let request = Request(
         url: URL(path: "/test", fragment: "fragment"),
@@ -26,7 +26,7 @@ test.case("Url") {
     expect(try await request.encode() == expected)
 }
 
-test.case("UrlQueryGet") {
+test("UrlQueryGet") {
     let expected = "GET /test?key=value HTTP/1.1\r\n\r\n"
     let request = Request(
         url: URL(
@@ -37,7 +37,7 @@ test.case("UrlQueryGet") {
     expect(try await request.encode() == expected)
 }
 
-test.case("UrlQueryPost") {
+test("UrlQueryPost") {
     let expected =
         "POST /test HTTP/1.1\r\n" +
         "Content-Type: application/x-www-form-urlencoded\r\n" +
@@ -53,7 +53,7 @@ test.case("UrlQueryPost") {
     expect(try await request.encode() == expected)
 }
 
-test.case("Host") {
+test("Host") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "Host: 0.0.0.0:5000\r\n" +
@@ -63,7 +63,7 @@ test.case("Host") {
     expect(try await request.encode() == expected)
 }
 
-test.case("HostDomain") {
+test("HostDomain") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "Host: domain.com:5000\r\n" +
@@ -72,7 +72,7 @@ test.case("HostDomain") {
     expect(try await request.encode() == expected)
 }
 
-test.case("HostEncoded") {
+test("HostEncoded") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "Host: xn--d1acufc.xn--p1ai:5000\r\n" +
@@ -82,7 +82,7 @@ test.case("HostEncoded") {
     expect(try await request.encode() == expected)
 }
 
-test.case("UserAgent") {
+test("UserAgent") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "User-Agent: Mozilla/5.0\r\n" +
@@ -92,7 +92,7 @@ test.case("UserAgent") {
     expect(try await request.encode() == expected)
 }
 
-test.case("Accept") {
+test("Accept") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "Accept: */*\r\n" +
@@ -104,7 +104,7 @@ test.case("Accept") {
     expect(try await request.encode() == expected)
 }
 
-test.case("AcceptLanguage") {
+test("AcceptLanguage") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "Accept-Language: en-US,en;q=0.5\r\n" +
@@ -117,7 +117,7 @@ test.case("AcceptLanguage") {
     expect(try await request.encode() == expected)
 }
 
-test.case("AcceptEncoding") {
+test("AcceptEncoding") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "Accept-Encoding: gzip, deflate\r\n" +
@@ -127,7 +127,7 @@ test.case("AcceptEncoding") {
     expect(try await request.encode() == expected)
 }
 
-test.case("AcceptCharset") {
+test("AcceptCharset") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "Accept-Charset: ISO-8859-1,utf-7,utf-8;q=0.7,*;q=0.7\r\n" +
@@ -142,7 +142,7 @@ test.case("AcceptCharset") {
     expect(try await request.encode() == expected)
 }
 
-test.case("Authorization") {
+test("Authorization") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\n" +
@@ -154,7 +154,7 @@ test.case("Authorization") {
     expect(try await request.encode() == expected)
 }
 
-test.case("KeepAlive") {
+test("KeepAlive") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "Keep-Alive: 300\r\n" +
@@ -164,7 +164,7 @@ test.case("KeepAlive") {
     expect(try await request.encode() == expected)
 }
 
-test.case("Connection") {
+test("Connection") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "Connection: close\r\n" +
@@ -174,7 +174,7 @@ test.case("Connection") {
     expect(try await request.encode() == expected)
 }
 
-test.case("ContentType") {
+test("ContentType") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "Content-Type: text/plain\r\n" +
@@ -184,7 +184,7 @@ test.case("ContentType") {
     expect(try await request.encode() == expected)
 }
 
-test.case("ContentLength") {
+test("ContentLength") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "Content-Length: 0\r\n" +
@@ -194,7 +194,7 @@ test.case("ContentLength") {
     expect(try await request.encode() == expected)
 }
 
-test.case("ContentEncoding") {
+test("ContentEncoding") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "Content-Length: 0\r\n" +
@@ -206,7 +206,7 @@ test.case("ContentEncoding") {
     expect(try await request.encode() == expected)
 }
 
-test.case("TransferEncoding") {
+test("TransferEncoding") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "Transfer-Encoding: chunked\r\n" +
@@ -216,7 +216,7 @@ test.case("TransferEncoding") {
     expect(try await request.encode() == expected)
 }
 
-test.case("CustomHeaders") {
+test("CustomHeaders") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "User: guest\r\n" +
@@ -226,7 +226,7 @@ test.case("CustomHeaders") {
     expect(try await request.encode() == expected)
 }
 
-test.case("Cookie") {
+test("Cookie") {
     let expected =
         "GET / HTTP/1.1\r\n" +
         "Cookie: username=tony\r\n" +
@@ -240,7 +240,7 @@ test.case("Cookie") {
     expect(try await request.encode() == expected)
 }
 
-test.case("Escaped") {
+test("Escaped") {
     let escapedUrl =
         "/%D0%BF%D1%83%D1%82%D1%8C" +
         "?%D0%BA%D0%BB%D1%8E%D1%87" +
@@ -252,7 +252,7 @@ test.case("Escaped") {
 
 // MARK: Body
 
-test.case("BodyJsonInitializer") {
+test("BodyJsonInitializer") {
     let expected =
         "POST / HTTP/1.1\r\n" +
         "Content-Type: application/json\r\n" +
@@ -267,7 +267,7 @@ test.case("BodyJsonInitializer") {
     expect(try await request.encode() == expected)
 }
 
-test.case("BodyFormURLEncodedInitializer") {
+test("BodyFormURLEncodedInitializer") {
     let expected =
         "POST / HTTP/1.1\r\n" +
         "Content-Type: application/x-www-form-urlencoded\r\n" +
@@ -285,4 +285,4 @@ test.case("BodyFormURLEncodedInitializer") {
     expect(try await request.encode() == expected)
 }
 
-await test.run()
+await run()

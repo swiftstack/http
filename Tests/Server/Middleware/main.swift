@@ -2,7 +2,7 @@ import Test
 
 @testable import HTTP
 
-test.case("Middleware") {
+test("Middleware") {
     struct TestMiddleware: Middleware {
         public static func chain(
             with handler: @escaping RequestHandler
@@ -31,7 +31,7 @@ test.case("Middleware") {
     expect(response?.headers["Custom-Header"] == "Middleware")
 }
 
-test.case("MiddlewareOrder") {
+test("MiddlewareOrder") {
     struct FirstMiddleware: Middleware {
         public static func chain(
             with handler: @escaping RequestHandler
@@ -75,4 +75,4 @@ test.case("MiddlewareOrder") {
     expect(response?.headers["Middleware"] == "first")
 }
 
-await test.run()
+await run()
