@@ -15,3 +15,13 @@ extension DecodingError.Context {
         return .description("incompatible with \(value) for \(key)")
     }
 }
+
+extension DecodingError {
+    static func keyNotFound(_ key: any CodingKey) -> Self {
+        .keyNotFound(key, .init(codingPath: [], debugDescription: ""))
+    }
+
+    static func valueNotFound(_ type: any Any.Type) -> Self {
+        .valueNotFound(type, .init(codingPath: [], debugDescription: ""))
+    }
+}
