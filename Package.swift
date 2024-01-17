@@ -25,7 +25,12 @@ let package = Package(
         .target(
             name: "HTTP",
             dependencies: [
-                "URL", "Network", "Stream", "JSON", "DCompression", "Log"
+                .product(name: "URL", package: "url"),
+                .product(name: "JSON", package: "json"),
+                .product(name: "Stream", package: "stream"),
+                .product(name: "Network", package: "network"),
+                .product(name: "DCompression", package: "DCompression"),
+                .product(name: "Log", package: "log"),
             ]),
     ]
 )
@@ -74,7 +79,10 @@ func addTest(target: String, name: String) {
     package.targets.append(
         .executableTarget(
             name: "Tests/\(target)/\(name)",
-            dependencies: ["HTTP", "Test"],
+            dependencies: [
+                .target(name: "HTTP"),
+                .product(name: "Test", package: "test"),
+            ],
             path: "Tests/\(target)/\(name)"))
 }
 
@@ -120,6 +128,6 @@ extension Package.Dependency {
     static func package(name: String, source: Source) -> Package.Dependency {
         return source == .local
             ? .package(name: name, path: source.url(for: name))
-            : .package(name: name, url: source.url(for: name), .branch("dev"))
+            : .package(url: source.url(for: name), branch: "dev")
     }
 }
